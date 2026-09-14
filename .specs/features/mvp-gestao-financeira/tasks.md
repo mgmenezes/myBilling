@@ -845,18 +845,20 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T45: Shell da aplicação com rota por competência
+#### T45: Shell da aplicação com rota por competência ✅ CONCLUÍDA
 **What**: Layout do grupo autenticado com o seletor no cabeçalho, rota `/[competencia]` com validação do parâmetro e redirecionamento da raiz para a competência corrente.
-**Where**: `src/app/(app)/layout.tsx`
+**Where**: `src/app/(app)/layout.tsx`, `src/app/(app)/page.tsx`, `src/app/(app)/[competencia]/page.tsx`, `src/app/(app)/sessao.ts`, `src/app/not-found.tsx`
 **Depends on**: T44, T41
 **Reuses**: o seletor de T44 e `requireSession` de T41
 **Requirement**: UI-01, UI-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] A raiz autenticada redireciona para `/AAAA-MM` da competência corrente (UI-01, AC 1)
-- [ ] Competência malformada na URL resulta em página de não encontrado, sem erro não tratado (UI-02, AC 3)
-- [ ] Navegar entre meses não exige nenhuma criação de estrutura prévia (UI-01, AC 2)
-- [ ] O layout é responsivo e não gera rolagem horizontal em 400 pixels (UI-03, AC 9)
+- [x] A raiz autenticada redireciona para `/AAAA-MM` da competência corrente (UI-01, AC 1)
+- [x] Competência malformada na URL resulta em página de não encontrado, sem erro não tratado (UI-02, AC 3)
+- [x] Navegar entre meses não exige nenhuma criação de estrutura prévia (UI-01, AC 2)
+- [x] O layout é responsivo e não gera rolagem horizontal em 400 pixels (UI-03, AC 9) — medido no e2e de T46, comparando `scrollWidth` com `innerWidth`. O `body` **não** usa `overflow-x: hidden`: esconder a barra faria a medição passar sem significar nada
+
+> Junto vão os estados obrigatórios do mês: `loading.tsx` (UI-01, AC 7) e `error.tsx` com identificador de correlação e sem stack trace (UI-01, AC 8).
 **Tests**: none
 **Gate**: build
 
