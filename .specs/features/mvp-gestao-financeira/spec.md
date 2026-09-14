@@ -285,7 +285,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | COMP-04 | P1: Virada de ano e aritmética de calendário | Design | Pending |
 | MOV-01 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 | MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
-| MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
+| MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Tasks | Implementing |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 | MOV-06 | P2: Previsto versus realizado | Design | Pending |

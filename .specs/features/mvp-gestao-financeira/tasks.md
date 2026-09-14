@@ -316,7 +316,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T12: Tipos de domínio imutáveis
+#### T12: Tipos de domínio imutáveis ✅ CONCLUÍDA
 **What**: Declarar `Lancamento`, `Cartao`, `MeioPagamento`, `Categoria`, `EntradaCompra`, `PlanoParcelamento` e `ResumoMensal` conforme o `design.md`, todos `readonly`, sem decorator e sem tipo do ORM.
 **Where**: `src/domain/tipos.ts`
 **Depends on**: T9, T11
@@ -324,9 +324,9 @@ T52 -> T53
 **Requirement**: MOV-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] `ResumoMensal` expõe `competenciaView`, `caixaView` e `futuro` como objetos aninhados distintos (MOV-03)
-- [ ] Nenhum campo monetário é `number` cru — todos são `Cents`
-- [ ] `pnpm typecheck` sai com 0
+- [x] `ResumoMensal` expõe `competenciaView`, `caixaView` e `futuro` como objetos aninhados distintos (MOV-03)
+- [x] Nenhum campo monetário é `number` cru — todos são `Cents`
+- [x] `pnpm typecheck` sai com 0
 **Tests**: none
 **Gate**: build
 
