@@ -270,7 +270,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T9: Parsing de valor em reais para centavos
+#### T9: Parsing de valor em reais para centavos ✅ CONCLUÍDA
 **What**: `parseBRL` convertendo `"1.234,56"` em `123456`, aceitando separador de milhar opcional e rejeitando entrada malformada. Nenhuma passagem por `Number` de valor fracionário.
 **Where**: `src/domain/shared/money.test.ts`
 **Depends on**: T8
@@ -278,11 +278,11 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] `"1.234,56"` resulta em 123456
-- [ ] `"0,05"` resulta em 5
-- [ ] `"1234,5"` resulta em 123450
-- [ ] `"abc"` e `"1,234"` com três decimais são rejeitados
-- [ ] Teste prova que o resultado nunca passa por aritmética de ponto flutuante intermediária
+- [x] `"1.234,56"` resulta em 123456
+- [x] `"0,05"` resulta em 5
+- [x] `"1234,5"` resulta em 123450
+- [x] `"abc"` e `"1,234"` com três decimais são rejeitados
+- [x] Teste prova que o resultado nunca passa por aritmética de ponto flutuante intermediária
 **Tests**: unit
 **Gate**: quick
 

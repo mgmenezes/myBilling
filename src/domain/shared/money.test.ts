@@ -1,5 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { type Cents, criarCents, multiplicar, somar, subtrair, ZERO_CENTS } from "./money";
+import {
+  type Cents,
+  criarCents,
+  multiplicar,
+  parseBRL,
+  somar,
+  subtrair,
+  ZERO_CENTS,
+} from "./money";
 import { isErr, isOk } from "./result";
 
 /** Atalho para testes: só aceita valores que o construtor valida. */
@@ -70,5 +80,45 @@ describe("operações aritméticas em centavos", () => {
 
   it("multiplicar devolve o produto inteiro por uma quantidade", () => {
     expect(multiplicar(cents(7790), 10)).toBe(77900);
+  });
+});
+
+describe("parseBRL", () => {
+  it('converte "1.234,56" em 123456 centavos', () => {
+    expect(parseBRL("1.234,56")).toEqual({ ok: true, value: 123456 });
+  });
+
+  it('converte "0,05" em 5 centavos', () => {
+    expect(parseBRL("0,05")).toEqual({ ok: true, value: 5 });
+  });
+
+  it('converte "1234,5" em 123450 centavos, completando a casa decimal ausente', () => {
+    expect(parseBRL("1234,5")).toEqual({ ok: true, value: 123450 });
+  });
+
+  it("converte valor sem parte decimal, com separador de milhar, em centavos", () => {
+    expect(parseBRL("1.234")).toEqual({ ok: true, value: 123400 });
+  });
+
+  it.each(["abc", "1,234", "", "1.23,45", "12,", "R$ 10,00"])(
+    "rejeita a entrada malformada %p com VALOR_NAO_POSITIVO",
+    (entrada) => {
+      const resultado = parseBRL(entrada);
+
+      expect(isErr(resultado)).toBe(true);
+      expect(isErr(resultado) && resultado.error.code).toBe("VALOR_NAO_POSITIVO");
+    },
+  );
+
+  it("não passa por aritmética de ponto flutuante intermediária", () => {
+    // 19.99 * 100 === 1998.9999999999998 em IEEE-754: uma implementação via
+    // parseFloat devolveria 1998 aqui.
+    expect(parseBRL("19,99")).toEqual({ ok: true, value: 1999 });
+    expect(parseBRL("81.234.567,89")).toEqual({ ok: true, value: 8123456789 });
+
+    const fonte = readFileSync(join(__dirname, "money.ts"), "utf-8");
+    for (const proibido of ["parseFloat", "toFixed", "* 100", "/ 100", "Math.round", "Number("]) {
+      expect(fonte).not.toContain(proibido);
+    }
   });
 });
