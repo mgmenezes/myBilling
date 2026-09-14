@@ -256,7 +256,7 @@ T52 -> T53
 
 ### Phase 1 — Núcleo puro: dinheiro e competência
 
-#### T8: Tipo Cents e operações aritméticas
+#### T8: Tipo Cents e operações aritméticas ✅ CONCLUÍDA
 **What**: Tipo branded `Cents`, construtor validante e operações `somar`, `subtrair`, `multiplicar`. Toda operação em inteiro; nenhum uso de ponto flutuante.
 **Where**: `src/domain/shared/money.ts`
 **Depends on**: T5
@@ -264,9 +264,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste prova que valor não inteiro é rejeitado com `VALOR_NAO_POSITIVO`
-- [ ] Teste prova que valor menor que 1 é rejeitado com `VALOR_NAO_POSITIVO` (PARC-05, AC 7)
-- [ ] Teste prova que `Cents` não é atribuível a `number` sem o construtor
+- [x] Teste prova que valor não inteiro é rejeitado com `VALOR_NAO_POSITIVO`
+- [x] Teste prova que valor menor que 1 é rejeitado com `VALOR_NAO_POSITIVO` (PARC-05, AC 7)
+- [x] Teste prova que `Cents` não é atribuível a `number` sem o construtor
 **Tests**: unit
 **Gate**: quick
 
