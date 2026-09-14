@@ -8,6 +8,7 @@ import {
   criarCompetencia,
   type Lancamento,
   type MeioPagamento,
+  ZERO_CENTS,
 } from "@/domain";
 import type { categoria, meioPagamento, movimento } from "../schema";
 
@@ -40,6 +41,18 @@ export function paraCents(valor: number, campo: string): Cents {
     throw new DadoInvalidoNoBanco(campo, valor, resultado.error.code);
   }
   return resultado.value;
+}
+
+/**
+ * Como `paraCents`, mas aceita zero. `criarCents` recusa zero de propósito
+ * (valor de compra zero é erro); já `valor_amortizado_anterior_centavos` é
+ * zero em toda compra que começa na parcela 1, e isso é o caso normal.
+ */
+export function paraCentsOuZero(valor: number, campo: string): Cents {
+  if (valor === 0) {
+    return ZERO_CENTS;
+  }
+  return paraCents(valor, campo);
 }
 
 /** `'2026-03-01'` → `'2026-03'`. O `CHECK` do banco garante o dia 1. */

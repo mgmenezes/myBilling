@@ -676,7 +676,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T34: Repositório de compras com escrita transacional
+#### T34: Repositório de compras com escrita transacional ✅ CONCLUÍDA
 **What**: `salvarComParcelas` gravando o plano e as N parcelas numa **única transação**, com assert de conservação antes do commit e tratamento de colisão de chave de idempotência.
 **Where**: `src/infrastructure/db/repositories/compra.repository.ts`
 **Depends on**: T33
@@ -684,10 +684,10 @@ T52 -> T53
 **Requirement**: PARC-05, MOV-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste de integração prova que **falha ao inserir a terceira parcela não deixa a compra órfã** no banco (PARC-05, AC 8)
-- [ ] Assert de conservação antes do commit reverte com `CONSERVACAO_VIOLADA` se a soma divergir
-- [ ] Reenvio com a mesma chave de idempotência devolve a compra existente e não altera a contagem de parcelas (PARC-05, AC 9)
-- [ ] Compra `8/10` grava 3 parcelas e zero linhas em competências anteriores (PARC-07, AC 3)
+- [x] Teste de integração prova que **falha ao inserir a terceira parcela não deixa a compra órfã** no banco (PARC-05, AC 8)
+- [x] Assert de conservação antes do commit reverte com `CONSERVACAO_VIOLADA` se a soma divergir
+- [x] Reenvio com a mesma chave de idempotência devolve a compra existente e não altera a contagem de parcelas (PARC-05, AC 9)
+- [x] Compra `8/10` grava 3 parcelas e zero linhas em competências anteriores (PARC-07, AC 3)
 **Tests**: integration
 **Gate**: full
 
