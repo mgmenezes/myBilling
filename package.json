@@ -1,0 +1,29 @@
+{
+  "name": "mybilling",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "echo \"lint: configurado em T2 (Biome)\" && exit 0",
+    "test:unit": "echo \"test:unit: configurado em T3 (Vitest)\" && exit 0",
+    "test:integration": "echo \"test:integration: configurado em T3 (Vitest); entra no verify na Fase 4\" && exit 0",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test:unit && pnpm build"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@12.4.1"
+}

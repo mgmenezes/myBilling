@@ -154,7 +154,7 @@ T52 -> T53
 
 ### Phase 0 — Fundação
 
-#### T1: Scaffold Next.js + TypeScript strict + Tailwind
+#### T1: Scaffold Next.js + TypeScript strict + Tailwind ✅ CONCLUÍDA
 **What**: Criar o projeto com App Router, `strict: true`, `noUncheckedIndexedAccess: true`, Tailwind v4 e `paths` nomeando as camadas (`@/domain`, `@/application`, `@/infrastructure`, `@/app`, `@/lib`). Scripts `dev`, `build`, `typecheck`, `verify`.
 **Where**: `package.json`
 **Depends on**: none
@@ -162,10 +162,10 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: Bash (`pnpm create next-app`), Context7 MCP para confirmar flags atuais do scaffold
 **Done when**:
-- [ ] `pnpm typecheck` sai com 0
-- [ ] `pnpm build` sai com 0
-- [ ] `tsconfig.json` tem `strict` e `noUncheckedIndexedAccess` habilitados
-- [ ] `.gitignore` ignora `.env*` com exceção de `!.env.example`
+- [x] `pnpm typecheck` sai com 0
+- [x] `pnpm build` sai com 0
+- [x] `tsconfig.json` tem `strict` e `noUncheckedIndexedAccess` habilitados
+- [x] `.gitignore` ignora `.env*` com exceção de `!.env.example`
 **Tests**: none
 **Gate**: build
 
