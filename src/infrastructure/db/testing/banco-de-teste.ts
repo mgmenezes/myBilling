@@ -2,6 +2,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 
+export { limparDados } from "../limpar";
+
 /**
  * Harness dos testes de integração. Postgres real em Docker (AD-010):
  * SQLite em memória é proibido, porque `CHECK` condicional, índice parcial
@@ -28,23 +30,6 @@ export async function recriarBancoDeTeste(pool: Pool): Promise<void> {
   await pool.query("DROP SCHEMA IF EXISTS public CASCADE");
   await pool.query("CREATE SCHEMA public");
   await migrate(drizzle(pool), { migrationsFolder: "drizzle" });
-}
-
-const TABELAS = [
-  "pagamento_fatura",
-  "movimento",
-  "fatura",
-  "recorrencia_versao",
-  "recorrencia",
-  "compra_parcelada",
-  "orcamento_categoria",
-  "categoria",
-  "meio_pagamento",
-  "usuario",
-] as const;
-
-export async function limparDados(pool: Pool): Promise<void> {
-  await pool.query(`TRUNCATE TABLE ${TABELAS.join(", ")} RESTART IDENTITY CASCADE`);
 }
 
 export async function listarTabelas(pool: Pool): Promise<string[]> {

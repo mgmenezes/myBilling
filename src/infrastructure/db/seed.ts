@@ -1,8 +1,10 @@
 import {
+  addMeses,
   type Cents,
   type Competencia,
   criarCents,
   criarCompetencia,
+  diffMeses,
   gerarParcelas,
   type PlanoParcelamento,
 } from "@/domain";
@@ -22,11 +24,34 @@ import { movimento } from "./schema";
  * de um PRNG com semente fixa ou foram escolhidos por propriedade
  * matemática, não por realismo.
  *
- * Determinismo: mesma semente, mesmos dados. Os identificadores continuam
- * sendo UUID gerado pelo banco; o que se repete é o conteúdo.
+ * Determinismo: mesma semente e mesma base, mesmos dados. Os identificadores
+ * continuam sendo UUID gerado pelo banco; o que se repete é o conteúdo.
+ *
+ * **Por que existe uma competência-base.** Antes, os meses eram literais
+ * (`2026-03`, `04`, `05`), e o seed envelhecia: passados três meses, o mês
+ * corrente abria vazio e o app parecia quebrado sem estar. A base é um
+ * parâmetro, o padrão é fixo para os testes terem alvo estável, e quem sabe
+ * que dia é hoje é a CLI — não este módulo, e muito menos o domínio (AD-002).
+ *
+ * Nenhuma linha é criada antes da base: competência e data de evento são
+ * derivadas dela. O que **não** sai da base é o `pagoEm`: quem decide isso é a
+ * competência corrente, um segundo parâmetro — um mês que ainda não chegou não
+ * pode ter conta paga, e um mês que já passou quase não tem conta em aberto.
  */
 
 export const SEMENTE_PADRAO = 424242;
+
+/** Base dos testes. A CLI passa a sua, derivada do relógio. */
+export const COMPETENCIA_BASE_PADRAO = "2026-03";
+
+/**
+ * Quantos meses de lançamentos avulsos nascem a partir da base.
+ *
+ * Seis é o menor número que dá panorama completo: com a base dois meses
+ * antes do mês corrente, sobram passado para comparar, o mês em si, e os três
+ * meses à frente que a régua de comprometimento futuro projeta.
+ */
+export const MESES_DE_AVULSOS = 6;
 
 /** mulberry32: PRNG de 32 bits, determinístico e sem dependência externa. */
 export function criarPrng(semente: number): () => number {
@@ -76,6 +101,10 @@ function plano(entrada: Parameters<typeof gerarParcelas>[0]): PlanoParcelamento 
   return resultado.value;
 }
 
+function dia(comp: Competencia, numero: number): string {
+  return `${comp}-${String(numero).padStart(2, "0")}`;
+}
+
 const CATEGORIAS = [
   "Categoria Um",
   "Categoria Dois",
@@ -89,11 +118,34 @@ const DESCRICOES_AVULSAS = [
   "Lançamento avulso B",
   "Lançamento avulso C",
   "Lançamento avulso D",
+  "Lançamento avulso E",
+  "Lançamento avulso F",
 ] as const;
 
-const COMPETENCIAS = ["2026-03", "2026-04", "2026-05"] as const;
+/** Despesas avulsas por mês. Oito basta para o gráfico de categorias ter forma. */
+const AVULSOS_POR_MES = 8;
+
+/**
+ * Chance de uma despesa já estar quitada, dada a distância em meses até o mês
+ * corrente (negativa no passado, zero no mês corrente, positiva no futuro).
+ *
+ * Não é enfeite. É o que faz o indicador "ainda não pago" existir no mês
+ * corrente, o eixo Movimentações ter número nos meses que já passaram, e a
+ * régua de comprometimento futuro — que só soma despesa em aberto — mostrar
+ * valor em vez de zero. Mês que ainda não chegou nunca tem conta paga.
+ */
+function chanceDeEstarPago(distancia: number): number {
+  if (distancia < 0) {
+    return 0.94;
+  }
+  if (distancia === 0) {
+    return 0.62;
+  }
+  return 0;
+}
 
 export interface ResultadoSeed {
+  readonly competenciaBase: string;
   readonly usuarios: number;
   readonly meiosDePagamento: number;
   readonly categorias: number;
@@ -104,12 +156,18 @@ export interface ResultadoSeed {
 /**
  * Popula um banco vazio. Inclui de propósito uma compra **já em andamento**
  * (`8/10`), para que o caso do AD-005 exista em qualquer ambiente de
- * desenvolvimento sem ninguém precisar montá-lo à mão.
+ * desenvolvimento sem ninguém precisar montá-lo à mão, e uma compra longa
+ * (12x), para que a régua de comprometimento futuro tenha o que mostrar em
+ * todos os meses projetados.
  */
 export async function semear(
   db: BancoDeDados,
   semente: number = SEMENTE_PADRAO,
+  competenciaBase: string = COMPETENCIA_BASE_PADRAO,
+  competenciaCorrente: string = competenciaBase,
 ): Promise<ResultadoSeed> {
+  const base = competencia(competenciaBase);
+  const corrente = competencia(competenciaCorrente);
   const prng = criarPrng(semente);
   const cadastros = new CadastroRepositoryDrizzle(db);
   const compras = new CompraRepositoryDrizzle(db);
@@ -144,11 +202,15 @@ export async function semear(
     tipo: "ROTULO",
     arquivadoEm: null,
   });
-  /** Cartão arquivado com parcela em aberto: acontece na vida real. */
+  /**
+   * Cartão arquivado com parcela em aberto: acontece na vida real. A data de
+   * arquivamento é anterior à base, senão o cartão apareceria ativo no mês
+   * mais antigo que o seed cria.
+   */
   const cartaoEncerrado = await cadastros.criarMeioDePagamento({
     nome: "Cartão Encerrado",
     tipo: "CARTAO_CREDITO",
-    arquivadoEm: "2026-01-10T12:00:00.000Z",
+    arquivadoEm: `${addMeses(base, -2)}-10T12:00:00.000Z`,
     diaFechamento: 15,
     diaVencimento: 25,
     fechamentoVaiParaFaturaSeguinte: true,
@@ -160,12 +222,13 @@ export async function semear(
   }
   const categoriaArquivada = await cadastros.criarCategoria({
     nome: "Categoria Seis",
-    arquivadaEm: "2026-02-01T12:00:00.000Z",
+    arquivadaEm: `${addMeses(base, -1)}-01T12:00:00.000Z`,
   });
 
   const primeiraCategoria = categorias[0];
   const segundaCategoria = categorias[1];
-  if (!primeiraCategoria || !segundaCategoria) {
+  const terceiraCategoria = categorias[2];
+  if (!primeiraCategoria || !segundaCategoria || !terceiraCategoria) {
     throw new Error("seed sem categorias");
   }
 
@@ -176,19 +239,19 @@ export async function semear(
       descricao: "Compra parcelada A",
       modo: "TOTAL",
       politicaResiduo: "PRIMEIRAS",
-      competenciaCompra: competencia("2026-03"),
+      competenciaCompra: base,
       qtdParcelas: 3,
       parcelaInicial: 1,
       categoriaId: primeiraCategoria.id,
       usuarioId: pessoaA.id,
       meioPagamentoId: cartaoRoxo.id,
-      dataEvento: "2026-03-04",
+      dataEvento: dia(base, 4),
     },
     plano: plano({
       modo: "TOTAL",
       valorEntrada: cents(100000),
       qtdParcelas: 3,
-      competenciaCompra: competencia("2026-03"),
+      competenciaCompra: base,
       parcelaInicial: 1,
       politicaResiduo: "PRIMEIRAS",
     }),
@@ -197,26 +260,30 @@ export async function semear(
     throw new Error(`seed falhou na compra A: ${compraDoResiduo.error.code}`);
   }
 
-  /** Compra já em andamento: 8 de 10, três parcelas restantes (AD-005). */
+  /**
+   * Compra já em andamento: 8 de 10, três parcelas restantes (AD-005). A
+   * compra aconteceu sete meses antes da base, e é isso que faz a oitava
+   * parcela cair exatamente na base.
+   */
   const compraEmAndamento = await compras.salvarComParcelas({
     idempotencyKey: "seed-compra-em-andamento",
     dados: {
       descricao: "Compra parcelada B",
       modo: "VALOR_PARCELA",
       politicaResiduo: "PRIMEIRAS",
-      competenciaCompra: competencia("2025-08"),
+      competenciaCompra: addMeses(base, -7),
       qtdParcelas: 10,
       parcelaInicial: 8,
       categoriaId: segundaCategoria.id,
       usuarioId: pessoaB.id,
       meioPagamentoId: cartaoEncerrado.id,
-      dataEvento: "2025-08-19",
+      dataEvento: dia(addMeses(base, -7), 19),
     },
     plano: plano({
       modo: "VALOR_PARCELA",
       valorEntrada: cents(8400),
       qtdParcelas: 10,
-      competenciaCompra: competencia("2025-08"),
+      competenciaCompra: addMeses(base, -7),
       parcelaInicial: 8,
       politicaResiduo: "PRIMEIRAS",
     }),
@@ -225,22 +292,57 @@ export async function semear(
     throw new Error(`seed falhou na compra B: ${compraEmAndamento.error.code}`);
   }
 
+  /**
+   * Compra longa. Ela existe para a régua de comprometimento futuro não
+   * depender de acaso: doze parcelas a partir da base cobrem qualquer mês
+   * que a projeção alcance.
+   */
+  const compraLonga = await compras.salvarComParcelas({
+    idempotencyKey: "seed-compra-longa",
+    dados: {
+      descricao: "Compra parcelada C",
+      modo: "TOTAL",
+      politicaResiduo: "PRIMEIRAS",
+      competenciaCompra: base,
+      qtdParcelas: 12,
+      parcelaInicial: 1,
+      categoriaId: terceiraCategoria.id,
+      usuarioId: pessoaA.id,
+      meioPagamentoId: cartaoAzul.id,
+      dataEvento: dia(base, 12),
+    },
+    plano: plano({
+      modo: "TOTAL",
+      valorEntrada: cents(287654),
+      qtdParcelas: 12,
+      competenciaCompra: base,
+      parcelaInicial: 1,
+      politicaResiduo: "PRIMEIRAS",
+    }),
+  });
+  if (!compraLonga.ok) {
+    throw new Error(`seed falhou na compra C: ${compraLonga.error.code}`);
+  }
+
   const meiosAvulsos = [contaCorrente, cartaoAzul, rotulo];
   let movimentosAvulsos = 0;
-  for (const comp of COMPETENCIAS) {
-    for (let i = 0; i < 4; i += 1) {
+
+  for (let k = 0; k < MESES_DE_AVULSOS; k += 1) {
+    const comp = addMeses(base, k);
+
+    for (let i = 0; i < AVULSOS_POR_MES; i += 1) {
       const pessoa = escolher(prng, pessoas);
       const meio = escolher(prng, meiosAvulsos);
       const categoria = escolher(prng, [...categorias, categoriaArquivada]);
-      const dia = inteiroEntre(prng, 1, 28);
+      const diaDoEvento = dia(comp, inteiroEntre(prng, 1, 28));
       await db.insert(movimento).values({
         natureza: "DESPESA",
         origem: "AVULSO",
         descricao: `${escolher(prng, DESCRICOES_AVULSAS)} ${comp}`,
-        competencia: deCompetencia(competencia(comp)),
-        dataEvento: `${comp}-${String(dia).padStart(2, "0")}`,
+        competencia: deCompetencia(comp),
+        dataEvento: diaDoEvento,
         valorCentavos: inteiroEntre(prng, 1123, 47891),
-        pagoEm: prng() < 0.5 ? `${comp}-${String(dia).padStart(2, "0")}` : null,
+        pagoEm: prng() < chanceDeEstarPago(diffMeses(corrente, comp)) ? diaDoEvento : null,
         categoriaId: categoria.id,
         usuarioId: pessoa.id,
         meioPagamentoId: meio.id,
@@ -248,39 +350,50 @@ export async function semear(
       movimentosAvulsos += 1;
     }
 
-    await db.insert(movimento).values({
-      natureza: "RECEITA",
-      origem: "AVULSO",
-      descricao: `Entrada ${comp}`,
-      competencia: deCompetencia(competencia(comp)),
-      dataEvento: `${comp}-05`,
-      valorCentavos: inteiroEntre(prng, 500123, 899987),
-      pagoEm: `${comp}-05`,
-      usuarioId: pessoaA.id,
-      meioPagamentoId: contaCorrente.id,
-    });
+    /* Duas entradas por mês: a casa é de duas pessoas, e o eixo caixa fica
+     * sem sentido se só uma delas recebe. */
+    const jaAconteceu = diffMeses(corrente, comp) <= 0;
+    for (const [indice, pessoa] of pessoas.entries()) {
+      const diaDaEntrada = dia(comp, 5 + indice);
+      await db.insert(movimento).values({
+        natureza: "RECEITA",
+        origem: "AVULSO",
+        descricao: `Entrada ${indice + 1} ${comp}`,
+        competencia: deCompetencia(comp),
+        dataEvento: diaDaEntrada,
+        valorCentavos: inteiroEntre(prng, 289123, 561987),
+        pagoEm: jaAconteceu ? diaDaEntrada : null,
+        usuarioId: pessoa.id,
+        meioPagamentoId: contaCorrente.id,
+      });
+      movimentosAvulsos += 1;
+    }
+
+    const diaDoAporte = dia(comp, 7);
     await db.insert(movimento).values({
       natureza: "INVESTIMENTO",
       origem: "AVULSO",
       descricao: `Aporte ${comp}`,
-      competencia: deCompetencia(competencia(comp)),
-      dataEvento: `${comp}-07`,
+      competencia: deCompetencia(comp),
+      dataEvento: diaDoAporte,
       valorCentavos: inteiroEntre(prng, 10111, 39887),
-      pagoEm: `${comp}-07`,
+      pagoEm: jaAconteceu ? diaDoAporte : null,
       usuarioId: pessoaB.id,
       meioPagamentoId: contaCorrente.id,
     });
-    movimentosAvulsos += 2;
+    movimentosAvulsos += 1;
   }
 
   return {
+    competenciaBase: base,
     usuarios: 2,
     meiosDePagamento: 5,
     categorias: CATEGORIAS.length + 1,
-    compras: 2,
+    compras: 3,
     movimentos:
       movimentosAvulsos +
       compraDoResiduo.value.parcelas.length +
-      compraEmAndamento.value.parcelas.length,
+      compraEmAndamento.value.parcelas.length +
+      compraLonga.value.parcelas.length,
   };
 }

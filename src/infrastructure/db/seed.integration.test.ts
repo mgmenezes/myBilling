@@ -3,7 +3,13 @@ import { join } from "node:path";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { type BancoDeDados, criarCliente, criarPool } from "./client";
-import { criarPrng, SEMENTE_PADRAO, semear } from "./seed";
+import {
+  COMPETENCIA_BASE_PADRAO,
+  criarPrng,
+  MESES_DE_AVULSOS,
+  SEMENTE_PADRAO,
+  semear,
+} from "./seed";
 import { limparDados, recriarBancoDeTeste, URL_BANCO_DE_TESTE } from "./testing/banco-de-teste";
 
 /**
@@ -183,5 +189,127 @@ describe("nenhum dado real no seed (T36, AD-009)", () => {
       { nome: "Pessoa A", email: "pessoa-a@example.com" },
       { nome: "Pessoa B", email: "pessoa-b@example.com" },
     ]);
+  });
+});
+
+/**
+ * A regressão que este bloco existe para impedir: o seed tinha os meses
+ * escritos à mão (`2026-03`, `04`, `05`) e envelhecia sozinho. Passados três
+ * meses, o mês corrente abria zerado e o app parecia quebrado sem estar.
+ *
+ * O que se testa não é "tem dado": é que **a base manda em toda a linha do
+ * tempo** e que **o `pagoEm` segue a competência corrente, não a base**. Um
+ * mês que ainda não chegou com conta paga é o defeito que zeraria a régua de
+ * comprometimento futuro, que só soma despesa em aberto.
+ */
+describe("o seed é ancorado numa competência-base (DADO-02)", () => {
+  async function competenciasComLancamento(): Promise<string[]> {
+    const { rows } = await pool.query<{ competencia: string }>(
+      "SELECT DISTINCT competencia::text AS competencia FROM movimento ORDER BY competencia",
+    );
+    return rows.map((r) => r.competencia);
+  }
+
+  it("não cria nada antes da base informada", async () => {
+    await semear(db, SEMENTE_PADRAO, "2030-05");
+
+    const competencias = await competenciasComLancamento();
+
+    expect(competencias[0]).toBe("2030-05-01");
+  });
+
+  it("cobre a base e os meses seguintes com lançamentos avulsos", async () => {
+    await semear(db, SEMENTE_PADRAO, "2030-05");
+
+    const { rows } = await pool.query<{ competencia: string }>(`
+      SELECT DISTINCT competencia::text AS competencia
+      FROM movimento WHERE origem = 'AVULSO' ORDER BY competencia
+    `);
+
+    expect(rows.map((r) => r.competencia)).toEqual([
+      "2030-05-01",
+      "2030-06-01",
+      "2030-07-01",
+      "2030-08-01",
+      "2030-09-01",
+      "2030-10-01",
+    ]);
+    expect(rows).toHaveLength(MESES_DE_AVULSOS);
+  });
+
+  it("mudar a base desloca a linha do tempo inteira sem mudar mais nada", async () => {
+    await semear(db, SEMENTE_PADRAO, "2030-05");
+    const emMaio = await snapshot();
+
+    await limparDados(pool);
+    await semear(db, SEMENTE_PADRAO, "2030-06");
+    const emJunho = await snapshot();
+
+    expect(emJunho).toHaveLength(emMaio.length);
+    expect(emJunho.map((l) => l.valor_centavos)).toEqual(emMaio.map((l) => l.valor_centavos));
+    expect(emJunho.map((l) => l.competencia)).not.toEqual(emMaio.map((l) => l.competencia));
+  });
+
+  it("a base padrão continua sendo a que os demais testes usam", async () => {
+    await semear(db, SEMENTE_PADRAO);
+
+    const competencias = await competenciasComLancamento();
+
+    expect(competencias[0]).toBe(`${COMPETENCIA_BASE_PADRAO}-01`);
+  });
+});
+
+/**
+ * O `pagoEm` não sai da base: sai da competência corrente, que é o segundo
+ * parâmetro. É o que separa "mês que já passou" de "mês que ainda vem".
+ */
+describe("o que já está pago depende da competência corrente (MOV-06)", () => {
+  const BASE = "2030-05";
+  /** Dois meses após a base: 2030-05 e 06 são passado, 07 é o mês corrente. */
+  const CORRENTE = "2030-07";
+
+  async function emAberto(competencia: string): Promise<{ total: number; abertos: number }> {
+    const { rows } = await pool.query<{ total: string; abertos: string }>(
+      `SELECT count(*)::text AS total,
+              count(*) FILTER (WHERE pago_em IS NULL)::text AS abertos
+       FROM movimento WHERE competencia = $1::date`,
+      [`${competencia}-01`],
+    );
+    return { total: Number(rows[0]?.total), abertos: Number(rows[0]?.abertos) };
+  }
+
+  it("nenhum mês posterior ao corrente tem lançamento quitado", async () => {
+    await semear(db, SEMENTE_PADRAO, BASE, CORRENTE);
+
+    for (const futuro of ["2030-08", "2030-09", "2030-10"]) {
+      const { total, abertos } = await emAberto(futuro);
+      expect(total).toBeGreaterThan(0);
+      expect(abertos).toBe(total);
+    }
+  });
+
+  it("o mês corrente tem lançamento quitado e lançamento em aberto", async () => {
+    await semear(db, SEMENTE_PADRAO, BASE, CORRENTE);
+
+    const { total, abertos } = await emAberto(CORRENTE);
+
+    expect(abertos).toBeGreaterThan(0);
+    expect(abertos).toBeLessThan(total);
+  });
+
+  it("os meses que já passaram quase não deixam conta em aberto", async () => {
+    await semear(db, SEMENTE_PADRAO, BASE, CORRENTE);
+
+    const passado = await emAberto(BASE);
+
+    expect(passado.abertos).toBeLessThan(passado.total / 2);
+  });
+
+  it("sem competência corrente informada, a própria base faz esse papel", async () => {
+    await semear(db, SEMENTE_PADRAO, BASE);
+
+    const seguinte = await emAberto("2030-06");
+
+    expect(seguinte.abertos).toBe(seguinte.total);
   });
 });

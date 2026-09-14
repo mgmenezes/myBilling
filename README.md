@@ -68,6 +68,11 @@ pnpm db:migrate     # cria as 10 tabelas a partir de drizzle/
 pnpm db:seed        # dados sintéticos para desenvolvimento (opcional)
 ```
 
+`db:seed` **esvazia o banco antes de popular**, então rodar de novo é seguro e recomeçar não exige
+derrubar o contêiner. Os meses que ele cria acompanham o relógio: dois meses atrás, o mês corrente e
+três à frente — o app nunca abre vazio porque o seed envelheceu. Use `--manter` para somar ao que já
+existe, `--base=AAAA-MM` para ancorar em outro mês e `--semente=<n>` para outro conjunto de valores.
+
 `db:up` só sobe o contêiner: **ele não cria tabela nenhuma**. Pular o `db:migrate` produz um erro de consulta na primeira tela autenticada, porque o login grava o usuário mas a leitura seguinte não acha a tabela.
 
 Para conferir que deu certo:
@@ -96,7 +101,7 @@ pnpm dev            # http://localhost:3000
 | `pnpm db:up` / `db:down` / `db:reset` | ciclo do contêiner Postgres local |
 | `pnpm db:migrate` | aplica as migrations de `drizzle/` no banco da `DATABASE_URL` |
 | `pnpm db:generate` | gera uma migration nova a partir do schema, **para revisão à mão** |
-| `pnpm db:seed` | popula com dados sintéticos e determinísticos |
+| `pnpm db:seed` | esvazia e popula com dados sintéticos e determinísticos, ancorados no mês corrente |
 
 ## Arquitetura
 
