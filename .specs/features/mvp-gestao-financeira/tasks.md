@@ -1039,7 +1039,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T54: Teste de ponta a ponta da compra parcelada
+#### T54: Teste de ponta a ponta da compra parcelada ✅ CONCLUÍDA
 **What**: O fluxo que prova que a dor central foi resolvida: cadastrar uma compra parcelada e encontrar as parcelas nos meses seguintes sem nenhuma ação adicional.
 **Where**: `e2e/compra-parcelada.spec.ts`
 **Depends on**: T53
@@ -1047,12 +1047,16 @@ T52 -> T53
 **Requirement**: PARC-01, PARC-06, COMP-01
 **Tools**: Playwright, e o MCP do Playwright para depuração interativa
 **Done when**:
-- [ ] Cadastrar R$ 1.000,00 em 3x na competência `2026-03` e ver a parcela 1/3 com R$ 333,34 em março
-- [ ] Navegar para `/2026-04` **sem nenhuma ação adicional** e encontrar a parcela 2/3 com R$ 333,33 (PARC-01, AC 1)
-- [ ] Navegar para `/2026-05` e encontrar a parcela 3/3 com R$ 333,33
-- [ ] Cadastrar uma compra `8/10` e confirmar 3 parcelas, sem nenhum lançamento em competências anteriores (PARC-06, AC 3)
-- [ ] Cadastrar uma compra em `2026-12` em 3x e confirmar parcelas em `2026-12`, `2027-01` e `2027-02` (COMP-01)
-- [ ] `pnpm verify` sai com 0 e `pnpm test:e2e` passa
+- [x] Cadastrar R$ 1.000,00 em 3x na competência `2026-03` e ver a parcela 1/3 com R$ 333,34 em março — `e2e/compra-parcelada.spec.ts:108-109`
+- [x] Navegar para `/2026-04` **sem nenhuma ação adicional** e encontrar a parcela 2/3 com R$ 333,33 (PARC-01, AC 1) — `e2e/compra-parcelada.spec.ts:112-114`
+- [x] Navegar para `/2026-05` e encontrar a parcela 3/3 com R$ 333,33 — `e2e/compra-parcelada.spec.ts:117-119`
+- [x] Cadastrar uma compra `8/10` e confirmar 3 parcelas, sem nenhum lançamento em competências anteriores (PARC-06, AC 3) — `e2e/compra-parcelada.spec.ts:139-156`
+- [x] Cadastrar uma compra em `2026-12` em 3x e confirmar parcelas em `2026-12`, `2027-01` e `2027-02` (COMP-01) — `e2e/compra-parcelada.spec.ts:168-177`
+- [x] `pnpm verify` sai com 0 e `pnpm test:e2e` passa — 10 testes e2e, 5 de T46 e 5 daqui
+
+> Entre cadastrar em março e encontrar a parcela em abril existe **apenas `page.goto`**. É a asserção que fecha o projeto: a re-digitação mensal acabou.
+>
+> Dois testes a mais que o Done-when pedia, porque são requisitos de fase: MOV-03 na tela (os dois eixos em `<section>` separadas, cada uma com o seu selo, nenhuma contendo a outra) e os 400 pixels medidos com a página cheia, conferindo também que `overflow-x` não é `hidden` nem `clip` — esconder a barra faria a medição passar sem significar nada.
 
 **Tests**: e2e
 **Gate**: build
