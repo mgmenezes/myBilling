@@ -1,13 +1,13 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-09-14, branch **`ajustes-visuais-e-cadastros`**, a partir de
-> `699cc64` em `main`.
+> Última atualização: 2026-09-14, branch `main`, último commit `464c0d7`.
 
 > [!IMPORTANT]
-> **O trabalho desta sessão está em branch, não em `main`.** Sem push.
-> `main` continua em `699cc64`. Integrar é `git checkout main && git merge --ff-only
-> ajustes-visuais-e-cadastros` — o histórico é linear, então o fast-forward passa.
+> **`main` está 31 commits à frente de `origin/main`, sem push.** O histórico é linear e o
+> `pnpm verify` sai 0 neste ponto. `git push` continua exigindo autorização explícita e separada,
+> como toda operação remota. A branch `ajustes-visuais-e-cadastros` aponta para o mesmo commit e
+> pode ser apagada.
 
 ## O projeto
 
