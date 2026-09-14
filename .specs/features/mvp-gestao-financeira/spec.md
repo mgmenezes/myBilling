@@ -301,7 +301,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | UI-01 | P1: Visão do mês e navegação | Design | Pending |
 | UI-02 | P1: Visão do mês e navegação | Design | Pending |
 | UI-03 | P1: Visão do mês e navegação | Design | Pending |
-| DADO-01 | P1: Compra parcelada com distribuição automática | Design | Pending |
+| DADO-01 | P1: Compra parcelada com distribuição automática | Fase 3 | Implementing |
 | DADO-02 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 
 **ID format:** `[CATEGORY]-[NUMBER]`

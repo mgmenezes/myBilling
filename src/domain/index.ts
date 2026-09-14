@@ -10,6 +10,18 @@
 export type { CicloFatura } from "./cartao/ciclo-fatura";
 export { diaEfetivo, resolverCicloFatura } from "./cartao/ciclo-fatura";
 export { geraFatura, podeReceberNovaCompra } from "./cartao/regras-cartao";
+export type { ComprometimentoFuturo } from "./mes/projecao";
+export { projetarProximosMeses } from "./mes/projecao";
+export type { ResumoDoMes } from "./mes/resumo-mensal";
+export { resumoMensal } from "./mes/resumo-mensal";
+export type { Porcentagem, ResumoCategoria, ResumoPessoa } from "./mes/resumo-por-categoria";
+export { CEM_PORCENTO, resumoPorCategoria, resumoPorPessoa } from "./mes/resumo-por-categoria";
+export type {
+  AvaliacaoCategoria,
+  AvaliacaoOrcamento,
+  LimiteCategoria,
+} from "./orcamento/avaliar-orcamento";
+export { avaliarOrcamento } from "./orcamento/avaliar-orcamento";
 export { gerarParcelas } from "./parcelamento/gerar-parcelas";
 export { MAX_PARCELAS, ratearParcelas } from "./parcelamento/ratear-parcelas";
 export type {
@@ -19,6 +31,8 @@ export type {
   PlanoRegeneracao,
 } from "./parcelamento/regenerar-parcelas";
 export { regenerarParcelas } from "./parcelamento/regenerar-parcelas";
+export type { OcorrenciaRecorrencia, ValorEfetivo } from "./recorrencia/valor-efetivo";
+export { confirmarValorReal, resolverValorEfetivo } from "./recorrencia/valor-efetivo";
 export type { Competencia } from "./shared/competencia";
 export {
   addMeses,

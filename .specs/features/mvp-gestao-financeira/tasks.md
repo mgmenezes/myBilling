@@ -547,7 +547,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T26: Fechamento da API pública do núcleo
+#### T26: Fechamento da API pública do núcleo ✅ CONCLUÍDA
 **What**: Estender o barrel com as funções de agregação, orçamento, recorrência e projeção, e confirmar a cobertura de 100% de branches em todo `src/domain`.
 **Where**: `src/domain/index.ts`
 **Depends on**: T23, T25
@@ -555,10 +555,10 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Cobertura de 100% de branches em todo `src/domain`
-- [ ] O teste de fronteira de T6 continua verde
-- [ ] `pnpm verify` sai com 0
-- [ ] **Marco:** todo o risco financeiro está coberto por testes puros que rodam em menos de 1 segundo
+- [x] Cobertura de 100% de branches em todo `src/domain`
+- [x] O teste de fronteira de T6 continua verde
+- [x] `pnpm verify` sai com 0
+- [x] **Marco:** todo o risco financeiro está coberto por testes puros que rodam em menos de 1 segundo
 **Tests**: none
 **Gate**: build
 
