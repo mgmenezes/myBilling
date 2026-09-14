@@ -110,6 +110,15 @@ Registrados na seção Assumptions & Open Questions do `spec.md`, com default e 
 
 ---
 
+## Lacunas encontradas durante a execução
+
+Registradas aqui em vez de corrigidas na hora, porque nenhuma está no `Done when` das tasks em que apareceram.
+
+- **`isOk` / `isErr` não estreitam o ramo negativo.** Os guards de `src/domain/shared/result.ts` declaram `resultado is Result<T, E> & { ok: true }`, o que impede o TypeScript de excluir esse membro em `!isOk(x)`. A Fase 2 contornou usando o discriminante nativo `!rateio.ok`. Correção: o predicado deve apontar para o membro concreto da união, não para uma interseção. Pequena, isolada, merece uma task própria.
+- **`resolverCicloFatura` assume que a fatura é sempre a do mês seguinte ao fechamento.** É o único arranjo definido no spec. Cartão cujo vencimento cai no mesmo mês do fechamento precisaria de regra adicional. Nenhum dos três cartões atuais tem esse arranjo.
+- **`dataParaCompetencia` aceita dia inexistente.** `2026-02-30` transborda para março pelo algoritmo civil, em vez de ser rejeitado. O spec não define o comportamento — é uma lacuna de precisão do spec, não um bug de implementação. Decidir antes de a data vir de entrada do usuário, na Fase 7.
+- **`competenciaCompra` é a competência da parcela 1**, mesmo numa compra já em andamento. Uma compra 8/10 cuja parcela 8 cai em 2026-03 entra no domínio com `competenciaCompra: '2025-08'`. A conversão da entrada do usuário ("estou na parcela 8, e ela é deste mês") para essa forma é responsabilidade da Fase 7 e ainda não existe.
+
 ## Deferred Ideas
 
 Surgiram durante a discussão e ficam fora desta feature:
