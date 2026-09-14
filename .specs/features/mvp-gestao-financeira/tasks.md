@@ -661,7 +661,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T33: Repositório de movimentos
+#### T33: Repositório de movimentos ✅ CONCLUÍDA
 **What**: Implementar `MovimentoRepository` com leitura por competência e atualização de pagamento, mapeando linha do banco para tipo de domínio.
 **Where**: `src/infrastructure/db/repositories/movimento.repository.ts`
 **Depends on**: T30, T31
@@ -669,10 +669,10 @@ T52 -> T53
 **Requirement**: MOV-01, MOV-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] Leitura por competência devolve apenas lançamentos daquele mês, não cancelados
-- [ ] Valores monetários voltam como inteiro em centavos, sem passar por ponto flutuante
-- [ ] O mapeamento não vaza tipo do Drizzle para a camada de aplicação
-- [ ] Teste de integração cobre mês vazio, mês com lançamentos e lançamento cancelado
+- [x] Leitura por competência devolve apenas lançamentos daquele mês, não cancelados
+- [x] Valores monetários voltam como inteiro em centavos, sem passar por ponto flutuante
+- [x] O mapeamento não vaza tipo do Drizzle para a camada de aplicação
+- [x] Teste de integração cobre mês vazio, mês com lançamentos e lançamento cancelado
 **Tests**: integration
 **Gate**: full
 
