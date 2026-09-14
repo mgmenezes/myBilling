@@ -738,18 +738,20 @@ T52 -> T53
 ---
 ### Phase 6 — Autenticação e shell da aplicação
 
-#### T38: Auth.js com Google e allowlist de e-mails
-**What**: Configurar Auth.js v5 com provider Google único e a função pura `emailPermitido(email, allowlist)`, testável isoladamente, que decide o acesso a partir de `EMAILS_PERMITIDOS`.
+#### T38: Auth.js com Google e allowlist de e-mails ✅ CONCLUÍDA
+**What**: Configurar Auth.js v5 com provider Google único e a função pura `emailPermitido(email, allowlist)`, testável isoladamente, que decide o acesso a partir de `EMAILS_PERMITIDOS`. Mais um provider de credenciais que **só existe em ambiente de teste**, atrás de duas condições e de uma guarda que lança em produção — é ele que destrava o e2e de autenticação sem credencial real do Google.
 **Where**: `src/infrastructure/auth/auth.ts`
 **Depends on**: T4
 **Reuses**: a configuração validada de T4
 **Requirement**: AUTH-01, AUTH-02
 **Tools**: Context7 MCP para a API atual do Auth.js v5
 **Done when**:
-- [ ] `emailPermitido` aceita e-mail da lista e rejeita qualquer outro, com comparação normalizada
-- [ ] O callback de sign-in nega acesso a e-mail fora da lista (AUTH-01, AC 2)
-- [ ] Nenhum segredo é exposto ao cliente (AUTH-02, AC 6)
-- [ ] Cookie de sessão configurado como `httpOnly`, `secure` e `sameSite=lax`
+- [x] `emailPermitido` aceita e-mail da lista e rejeita qualquer outro, com comparação normalizada
+- [x] O callback de sign-in nega acesso a e-mail fora da lista (AUTH-01, AC 2)
+- [x] Nenhum segredo é exposto ao cliente (AUTH-02, AC 6)
+- [x] Cookie de sessão configurado como `httpOnly`, `secure` e `sameSite=lax`
+- [x] O provider de teste exige `NODE_ENV=test` **e** `AUTH_PROVIDER_DE_TESTE`, e a guarda lança se montado em produção
+- [x] O provider de teste não pula a allowlist: quem decide acesso é o callback `signIn`, igual para todo provider
 **Tests**: unit
 **Gate**: quick
 

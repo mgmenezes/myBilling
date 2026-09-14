@@ -25,11 +25,16 @@ export default defineConfig({
         test: {
           name: "domain",
           environment: "node",
+          // `next-auth` importa `next/server` sem extensão e o `next` não
+          // declara `exports`: externalizado, o loader ESM do Node não resolve.
+          // Processado pelo Vite, resolve como no build.
+          server: { deps: { inline: ["next-auth", "@auth/core"] } },
           include: [
             "src/domain/**/*.test.ts",
             "src/application/**/*.test.ts",
             "src/lib/**/*.test.ts",
             "src/infrastructure/config/**/*.test.ts",
+            "src/infrastructure/auth/**/*.test.ts",
           ],
         },
       },
