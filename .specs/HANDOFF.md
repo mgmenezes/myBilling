@@ -1,7 +1,13 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-09-14, commit `1bfe4d4`, branch `main`.
+> Última atualização: 2026-09-14, branch **`ajustes-visuais-e-cadastros`**, a partir de
+> `699cc64` em `main`.
+
+> [!IMPORTANT]
+> **O trabalho desta sessão está em branch, não em `main`.** Cinco commits, sem push.
+> `main` continua em `699cc64`. Integrar é `git checkout main && git merge --ff-only
+> ajustes-visuais-e-cadastros` — o histórico é linear, então o fast-forward passa.
 
 ## O projeto
 
@@ -20,7 +26,8 @@ Drizzle ORM · Postgres 17 em Docker (porta **5433**) · Auth.js v5 + Google OAu
 Vitest · Playwright · Biome · pnpm.
 
 Animação: `motion` 13.2.0 (`motion/react`) e `gsap` 3.15.0 + ScrollTrigger.
-Ícones: `@phosphor-icons/react`. Fonte: Sofia Sans variável.
+Ícones: `@phosphor-icons/react`. Fontes: **Inter** (corpo e display) e **JetBrains Mono** (toda
+grandeza numérica).
 
 ## Regras invioláveis (`AGENTS.md`)
 
@@ -48,7 +55,24 @@ Animação: `motion` 13.2.0 (`motion/react`) e `gsap` 3.15.0 + ScrollTrigger.
 
 Restrição técnica: **GSAP e Motion nunca compartilham árvore de componente** (brigam por
 frame, e um ancestral com `transform` quebra o cálculo de posição do ScrollTrigger).
-Hoje `HorizonteFuturo` (GSAP) fica fora do `TransicaoMes` (Motion).
+`HorizonteFuturo` (GSAP) fica fora do `TransicaoMes` (Motion) — o `page.tsx` estava
+violando isso, e era uma das duas causas dos cartões do horizonte ficarem invisíveis.
+
+Restrição de animação por scroll: **nenhuma revelação pode depender de rolagem que a
+página talvez não tenha.** O horizonte é a última seção da tela do mês; com `scrub` de
+`top 85%` a `top 45%` o progresso empacava perto de zero e o conteúdo ficava apagado.
+O gatilho válido é `top bottom`: página que não rola é página onde a seção já está
+visível, e o ScrollTrigger dispara na criação.
+
+Restrição de transbordo: o `TransicaoMes` translada o conteúdo 28px, e **translação para a
+direita cria área rolável**. O invólucro tem `overflow-x: clip` — que recorta o `transform`
+de uma animação, e não é o `overflow-x: hidden` de página inteira que o projeto proíbe
+(esse esconderia transbordo de layout de verdade e faria a medição de 400px passar sem
+significar nada).
+
+Restrição de tema: a **ausência** de `data-tema` no `<html>` é o estado "sistema", e é
+significativa — sem atributo, `color-scheme: light dark` deixa o sistema operacional
+decidir, inclusive sem JavaScript. **Nunca escrever `data-tema="sistema"`.**
 
 ## Onde está o trabalho
 
@@ -57,17 +81,31 @@ Hoje `HorizonteFuturo` (GSAP) fica fora do `TransicaoMes` (Motion).
 .specs/HANDOFF.md                                este arquivo
 .specs/features/mvp-gestao-financeira/           54 tasks, todas concluídas, Verifier PASS
 .specs/features/painel-e-lancamentos/spec.md     20 requisitos EARS (fatia 1)
-docs/design.md                                   identidade visual normativa, escada de tema medida
+DESIGN.md                                        referência de linguagem visual (Coinbase), não rastreado
+docs/design.md                                   identidade visual normativa, derivada dela, com contraste medido
+docs/referencias/LEIA-ME.md                      o que da referência entra e o que nunca entra
 docs/roadmap.md                                  o que ficou para depois, em 4 fatias
 AGENTS.md                                        as 5 regras acima
+
+src/app/actions/                                 compras.ts, categorias.ts, meios-de-pagamento.ts
+src/application/schemas/                         nome.ts é a normalização compartilhada dos cadastros
+src/components/cadastro-inline.tsx               o padrão "criar sem sair do formulário"
+src/components/alternador-de-tema.tsx            o seletor e o SCRIPT_TEMA do <head>
+src/infrastructure/db/limpar.ts                  TRUNCATE compartilhado entre o seed e os testes
 ```
 
-Backend do MVP **está pronto e testado**: `pnpm verify` sai 0 com 369 testes unitários,
-128/128 branches no domínio, 115 de integração e 10/10 e2e. O e2e prova a dor central:
+**Toda Server Action segue a mesma forma** (`compras.ts` é a referência): `requireSession()`
+na primeira instrução mesmo havendo proxy, payload revalidado no servidor com o **mesmo**
+schema Zod que o formulário usou, e nada lança para o cliente — todo caminho sai no envelope
+`ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
+correlação. Stack trace não chega ao navegador.
+
+Backend do MVP **está pronto e testado**: `pnpm verify` sai 0 com 429 testes unitários,
+128/128 branches no domínio e 138 de integração, mais 15/15 no e2e. O e2e prova a dor central:
 cadastra 1.000,00 em 3x em `2026-03`, navega para `2026-04` e `2026-05` e acha as
 parcelas sem nenhuma ação adicional.
 
-## Estado da UI (fatia 1, entregue)
+## Estado da UI
 
 - Navegação por áreas: **Visão geral** e **Lançamentos** (lateral no desktop, barra fixa
   no mobile)
@@ -76,35 +114,86 @@ parcelas sem nenhuma ação adicional.
 - Cada indicador é link para a lista já filtrada; painel e lista usam **o mesmo
   predicado** (`src/application/mes/filtrar-lancamentos.ts`) para que os totais não
   divirjam
-- Gráfico de categorias em barras horizontais, **uma cor neutra só**; laranja reservado
-  para estouro de orçamento, com ícone e texto (a validação de paleta reprovou dois
-  laranjas: ΔE 4.8 sob protanopia)
+- Gráfico de categorias em barras horizontais, **uma cor neutra só**; o estouro de orçamento
+  é sinalizado por ícone mais texto, nunca por preenchimento colorido
 - Lançamentos com busca (debounce de 250ms) e filtros por categoria, meio, pessoa e
   situação — tudo na URL
-- Cadastro de compra parcelada com preview ao vivo das parcelas
+- Cadastro de compra (1 parcela é a compra avulsa no cartão, n é o parcelamento) com preview
+  ao vivo das parcelas
+- Lista com **pílula de categoria** em todo bloco; a coluna "Parcela" existe **só** no bloco de
+  compra parcelada, onde carrega informação. Fora dele ela era coluna permanentemente vazia,
+  empurrando descrição e valor para pontas opostas da tela
+- **Criar categoria e meio de pagamento dentro do formulário**, pelo "+ nova"/"+ novo" ao lado do
+  rótulo. Os dois usam `CadastroInline` (`src/components/cadastro-inline.tsx`), que carrega o padrão
+  inteiro: atalho, bloco que abre, foco na transição, `Enter` que não submete o formulão, estado de
+  gravação e erro. O terceiro cadastro sai de graça. Detalhes que não são óbvios:
+  - **Categoria vale para todo mês sem nenhum código de sincronização**, porque `categoria` não tem
+    competência. Era a segunda re-digitação da planilha e ela morreu por construção, não por feature
+  - Nome de categoria repetido **nunca duplica**: a action compara **sem caixa** (o `UNIQUE` do
+    Postgres não ignora) e **reativa** categoria arquivada, que continua ocupando o nome sem
+    aparecer em lista nenhuma
+  - Meio de pagamento é **união discriminada pelo tipo**, espelhando o `CHECK` bicondicional do
+    banco: cartão exige os dois dias de ciclo, conta e rótulo os proíbem. Campo opcional aqui
+    morreria só na constraint do Postgres, como erro genérico no lugar errado
+  - Nome de meio repetido vira **erro**, e não reaproveitamento como em categoria: um cartão carrega
+    dias de ciclo, e devolver outro jogaria fora o que a pessoa digitou. A busca dele ignora
+    arquivado, porque `meio_pagamento.nome` não tem `UNIQUE` e recriar cartão encerrado é legítimo
+  - `fechamentoVaiParaFaturaSeguinte` é fixo em `true` por decisão de produto: a alocação de fatura
+    não tem tela, então seria um botão cujo efeito ninguém consegue observar
+- **Identidade derivada do `DESIGN.md` (Coinbase)**: canvas branco, azul `#0052ff` como única cor
+  de ação e escassa, cartão chapado com hairline em vez de sombra, geometria de pílula, display em
+  peso 400, mono em toda grandeza numérica, e verde/vermelho semânticos **só como cor de texto**,
+  sempre acompanhados de rótulo e sinal. Três cores do documento reprovaram em contraste no uso
+  deste app e foram derivadas — a tabela está em `docs/design.md`. A largura de conteúdo
+  (`--container-conteudo`, 1440px) também diverge do documento, que pede ~1200px: lá o conteúdo é
+  parágrafo e foto, aqui é tabela lida todo dia
+- **Tema claro, escuro ou do sistema**, no cabeçalho. A paleta é declarada uma vez só, com
+  `light-dark()`; quem escolhe o lado é `color-scheme`, o que leva junto barra de rolagem,
+  `<select>` e `<input type=date>`. A ausência de `data-tema` no `<html>` **é** o estado
+  "sistema" — nunca escrever `data-tema="sistema"`. Um script inline no `<head>`
+  (`SCRIPT_TEMA`) aplica a escolha antes da primeira pintura
 
 ## Pendências reais
 
-1. **Setembro/2026 (mês corrente) está vazio.** O seed popula **2026-03, 04 e 05**. Para
-   ver dados, abra `http://localhost:3000/2026-03`.
-2. **`pnpm db:seed` não é idempotente** — roda duas vezes e quebra na chave única de
-   e-mail. Recomeço limpo: `pnpm db:reset && pnpm db:migrate && pnpm db:seed`.
-3. **Eixo Movimentações parcial**: soma só lançamentos da própria competência já pagos,
+1. **Eixo Movimentações parcial**: soma só lançamentos da própria competência já pagos,
    sem `pagamento_fatura`.
-4. **A UI só cria compra parcelada.** Marcar pago, lançamento avulso, recorrência,
-   orçamento, cartões e edição estão em `docs/roadmap.md`.
-5. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,
+2. **A UI só cria compra, categoria e meio de pagamento.** Marcar pago, lançamento avulso,
+   recorrência, orçamento e edição estão em `docs/roadmap.md`. Renomear e arquivar cadastro
+   também ficaram de fora, para a área "Cadastros" que nascerá com orçamento.
+3. **Os blocos da lista agrupam por `origem`, não por meio de pagamento.** "Cartão de Crédito"
+   quer dizer "veio de compra parcelada" e "Gastos do Mês" quer dizer "é avulso" — um lançamento
+   avulso num cartão cai no segundo. É decisão de modelo a resolver junto com o formulário de
+   avulso, não depois dele.
+4. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,
    `resolverCicloFatura`, `resolverValorEfetivo`. Quatro tabelas ainda sem repositório.
-6. **Credenciais do Google OAuth não configuradas** — bloqueia login real.
+5. **Credenciais do Google OAuth não configuradas** — bloqueia login real, não o desenvolvimento.
+6. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
+   (`DESIGN-mastercard.md`) foi mantida fora do repositório de propósito, por descrever identidade
+   de marca de terceiros. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra.
+   Registrado em `docs/referencias/LEIA-ME.md`.
+7. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
+   pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão, mas a correção real é
+   deixar a descrição absorver a folga e as demais colunas ocuparem só o que precisam.
 
 ## Como subir
 
 ```bash
 pnpm install
 pnpm db:up && pnpm db:migrate && pnpm db:seed
-pnpm dev          # http://localhost:3000/2026-03
+pnpm dev          # http://localhost:3000 redireciona para o mês corrente
 pnpm verify       # gate completo
 ```
+
+**O Next 16 recusa um segundo `next dev` no mesmo diretório.** Com `pnpm dev` de pé, tanto o
+`pnpm test:e2e` (que sobe o próprio servidor na 3100) quanto qualquer inspeção manual falham com
+"Another next dev server is already running". Ou se derruba o primeiro, ou se roda a partir de uma
+cópia da árvore em outro diretório — nesta sessão foi o segundo caminho, com `pnpm install
+--offline` na cópia, porque `node_modules` por symlink quebra o Turbopack.
+
+`pnpm db:seed` **esvazia o banco antes de popular** e ancora os meses no relógio: de dois
+meses atrás a três à frente, com compras parceladas que alcançam a régua de
+comprometimento futuro. O módulo `seed.ts` continua sem saber que dia é hoje — quem
+calcula a competência-base é a CLI (`--base=AAAA-MM` sobrescreve, `--manter` não limpa).
 
 ## Processo combinado
 

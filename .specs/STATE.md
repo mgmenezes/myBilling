@@ -94,15 +94,16 @@
 
 ## Handoff
 
-- **Feature**: painel-e-lancamentos (fatia 1) — **entregue**. `mvp-gestao-financeira` concluída e com Verifier PASS.
-- **Commit**: `1bfe4d4`, branch `main`.
-- **Gates**: `pnpm verify` exit 0 — 369 unit, 128/128 branches em `src/domain`, 115 integração, 10/10 e2e.
-- **Next step**: avaliação visual do usuário. O backend das fatias 2 a 4 está em `docs/roadmap.md` por decisão dele ("depois implementamos o back end").
+- **Feature**: painel-e-lancamentos (fatia 1) — **entregue**. `mvp-gestao-financeira` concluída e com Verifier PASS. Em cima dela veio uma sessão de ajustes conduzida por conversa, sem spec própria: identidade visual, seed, tema e cadastros.
+- **Commit**: branch `ajustes-visuais-e-cadastros`, cinco commits a partir de `699cc64`. **Sem push, e `main` ainda não integrou.** Ver o aviso no topo de `.specs/HANDOFF.md`.
+- **Gates**: `pnpm verify` exit 0 — 429 unit, 128/128 branches em `src/domain`, 138 integração, 15/15 e2e. Medidos **com as mudanças não commitadas aplicadas**.
+- **Next step**: integrar a branch em `main` (fast-forward) e seguir pelo roadmap. **Gasto fixo (água, luz, internet) é a lacuna que o usuário sentiu primeiro** — o bloco "Fixos" da lista existe e nunca terá conteúdo até `recorrencia` ganhar repositório e tela (fatia 4).
 - **Contexto completo de retomada**: `.specs/HANDOFF.md` — stack, regras invioláveis, decisões, estado da UI, pendências e comandos.
-- **Pendências conhecidas**:
-  - `pnpm db:seed` não é idempotente (quebra na chave única de e-mail na segunda execução). Recomeço limpo: `db:reset && db:migrate && db:seed`.
-  - Seed popula 2026-03/04/05; setembro/2026, o mês corrente, aparece vazio.
-  - Eixo caixa ainda soma só lançamentos da própria competência já pagos, sem `pagamento_fatura`.
-  - Google OAuth sem credenciais — bloqueia login real, não o desenvolvimento.
-- **Resolvido desde o handoff anterior**: o buraco de `NaN` em `gerarParcelas` foi fechado no domínio com guardas `Number.isInteger` nos três argumentos (128/128 branches).
-- **Uncommitted files**: `next-env.d.ts` (gerado pelo Next)
+- **Entregue na sessão de ajustes**:
+  - Identidade visual trocada de Mastercard para Coinbase (`DESIGN.md`), com três cores do documento derivadas por reprovarem em contraste no uso deste app. Paleta declarada uma vez só, com `light-dark()`.
+  - Tema claro, escuro ou do sistema, aplicado antes da primeira pintura por script inline.
+  - Seed ancorado numa competência-base derivada do relógio pela CLI, cobrindo de dois meses atrás a três à frente, e idempotente (limpa antes de popular).
+  - Cadastro de categoria e de meio de pagamento dentro do formulário, pelo `CadastroInline`.
+  - Pílula de categoria na lista; coluna "Parcela" só onde ela carrega informação.
+- **Corrigido**: o `HorizonteFuturo` ficava invisível por duas causas somadas — estava dentro da árvore do Motion (violando restrição já documentada) e dependia de rolagem que a página não tem. O `UI-03, AC 9` estava **vermelho no HEAD**, por transbordo transitório da animação de entrada.
+- **Pendências conhecidas**: ver `.specs/HANDOFF.md`, seção "Pendências reais". As duas mais estruturais: os blocos da lista agrupam por `origem` e não por meio de pagamento (a resolver **junto** com o formulário de lançamento avulso, não depois), e `DESIGN.md` está sem commit por decisão aberta.
