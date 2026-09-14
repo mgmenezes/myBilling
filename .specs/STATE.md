@@ -95,21 +95,15 @@
 ## Handoff
 
 - **Feature**: mvp-gestao-financeira
-- **Phase/Task**: Fases 0 a 5 CONCLUÍDAS (T1 a T37). Próxima: Fase 6 (autenticação e shell).
-- **Completed**: núcleo puro (212 testes, 100% de branches) + persistência (schema de 10 tabelas, 30 restrições no banco, 4 repositórios, seed determinístico). 222 unit + 86 integration. `pnpm verify` exit 0, agora incluindo `test:integration`.
-- **In-progress**: nenhum
-- **Next step**: Fase 6 (T38 a T46). **Bloqueada**: precisa de Google OAuth Client ID e Secret, que o usuário vai criar. Decidir também como o e2e de autenticação roda sem credencial real.
-- **Blockers**: credenciais do Google OAuth pendentes com o usuário.
-- **Verificação adversarial do orquestrador — 39 mutações no total**:
-  - Fase 0: 5/5 mortas.
-  - Fases 1 e 2: 12/12 mortas, incluindo os dois obrigatórios do AD-011.
-  - Fase 3: 14 mutações. 1 sobrevivente real (modo de arredondamento sem teste) → fix `b3cafa7` → 14/14 mortas.
-  - Fases 4 e 5: 8 mutações. 1 sobrevivente investigada (teste de corrida sub-determinado) → fix `0f0e52e` → morta.
-- **Três tipos de sobrevivente encontrados, cada um com resposta diferente**:
-  1. Erro de instrumentação — mutação de tipo rodada contra `vitest`, que não typecheca. O teste estava certo. Corrigi o harness, não o teste.
-  2. Lacuna real — a regra de arredondamento de porcentagem não tinha AC nem teste. Virou o AC `ORC-03` e cinco assertions.
-  3. Teste sub-determinado — o teste de duplo-clique existia e assertava o certo, mas não dirigia o caminho de corrida. Substituído por um determinístico.
-  4. Mutante equivalente — o pré-check de idempotência. **Não corrigido, deliberadamente**: pinçá-lo exigiria assertar contagem de queries, e assertion sobre mecanismo é o que o Check B manda rejeitar.
-- **Pendência menor registrada**: `seed.integration.test.ts` inclui `6000` na lista de valores proibidos em `seed.ts`. É conservador demais — `6000` é sintético e o próprio `spec.md` o usa. Não quebra nada hoje (o seed usa 8400). Uma linha a remover quando alguém tocar naquele arquivo.
+- **Phase/Task**: Fases 0 a 6 CONCLUÍDAS (T1 a T46). Próxima e última: Fase 7 (corte vertical, T47 a T54).
+- **Completed**: núcleo puro + persistência + autenticação e shell. 288 unit + 98 integration + 5 e2e. `pnpm verify` exit 0. 100% de branches em `src/domain`.
+- **Next step**: Fase 7 (T47 a T54) — cadastro de compra parcelada e visão do mês. Fecha a dor central do produto.
+- **Blockers**: nenhum para desenvolvimento. Para **usar** o app de verdade falta o Google OAuth Client ID e Secret, que o usuário vai criar.
+- **Decisão de segurança desta fase**: provider de credenciais de teste, exigindo `NODE_ENV=test` **e** `AUTH_PROVIDER_DE_TESTE=1` simultaneamente, com guarda que lança se montado em produção. Ele **autentica apenas**; quem decide acesso é o callback `signIn`, que roda para todo provider. Nenhum provider consegue pular a allowlist por construção.
+- **Verificação adversarial do orquestrador — 46 mutações no total**:
+  - Fase 0: 5/5 · Fases 1 e 2: 12/12 · Fase 3: 14/14 após fix · Fases 4 e 5: 8 com 1 fix · Fase 6: **7/7 na camada de segurança**.
+  - As 7 da Fase 6: guarda de produção não lança, uma condição em vez de duas, allowlist desligada, e-mail nulo aceito, cookie sem `httpOnly`, cookie sem `secure` em produção, provider de teste sempre registrado. **Todas mortas.**
+- **Bug real encontrado pelo e2e da Fase 6**: o Next renderiza layout e página em paralelo; as duas chamavam `requireSession` e ambas tentavam gravar o mesmo usuário no primeiro acesso, violando a unicidade em todo primeiro login. Corrigido: a unicidade decide quem grava, quem perde relê. Coberto por `sessao.integration.test.ts:157-182`.
+- **Desvios de plataforma registrados**: `src/middleware.ts` virou `src/proxy.ts` (o Next 16 deprecou a convenção anterior); `forbidden()` exigiu `experimental.authInterrupts`; `AGENTS.md` ganhou um bloco que o próprio `next dev` reescreve a cada execução.
 - **Uncommitted files**: nenhum
 - **Branch**: main
