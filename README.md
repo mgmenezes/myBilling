@@ -12,16 +12,15 @@ Gestão financeira doméstica para duas pessoas. Substitui uma planilha com uma 
 - pnpm (`corepack enable`, ou `npm i -g pnpm`)
 - Docker (para o Postgres local)
 
-### 1. Dependências e banco
+### 1. Dependências
 
 ```bash
 pnpm install
-pnpm db:up          # sobe o Postgres em Docker, porta 5433
-pnpm db:migrate     # aplica as migrations
-pnpm db:seed        # dados sintéticos para desenvolvimento
 ```
 
 ### 2. Variáveis de ambiente
+
+**Antes do banco.** `pnpm db:migrate` e `pnpm db:seed` leem a `DATABASE_URL` do `.env.local`; sem o arquivo, os dois falham.
 
 Copie `.env.example` para `.env.local` e preencha. O `.gitignore` bloqueia `.env*`, com exceção do `.env.example` — **os valores reais nunca entram no repositório**.
 
@@ -59,7 +58,27 @@ Em [console.cloud.google.com](https://console.cloud.google.com), na **Google Aut
 > pela Google Auth Platform. Se encontrar um tutorial falando em "Tela de permissão OAuth", ela virou
 > três itens: **Branding**, **Público-alvo** e **Acesso a dados**.
 
-### 4. Rodar
+### 4. Banco
+
+Nesta ordem, e só depois de o `.env.local` existir:
+
+```bash
+pnpm db:up          # sobe o Postgres em Docker, porta 5433
+pnpm db:migrate     # cria as 10 tabelas a partir de drizzle/
+pnpm db:seed        # dados sintéticos para desenvolvimento (opcional)
+```
+
+`db:up` só sobe o contêiner: **ele não cria tabela nenhuma**. Pular o `db:migrate` produz um erro de consulta na primeira tela autenticada, porque o login grava o usuário mas a leitura seguinte não acha a tabela.
+
+Para conferir que deu certo:
+
+```bash
+docker exec mybilling-db psql -U mybilling -d mybilling -c '\dt'
+```
+
+Devem aparecer 10 tabelas.
+
+### 5. Rodar
 
 ```bash
 pnpm dev            # http://localhost:3000
@@ -74,7 +93,10 @@ pnpm dev            # http://localhost:3000
 | `pnpm test:integration` | testes contra Postgres real (exige `pnpm db:up`) |
 | `pnpm test:e2e` | Playwright, usa o Chrome do sistema |
 | `pnpm verify` | `typecheck && lint && test:unit && test:integration && build` |
-| `pnpm db:up` / `db:reset` / `db:migrate` / `db:seed` | ciclo do banco local |
+| `pnpm db:up` / `db:down` / `db:reset` | ciclo do contêiner Postgres local |
+| `pnpm db:migrate` | aplica as migrations de `drizzle/` no banco da `DATABASE_URL` |
+| `pnpm db:generate` | gera uma migration nova a partir do schema, **para revisão à mão** |
+| `pnpm db:seed` | popula com dados sintéticos e determinísticos |
 
 ## Arquitetura
 
