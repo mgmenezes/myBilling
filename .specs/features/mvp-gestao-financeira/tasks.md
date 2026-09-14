@@ -688,6 +688,7 @@ T52 -> T53
 - [x] Assert de conservação antes do commit reverte com `CONSERVACAO_VIOLADA` se a soma divergir
 - [x] Reenvio com a mesma chave de idempotência devolve a compra existente e não altera a contagem de parcelas (PARC-05, AC 9)
 - [x] Compra `8/10` grava 3 parcelas e zero linhas em competências anteriores (PARC-07, AC 3)
+- [x] O caminho de corrida da idempotência é dirigido por teste determinístico: quando o pré-check não vê a compra concorrente, a colisão de chave é recuperada e devolve a compra existente (PARC-05, AC 9)
 **Tests**: integration
 **Gate**: full
 

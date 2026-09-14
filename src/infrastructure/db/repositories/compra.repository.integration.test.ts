@@ -264,6 +264,50 @@ describe("salvarComParcelas: idempotência (T34, PARC-05, AC 9)", () => {
     expect(await contar("compra_parcelada")).toBe(1);
     expect(await contar("movimento")).toBe(3);
   });
+
+  /**
+   * `Promise.all` acima não garante o interleaving: na prática a segunda
+   * submissão chega ao pré-check quando a primeira já commitou, e as duas
+   * saem pelo caminho fácil. O caminho difícil — o `catch` de colisão — só
+   * roda quando **os dois pré-checks acontecem antes de qualquer commit**.
+   *
+   * Este repositório reproduz exatamente essa janela, de forma determinística:
+   * o pré-check dele devolve `null` uma vez, como se tivesse consultado o
+   * banco antes de a outra submissão commitar. Da segunda consulta em diante
+   * o comportamento é o real, porque é a consulta que o `catch` faz para
+   * recuperar a compra que venceu a corrida.
+   */
+  function repositorioQueNaoViuACompraNoPreCheck(): CompraRepository {
+    const instancia = new CompraRepositoryDrizzle(db);
+    const consultaReal = instancia.buscarPorIdempotencyKey.bind(instancia);
+    let preCheck = true;
+    instancia.buscarPorIdempotencyKey = async (idempotencyKey: string) => {
+      if (preCheck) {
+        preCheck = false;
+        return null;
+      }
+      return consultaReal(idempotencyKey);
+    };
+    return instancia;
+  }
+
+  it("recupera a compra existente quando o pré-check perdeu a corrida — PARC-05, AC 9", async () => {
+    const primeiro = await repo.salvarComParcelas(entrada("chave-corrida"));
+    if (!primeiro.ok) {
+      throw new Error("esperava sucesso na submissão que venceu a corrida");
+    }
+    const emCorrida = repositorioQueNaoViuACompraNoPreCheck();
+
+    const segundo = await emCorrida.salvarComParcelas(entrada("chave-corrida"));
+
+    if (!segundo.ok) {
+      throw new Error(`esperava sucesso na submissão que perdeu, veio ${segundo.error.code}`);
+    }
+    expect(segundo.value.id).toBe(primeiro.value.id);
+    expect(segundo.value.parcelas.map((p) => p.numeroParcela)).toEqual([1, 2, 3]);
+    expect(await contar("compra_parcelada")).toBe(1);
+    expect(await contar("movimento")).toBe(3);
+  });
 });
 
 describe("salvarComParcelas: compra já em andamento (T34, PARC-07)", () => {
