@@ -274,15 +274,15 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | PARC-01 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-02 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-03 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-04 | P1: Compra parcelada com distribuição automática | Design | Pending |
+| PARC-04 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-05 | P1: Compra parcelada com distribuição automática | Design | Pending |
-| PARC-06 | P1: Compra já em andamento | Design | Pending |
-| PARC-07 | P1: Compra já em andamento | Design | Pending |
+| PARC-06 | P1: Compra já em andamento | Tasks | Implementing |
+| PARC-07 | P1: Compra já em andamento | Tasks | Implementing |
 | PARC-08 | P1: Compra já em andamento | Design | Pending |
-| COMP-01 | P1: Virada de ano e aritmética de calendário | Design | Pending |
-| COMP-02 | P1: Virada de ano e aritmética de calendário | Design | Pending |
-| COMP-03 | P1: Virada de ano e aritmética de calendário | Design | Pending |
-| COMP-04 | P1: Virada de ano e aritmética de calendário | Design | Pending |
+| COMP-01 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
+| COMP-02 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
+| COMP-03 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
+| COMP-04 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | MOV-01 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 | MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Tasks | Implementing |

@@ -353,7 +353,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T14: Geração de parcelas com competências sequenciais
+#### T14: Geração de parcelas com competências sequenciais ✅ CONCLUÍDA
 **What**: `gerarParcelas(entrada)` combinando rateio com `competencia[k] = competenciaCompra + (k − 1) meses`, suportando os modos `TOTAL` e `VALOR_PARCELA` e o recorte por parcela inicial (AD-005).
 **Where**: `src/domain/parcelamento/gerar-parcelas.ts`
 **Depends on**: T13
@@ -361,15 +361,15 @@ T52 -> T53
 **Requirement**: PARC-01, PARC-04, PARC-06, PARC-07, COMP-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] R$ 1.000,00 em 3x na competência `2026-03` gera `2026-03`, `2026-04`, `2026-05` (PARC-01, AC 1)
-- [ ] Modo `VALOR_PARCELA` com 7790 × 10 gera total 77900 e dez parcelas idênticas, resto zero (PARC-04, AC 4)
-- [ ] Compra `8/10` persiste exatamente as parcelas 8, 9 e 10 (PARC-06, AC 1)
-- [ ] Compra `8/10` registra `valorAmortizadoAnterior` igual à soma das parcelas 1 a 7 (PARC-07, AC 2)
-- [ ] Compra `8/10` gera zero parcelas em competências anteriores à da parcela inicial (PARC-07, AC 3)
-- [ ] Compra `10/10` gera exatamente uma parcela (PARC-08, AC 5)
-- [ ] Compra `1/1` gera uma parcela na competência da compra (edge case do spec)
-- [ ] Compra com competência `2026-11` em 5x termina em `2027-03` (COMP-01, AC 1)
-- [ ] A soma das parcelas geradas mais o amortizado anterior é exatamente o total, em todos os casos acima (PARC-02, AC 2)
+- [x] R$ 1.000,00 em 3x na competência `2026-03` gera `2026-03`, `2026-04`, `2026-05` (PARC-01, AC 1)
+- [x] Modo `VALOR_PARCELA` com 7790 × 10 gera total 77900 e dez parcelas idênticas, resto zero (PARC-04, AC 4)
+- [x] Compra `8/10` persiste exatamente as parcelas 8, 9 e 10 (PARC-06, AC 1)
+- [x] Compra `8/10` registra `valorAmortizadoAnterior` igual à soma das parcelas 1 a 7 (PARC-07, AC 2)
+- [x] Compra `8/10` gera zero parcelas em competências anteriores à da parcela inicial (PARC-07, AC 3)
+- [x] Compra `10/10` gera exatamente uma parcela (PARC-08, AC 5)
+- [x] Compra `1/1` gera uma parcela na competência da compra (edge case do spec)
+- [x] Compra com competência `2026-11` em 5x termina em `2027-03` (COMP-01, AC 1)
+- [x] A soma das parcelas geradas mais o amortizado anterior é exatamente o total, em todos os casos acima (PARC-02, AC 2)
 **Tests**: unit
 **Gate**: quick
 
