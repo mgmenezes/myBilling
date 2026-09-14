@@ -292,7 +292,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | CART-01 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | CART-02 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | CART-03 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
-| ORC-01 | P2: Orçamento por categoria | Design | Pending |
+| ORC-01 | P2: Orçamento por categoria | Fase 3 | Implementing |
 | ORC-02 | P2: Orçamento por categoria | Design | Pending |
 | REC-01 | P3: Recorrência com valor variável | Design | Pending |
 | REC-02 | P3: Recorrência com valor variável | Design | Pending |

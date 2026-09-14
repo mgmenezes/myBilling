@@ -486,7 +486,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T22: Agregação por categoria e por pessoa
+#### T22: Agregação por categoria e por pessoa ✅ CONCLUÍDA
 **What**: `resumoPorCategoria` devolvendo gasto e porcentagem de distribuição por categoria, usando o Total de Gastos como denominador único, mais a agregação por pessoa dona.
 **Where**: `src/domain/mes/resumo-por-categoria.ts`
 **Depends on**: T21
@@ -494,10 +494,10 @@ T52 -> T53
 **Requirement**: MOV-01, ORC-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] A soma das porcentagens de distribuição de todas as categorias é 100,00% (MOV-01, AC 7)
-- [ ] Total de Gastos zero produz distribuição 0% para todas as categorias, sem divisão por zero (MOV-01, AC 8)
-- [ ] A sobra de arredondamento das porcentagens é atribuída à maior categoria
-- [ ] A agregação por pessoa soma exatamente o Total de Gastos
+- [x] A soma das porcentagens de distribuição de todas as categorias é 100,00% (MOV-01, AC 7)
+- [x] Total de Gastos zero produz distribuição 0% para todas as categorias, sem divisão por zero (MOV-01, AC 8)
+- [x] A sobra de arredondamento das porcentagens é atribuída à maior categoria
+- [x] A agregação por pessoa soma exatamente o Total de Gastos
 **Tests**: unit
 **Gate**: quick
 
