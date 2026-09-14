@@ -220,7 +220,7 @@ domínio de valor efetivo. Reusar os números faria duas specs reivindicarem o m
 | FIXO-02 | P1: Materializar sem duplicar | Tasks |
 | FIXO-03 | P1: Registrar que o valor mudou | Tasks |
 | FIXO-04 | P2: Confirmar o valor real | Tasks |
-| FIXO-05 | P2: Ver os fixos no comprometimento futuro | Spec |
+| FIXO-05 | P2: Ver os fixos no comprometimento futuro | Tasks |
 | FIXO-06 | P3: Encerrar uma recorrência | Tasks |
 
 ## Success Criteria

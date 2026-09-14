@@ -260,7 +260,7 @@ T21 -> T22
 
 ### Phase 2 — Casos de uso
 
-#### T9: Materializar a janela
+#### T9: Materializar a janela ✅ CONCLUÍDA
 **What**: Caso de uso que recebe a competência visível e o tamanho da janela, resolve para cada recorrência ativa quais competências faltam e qual versão vale em cada uma, e grava. Usa T1, T2 e T7. **Não decide nada por conta própria** — as três decisões vêm do domínio.
 **Where**: `src/application/recorrencias/materializar/handler.ts`
 **Depends on**: T7
@@ -268,11 +268,11 @@ T21 -> T22
 **Requirement**: FIXO-01, FIXO-02, FIXO-05
 **Tools**: nenhuma
 **Done when**:
-- [ ] A janela cobre a competência visível e `MESES_DE_PROJECAO` meses à frente (FIXO-05, AC 2)
-- [ ] Recorrência sem versão vigente para uma competência não gera ocorrência nela
-- [ ] A data de evento usa o dia de vencimento reduzido ao último dia do mês quando ele não existe (FIXO-01, AC 5)
-- [ ] Recorrência de natureza receita gera lançamento de receita (FIXO-01, AC 6)
-- [ ] Rodar duas vezes não muda nada
+- [x] A janela cobre a competência visível e `MESES_DE_PROJECAO` meses à frente (FIXO-05, AC 2)
+- [x] Recorrência sem versão vigente para uma competência não gera ocorrência nela
+- [x] A data de evento usa o dia de vencimento reduzido ao último dia do mês quando ele não existe (FIXO-01, AC 5)
+- [x] Recorrência de natureza receita gera lançamento de receita (FIXO-01, AC 6)
+- [x] Rodar duas vezes não muda nada
 **Tests**: unit
 **Gate**: quick
 
