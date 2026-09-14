@@ -182,7 +182,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T3: Vitest com projects separados domain e integration
+#### T3: Vitest com projects separados domain e integration ✅ CONCLUÍDA
 **What**: Configurar Vitest com dois projects: `domain` (ambiente node, sem DOM, sem setup de banco) e `integration`. Threshold de cobertura de 100% de branches aplicado **apenas** a `src/domain`. Scripts `test:unit` e `test:integration`.
 **Where**: `vitest.config.ts`
 **Depends on**: T1
@@ -190,9 +190,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: Context7 MCP para a API de `projects` na versão corrente do Vitest
 **Done when**:
-- [ ] `pnpm test:unit` roda e sai com 0 sem nenhum teste
-- [ ] `pnpm test:integration` roda e sai com 0 sem nenhum teste
-- [ ] A configuração de cobertura aponta exclusivamente para `src/domain`
+- [x] `pnpm test:unit` roda e sai com 0 sem nenhum teste
+- [x] `pnpm test:integration` roda e sai com 0 sem nenhum teste
+- [x] A configuração de cobertura aponta exclusivamente para `src/domain`
 **Tests**: none
 **Gate**: build
 
