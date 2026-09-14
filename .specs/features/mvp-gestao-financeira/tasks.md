@@ -705,7 +705,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T36: Seed sintético determinístico
+#### T36: Seed sintético determinístico ✅ CONCLUÍDA
 **What**: Popular o banco com dados **inventados** e reprodutíveis (PRNG com semente fixa, nomes genéricos), respeitando AD-009: nenhum valor financeiro real da família.
 **Where**: `src/infrastructure/db/seed.ts`
 **Depends on**: T35
@@ -713,10 +713,10 @@ T52 -> T53
 **Requirement**: DADO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Duas execuções com a mesma semente produzem exatamente os mesmos dados
-- [ ] Pessoas, cartões e descrições são genéricos, sem nome real e sem valor real da família (AD-009)
-- [ ] O seed inclui ao menos uma compra parcelada em andamento, para exercitar o caso `8/10`
-- [ ] Revisão confirma que nenhum valor do print da planilha aparece no arquivo
+- [x] Duas execuções com a mesma semente produzem exatamente os mesmos dados
+- [x] Pessoas, cartões e descrições são genéricos, sem nome real e sem valor real da família (AD-009)
+- [x] O seed inclui ao menos uma compra parcelada em andamento, para exercitar o caso `8/10`
+- [x] Revisão confirma que nenhum valor do print da planilha aparece no arquivo
 **Tests**: integration
 **Gate**: full
 
