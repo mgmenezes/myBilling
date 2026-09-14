@@ -334,7 +334,7 @@ T52 -> T53
 
 ### Phase 2 — Núcleo puro: parcelamento e ciclo de fatura
 
-#### T13: Rateio de parcelas com teste de propriedade
+#### T13: Rateio de parcelas com teste de propriedade ✅ CONCLUÍDA
 **What**: `ratearParcelas(total, n, politica)` com divisão euclidiana e alocação do resíduo nas primeiras parcelas (AD-004). Rejeitar entradas impossíveis antes de qualquer cálculo.
 **Where**: `src/domain/parcelamento/ratear-parcelas.ts`
 **Depends on**: T8
@@ -342,14 +342,14 @@ T52 -> T53
 **Requirement**: PARC-01, PARC-02, PARC-03
 **Tools**: fast-check para o teste de propriedade
 **Done when**:
-- [ ] R$ 1.000,00 em 3x resulta em `[33334, 33333, 33333]` (PARC-01, AC 1)
-- [ ] R$ 0,05 em 3x resulta em `[2, 2, 1]` (edge case do spec)
-- [ ] R$ 1.000,01 em 7x resulta em seis de 14286 e uma de 14285 (edge case do spec)
-- [ ] R$ 0,02 em 3x é rejeitado com `PARCELA_INFERIOR_A_UM_CENTAVO` (PARC-05, AC 5)
-- [ ] R$ 0,03 em 3x resulta em `[1, 1, 1]` (edge case do spec)
-- [ ] R$ 99.999,99 em 120x preserva a soma exata (edge case do spec)
-- [ ] Política `ULTIMAS` aloca o resíduo nas últimas parcelas
-- [ ] **Teste de propriedade** fast-check: para todo total entre 1 e 10.000.000 e todo n entre 1 e 120 válidos, a soma das parcelas é exatamente o total (PARC-02)
+- [x] R$ 1.000,00 em 3x resulta em `[33334, 33333, 33333]` (PARC-01, AC 1)
+- [x] R$ 0,05 em 3x resulta em `[2, 2, 1]` (edge case do spec)
+- [x] R$ 1.000,01 em 7x resulta em seis de 14286 e uma de 14285 (edge case do spec)
+- [x] R$ 0,02 em 3x é rejeitado com `PARCELA_INFERIOR_A_UM_CENTAVO` (PARC-05, AC 5)
+- [x] R$ 0,03 em 3x resulta em `[1, 1, 1]` (edge case do spec)
+- [x] R$ 99.999,99 em 120x preserva a soma exata (edge case do spec)
+- [x] Política `ULTIMAS` aloca o resíduo nas últimas parcelas
+- [x] **Teste de propriedade** fast-check: para todo total entre 1 e 10.000.000 e todo n entre 1 e 120 válidos, a soma das parcelas é exatamente o total (PARC-02)
 **Tests**: unit
 **Gate**: quick
 

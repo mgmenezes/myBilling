@@ -271,9 +271,9 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| PARC-01 | P1: Compra parcelada com distribuição automática | Design | Pending |
-| PARC-02 | P1: Compra parcelada com distribuição automática | Design | Pending |
-| PARC-03 | P1: Compra parcelada com distribuição automática | Design | Pending |
+| PARC-01 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
+| PARC-02 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
+| PARC-03 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-04 | P1: Compra parcelada com distribuição automática | Design | Pending |
 | PARC-05 | P1: Compra parcelada com distribuição automática | Design | Pending |
 | PARC-06 | P1: Compra já em andamento | Design | Pending |
