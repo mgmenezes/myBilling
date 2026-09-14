@@ -782,7 +782,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T41: Resolução de sessão para uso nas Server Actions
+#### T41: Resolução de sessão para uso nas Server Actions ✅ CONCLUÍDA
 **What**: `requireSession()` devolvendo o usuário do banco a partir da sessão, para ser chamada na **primeira instrução** de toda Server Action — defesa em segunda camada, independente do middleware.
 **Where**: `src/infrastructure/auth/sessao.ts`
 **Depends on**: T38, T37
@@ -790,9 +790,9 @@ T52 -> T53
 **Requirement**: AUTH-01, AUTH-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Sem sessão, `requireSession` rejeita e não devolve usuário (AUTH-02, AC 3)
-- [ ] Com e-mail fora da allowlist, rejeita e **não cria registro de usuário** (AUTH-01, AC 2)
-- [ ] Com sessão válida, devolve o usuário correspondente do banco
+- [x] Sem sessão, `requireSession` rejeita e não devolve usuário (AUTH-02, AC 3)
+- [x] Com e-mail fora da allowlist, rejeita e **não cria registro de usuário** (AUTH-01, AC 2) — provado por `SELECT COUNT(*) FROM usuario` depois da tentativa
+- [x] Com sessão válida, devolve o usuário correspondente do banco
 **Tests**: integration
 **Gate**: full
 

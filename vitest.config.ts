@@ -43,6 +43,7 @@ export default defineConfig({
         test: {
           name: "integration",
           environment: "node",
+          server: { deps: { inline: ["next-auth", "@auth/core"] } },
           include: ["**/*.integration.test.ts"],
           // Um único Postgres em Docker atende toda a suíte: arquivos em
           // paralelo derrubariam o schema uns dos outros (AD-010).
