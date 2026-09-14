@@ -582,7 +582,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T28: Schema Drizzle com as dez tabelas
+#### T28: Schema Drizzle com as dez tabelas ✅ CONCLUÍDA
 **What**: Declarar `usuario`, `meio_pagamento`, `categoria`, `orcamento_categoria`, `compra_parcelada`, `recorrencia`, `recorrencia_versao`, `movimento`, `fatura` e `pagamento_fatura`, com dinheiro em `bigint` centavos, competência `date` no dia 1, enums, `CHECK` condicionais e índices únicos do `design.md`.
 **Where**: `src/infrastructure/db/schema.ts`
 **Depends on**: T12
@@ -590,12 +590,12 @@ T52 -> T53
 **Requirement**: MOV-01, MOV-02, DADO-02
 **Tools**: Context7 MCP para a API atual de `check` e índices parciais no Drizzle
 **Done when**:
-- [ ] `pagamento_fatura` **não possui** coluna `natureza` nem `categoria_id` (MOV-02, AC 2)
-- [ ] Toda coluna monetária tem sufixo `_centavos` e tipo `bigint`
-- [ ] `movimento` tem `UNIQUE (compra_id, numero_parcela)` e `UNIQUE (recorrencia_id, competencia)`
-- [ ] `CHECK` garante que origem `PARCELA` implica `compra_id` e `numero_parcela` preenchidos
-- [ ] `CHECK` garante competência sempre no dia 1
-- [ ] Colunas `origem_dado` e `origem_hash` existem, nullable, para o importador futuro
+- [x] `pagamento_fatura` **não possui** coluna `natureza` nem `categoria_id` (MOV-02, AC 2)
+- [x] Toda coluna monetária tem sufixo `_centavos` e tipo `bigint`
+- [x] `movimento` tem `UNIQUE (compra_id, numero_parcela)` e `UNIQUE (recorrencia_id, competencia)`
+- [x] `CHECK` garante que origem `PARCELA` implica `compra_id` e `numero_parcela` preenchidos
+- [x] `CHECK` garante competência sempre no dia 1
+- [x] Colunas `origem_dado` e `origem_hash` existem, nullable, para o importador futuro
 **Tests**: none
 **Gate**: build
 
