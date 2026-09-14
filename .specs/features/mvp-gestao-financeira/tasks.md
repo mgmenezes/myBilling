@@ -828,7 +828,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T44: Seletor de competência
+#### T44: Seletor de competência ✅ CONCLUÍDA
 **What**: Componente de navegação entre meses, com botões de anterior e próximo e seleção direta de mês e ano, emitindo a competência no formato `AAAA-MM`.
 **Where**: `src/components/seletor-competencia.tsx`
 **Depends on**: T43
@@ -836,10 +836,12 @@ T52 -> T53
 **Requirement**: UI-01
 **Tools**: shadcn/ui
 **Done when**:
-- [ ] Avançar de `2026-12` leva a `2027-01` (UI-01, AC 2)
-- [ ] Retroceder de `2026-01` leva a `2025-12`
-- [ ] O rótulo exibe o nome do mês em português
-- [ ] Navegação por teclado funciona e os controles têm rótulo acessível
+- [x] Avançar de `2026-12` leva a `2027-01` (UI-01, AC 2)
+- [x] Retroceder de `2026-01` leva a `2025-12`
+- [x] O rótulo exibe o nome do mês em português
+- [x] Navegação por teclado funciona e os controles têm rótulo acessível
+
+> Anterior e próximo são `<Link>`, não botões: o navegador já dá foco, teclado e abrir em nova aba. Toda aritmética de mês vem de `addMeses`; o componente não soma mês em lugar nenhum. Testado em jsdom, num projeto `componentes` do Vitest.
 **Tests**: unit
 **Gate**: quick
 

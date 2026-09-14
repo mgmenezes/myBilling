@@ -38,3 +38,20 @@ export function formatarBRL(centavos: Cents | number): string {
 export function formatarData(iso: string): string {
   return DATA.format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));
 }
+
+const MES_E_ANO = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "UTC",
+  month: "long",
+  year: "numeric",
+});
+
+/** `'2026-01'` → `'Janeiro de 2026'`. Só o nome do mês, em pt-BR. */
+export function formatarCompetencia(competencia: string): string {
+  const texto = MES_E_ANO.format(new Date(`${competencia}-01T00:00:00Z`));
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/** `'2026-01'` → `'Janeiro'`. */
+export function nomeDoMes(competencia: string): string {
+  return formatarCompetencia(competencia).split(" de ")[0] ?? "";
+}

@@ -41,6 +41,13 @@ export default defineConfig({
       },
       {
         test: {
+          name: "componentes",
+          environment: "jsdom",
+          include: ["src/components/**/*.test.tsx"],
+        },
+      },
+      {
+        test: {
           name: "integration",
           environment: "node",
           server: { deps: { inline: ["next-auth", "@auth/core"] } },
