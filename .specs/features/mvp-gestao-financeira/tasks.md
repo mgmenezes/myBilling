@@ -196,7 +196,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T4: Configuração tipada de ambiente com falha no boot
+#### T4: Configuração tipada de ambiente com falha no boot ✅ CONCLUÍDA
 **What**: Validar `process.env` com Zod e **encerrar o processo** se faltar chave obrigatória (`DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `EMAILS_PERMITIDOS`). Criar `.env.example` com as mesmas chaves e valores falsos.
 **Where**: `src/infrastructure/config/env.ts`
 **Depends on**: T1
@@ -204,9 +204,9 @@ T52 -> T53
 **Requirement**: AUTH-02
 **Tools**: nenhuma além do editor
 **Done when**:
-- [ ] Teste prova que ambiente sem `DATABASE_URL` lança na inicialização (AUTH-02, AC 5)
-- [ ] Teste prova que nenhuma chave declarada tem prefixo `NEXT_PUBLIC_` (AUTH-02, AC 6)
-- [ ] `.env.example` existe e está versionado; `.env.local` não está
+- [x] Teste prova que ambiente sem `DATABASE_URL` lança na inicialização (AUTH-02, AC 5)
+- [x] Teste prova que nenhuma chave declarada tem prefixo `NEXT_PUBLIC_` (AUTH-02, AC 6)
+- [x] `.env.example` existe e está versionado; `.env.local` não está
 **Tests**: unit
 **Gate**: quick
 
