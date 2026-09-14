@@ -1000,7 +1000,7 @@ T52 -> T53
 **Tests**: unit + integration
 **Gate**: full
 
-#### T52: Lista de lançamentos responsiva
+#### T52: Lista de lançamentos responsiva ✅ CONCLUÍDA
 **What**: Componente que renderiza tabela no desktop e cartões empilhados no mobile, segmentando por origem em Fixos, Cartão de Crédito e Gastos do Mês, com identificação de parcela no formato `8/10`.
 **Where**: `src/components/tabela-lancamentos.tsx`
 **Depends on**: T43
@@ -1008,10 +1008,16 @@ T52 -> T53
 **Requirement**: UI-01, UI-03, PARC-08
 **Tools**: shadcn/ui
 **Done when**:
-- [ ] Os três blocos de origem são exibidos separadamente (UI-01, AC 5)
-- [ ] Parcela exibe `8/10` e a quantidade restante (PARC-08, AC 7)
-- [ ] Em 400 pixels, renderiza cartões empilhados sem rolagem horizontal (UI-03, AC 9)
-- [ ] Lista vazia exibe estado vazio explicativo, não tabela em branco (UI-02, AC 6)
+- [x] Os três blocos de origem são exibidos separadamente (UI-01, AC 5)
+- [x] Parcela exibe `8/10` e a quantidade restante (PARC-08, AC 7)
+- [x] Em 400 pixels, renderiza cartões empilhados sem rolagem horizontal (UI-03, AC 9) — medido no e2e de T54, onde existe layout de verdade; jsdom não calcula largura
+- [x] Lista vazia exibe estado vazio explicativo, não tabela em branco (UI-02, AC 6)
+
+> **Uma única árvore de DOM para as duas larguras**: a tabela vira cartões empilhados por CSS (`block` abaixo de `md`, `table-*` a partir dele). Duas listas em paralelo com uma escondida duplicariam o conteúdo para leitor de tela e para a busca da página.
+>
+> Os três blocos aparecem **sempre**, com "Nenhum lançamento neste bloco" quando vazios: é o formato da aba da planilha, e permite ler a ausência como ausência. Receita e investimento ganham um quarto bloco em vez de sumirem da tela.
+>
+> **Testes acrescentados** (a matriz classifica componente de apresentação como `Tests: none`), no projeto `componentes`. O gate declarado continua `build`.
 **Tests**: none
 **Gate**: build
 
