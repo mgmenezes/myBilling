@@ -932,7 +932,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T49: Server Action de compras
+#### T49: Server Action de compras ✅ CONCLUÍDA
 **What**: Server Action chamando `requireSession` na primeira instrução, revalidando o payload com Zod no servidor, invocando o caso de uso e devolvendo o envelope uniforme. Revalidação do cache da competência afetada e das seguintes.
 **Where**: `src/app/actions/compras.ts`
 **Depends on**: T48, T41
@@ -940,11 +940,17 @@ T52 -> T53
 **Requirement**: AUTH-02, PARC-05
 **Tools**: nenhuma
 **Done when**:
-- [ ] `requireSession` é a primeira instrução da action (AUTH-02, AC 3)
-- [ ] O payload é revalidado no servidor mesmo com validação no cliente (AUTH-02, AC 4)
-- [ ] Erro de domínio volta como `{ ok: false, erro: { code, mensagem } }`, nunca como exceção
-- [ ] Erro inesperado devolve `ERRO_INESPERADO` com identificador de correlação, **sem stack trace** (UI-02, AC 8)
-- [ ] Sucesso revalida a rota da competência da compra e das competências das parcelas
+- [x] `requireSession` é a primeira instrução da action (AUTH-02, AC 3)
+- [x] O payload é revalidado no servidor mesmo com validação no cliente (AUTH-02, AC 4)
+- [x] Erro de domínio volta como `{ ok: false, erro: { code, mensagem } }`, nunca como exceção
+- [x] Erro inesperado devolve `ERRO_INESPERADO` com identificador de correlação, **sem stack trace** (UI-02, AC 8)
+- [x] Sucesso revalida a rota da competência da compra e das competências das parcelas
+
+> **Arquivo de apoio**: `src/lib/erros.ts`, exigido pelo `AGENTS.md` ("mensagens em pt-BR vivem em `src/lib/erros.ts`"). Ele guarda o tipo `ResultadoAction`, o mapa código → mensagem e o mapa código → campo do formulário. Nenhuma mensagem carrega detalhe interno.
+>
+> O identificador de correlação vai **dentro da mensagem**, e não num campo novo: o contrato `{ code, mensagem, campos? }` do design fica intacto. O detalhe fica no `console.error` do servidor.
+>
+> `ResultadoAction` mora em `src/lib` de propósito: o formulário do cliente precisa do tipo sem importar nada de infraestrutura.
 **Tests**: integration
 **Gate**: full
 
