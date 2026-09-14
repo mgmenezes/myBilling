@@ -1,0 +1,119 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": ["**", "!.next", "!public", "!.agents", "!.claude"]
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "src/domain é puro (AD-006): proibido importar Next.js."
+                  },
+                  {
+                    "group": ["react", "react-dom"],
+                    "message": "src/domain é puro (AD-006): proibido importar React."
+                  },
+                  {
+                    "group": ["drizzle-orm"],
+                    "message": "src/domain é puro (AD-006): proibido importar o ORM."
+                  },
+                  {
+                    "group": ["zod"],
+                    "message": "src/domain é puro (AD-006): proibido importar Zod."
+                  },
+                  {
+                    "group": ["@/infrastructure/*"],
+                    "message": "src/domain é puro (AD-006): proibido importar infraestrutura."
+                  },
+                  {
+                    "group": ["@/app/*"],
+                    "message": "src/domain é puro (AD-006): proibido importar a camada de app."
+                  },
+                  {
+                    "group": ["node:*", "fs", "path", "crypto"],
+                    "message": "src/domain é puro (AD-006): proibido importar módulos do Node."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/domain/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "src/domain é puro (AD-006): proibido importar Next.js."
+                  },
+                  {
+                    "group": ["react", "react-dom"],
+                    "message": "src/domain é puro (AD-006): proibido importar React."
+                  },
+                  {
+                    "group": ["drizzle-orm"],
+                    "message": "src/domain é puro (AD-006): proibido importar o ORM."
+                  },
+                  {
+                    "group": ["zod"],
+                    "message": "src/domain é puro (AD-006): proibido importar Zod."
+                  },
+                  {
+                    "group": ["@/infrastructure/*"],
+                    "message": "src/domain é puro (AD-006): proibido importar infraestrutura."
+                  },
+                  {
+                    "group": ["@/app/*"],
+                    "message": "src/domain é puro (AD-006): proibido importar a camada de app."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

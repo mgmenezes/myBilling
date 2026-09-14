@@ -169,7 +169,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T2: Biome com fronteira de domínio enforçada por lint
+#### T2: Biome com fronteira de domínio enforçada por lint ✅ CONCLUÍDA
 **What**: Configurar Biome (lint + format) e a regra `noRestrictedImports` proibindo, dentro de `src/domain/**`, qualquer import de `next`, `react`, `drizzle-orm`, `zod`, `@/infrastructure`, `@/app` e módulos do Node. Adicionar script `lint`.
 **Where**: `biome.json`
 **Depends on**: T1
@@ -177,8 +177,8 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: Context7 MCP para a sintaxe atual de `noRestrictedImports` no Biome
 **Done when**:
-- [ ] `pnpm lint` sai com 0 no projeto vazio
-- [ ] Um import de `next/server` dentro de `src/domain` faz `pnpm lint` falhar
+- [x] `pnpm lint` sai com 0 no projeto vazio
+- [x] Um import de `next/server` dentro de `src/domain` faz `pnpm lint` falhar
 **Tests**: none
 **Gate**: build
 
