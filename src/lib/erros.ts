@@ -1,6 +1,7 @@
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
 import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
 import type { CodigoErroRecorrencia } from "@/application/recorrencias/criar-recorrencia/handler";
+import type { CodigoErroVersao } from "@/application/recorrencias/registrar-versao/handler";
 
 /**
  * A fronteira entre código de erro e texto de usuário.
@@ -26,6 +27,7 @@ export type CodigoErroExibivel =
   | CodigoErroAplicacao
   | CodigoErroPagamento
   | CodigoErroRecorrencia
+  | CodigoErroVersao
   | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
@@ -53,6 +55,7 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
      revalidação da action já traz a lista nova. */
   LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
+  RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",

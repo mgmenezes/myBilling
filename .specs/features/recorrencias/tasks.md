@@ -291,7 +291,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T11: Registrar nova vigência
+#### T11: Registrar nova vigência ✅ CONCLUÍDA
 **What**: Caso de uso que grava a versão nova e propaga para as ocorrências já materializadas **não protegidas** da vigência em diante.
 **Where**: `src/application/recorrencias/registrar-versao/handler.ts`
 **Depends on**: T10, T7
@@ -299,10 +299,10 @@ T21 -> T22
 **Requirement**: FIXO-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Ocorrência de competência anterior à vigência não é alterada (FIXO-03, AC 1)
-- [ ] Ocorrência da vigência em diante, não protegida, passa a valer o valor novo (FIXO-03, AC 3)
-- [ ] Ocorrência paga e ocorrência com valor confirmado não são alteradas
-- [ ] Vigência já existente substitui o valor em vez de duplicar (FIXO-03, AC 4)
+- [x] Ocorrência de competência anterior à vigência não é alterada (FIXO-03, AC 1)
+- [x] Ocorrência da vigência em diante, não protegida, passa a valer o valor novo (FIXO-03, AC 3)
+- [x] Ocorrência paga e ocorrência com valor confirmado não são alteradas
+- [x] Vigência já existente substitui o valor em vez de duplicar (FIXO-03, AC 4)
 **Tests**: unit
 **Gate**: quick
 
