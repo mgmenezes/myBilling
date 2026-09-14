@@ -289,14 +289,14 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
-| MOV-06 | P2: Previsto versus realizado | Fase 3 | Implementing |
+| MOV-06 | P2: Previsto versus realizado | Fase 3 | Verified |
 | CART-01 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | CART-02 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | CART-03 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | ORC-01 | P2: Orçamento por categoria | Fase 3 | Verified |
-| ORC-02 | P2: Orçamento por categoria | Fase 3 | Implementing |
-| REC-01 | P3: Recorrência com valor variável | Fase 3 | Implementing |
-| REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
+| ORC-02 | P2: Orçamento por categoria | Fase 3 | Verified |
+| REC-01 | P3: Recorrência com valor variável | Fase 3 | Verified |
+| REC-02 | P3: Recorrência com valor variável | Fase 3 | Verified |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Verified |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Verified |
 | UI-01 | P1: Visão do mês e navegação | Fases 6 e 7 | Verified |
@@ -311,9 +311,13 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 **Coverage:** contagem, mapa requisito → AC e status são estabelecidos pelo Verifier independente em `validation.md`. Esta tabela não afirma completude por conta própria.
 
-**Verificação independente — iteração 2 (2026-09-14, HEAD `14c4a35`):** veredito **PASS**. 28 dos 29 requisitos em `Verified`, cada um com evidência `arquivo:linha` em `validation.md`. MOV-02 e UI-02 foram promovidos nesta iteração: os dois mutantes que sobreviveram na iteração 1 (acrescentar `natureza`/`categoria_id` a `pagamento_fatura`; esvaziar `loading.tsx` e `error.tsx`) agora morrem. REC-02 permanece `Implementing`: o AC 4 fala em **materializar** em janela limitada, e o que existe e é testado é a janela da **projeção** — cobertura por proxy não promove.
+**Verificação independente — adjudicação final (2026-09-14, HEAD `146b9a8`):** veredito **PASS**. **32 de 32 requisitos em `Verified`**, cada um com evidência `arquivo:linha` e expressão da assertion em `validation.md` §10. Os 63 acceptance criteria em escopo têm cobertura localizada e valor asserido batendo com o spec — nenhum sem evidência, nenhum parcial.
 
-**Dívida de traceability fechada.** Mover 3 acceptance criteria para Out of Scope apagou 3 linhas de requisito inteiras (MOV-06, ORC-02, REC-01), e cada uma carregava outros critérios — 8 ACs em escopo, implementados e testados, ficaram sem ID que os rastreasse. Os três IDs foram reintroduzidos, cobrindo apenas os critérios que permaneceram em escopo, e voltam como `Implementing`: quem promove a `Verified` é o Verifier independente, não o autor da correção.
+MOV-06, ORC-02, REC-01 e REC-02 foram promovidos nesta iteração, adjudicados sobre os critérios que permaneceram em escopo depois das remoções: MOV-06 (ACs 1-3), ORC-02 (ACs 4-6), REC-01 (ACs 1-2) e REC-02 (AC 3). Nenhum requisito ficou sem AC, então nenhuma linha deveria sair — a reintrodução dos três IDs estava correta, e a atribuição feita por leitura coincide com o mapa que o Verifier reconstruiu por citação nos testes. REC-02 passou a ser promovível porque o AC 5 (materializar em janela limitada), que era o único coberto só por proxy, saiu de escopo; o AC 3 que restou é garantia negativa sobre o razão e a restrição `movimento_recorrencia_competencia_uq` é a implementação dela, provada contra Postgres real.
+
+Sensor acumulado nas três iterações: **29 mutações, 26 mortas**, 1 equivalente por desenho, 1 fragilidade estrutural medida e aceita. Gates: unit, integration, e2e e `verify` todos em exit 0, 490 testes.
+
+**Ressalvas que sobrevivem ao PASS** (detalhadas em `validation.md` §10.5): o eixo caixa é parcial por escopo; `pagamento_fatura` tem a forma provada e o comportamento ainda inexistente; `regenerarParcelas` é domínio sem chamador; nada vigia o `vitest.config.ts`; e o mapa requisito → AC continua inferido, não declarado por esta tabela.
 
 ---
 

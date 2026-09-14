@@ -1,11 +1,12 @@
 # mvp-gestao-financeira Validation
 
-**Veredito (iteração 2, HEAD `14c4a35`): PASS ✅**
+**Veredito final (iteração 3, HEAD `146b9a8`): PASS ✅ — 32/32 requisitos `Verified`, 63/63 acceptance criteria com evidência**
 
 **Result**: PASS
 
-> Veredito da iteração 1 (HEAD `f62f27c`): **FAIL** — mantido abaixo na íntegra como trilha de evidência.
-> A iteração 2 está na seção **9**, no fim deste arquivo. Onde as duas seções divergirem, vale a 9.
+> Trilha de evidência, preservada na íntegra: iteração 1 (HEAD `f62f27c`) — **FAIL**, seções 1 a 8.
+> Iteração 2 (HEAD `14c4a35`) — PASS com 1 requisito pendente, seção **9**.
+> Iteração 3 (HEAD `146b9a8`) — adjudicação final, seção **10**. Onde as seções divergirem, vale a mais recente.
 
 **Date**: 2026-09-14
 **Spec**: `.specs/features/mvp-gestao-financeira/spec.md`
@@ -540,3 +541,126 @@ Um PASS que não separa "provado" de "ainda não quebrou" não serve para nada. 
 **O que mudou de verdade**: os dois mutantes que sobreviveram na iteração 1 morrem agora, e morrem pelos testes certos — não por arrasto. O blocker do AD-003 morre por duas assertions independentes, com mensagem que ensina por que a invariante existe. A correção dos estados de UI cobre as duas metades do AC 8, inclusive a negativa, que é a que costuma faltar. E as três mudanças de escopo resistiram à verificação: cada justificativa apoiada em schema foi conferida no SQL, e a que dependia de "não há superfície exposta" foi conferida por busca exaustiva dos caminhos de escrita.
 
 **O que eu ainda entrego como dívida**: a tabela de traceability perdeu 8 acceptance criteria de vista ao apagar três linhas inteiras quando só três critérios saíram. Nenhum comportamento ficou descoberto — mas o artefato que existe para garantir isso deixou de conseguir prová-lo.
+
+---
+
+# 10. Iteração 3 — adjudicação final (HEAD `146b9a8`)
+
+**Veredito final da feature: PASS ✅ — 32 de 32 requisitos `Verified`.**
+
+**Range**: `45fc89b..146b9a8` (1 commit, só `spec.md`).
+**Gates**: não re-rodados por inteiro, por instrução e porque nada de código mudou — confirmei essa premissa em vez de aceitá-la: `git diff --name-only f62f27c..146b9a8 -- src e2e vitest.config.ts` devolve exatamente 4 arquivos, todos da iteração 2 (`error.test.tsx`, `loading.test.tsx`, `restricoes.integration.test.ts`, `vitest.config.ts`), e o diff em `restricoes` é `@@ -279,0 +280,68 @@`, ou seja, **append puro**: nenhuma citação `arquivo:linha` da iteração 1 foi deslocada. Rodei só o necessário para adjudicar os 4: os 6 arquivos de teste do domínio/aplicação envolvidos (**58 testes, exit 0**) e os 2 de integração (**24 testes, exit 0**).
+
+O spec passou de 64 para **63 acceptance criteria** em escopo (REC-02 AC 4 movido para Out of Scope). Tabela: **32 linhas**.
+
+## 10.1 Adjudicação dos quatro `Implementing`
+
+### MOV-06 — "P2: Previsto versus realizado" → ✅ **Verified**
+
+Meu mapa por citação: MOV-06 = ACs 1, 2, 3, 4. AC 4 fora de escopo → restam **1, 2, 3**. É o único ID da história, então cobre os três.
+
+| AC restante | Resultado que o spec define | `arquivo:linha` + expressão | Result |
+| --- | --- | --- | --- |
+| 1 | `pagoEm` preenchido → realizado; vazio → previsto | `src/domain/mes/resumo-mensal.test.ts:171` — `expect(resumo.caixaView.saidas).toBe(30000)` e `:172` — `expect(resumo.competenciaView.pendente).toBe(70000)` no mesmo cenário (um pago de 30000, um previsto de 70000); `src/infrastructure/db/repositories/movimento.repository.integration.test.ts:170` — `expect(lancamento?.pagoEm).toBe("2026-03-18")` + `:171` — `expect(lancamento?.valor).toBe(33334)` (marcar pago não altera o valor) | ✅ |
+| 2 | pendente = despesas da competência sem `pagoEm` | `src/domain/mes/resumo-mensal.test.ts:222` — `expect(resumo.competenciaView.pendente).toBe(70000)` num cenário que inclui receita, investimento, outra competência, um pago e um cancelado — todos excluídos | ✅ |
+| 3 | quebrado por competência, nunca agregado num número | `src/domain/mes/projecao.test.ts:45` — `expect(projecao).toEqual([{competencia:ABRIL,comprometido:40000},{competencia:MAIO,comprometido:70000}])`; `:98` — `expect(projecao).toEqual([{competencia:ABRIL,comprometido:40000}])` excluindo pago/receita/investimento/cancelado/corrente; `src/application/mes/obter-visao-mensal/handler.test.ts:210` — `expect(visao.futuro).toEqual([{competencia:"2026-04",comprometido:33333},{competencia:"2026-05",comprometido:33333},{competencia:"2026-06",comprometido:0}])` | ✅ |
+
+### ORC-02 — "P2: Orçamento por categoria" → ✅ **Verified**
+
+Meu mapa: ORC-01 = ACs 1, 2, 3 (citado em `avaliar-orcamento.test.ts:20,42,79`); ORC-02 = ACs 4, 5 (citado em `:110,126`) **e** o AC de arredondamento, hoje renumerado de 7 para **6**.
+
+| AC restante | Resultado que o spec define | `arquivo:linha` + expressão | Result |
+| --- | --- | --- | --- |
+| 4 | `total gasto ÷ soma dos limites` | `src/domain/orcamento/avaliar-orcamento.test.ts:122` — `expect(avaliacao.percentualGlobal).toBe(9500)` (380000/400000 = 95,00%) | ✅ |
+| 5 | soma dos limites zero → global nulo, sem `NaN` | `src/domain/orcamento/avaliar-orcamento.test.ts:134` — `expect(avaliacao.percentualGlobal).toBeNull()` + `:135` — `expect(Number.isNaN(avaliacao.percentualGlobal)).toBe(false)`; `:145` — idem para limites declarados com valor zero | ✅ |
+| 6 | arredondar ao centésimo, empate **para cima** | `src/domain/mes/resumo-por-categoria.test.ts:218` — `expect(percentual(2 as Cents, 3 as Cents)).toBe(6667)`; `:223` — `expect(percentual(1 as Cents, 32 as Cents)).toBe(313)` (empate exato 3,125% → 3,13%; truncar daria 312); `:228` — `toBe(3333)` como controle abaixo de meio; `:245-247` — `313 / 313 / 9374` somando `CEM_PORCENTO`, escolhidos porque as categorias pequenas é que denunciam o modo de arredondamento; `src/domain/orcamento/avaliar-orcamento.test.ts:159` — `toBe(6667)` e `:169` — `toBe(313)` no consumo, que não tem correção de sobra para mascarar | ✅ |
+
+**Divergência de atribuição, declarada**: o AC 6 (arredondamento) é o único dos 63 que **não tem citação de ID em teste nenhum**. Atribuí a ORC-02 por eliminação — é da história "Orçamento", e ORC-01 já está citado para os ACs 1, 2 e 3. A inferência não muda nada material: o AC está coberto, e as duas atribuições possíveis levam ao mesmo veredito. Registro porque o mapa requisito → AC continua sendo inferido, e não declarado pelo spec.
+
+### REC-01 — "P3: Recorrência com valor variável" → ✅ **Verified**
+
+Meu mapa: REC-01 = ACs 1, 2, 4. AC 4 fora de escopo → restam **1, 2**.
+
+| AC restante | Resultado que o spec define | `arquivo:linha` + expressão | Result |
+| --- | --- | --- | --- |
+| 1 | altera só a competência confirmada; preserva o previsto; não toca as outras | `src/domain/recorrencia/valor-efetivo.test.ts:51` — `).toEqual([PREVISTO, REAL, PREVISTO])` sobre os efetivos dos três meses; `:52` — `expect(depois[0]).toEqual({competencia:MARCO, valorPrevisto:PREVISTO, valorReal:null})` e `:53` idem para MAIO; `:59` — `expect(depois[1]).toEqual({competencia:ABRIL, valorPrevisto:PREVISTO, valorReal:REAL})` (o previsto original **sobrevive** à confirmação); `:70` — `expect(antes).toEqual(tresMeses())` (não muta a lista recebida) | ✅ |
+| 2 | marcada como sobrescrita; nova materialização não altera seu valor | `src/domain/recorrencia/valor-efetivo.test.ts:83` — `expect(rematerializada.sobrescritaManualmente).toBe(true)` + `:84` — `expect(rematerializada.valorEfetivo).toBe(REAL)`, com um `novoPrevisto` de 31000 chegando pela rematerialização e sendo ignorado | ✅ |
+
+### REC-02 — "P3: Recorrência com valor variável" → ✅ **Verified**
+
+Meu mapa: REC-02 = ACs 3 e 5. O AC 5 (janela rolante de materialização) foi movido para Out of Scope nesta iteração → resta **só o AC 3**.
+
+| AC restante | Resultado que o spec define | `arquivo:linha` + expressão | Result |
+| --- | --- | --- | --- |
+| 3 | materialização repetida na mesma competência **não cria lançamento duplicado** | `src/infrastructure/db/restricoes.integration.test.ts:205` — `expect(erro.code).toBe("23505")` + `:206` — `expect(erro.constraint).toBe("movimento_recorrencia_competencia_uq")`, contra Postgres real, inserindo duas vezes a mesma `(recorrencia_id, competencia)` | ✅ |
+
+**Por que isto não é a mesma cobertura por proxy que recusei na iteração 2**, já que também não existe materializador: a diferença é o sujeito do AC. O antigo AC 5 dizia "SHALL **materializar** em janela limitada" — o sujeito é o comportamento de geração do materializador, que não existe, e a janela da projeção era outra função respondendo outra pergunta. O AC 3 diz "SHALL **não criar** lançamento duplicado" — é uma garantia negativa sobre o razão, e a restrição de unicidade no banco **é** a implementação dela. Ela vale hoje, vale contra qualquer inserção venha de onde vier, e é justamente o que vai impedir o futuro materializador de duplicar. O teste insere duas vezes e prova que a segunda não vira linha, que é exatamente o resultado que o spec define. Cobertura direta, não proxy.
+
+### Nenhum requisito ficou sem AC
+
+Conferi as três histórias afetadas: "Previsto versus realizado" tem 3 ACs e um ID (MOV-06 = 1,2,3); "Orçamento" tem 6 ACs e dois IDs (ORC-01 = 1,2,3; ORC-02 = 4,5,6); "Recorrência" tem 3 ACs e dois IDs (REC-01 = 1,2; REC-02 = 3). **Nenhuma linha ficou vazia, nenhuma deveria sair.** A reintrodução dos três IDs estava certa, e a de REC-02 permanece justificada agora que ele tem um AC seu.
+
+## 10.2 A reintrodução não inventou cobertura
+
+Conferido item a item: a atribuição do coordenador (por leitura) coincide com o meu mapa (por citação nos testes) nos quatro casos. As três linhas voltaram para as mesmas histórias de onde saíram, e cada AC restante tem assertion localizada — todas conferidas **de novo** neste HEAD, com os números de linha re-extraídos por `grep -n`, não copiados do meu relatório anterior.
+
+**Duas correções minhas, de off-by-one na iteração 1**, que a re-extração pegou: eu citei `avaliar-orcamento.test.ts:123` para o indicador global (o certo é **:122**; 123 é o `});`) e `:160` para o consumo 66,67% (o certo é **:159**). As expressões que reproduzi estavam corretas; os ponteiros, um a mais. Corrigido acima. Registro porque um relatório que cobra citação exata dos outros não pode errar a própria.
+
+## 10.3 Traceability final
+
+| Bloco | Status |
+| --- | --- |
+| PARC-01 … PARC-08 (8) | ✅ Verified |
+| COMP-01 … COMP-04 (4) | ✅ Verified |
+| MOV-01 … MOV-05 (5) | ✅ Verified |
+| **MOV-06** | ✅ **Verified — promovido na iteração 3** |
+| CART-01 … CART-03 (3) | ✅ Verified |
+| ORC-01 | ✅ Verified |
+| **ORC-02** | ✅ **Verified — promovido na iteração 3** |
+| **REC-01** | ✅ **Verified — promovido na iteração 3** |
+| **REC-02** | ✅ **Verified — promovido na iteração 3** |
+| AUTH-01, AUTH-02 (2) | ✅ Verified |
+| UI-01, UI-02, UI-03 (3) | ✅ Verified |
+| DADO-01, DADO-02 (2) | ✅ Verified |
+
+**32 de 32 `Verified`.** 63 acceptance criteria em escopo, **63 com evidência `arquivo:linha` e valor asserido batendo com o spec**. Zero sem evidência, zero parciais.
+
+Lacunas de precisão do spec remanescentes: **2** — UI-02 AC 3 (não fixa status HTTP para a página de não encontrado) e MOV-01 AC 1 ("não somar as tabelas de plano" é universal negativo sem observável direto). As outras duas foram resolvidas: MOV-06 AC 4 pela regra escrita no Out of Scope, REC-02 AC 4 pela remoção do escopo.
+
+## 10.4 Onde a verificação por mutação para de ajudar
+
+O coordenador observou que dos três defeitos encontrados depois do código estar verde — o AD-003 que era só comentário, o `src/app` fora da suíte, a dívida de traceability — **nenhum foi achado pelos 46 mutantes que ele rodou**. Vale registrar por quê, porque a razão é estrutural e não é sobre esforço.
+
+Mutação responde **"meus testes discriminam o código que existe?"**. Os três defeitos eram sobre coisas que **não existiam**:
+
+1. **AD-003 como comentário** — não havia código expressando a invariante para mutar. Chegar nela exige mutar a *forma do schema*, que não é uma categoria de mutação que ocorra a quem já acredita que a invariante está protegida. Para escolher essa mutação, era preciso já suspeitar da lacuna: a mutação confirma, não descobre.
+2. **`src/app` fora da suíte** — a mutação até existe (esvaziar `loading.tsx`), mas campanha de mutação normalmente é guiada por cobertura, e código que nenhum teste importa ou é pulado como "já sabidamente descoberto" ou nem é instrumentado. O ponto cego se protege sozinho.
+3. **Dívida de traceability** — não há código nenhum para mutar. É defeito de documento.
+
+O padrão: **a lista de mutações é desenhada a partir do modelo que o autor tem do sistema, e é esse mesmo modelo que produziu o ponto cego.** É exatamente a razão pela qual este papel existe separado do de quem implementa — e mutação, sozinha, não escapa dela, porque herda o modelo em vez de re-derivá-lo.
+
+O que achou os três foi outra operação: **enumerar a partir do `spec.md`, frase por frase, e perguntar "onde está a assertion desta sentença?"** — evidence-or-zero. Enumeração por requisito percorre o que *deveria* existir; mutação percorre o que existe. Só a primeira encontra ausência.
+
+Duas regras práticas que eu tiraria disto, se servirem para as próximas features:
+
+- **Mutação é verificador de força de teste, não descobridor de lacuna.** A ordem que funciona é: enumerar do spec para decidir *onde olhar*; mutar para decidir se *o que se achou* é real. Invertida, ela confirma o que já se acreditava.
+- **O mutante de maior rendimento é aquele para o qual você precisa inventar uma categoria nova.** Schema, configuração do runner, presença de arquivo num glob — precisar criar a categoria é o sinal de que aquela área nunca foi modelada. Os três defeitos desta feature caíram exatamente em categorias que não estavam na lista inicial de ninguém, inclusive na minha: na iteração 1 eu só cheguei no AD-003 porque a enumeração do spec me deixou com um AC sem nenhuma assertion, e aí a mutação de schema virou a pergunta óbvia.
+
+## 10.5 Veredito final
+
+**PASS ✅ — a feature está pronta.**
+
+**Spec-anchored check**: **63/63** ACs em escopo com evidência `arquivo:linha` e valor batendo com o spec · 0 sem evidência · 0 parciais · 2 lacunas de precisão do spec, ambas registradas e nenhuma bloqueante
+**Sensor (acumulado nas 3 iterações)**: **29 mutações, 26 mortas**, 1 equivalente por desenho (`movimento` ganhando coluna inócua), 1 fragilidade estrutural medida e aceita (`vitest.config.ts` sem vigia), 0 lacunas de comportamento em aberto
+**Gates** (medidos na iteração 2, com o mesmo código): unit 0 · integration 0 · e2e 0 · verify 0 · **490 testes**
+**Traceability**: **32/32 `Verified`**
+
+**O que permanece frágil apesar do PASS** — a lista da §9.11 continua valendo, menos o item 1, que foi fechado. Em ordem de importância para quem for mexer nisto depois:
+
+1. **Nada vigia o `vitest.config.ts`.** Reverter uma linha faz 7 testes sumirem com a suíte verde. Medido, não hipotético.
+2. **O eixo caixa é parcial por escopo** — falta `Σ pagamentoFatura.valor` da fórmula do `design.md:207`. A tela é honesta ao rotular, mas o número não é o caixa completo.
+3. **`pagamento_fatura` tem a forma provada e o comportamento inexistente.** MOV-02 `Verified` significa "a dupla contagem é estruturalmente impossível", não "registrar pagamento de fatura funciona".
+4. **`regenerarParcelas` é domínio sem chamador** — 153 linhas, 8 testes, zero uso real. É ela que vai encostar em MOV-06 AC 4 quando a Fase 7 ligar a edição.
+5. **Testes de concorrência são simulações determinísticas**, por escolha consciente e documentada nos próprios testes.
+6. **100% de branches vale só para `src/domain`.** Nas outras camadas o que existe é mapeamento AC→assertion e discriminação por mutação — mais forte em profundidade, não exaustivo em largura.
+7. **O mapa requisito → AC continua inferido**, não declarado pelo spec. Reconstruí por citação nos testes; um AC (o de arredondamento) não tem citação nenhuma e foi atribuído por eliminação. Se a tabela passar a listar os ACs de cada ID, este relatório deixa de ser a única fonte desse mapa — que é onde ele está hoje, por decisão registrada na própria linha `Coverage`.
