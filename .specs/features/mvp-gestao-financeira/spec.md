@@ -284,8 +284,8 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | COMP-02 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-03 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-04 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
-| MOV-01 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
-| MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
+| MOV-01 | P1: Integridade do razão e anti-dupla-contagem | Fases 3-5 | Verified |
+| MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Fase 4 | Verified |
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
@@ -298,18 +298,18 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | REC-01 | P3: Recorrência com valor variável | Fase 3 | Verified |
 | REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Design | Pending |
-| AUTH-02 | P1: Acesso restrito às duas pessoas | Design | Pending |
+| AUTH-02 | P1: Acesso restrito às duas pessoas | Fase 4 | Implementing |
 | UI-01 | P1: Visão do mês e navegação | Design | Pending |
 | UI-02 | P1: Visão do mês e navegação | Design | Pending |
 | UI-03 | P1: Visão do mês e navegação | Design | Pending |
-| DADO-01 | P1: Compra parcelada com distribuição automática | Fase 3 | Implementing |
-| DADO-02 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
+| DADO-01 | P1: Compra parcelada com distribuição automática | Fases 3-5 | Verified |
+| DADO-02 | P1: Integridade do razão e anti-dupla-contagem | Fases 4-5 | Verified |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 33 total, 26 cobertos por tasks das Fases 0 a 3, 7 aguardando as Fases 4 a 7
+**Coverage:** 33 total, 29 cobertos por tasks das Fases 0 a 5, 4 aguardando as Fases 6 e 7 (AUTH-01, UI-01, UI-02, UI-03)
 
 ---
 

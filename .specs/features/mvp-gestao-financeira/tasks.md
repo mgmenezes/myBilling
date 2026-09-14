@@ -720,7 +720,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T37: Composition root
+#### T37: Composition root ✅ CONCLUÍDA
 **What**: Um arquivo com funções fábrica ligando casos de uso aos repositórios concretos. Sem container de injeção de dependência.
 **Where**: `src/infrastructure/container.ts`
 **Depends on**: T34, T36
@@ -728,9 +728,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Nenhuma biblioteca de injeção de dependência foi adicionada
-- [ ] Trocar um repositório concreto por um fake não exige alterar nenhum caso de uso
-- [ ] `pnpm verify` sai com 0
+- [x] Nenhuma biblioteca de injeção de dependência foi adicionada
+- [x] Trocar um repositório concreto por um fake não exige alterar nenhum caso de uso
+- [x] `pnpm verify` sai com 0
 **Tests**: none
 **Gate**: build
 
