@@ -95,16 +95,21 @@
 ## Handoff
 
 - **Feature**: mvp-gestao-financeira
-- **Phase/Task**: Fases 0, 1, 2 e 3 CONCLUÍDAS (T1 a T26). Próxima: Fase 4 (persistência).
-- **Completed**: núcleo financeiro puro completo e provado. 212 testes, 100% de branches em `src/domain` (124/124). `pnpm verify` exit 0. Toda a matemática do produto existe e foi verificada antes de haver banco ou tela.
+- **Phase/Task**: Fases 0 a 5 CONCLUÍDAS (T1 a T37). Próxima: Fase 6 (autenticação e shell).
+- **Completed**: núcleo puro (212 testes, 100% de branches) + persistência (schema de 10 tabelas, 30 restrições no banco, 4 repositórios, seed determinístico). 222 unit + 86 integration. `pnpm verify` exit 0, agora incluindo `test:integration`.
 - **In-progress**: nenhum
-- **Next step**: Fase 4 (T27 a T31, schema e conexão) — **bloqueada por credenciais**: precisa de Google OAuth para a Fase 6. Postgres roda em Docker local, o Neon só é necessário no deploy.
+- **Next step**: Fase 6 (T38 a T46). **Bloqueada**: precisa de Google OAuth Client ID e Secret, que o usuário vai criar. Decidir também como o e2e de autenticação roda sem credencial real.
 - **Blockers**: credenciais do Google OAuth pendentes com o usuário.
-- **Verificação adversarial independente do orquestrador** (além dos gates dos workers):
-  - Fase 0: 5 mutações, 5 mortas. Confirmado que o teste de fronteira derruba a suíte E o lint ao injetar `next/server` em `src/domain`.
-  - Fases 1 e 2: 12 mutações, 12 mortas, incluindo os dois obrigatórios do AD-011 (truncar o resíduo do rateio; esquecer a virada de ano).
-  - Fase 3: 14 mutações. Na primeira rodada, 11 mortas e **1 sobrevivente** — o modo de arredondamento de porcentagem não estava pinçado por teste. Roteado como fix task; após o commit `b3cafa7`, **14 de 14 mortas**.
-- **Lição registrada**: mutação de tipo exige gate de `typecheck`; rodá-la contra `vitest` produz falso positivo. O harness escolhe o gate por mutação.
-- **Correções do orquestrador**: `AGENTS.md` afirmava que `pnpm verify` roda `test:integration` (não roda até a Fase 4). `design.md` não continha a tabela "Definição formal de cada total exibido" que os briefings citavam — portada, com a regra de arredondamento. `spec.md` ganhou o AC ORC-03, que faltava.
+- **Verificação adversarial do orquestrador — 39 mutações no total**:
+  - Fase 0: 5/5 mortas.
+  - Fases 1 e 2: 12/12 mortas, incluindo os dois obrigatórios do AD-011.
+  - Fase 3: 14 mutações. 1 sobrevivente real (modo de arredondamento sem teste) → fix `b3cafa7` → 14/14 mortas.
+  - Fases 4 e 5: 8 mutações. 1 sobrevivente investigada (teste de corrida sub-determinado) → fix `0f0e52e` → morta.
+- **Três tipos de sobrevivente encontrados, cada um com resposta diferente**:
+  1. Erro de instrumentação — mutação de tipo rodada contra `vitest`, que não typecheca. O teste estava certo. Corrigi o harness, não o teste.
+  2. Lacuna real — a regra de arredondamento de porcentagem não tinha AC nem teste. Virou o AC `ORC-03` e cinco assertions.
+  3. Teste sub-determinado — o teste de duplo-clique existia e assertava o certo, mas não dirigia o caminho de corrida. Substituído por um determinístico.
+  4. Mutante equivalente — o pré-check de idempotência. **Não corrigido, deliberadamente**: pinçá-lo exigiria assertar contagem de queries, e assertion sobre mecanismo é o que o Check B manda rejeitar.
+- **Pendência menor registrada**: `seed.integration.test.ts` inclui `6000` na lista de valores proibidos em `seed.ts`. É conservador demais — `6000` é sintético e o próprio `spec.md` o usa. Não quebra nada hoje (o seed usa 8400). Uma linha a remover quando alguém tocar naquele arquivo.
 - **Uncommitted files**: nenhum
 - **Branch**: main
