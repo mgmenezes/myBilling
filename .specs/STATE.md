@@ -95,10 +95,12 @@
 ## Handoff
 
 - **Feature**: mvp-gestao-financeira
-- **Phase/Task**: DESIGN concluído; TASKS a seguir
-- **Completed**: `.specs/features/mvp-gestao-financeira/context.md`, `spec.md` (validate_spec limpo: 0 erros, 0 warnings), `design.md`, `.specs/STATE.md`
-- **In-progress**: nenhum código escrito ainda
-- **Next step**: gerar `tasks.md` com as 7 fases (0 a 6), rodar `validate_tasks.py`, apresentar para aprovação
-- **Blockers**: nenhum
-- **Uncommitted files**: `.specs/**` (repositório recém-inicializado, sem commits)
+- **Phase/Task**: Fase 0 (Fundação) CONCLUÍDA — T1 a T7 commitadas. Próxima: Fase 1.
+- **Completed**: `.specs/` completo (spec 32 requisitos EARS, design, 54 tasks, STATE). `AGENTS.md`. Hook `commit-msg` ativo. T1 scaffold Next 16.3.5 + TS strict + Tailwind 4.3.3 · T2 Biome 2.5.13 com `noRestrictedImports` em `src/domain` · T3 Vitest 5.0.0 com projects `domain` e `integration` · T4 `env.ts` Zod fail-fast · T5 `Result` + `CodigoErro` · T6 teste de fronteira arquitetural · T7 CI.
+- **In-progress**: nenhum
+- **Next step**: despachar Batch Worker 2 com as Fases 1 e 2 (T8 a T19) — dinheiro, competência e rateio de parcelas
+- **Blockers**: push para `github.com/mgmenezes/myBilling` bloqueado por falta de credencial (keychain sem entrada para github.com, sem chave SSH, porta 22 com timeout). Aguardando autenticação HTTPS.
+- **Verificado independentemente**: `pnpm verify` exit 0 · 22 testes passando · sensor adversarial confirmou que injetar `next/server` em `src/domain` faz a suíte E o lint falharem, revertido e árvore limpa.
+- **Histórico**: reescrito com `filter-branch` para remover dados financeiros reais (AD-009) e trocar o autor para o e-mail privado do GitHub. Auditoria em 766 KB de objetos: 0 ocorrências dos 15 padrões reais.
+- **Uncommitted files**: nenhum além de `.agents/` e `.claude/` (untracked, intencional)
 - **Branch**: main
