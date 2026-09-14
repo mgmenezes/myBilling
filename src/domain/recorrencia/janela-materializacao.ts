@@ -3,34 +3,36 @@ import { type Competencia, compararCompetencias, rangeCompetencias } from "../sh
 /**
  * O período de vida de uma recorrência.
  *
- * `fim` e `encerradaDesde` são coisas diferentes e convivem: o primeiro é o
- * fim planejado desde o cadastro (um consórcio que acaba em dezembro), o
- * segundo é a interrupção decidida depois (cancelei a internet em maio). Os
- * dois cortam, e vale o que cortar mais cedo.
+ * `fim` é a **última competência em que ela ainda vale**, e carrega os dois
+ * casos: o fim planejado no cadastro (um consórcio que acaba em dezembro) e a
+ * interrupção decidida depois (cancelei a internet em maio — o fim vira abril).
+ *
+ * Os dois moram na mesma coluna de propósito. A alternativa considerada era uma
+ * segunda coluna para o encerramento, e ela foi descartada: duas datas
+ * significando quase a mesma coisa são um convite a alguém preencher uma e
+ * esquecer a outra. O que distingue um caso do outro é `encerrada_em` estar
+ * preenchido, que é registro de auditoria e não entra neste cálculo.
  */
 export interface PeriodoRecorrencia {
   readonly inicio: Competencia;
-  /** `null` = sem fim planejado. */
+  /** Última competência em que vale. `null` = sem fim. */
   readonly fim: Competencia | null;
-  /** `null` = não encerrada. A competência informada **já não** materializa. */
-  readonly encerradaDesde: Competencia | null;
 }
 
 /**
  * Quais competências de `[de, ate]` precisam ter ocorrência materializada.
  *
- * Concentra as quatro bordas num lugar só — antes do início, depois do fim, a
- * partir do encerramento, e fora da janela. Espalhadas pelo caso de uso, cada
- * uma seria testada por acidente; aqui cada uma tem um teste com nome.
+ * Concentra as três bordas num lugar só — antes do início, depois do fim, e
+ * fora da janela. Espalhadas pelo caso de uso, cada uma seria testada por
+ * acidente; aqui cada uma tem um teste com nome.
  *
- * A assimetria entre `fim` e `encerradaDesde` é deliberada e é a parte fácil
- * de errar: o mês do **fim** entra, porque a recorrência vale até ele; o mês
- * do **encerramento** não entra, porque é a partir dele que ela deixou de
- * valer. São duas semânticas diferentes e por isso duas colunas.
+ * O mês do `fim` **entra**: ele é a última competência em que a recorrência
+ * vale, não a primeira em que ela deixa de valer. Quem encerra a partir de maio
+ * grava abril, e é na tradução — não aqui — que mora o off-by-one.
  *
  * Janela invertida devolve vazio em vez de inventar meses: `rangeCompetencias`
- * já se comporta assim, e depender disso é mais honesto que redigitar a
- * verificação.
+ * já se comporta assim, e redigitar a verificação criaria uma segunda
+ * definição do mesmo limite.
  */
 export function janelaMaterializacao(
   periodo: PeriodoRecorrencia,
@@ -42,12 +44,6 @@ export function janelaMaterializacao(
       return false;
     }
     if (periodo.fim !== null && compararCompetencias(competencia, periodo.fim) > 0) {
-      return false;
-    }
-    if (
-      periodo.encerradaDesde !== null &&
-      compararCompetencias(competencia, periodo.encerradaDesde) >= 0
-    ) {
       return false;
     }
     return true;

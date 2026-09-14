@@ -5,24 +5,19 @@ import { janelaMaterializacao, type PeriodoRecorrencia } from "./janela-material
 /**
  * Derivado de FIXO-01 (ACs 2 a 4) e FIXO-02.
  *
- * Esta função concentra as quatro bordas que decidem se uma ocorrência deve
- * existir: antes do início, depois do fim, a partir do encerramento, e fora da
- * janela pedida. Espalhadas pelo caso de uso, cada uma seria testada por
- * acidente; juntas, cada uma tem um teste com nome.
+ * Esta função concentra as três bordas que decidem se uma ocorrência deve
+ * existir: antes do início, depois do fim, e fora da janela pedida. Espalhadas
+ * pelo caso de uso, cada uma seria testada por acidente; juntas, cada uma tem
+ * um teste com nome.
+ *
+ * Encerramento **não** é uma quarta borda: encerrar a partir de maio grava fim
+ * em abril, e o off-by-one dessa tradução mora no caso de uso, com teste lá.
  */
 
 const c = (texto: string) => texto as Competencia;
 
-function periodo(
-  inicio: string,
-  fim: string | null = null,
-  encerradaDesde: string | null = null,
-): PeriodoRecorrencia {
-  return {
-    inicio: c(inicio),
-    fim: fim === null ? null : c(fim),
-    encerradaDesde: encerradaDesde === null ? null : c(encerradaDesde),
-  };
+function periodo(inicio: string, fim: string | null = null): PeriodoRecorrencia {
+  return { inicio: c(inicio), fim: fim === null ? null : c(fim) };
 }
 
 function janela(p: PeriodoRecorrencia, de: string, ate: string): string[] {
@@ -66,15 +61,13 @@ describe("janela de materialização (FIXO-01, FIXO-02)", () => {
     ]);
   });
 
-  it("não cria a partir do encerramento, inclusive o próprio mês (FIXO-06, AC 1)", () => {
-    expect(janela(periodo("2026-01", null, "2026-05"), "2026-03", "2026-06")).toEqual([
+  it("recorrência encerrada a partir de maio tem fim em abril (FIXO-06, AC 1)", () => {
+    // A tradução "encerrar a partir de M" -> "fim em M-1" acontece no caso de
+    // uso. Aqui se prende só o efeito: abril entra, maio não.
+    expect(janela(periodo("2026-01", "2026-04"), "2026-03", "2026-06")).toEqual([
       "2026-03",
       "2026-04",
     ]);
-  });
-
-  it("encerramento anterior à janela zera tudo", () => {
-    expect(janela(periodo("2026-01", null, "2026-02"), "2026-03", "2026-06")).toEqual([]);
   });
 
   it("janela inteiramente antes do início devolve vazio", () => {
@@ -101,13 +94,11 @@ describe("janela de materialização (FIXO-01, FIXO-02)", () => {
     ]);
   });
 
-  it("fim e encerramento juntos: vale o que corta mais cedo", () => {
-    expect(janela(periodo("2026-01", "2026-08", "2026-04"), "2026-03", "2026-09")).toEqual([
-      "2026-03",
-    ]);
-    expect(janela(periodo("2026-01", "2026-04", "2026-08"), "2026-03", "2026-09")).toEqual([
-      "2026-03",
-      "2026-04",
-    ]);
+  it("início e fim no mesmo mês devolvem aquele mês só", () => {
+    expect(janela(periodo("2026-04", "2026-04"), "2026-01", "2026-12")).toEqual(["2026-04"]);
+  });
+
+  it("fim anterior ao início devolve vazio em vez de inverter", () => {
+    expect(janela(periodo("2026-06", "2026-04"), "2026-01", "2026-12")).toEqual([]);
   });
 });

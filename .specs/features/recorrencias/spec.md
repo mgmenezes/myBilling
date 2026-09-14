@@ -55,6 +55,7 @@ O que falta é a metade de cima: repositório, materialização, área e formul�
 | Escrita durante uma leitura de página | Aceita, com `ON CONFLICT DO NOTHING` | Um GET que escreve é cheiro ruim, e a alternativa — materializar só na criação — deixaria buracos em todo mês fora da janela de então. O conflito concorrente é resolvido pelo índice, não por trava. O volume é limitado: janela de 4 meses × recorrências ativas | n |
 | O que protege uma ocorrência de ser reescrita | Estar paga **ou** ter valor diferente do previsto | São os dois sinais de que alguém tocou nela. `valorCentavos <> valorPrevistoCentavos` é a definição de `sobrescritaManualmente` no domínio (REC-01, AC 2). Confirmar exatamente o valor previsto é indistinguível de não confirmar, e isso é aceito: o resultado é o mesmo número | n |
 | Encerrar uma recorrência | Remove as ocorrências **não pagas** da competência de encerramento em diante; as pagas e as passadas ficam | Cancelar a internet não deve continuar cobrando nos meses à frente, e também não pode apagar o que já foi pago. O histórico permanece íntegro | n |
+| Como o encerramento é persistido | `competencia_fim` recebe a competência **anterior** à de encerramento, e `encerrada_em` recebe o instante | Correção feita durante a execução: a spec assumia uma coluna de competência de encerramento, e o banco tem `encerrada_em` como **timestamp** — o instante do clique, do qual não se deriva o mês. A alternativa era migrar uma segunda coluna de data, descartada porque duas datas significando quase a mesma coisa convidam alguém a preencher uma e esquecer a outra. O que distingue fim planejado de interrupção é `encerrada_em` estar preenchido. O off-by-one da tradução fica no caso de uso, com teste próprio | y |
 | Onde o cadastro mora | Área nova **"Fixos"**, ao lado de Visão geral e Lançamentos | O bloco da lista já se chama "Fixos", então a área que os administra tem o mesmo nome. Recorrência tem listar, criar, mudar valor e encerrar: não cabe dentro do formulário de compra, como coube o cadastro de categoria | n |
 | Dia de vencimento em mês curto | `diaEfetivo` faz `min(dia, último dia do mês)` | Já implementado e testado para o ciclo de fatura (CART-03, AC 3). Vencimento dia 31 em fevereiro vira 28 | n |
 | Onde o valor real é confirmado | Na própria linha da lista, no valor, como edição embutida | Confirmar o valor e marcar pago são o mesmo gesto para quem usa. O selo-botão de pago já está na linha; a confirmação entra ao lado, não numa tela à parte | n |
@@ -195,8 +196,9 @@ existir.
 
 **Acceptance Criteria**
 
-1. WHEN uma recorrência é encerrada a partir de uma competência THEN o sistema SHALL parar de
-   materializar ocorrências daquela competência em diante
+1. WHEN uma recorrência é encerrada a partir de uma competência THEN o sistema SHALL gravar como
+   fim a competência **anterior** a ela, SHALL registrar o instante do encerramento, e SHALL parar
+   de materializar ocorrências da competência de encerramento em diante
 2. WHEN uma recorrência é encerrada THEN o sistema SHALL remover as ocorrências não pagas daquela
    competência em diante e SHALL preservar as pagas
 3. WHEN uma recorrência encerrada é listada THEN o sistema SHALL exibi-la como encerrada em vez de

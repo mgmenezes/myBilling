@@ -436,11 +436,7 @@ export async function semear(
       });
     }
 
-    const competencias = janelaMaterializacao(
-      { inicio: base, fim: null, encerradaDesde: null },
-      base,
-      ultimaCoberta,
-    );
+    const competencias = janelaMaterializacao({ inicio: base, fim: null }, base, ultimaCoberta);
     for (const comp of competencias) {
       const vigente = versaoVigente(versoes, comp);
       if (vigente === null) {

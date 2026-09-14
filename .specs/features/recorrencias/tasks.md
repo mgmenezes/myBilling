@@ -142,7 +142,9 @@ T21 -> T22
 **Gate**: quick
 
 #### T2: Competências que a materialização deve cobrir ✅ CONCLUÍDA
-**What**: Função pura que recebe início, fim opcional, competência de encerramento opcional e uma janela `[de, ate]`, e devolve quais competências da janela precisam existir. Concentra as quatro condições de borda num lugar só.
+**What**: Função pura que recebe início, fim opcional e uma janela `[de, ate]`, e devolve quais competências da janela precisam existir. Concentra as três condições de borda num lugar só.
+
+> **Corrigida durante a execução.** A versão original recebia também uma competência de encerramento. O banco não tem essa coluna: `encerrada_em` é timestamp. Encerrar passou a gravar `competencia_fim` na competência anterior, o parâmetro extra nasceria sempre nulo, e foi removido junto com seus testes. O off-by-one da tradução mora no caso de uso de encerrar (T13), com teste lá.
 **Where**: `src/domain/recorrencia/janela-materializacao.ts`, exportada em `src/domain/index.ts`
 **Depends on**: nenhuma
 **Reuses**: `rangeCompetencias` e `compararCompetencias`
@@ -151,7 +153,6 @@ T21 -> T22
 **Done when**:
 - [x] Competência anterior ao início não entra
 - [x] Competência posterior ao fim não entra, e fim `null` não limita
-- [x] Competência igual ou posterior ao encerramento não entra
 - [x] Janela inteiramente fora do período devolve lista vazia
 - [x] Janela invertida (`ate` anterior a `de`) devolve lista vazia
 **Tests**: unit
@@ -326,6 +327,7 @@ T21 -> T22
 **Requirement**: FIXO-06
 **Tools**: nenhuma
 **Done when**:
+- [ ] Encerrar a partir de maio grava fim em **abril**: o off-by-one da tradução tem teste próprio
 - [ ] Ocorrências pagas da competência em diante sobrevivem (FIXO-06, AC 2)
 - [ ] Ocorrências não pagas da competência em diante são removidas
 - [ ] Competências anteriores ao encerramento não são tocadas
