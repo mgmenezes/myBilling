@@ -30,9 +30,9 @@ reflexo automático de LLM. A exceção prevista é o briefing nomear as cores, 
 
 | Token | Claro | Escuro | Uso |
 | --- | --- | --- | --- |
-| `--canvas` | `#F3F0EE` | `#141413` | Fundo da página. **Nunca branco puro** |
-| `--surface` | `#FCFBFA` | `#1E1E1C` | Cartões elevados |
-| `--surface-strong` | `#FFFFFF` | `#262624` | Nav flutuante, campos de formulário |
+| `--canvas` | `#F3F0EE` | `#100F0E` | Fundo da página. **Nunca branco puro** |
+| `--surface` | `#FCFBFA` | `#1E1E1A` | Cartões elevados |
+| `--surface-strong` | `#FFFFFF` | `#2E2E28` | Nav flutuante, campos de formulário |
 | `--ink` | `#141413` | `#F3F0EE` | Texto principal e CTA primário |
 | `--ink-muted` | `#5C5A57` | `#A8A49E` | Texto secundário |
 | `--accent` | `#CF4500` | `#FF8A4C` | Sinal de atenção |
@@ -51,6 +51,25 @@ reflexo automático de LLM. A exceção prevista é o briefing nomear as cores, 
 **Restrição que sai daí:** `--accent` no tema claro não pode ser cor de parágrafo. Serve para
 preenchimento, borda, e rótulo a partir de 18px. Texto pequeno em laranja sobre creme é ilegível para
 parte das pessoas e passaria despercebido numa revisão visual.
+
+### Separação das superfícies no tema escuro
+
+A primeira escada (`#141413`, `#1E1E1C`, `#262624`) tinha degraus de **1.104** e **1.101**. Abaixo de
+1.10 duas superfícies adjacentes não se distinguem, e nos primeiros screenshots reais os painéis
+sumiam no fundo.
+
+A escada atual foi escolhida por medição, não no olho:
+
+| Degrau | Razão |
+| --- | --- |
+| canvas `#100F0E` para superfície `#1E1E1A` | **1.145** |
+| superfície `#1E1E1A` para campo `#2E2E28` | **1.224** |
+| texto `#F3F0EE` sobre superfície | 14.74 (AAA) |
+| acento `#FF8A4C` sobre superfície | 7.16 (AA) |
+
+Uma proposta intermediária (`#121211`, `#1C1C1A`) foi descartada: media 1.098 no primeiro degrau,
+**pior** que a original. Escolher tom escuro no olho não funciona, porque a percepção comprime a
+diferença justamente nessa faixa.
 
 ## Escala de raios
 
