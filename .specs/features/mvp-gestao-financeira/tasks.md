@@ -517,7 +517,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T24: Valor efetivo de recorrência variável
+#### T24: Valor efetivo de recorrência variável ✅ CONCLUÍDA
 **What**: `resolverValorEfetivo(previsto, real)` e a marcação de sobrescrita manual, garantindo que confirmar o valor de um mês não vaze para nenhum outro.
 **Where**: `src/domain/recorrencia/valor-efetivo.ts`
 **Depends on**: T8
@@ -525,10 +525,10 @@ T52 -> T53
 **Requirement**: REC-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Sem valor real confirmado, o efetivo é o previsto (REC-01, AC 1)
-- [ ] Com valor real confirmado, o efetivo é o real e o previsto original é preservado (REC-01, AC 1)
-- [ ] Confirmar o valor de uma competência não altera a estrutura de nenhuma outra competência (REC-01, AC 1)
-- [ ] Ocorrência marcada como sobrescrita é sinalizada para que a materialização não a altere (REC-01, AC 2)
+- [x] Sem valor real confirmado, o efetivo é o previsto (REC-01, AC 1)
+- [x] Com valor real confirmado, o efetivo é o real e o previsto original é preservado (REC-01, AC 1)
+- [x] Confirmar o valor de uma competência não altera a estrutura de nenhuma outra competência (REC-01, AC 1)
+- [x] Ocorrência marcada como sobrescrita é sinalizada para que a materialização não a altere (REC-01, AC 2)
 **Tests**: unit
 **Gate**: quick
 

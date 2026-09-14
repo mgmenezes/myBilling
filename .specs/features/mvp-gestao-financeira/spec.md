@@ -294,7 +294,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | CART-03 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | ORC-01 | P2: Orçamento por categoria | Fase 3 | Verified |
 | ORC-02 | P2: Orçamento por categoria | Fase 3 | Implementing |
-| REC-01 | P3: Recorrência com valor variável | Design | Pending |
+| REC-01 | P3: Recorrência com valor variável | Fase 3 | Verified |
 | REC-02 | P3: Recorrência com valor variável | Design | Pending |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Design | Pending |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Design | Pending |
