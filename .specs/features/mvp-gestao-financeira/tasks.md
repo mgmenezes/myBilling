@@ -210,7 +210,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T5: Result e catálogo fechado de códigos de erro
+#### T5: Result e catálogo fechado de códigos de erro ✅ CONCLUÍDA
 **What**: Implementar `Result<T, E>` com construtores `ok` e `err` e guardas de narrowing, mais a union fechada `CodigoErro` com todos os códigos do `design.md` (`PARCELA_INFERIOR_A_UM_CENTAVO`, `QTD_PARCELAS_INVALIDA`, `VALOR_NAO_POSITIVO`, `PARCELA_INICIAL_INVALIDA`, `MEIO_PAGAMENTO_ARQUIVADO`, `CONSERVACAO_VIOLADA`, `COMPETENCIA_INVALIDA`).
 **Where**: `src/domain/shared/result.ts`
 **Depends on**: T3
@@ -218,9 +218,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste prova que `ok(v)` estreita para o ramo de sucesso e `err(c)` para o de falha
-- [ ] `CodigoErro` é union de literais, sem `string` aberto
-- [ ] Nenhuma mensagem de usuário existe neste arquivo
+- [x] Teste prova que `ok(v)` estreita para o ramo de sucesso e `err(c)` para o de falha
+- [x] `CodigoErro` é union de literais, sem `string` aberto
+- [x] Nenhuma mensagem de usuário existe neste arquivo
 **Tests**: unit
 **Gate**: quick
 
