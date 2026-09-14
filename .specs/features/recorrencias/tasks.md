@@ -179,7 +179,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T4: Fechar a fase com 100% de branches no módulo novo
+#### T4: Fechar a fase com 100% de branches no módulo novo ✅ CONCLUÍDA
 **What**: Rodar cobertura e fechar qualquer ramo descoberto em `src/domain/recorrencia/**`, sem enfraquecer assertion. Conferir que `arquitetura.test.ts` segue verde: o módulo novo não pode importar nada de fora do domínio.
 **Where**: `src/domain/recorrencia/**`
 **Depends on**: T1, T2, T3
