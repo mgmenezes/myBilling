@@ -7,7 +7,9 @@ import type {
   MeioPagamento,
   PlanoParcelamento,
   PoliticaResiduo,
+  Recorrencia,
   Result,
+  VersaoRecorrencia,
 } from "@/domain";
 
 /**
@@ -95,6 +97,51 @@ export interface MovimentoRepository {
   buscarPorId(id: string): Promise<Lancamento | null>;
   /** `pagoEm` em `'YYYY-MM-DD'`; `null` desfaz a marcação (MOV-06, AC 1). */
   marcarPagamento(id: string, pagoEm: string | null): Promise<void>;
+}
+
+/** Os campos descritivos da recorrência. O valor vem separado, na versão. */
+export type DadosRecorrencia = Omit<Recorrencia, "id" | "encerradaEm">;
+
+export interface EntradaCriarRecorrencia {
+  readonly dados: DadosRecorrencia;
+  /** Vira a versão vigente a partir de `competenciaInicio`. */
+  readonly valorInicial: Cents;
+}
+
+/**
+ * Uma recorrência com o histórico de valores dela. Vêm juntas porque nenhum
+ * consumidor precisa de uma sem a outra: sem versão não há valor, e uma versão
+ * solta não diz de quem é.
+ */
+export interface RecorrenciaComVersoes {
+  readonly recorrencia: Recorrencia;
+  /** Ordenadas por vigência crescente. */
+  readonly versoes: ReadonlyArray<VersaoRecorrencia>;
+}
+
+export interface RecorrenciaRepository {
+  /**
+   * Todas, inclusive as encerradas. Quem decide o que materializar é
+   * `janelaMaterializacao`, com o período — e uma recorrência encerrada
+   * continua precisando aparecer na tela que a administra (FIXO-06, AC 3).
+   */
+  listarComVersoes(): Promise<ReadonlyArray<RecorrenciaComVersoes>>;
+  /** Grava recorrência e versão inicial **atomicamente**: uma sem a outra é um
+   *  estado que não pode existir. */
+  criar(entrada: EntradaCriarRecorrencia): Promise<Recorrencia>;
+  /** Vigência já existente tem o valor substituído, e não duplicado
+   *  (FIXO-03, AC 4). */
+  registrarVersao(
+    recorrenciaId: string,
+    vigenteDesde: Competencia,
+    valorPrevisto: Cents,
+  ): Promise<void>;
+  /**
+   * `competenciaFim` é a **última competência em que ainda vale** — quem
+   * encerra a partir de maio passa abril. A tradução é do caso de uso, para
+   * este contrato não ter duas leituras possíveis.
+   */
+  encerrar(recorrenciaId: string, competenciaFim: Competencia, encerradaEm: string): Promise<void>;
 }
 
 export interface CadastroRepository {

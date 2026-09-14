@@ -47,6 +47,29 @@ export interface Cartao extends MeioPagamentoBase {
 
 export type MeioPagamento = MeioSemFatura | Cartao;
 
+/**
+ * Um plano de geração, nunca uma linha somável (AD-003). Nenhuma coluna daqui
+ * entra em `SUM`: quem soma são as ocorrências materializadas em `movimento`.
+ *
+ * O valor **não** mora aqui — mora nas versões, porque ele muda com o tempo e o
+ * que foi planejado em março continua sendo informação depois que mudou em
+ * outubro.
+ */
+export interface Recorrencia {
+  readonly id: string;
+  readonly descricao: string;
+  readonly natureza: Natureza;
+  readonly categoriaId: string | null;
+  readonly usuarioId: string;
+  readonly meioPagamentoId: string;
+  readonly competenciaInicio: Competencia;
+  /** Última competência em que vale. `null` = sem fim. */
+  readonly competenciaFim: Competencia | null;
+  readonly diaVencimento: number;
+  /** Instante em que foi encerrada. Auditoria: não entra no cálculo da janela. */
+  readonly encerradaEm: string | null;
+}
+
 export interface Lancamento {
   readonly id: string;
   readonly natureza: Natureza;

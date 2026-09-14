@@ -2,11 +2,13 @@ import {
   type Categoria,
   type Cents,
   type Competencia,
+  compararCompetencias,
   type DomainError,
   err,
   type Lancamento,
   type MeioPagamento,
   ok,
+  type Recorrencia,
   type Result,
   somar,
   ZERO_CENTS,
@@ -15,8 +17,11 @@ import type {
   CadastroRepository,
   CompraPersistida,
   CompraRepository,
+  EntradaCriarRecorrencia,
   EntradaSalvarCompra,
   MovimentoRepository,
+  RecorrenciaComVersoes,
+  RecorrenciaRepository,
   Usuario,
 } from "./repositories";
 
@@ -38,6 +43,7 @@ export interface EstadoEmMemoria {
   readonly usuarios: Usuario[];
   readonly meiosDePagamento: MeioPagamento[];
   readonly categorias: Categoria[];
+  readonly recorrencias: Map<string, RecorrenciaComVersoes>;
 }
 
 export function criarEstadoEmMemoria(): EstadoEmMemoria {
@@ -47,6 +53,7 @@ export function criarEstadoEmMemoria(): EstadoEmMemoria {
     usuarios: [],
     meiosDePagamento: [],
     categorias: [],
+    recorrencias: new Map(),
   };
 }
 
@@ -207,4 +214,71 @@ export function criarFakes(estado: EstadoEmMemoria = criarEstadoEmMemoria()): Fa
     movimentos: new FakeMovimentoRepository(estado),
     cadastros: new FakeCadastroRepository(estado),
   };
+}
+
+/**
+ * Recorrência em memória.
+ *
+ * Ele existe para os casos de uso rodarem sem banco, e só vale enquanto se
+ * comportar como o Drizzle nos pontos que eles observam: versões ordenadas,
+ * vigência repetida substituindo, e encerrar sem apagar. Os mesmos três pontos
+ * são asserados contra Postgres real no teste de integração do repositório —
+ * é esse par que impede este fake de virar uma ficção conveniente.
+ */
+export class FakeRecorrenciaRepository implements RecorrenciaRepository {
+  private proximoId = 1;
+
+  constructor(private readonly estado: EstadoEmMemoria) {}
+
+  async listarComVersoes(): Promise<ReadonlyArray<RecorrenciaComVersoes>> {
+    return [...this.estado.recorrencias.values()];
+  }
+
+  async criar(entrada: EntradaCriarRecorrencia): Promise<Recorrencia> {
+    const recorrencia: Recorrencia = {
+      ...entrada.dados,
+      id: `rec-${this.proximoId++}`,
+      encerradaEm: null,
+    };
+    this.estado.recorrencias.set(recorrencia.id, {
+      recorrencia,
+      versoes: [
+        { vigenteDesde: entrada.dados.competenciaInicio, valorPrevisto: entrada.valorInicial },
+      ],
+    });
+    return recorrencia;
+  }
+
+  async registrarVersao(
+    recorrenciaId: string,
+    vigenteDesde: Competencia,
+    valorPrevisto: Cents,
+  ): Promise<void> {
+    const atual = this.estado.recorrencias.get(recorrenciaId);
+    if (!atual) {
+      return;
+    }
+    const semAVigencia = atual.versoes.filter((v) => v.vigenteDesde !== vigenteDesde);
+    this.estado.recorrencias.set(recorrenciaId, {
+      ...atual,
+      versoes: [...semAVigencia, { vigenteDesde, valorPrevisto }].sort((a, b) =>
+        compararCompetencias(a.vigenteDesde, b.vigenteDesde),
+      ),
+    });
+  }
+
+  async encerrar(
+    recorrenciaId: string,
+    competenciaFim: Competencia,
+    encerradaEm: string,
+  ): Promise<void> {
+    const atual = this.estado.recorrencias.get(recorrenciaId);
+    if (!atual) {
+      return;
+    }
+    this.estado.recorrencias.set(recorrenciaId, {
+      ...atual,
+      recorrencia: { ...atual.recorrencia, competenciaFim, encerradaEm },
+    });
+  }
 }

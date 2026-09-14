@@ -65,6 +65,7 @@ export type {
   Parcela,
   PlanoParcelamento,
   PoliticaResiduo,
+  Recorrencia,
   ResumoMensal,
   TipoMeio,
 } from "./tipos";

@@ -195,7 +195,7 @@ T21 -> T22
 
 ### Phase 1 — Ports e repositórios
 
-#### T5: Port de recorrência e fake em memória
+#### T5: Port de recorrência e fake em memória ✅ CONCLUÍDA
 **What**: `RecorrenciaRepository` em termos de tipo de domínio, com `listarComVersoes()`, `criar()`, `registrarVersao()` e `encerrar()`. Fake em memória correspondente, para os casos de uso da fase 2 rodarem sem banco.
 **Where**: `src/application/ports/repositories.ts`, `src/application/ports/fakes.ts`
 **Depends on**: T4
@@ -203,9 +203,9 @@ T21 -> T22
 **Requirement**: FIXO-01, FIXO-03, FIXO-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] Nenhuma assinatura da port menciona Drizzle, `Pool` ou linha de banco (AD-006)
-- [ ] O fake devolve as versões junto da recorrência, ordenadas por vigência
-- [ ] `encerrar` no fake grava a competência de encerramento sem apagar a recorrência
+- [x] Nenhuma assinatura da port menciona Drizzle, `Pool` ou linha de banco (AD-006)
+- [x] O fake devolve as versões junto da recorrência, ordenadas por vigência
+- [x] `encerrar` no fake grava a competência de encerramento sem apagar a recorrência
 **Tests**: unit
 **Gate**: quick
 
