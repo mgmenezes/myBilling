@@ -1,14 +1,18 @@
+import { GoogleLogoIcon, WalletIcon } from "@phosphor-icons/react/dist/ssr";
 import { forbidden } from "next/navigation";
 import { signIn } from "@/infrastructure/auth/auth";
 
 /**
- * Tela de entrada. Pública por definição: é o destino do middleware quando
- * falta sessão (AUTH-01, AC 1).
+ * Tela de entrada. Pública por definição: é o destino do proxy quando falta
+ * sessão (AUTH-01, AC 1).
  *
  * `AccessDenied` é o erro que o Auth.js devolve quando o callback `signIn`
  * recusa o e-mail. Ele vira `forbidden()`, e não um alerta de 200: a resposta
  * precisa ser 403 de fato (AUTH-01, AC 2). Os demais erros do fluxo viram uma
- * mensagem genérica — nenhum detalhe técnico chega ao navegador.
+ * mensagem genérica, e nenhum detalhe técnico chega ao navegador.
+ *
+ * Sem hero de marketing: quem chega aqui já sabe o que o app faz e quer
+ * entrar. Uma tela de login que se comporta como landing page é atrito.
  */
 
 async function entrarComGoogle() {
@@ -23,19 +27,27 @@ export default async function PaginaDeLogin({ searchParams }: PageProps<"/login"
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+    <main className="flex min-h-[100dvh] flex-1 items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-panel bg-surface px-6 py-10 shadow-float sm:px-10">
+        <p className="flex items-center gap-2 text-[17px] font-medium tracking-[-0.02em]">
+          <WalletIcon size={24} weight="duotone" aria-hidden="true" className="text-accent" />
           myBilling
+        </p>
+
+        <h1 className="mt-8 text-[32px] leading-[1.1] sm:text-[38px]">
+          O controle da casa,
+          <br />
+          sem planilha.
         </h1>
-        <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">
-          Controle financeiro da casa. O acesso é restrito às pessoas autorizadas.
+
+        <p className="mt-4 max-w-[42ch] text-ink-muted">
+          Cadastre a compra parcelada uma vez. As parcelas dos próximos meses aparecem sozinhas.
         </p>
 
         {error !== undefined && error !== "AccessDenied" ? (
           <p
             role="alert"
-            className="mt-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100"
+            className="mt-8 rounded-card border border-accent bg-surface-strong px-4 py-3 text-[15px] text-ink"
           >
             Não foi possível concluir a entrada. Tente novamente.
           </p>
@@ -44,11 +56,16 @@ export default async function PaginaDeLogin({ searchParams }: PageProps<"/login"
         <form action={entrarComGoogle} className="mt-8">
           <button
             type="submit"
-            className="w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:focus-visible:outline-zinc-50"
+            className="inline-flex w-full items-center justify-center gap-2.5 rounded-cta bg-ink px-6 py-3.5 text-[15px] font-medium text-canvas transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.97]"
           >
+            <GoogleLogoIcon size={19} weight="bold" aria-hidden="true" />
             Entrar com o Google
           </button>
         </form>
+
+        <p className="mt-6 text-[13px] text-ink-muted">
+          O acesso é restrito às pessoas autorizadas.
+        </p>
       </div>
     </main>
   );

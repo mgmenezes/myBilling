@@ -117,9 +117,11 @@ h3 {
   *,
   *::before,
   *::after {
+    /* biome-ignore-start lint/complexity/noImportantStyles: sem !important a classe utilitária vence e a preferência de movimento reduzido deixa de valer. É o padrão consolidado para este reset e a exceção é deliberada. */
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+    /* biome-ignore-end lint/complexity/noImportantStyles: fim da exceção */
   }
 }
