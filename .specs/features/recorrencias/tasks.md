@@ -141,7 +141,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T2: Competências que a materialização deve cobrir
+#### T2: Competências que a materialização deve cobrir ✅ CONCLUÍDA
 **What**: Função pura que recebe início, fim opcional, competência de encerramento opcional e uma janela `[de, ate]`, e devolve quais competências da janela precisam existir. Concentra as quatro condições de borda num lugar só.
 **Where**: `src/domain/recorrencia/janela-materializacao.ts`, exportada em `src/domain/index.ts`
 **Depends on**: nenhuma
@@ -149,11 +149,11 @@ T21 -> T22
 **Requirement**: FIXO-01, FIXO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Competência anterior ao início não entra
-- [ ] Competência posterior ao fim não entra, e fim `null` não limita
-- [ ] Competência igual ou posterior ao encerramento não entra
-- [ ] Janela inteiramente fora do período devolve lista vazia
-- [ ] Janela invertida (`ate` anterior a `de`) devolve lista vazia
+- [x] Competência anterior ao início não entra
+- [x] Competência posterior ao fim não entra, e fim `null` não limita
+- [x] Competência igual ou posterior ao encerramento não entra
+- [x] Janela inteiramente fora do período devolve lista vazia
+- [x] Janela invertida (`ate` anterior a `de`) devolve lista vazia
 **Tests**: unit
 **Gate**: quick
 
