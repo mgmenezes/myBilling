@@ -1,26 +1,125 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Identidade visual do myBilling. Decisões e medições em `docs/design.md`.
+ *
+ * Uma regra manda em tudo aqui: o canvas é creme quente, nunca branco puro.
+ * Trocar `--canvas` por `#fff` desmancha a identidade inteira, porque toda a
+ * escala de cinzas foi calibrada contra esse fundo.
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  color-scheme: light dark;
+
+  --canvas: #f3f0ee;
+  --surface: #fcfbfa;
+  --surface-strong: #ffffff;
+  --ink: #141413;
+  --ink-muted: #5c5a57;
+  --accent: #cf4500;
+  --accent-contrast: #ffffff;
+  --line: rgb(20 20 19 / 0.12);
+  --line-strong: rgb(20 20 19 / 0.22);
+
+  /*
+   * Sombra tingida com a cor do fundo, nunca preto puro: preto sobre creme
+   * suja a cor. Raio grande e opacidade baixa — o cartão respira acima da
+   * página em vez de projetar uma borda dura.
+   */
+  --sombra-1: 0 4px 24px rgb(20 20 19 / 0.05);
+  --sombra-2: 0 18px 48px rgb(20 20 19 / 0.09);
+
+  /*
+   * Escala de raios. Pula de propósito a faixa de 1 a 19px: é a faixa que faz
+   * qualquer interface parecer bootstrap genérico. Nada no app usa outro valor.
+   */
+  --r-chip: 999px;
+  --r-cta: 20px;
+  --r-card: 24px;
+  --r-panel: 40px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #141413;
+    --surface: #1e1e1c;
+    --surface-strong: #262624;
+    --ink: #f3f0ee;
+    --ink-muted: #a8a49e;
+    /* Mais claro que o acento do tema claro: 4.11:1 no creme reprovaria aqui. */
+    --accent: #ff8a4c;
+    --accent-contrast: #141413;
+    --line: rgb(243 240 238 / 0.14);
+    --line-strong: rgb(243 240 238 / 0.26);
+    --sombra-1: 0 4px 24px rgb(0 0 0 / 0.34);
+    --sombra-2: 0 18px 48px rgb(0 0 0 / 0.46);
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --radius-chip: var(--r-chip);
+  --radius-cta: var(--r-cta);
+  --radius-card: var(--r-card);
+  --radius-panel: var(--r-panel);
+
+  --shadow-lift: var(--sombra-1);
+  --shadow-float: var(--sombra-2);
+
+  --font-sans: var(--font-sofia), "Sofia Sans", system-ui, sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* Peso 450 é a assinatura da fonte: mais macio que 500, mais firme que 400. */
+  font-weight: 450;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/*
+ * Dinheiro em algarismos de largura fixa. Sem isto, a coluna de valores dança
+ * a cada dígito e comparar dois números vira trabalho de leitura.
+ */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Quem pede menos movimento recebe menos movimento, inclusive das bibliotecas.
+ * Motion e GSAP também consultam a preferência por conta própria; esta regra é
+ * a rede embaixo, para animação de CSS que passe despercebida numa revisão.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

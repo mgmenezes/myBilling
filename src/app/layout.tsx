@@ -1,15 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Sofia_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * Sofia Sans é variável de 1 a 1000, então o peso 450 do corpo existe de
+ * verdade em vez de ser arredondado para 400. O documento de referência a
+ * indica como o substituto aberto mais próximo do MarkForMC.
+ *
+ * Antes desta troca o app renderizava em **Arial**: o `globals.css` de
+ * scaffold sobrescrevia o `body` e as variáveis do Geist nunca eram usadas.
+ */
+const sofia = Sofia_Sans({
+  variable: "--font-sofia",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  // Sem `weight`: carrega o arquivo variável com o eixo inteiro. Declarar a
+  // lista de pesos traria estáticos e 450 nem existe lá — o eixo contínuo é
+  // justamente o que permite o peso intermediário do corpo.
 });
 
 export const metadata: Metadata = {
@@ -21,12 +28,16 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f0ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#141413" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="pt-BR" className={`${sofia.variable} h-full`}>
+      <body className="flex min-h-full flex-col bg-canvas text-ink">{children}</body>
     </html>
   );
 }
