@@ -15,7 +15,7 @@ const sofia = Sofia_Sans({
   subsets: ["latin"],
   display: "swap",
   // Sem `weight`: carrega o arquivo variável com o eixo inteiro. Declarar a
-  // lista de pesos traria estáticos e 450 nem existe lá — o eixo contínuo é
+  // lista de pesos traria estáticos e 450 nem existe lá. O eixo contínuo é
   // justamente o que permite o peso intermediário do corpo.
 });
 

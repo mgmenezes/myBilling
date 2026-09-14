@@ -23,7 +23,7 @@
 
   /*
    * Sombra tingida com a cor do fundo, nunca preto puro: preto sobre creme
-   * suja a cor. Raio grande e opacidade baixa — o cartão respira acima da
+   * suja a cor. Raio grande e opacidade baixa: o cartão respira acima da
    * página em vez de projetar uma borda dura.
    */
   --sombra-1: 0 4px 24px rgb(20 20 19 / 0.05);
