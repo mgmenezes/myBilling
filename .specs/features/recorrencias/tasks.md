@@ -323,7 +323,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T13: Encerrar recorrência
+#### T13: Encerrar recorrência ✅ CONCLUÍDA
 **What**: Caso de uso que marca o encerramento e remove as ocorrências não pagas da competência em diante.
 **Where**: `src/application/recorrencias/encerrar/handler.ts`
 **Depends on**: T8
