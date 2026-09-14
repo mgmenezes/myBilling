@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { addMeses, type Competencia, criarCompetencia } from "@/domain";
@@ -11,7 +12,11 @@ import { formatarCompetencia, nomeDoMes } from "@/lib/formatar";
  * virada de ano funciona de graça.
  *
  * Anterior e próximo são links de verdade, não botões com `onClick`: o
- * navegador já dá foco, teclado, abrir em nova aba e o Next já pré-carrega.
+ * navegador já dá foco, teclado, abrir em nova aba, e o Next já pré-carrega.
+ *
+ * O conjunto inteiro é um pill sobre a superfície elevada. É o controle que
+ * mais recebe clique no app, então ele é o único elemento da tela com alvo
+ * de toque generoso e posição fixa na composição.
  */
 
 /** Quantos anos para cada lado o seletor de ano oferece. */
@@ -30,6 +35,15 @@ const MESES = Array.from({ length: 12 }, (_, indice) => {
   return { numero, nome: nomeDoMes(`2000-${numero}`) };
 });
 
+const SETA =
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-chip border border-line " +
+  "text-ink transition-[transform,background-color,border-color] duration-200 " +
+  "hover:border-line-strong hover:bg-canvas active:scale-[0.94]";
+
+const CAMPO =
+  "rounded-chip border border-line bg-surface-strong px-4 py-2.5 text-[15px] text-ink " +
+  "transition-colors duration-200 hover:border-line-strong";
+
 export function SeletorCompetencia({ competencia }: { competencia: Competencia }) {
   const router = useRouter();
   const anterior = addMeses(competencia, -1);
@@ -44,13 +58,16 @@ export function SeletorCompetencia({ competencia }: { competencia: Competencia }
   }
 
   return (
-    <nav aria-label="Navegação entre meses" className="flex flex-wrap items-center gap-2">
+    <nav
+      aria-label="Navegação entre meses"
+      className="flex flex-wrap items-center gap-2 rounded-chip bg-surface p-2 shadow-lift sm:gap-3"
+    >
       <Link
         href={`/${anterior}`}
         aria-label={`Mês anterior: ${formatarCompetencia(anterior)}`}
-        className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:border-zinc-700 dark:text-zinc-50 dark:hover:bg-zinc-800"
+        className={SETA}
       >
-        <span aria-hidden="true">←</span>
+        <CaretLeftIcon size={18} weight="bold" aria-hidden="true" />
       </Link>
 
       <label className="sr-only" htmlFor="seletor-mes">
@@ -60,7 +77,7 @@ export function SeletorCompetencia({ competencia }: { competencia: Competencia }
         id="seletor-mes"
         value={mes}
         onChange={(evento) => irPara(ano, evento.target.value)}
-        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        className={CAMPO}
       >
         {MESES.map((item) => (
           <option key={item.numero} value={item.numero}>
@@ -76,7 +93,7 @@ export function SeletorCompetencia({ competencia }: { competencia: Competencia }
         id="seletor-ano"
         value={ano}
         onChange={(evento) => irPara(evento.target.value, mes)}
-        className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+        className={`${CAMPO} tabular`}
       >
         {anosVizinhos(competencia).map((item) => (
           <option key={item} value={item}>
@@ -88,12 +105,13 @@ export function SeletorCompetencia({ competencia }: { competencia: Competencia }
       <Link
         href={`/${proxima}`}
         aria-label={`Próximo mês: ${formatarCompetencia(proxima)}`}
-        className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:border-zinc-700 dark:text-zinc-50 dark:hover:bg-zinc-800"
+        className={SETA}
       >
-        <span aria-hidden="true">→</span>
+        <CaretRightIcon size={18} weight="bold" aria-hidden="true" />
       </Link>
 
-      <p aria-live="polite" className="ml-1 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+      {/* Anuncia a mudança para leitor de tela sem depender da animação. */}
+      <p aria-live="polite" className="sr-only">
         {formatarCompetencia(competencia)}
       </p>
     </nav>
