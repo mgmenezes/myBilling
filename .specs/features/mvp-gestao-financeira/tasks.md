@@ -471,7 +471,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T21: Eixo caixa e separação entre previsto e realizado
+#### T21: Eixo caixa e separação entre previsto e realizado ✅ CONCLUÍDA
 **What**: Acrescentar `caixaView` ao resumo — Saídas, Entradas Recebidas, Investimentos Realizados e Saldo de caixa — e o total Pendente do eixo competência. Os dois eixos ficam em objetos distintos, nunca somados.
 **Where**: `src/domain/mes/resumo-mensal.test.ts`
 **Depends on**: T20
@@ -479,10 +479,10 @@ T52 -> T53
 **Requirement**: MOV-03, MOV-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] Lançamento com `pagoEm` preenchido é realizado; sem `pagoEm` é previsto (MOV-06, AC 1)
-- [ ] Pendente soma apenas despesas da competência sem `pagoEm` (MOV-06, AC 2)
-- [ ] `competenciaView` e `caixaView` são objetos distintos, sem campo que misture os dois (MOV-03, AC 3)
-- [ ] Teste prova que um mesmo conjunto de lançamentos produz Total de Gastos e Saídas diferentes quando há pagamento de fatura de competência anterior — a divergência legítima
+- [x] Lançamento com `pagoEm` preenchido é realizado; sem `pagoEm` é previsto (MOV-06, AC 1)
+- [x] Pendente soma apenas despesas da competência sem `pagoEm` (MOV-06, AC 2)
+- [x] `competenciaView` e `caixaView` são objetos distintos, sem campo que misture os dois (MOV-03, AC 3)
+- [x] Teste prova que um mesmo conjunto de lançamentos produz Total de Gastos e Saídas diferentes quando há pagamento de fatura de competência anterior — a divergência legítima
 **Tests**: unit
 **Gate**: quick
 
