@@ -286,7 +286,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T10: Competência YYYY-MM com aritmética inteira
+#### T10: Competência YYYY-MM com aritmética inteira ✅ CONCLUÍDA
 **What**: Tipo branded `Competencia`, construtor validante, `addMeses` (aceitando negativo), `compararCompetencias`, `diffMeses` e `rangeCompetencias`. Deslocamento por `ano × 12 + mes`, sem `Date`.
 **Where**: `src/domain/shared/competencia.ts`
 **Depends on**: T5
@@ -294,11 +294,11 @@ T52 -> T53
 **Requirement**: COMP-01, COMP-02, COMP-04
 **Tools**: nenhuma
 **Done when**:
-- [ ] `addMeses('2026-11', 3)` resulta em `'2027-02'` (COMP-01)
-- [ ] `addMeses('2026-01', -1)` resulta em `'2025-12'` (COMP-04)
-- [ ] `addMeses('2026-11', 23)` resulta em `'2028-10'` (COMP-02)
-- [ ] `'2026-13'` e `'2026-00'` são rejeitados com `COMPETENCIA_INVALIDA`
-- [ ] Nenhuma referência a `Date` no arquivo (verificado por assertion sobre o fonte)
+- [x] `addMeses('2026-11', 3)` resulta em `'2027-02'` (COMP-01)
+- [x] `addMeses('2026-01', -1)` resulta em `'2025-12'` (COMP-04)
+- [x] `addMeses('2026-11', 23)` resulta em `'2028-10'` (COMP-02)
+- [x] `'2026-13'` e `'2026-00'` são rejeitados com `COMPETENCIA_INVALIDA`
+- [x] Nenhuma referência a `Date` no arquivo (verificado por assertion sobre o fonte)
 **Tests**: unit
 **Gate**: quick
 
