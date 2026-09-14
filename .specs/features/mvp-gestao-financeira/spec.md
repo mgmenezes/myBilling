@@ -272,36 +272,36 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| PARC-01 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-02 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-03 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-04 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-05 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-06 | P1: Compra já em andamento | Tasks | Implementing |
-| PARC-07 | P1: Compra já em andamento | Tasks | Implementing |
-| PARC-08 | P1: Compra já em andamento | Tasks | Implementing |
+| PARC-01 | P1: Compra parcelada com distribuição automática | Tasks | Verified |
+| PARC-02 | P1: Compra parcelada com distribuição automática | Tasks | Verified |
+| PARC-03 | P1: Compra parcelada com distribuição automática | Tasks | Verified |
+| PARC-04 | P1: Compra parcelada com distribuição automática | Tasks | Verified |
+| PARC-05 | P1: Compra parcelada com distribuição automática | Tasks | Verified |
+| PARC-06 | P1: Compra já em andamento | Tasks | Verified |
+| PARC-07 | P1: Compra já em andamento | Tasks | Verified |
+| PARC-08 | P1: Compra já em andamento | Tasks | Verified |
 | COMP-01 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-02 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-03 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-04 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | MOV-01 | P1: Integridade do razão e anti-dupla-contagem | Fases 3-5 | Verified |
-| MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Fase 4 | Verified |
-| MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
-| MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
-| MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Implementing |
+| MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Fase 4 | Implementing |
+| MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
+| MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
+| MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-06 | P2: Previsto versus realizado | Fase 3 | Implementing |
-| CART-01 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
-| CART-02 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
-| CART-03 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
+| CART-01 | P2: Ciclo de fatura do cartão | Tasks | Verified |
+| CART-02 | P2: Ciclo de fatura do cartão | Tasks | Verified |
+| CART-03 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | ORC-01 | P2: Orçamento por categoria | Fase 3 | Verified |
 | ORC-02 | P2: Orçamento por categoria | Fase 3 | Implementing |
-| REC-01 | P3: Recorrência com valor variável | Fase 3 | Verified |
+| REC-01 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
-| AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Implementing |
-| AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Implementing |
-| UI-01 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
+| AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Verified |
+| AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Verified |
+| UI-01 | P1: Visão do mês e navegação | Fases 6 e 7 | Verified |
 | UI-02 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
-| UI-03 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
+| UI-03 | P1: Visão do mês e navegação | Fases 6 e 7 | Verified |
 | DADO-01 | P1: Compra parcelada com distribuição automática | Fases 3-5 | Verified |
 | DADO-02 | P1: Integridade do razão e anti-dupla-contagem | Fases 4-5 | Verified |
 
@@ -309,7 +309,9 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 33 total, todos cobertos por tasks. AUTH-01, AUTH-02, UI-01, UI-02 e UI-03 entram na Fase 6; UI-01 e UI-02 ganham a visão mensal completa na Fase 7
+**Coverage:** 32 total (a contagem anterior de 33 estava errada), todos cobertos por tasks. AUTH-01, AUTH-02, UI-01, UI-02 e UI-03 entram na Fase 6; UI-01 e UI-02 ganham a visão mensal completa na Fase 7
+
+**Verificação independente (2026-09-14):** 26 dos 32 requisitos foram promovidos a `Verified` pelo Verifier, cada um com evidência `arquivo:linha` em `validation.md`. Os 6 restantes continuam em `Implementing`: MOV-02 (AC 2 sem assertion — mutante sobrevivente), MOV-06 (AC 4 sem implementação), ORC-02 (AC 6 sem cobertura), REC-01 (AC 4 sem implementação), REC-02 (AC 5 coberto apenas por proxy) e UI-02 (ACs 7 e 8 sem assertion — mutante sobrevivente). MOV-02 e REC-01 foram **rebaixados** de `Verified` porque a marca anterior não tinha lastro em nenhuma assertion localizável. Detalhes, evidências e fix tasks em `validation.md`.
 
 ---
 
