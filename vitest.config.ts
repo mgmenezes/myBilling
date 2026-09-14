@@ -35,6 +35,7 @@ export default defineConfig({
             "src/lib/**/*.test.ts",
             "src/infrastructure/config/**/*.test.ts",
             "src/infrastructure/auth/**/*.test.ts",
+            "src/middleware.test.ts",
           ],
         },
       },

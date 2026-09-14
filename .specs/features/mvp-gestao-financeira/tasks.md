@@ -768,7 +768,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T40: Middleware protegendo as rotas
+#### T40: Middleware protegendo as rotas ✅ CONCLUÍDA
 **What**: Middleware exigindo sessão em tudo, exceto `/login`, `/api/auth/*` e `/api/health`.
 **Where**: `src/middleware.ts`
 **Depends on**: T38
@@ -776,9 +776,9 @@ T52 -> T53
 **Requirement**: AUTH-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Acesso não autenticado a rota protegida redireciona para `/login` (AUTH-01, AC 1)
-- [ ] `/login` e `/api/auth/*` permanecem acessíveis sem sessão
-- [ ] O matcher é testado contra a lista de rotas públicas e protegidas
+- [x] Acesso não autenticado a rota protegida redireciona para `/login` (AUTH-01, AC 1)
+- [x] `/login` e `/api/auth/*` permanecem acessíveis sem sessão
+- [x] O matcher é testado contra a lista de rotas públicas e protegidas
 **Tests**: unit
 **Gate**: quick
 
