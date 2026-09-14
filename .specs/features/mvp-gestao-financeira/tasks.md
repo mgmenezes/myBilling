@@ -224,7 +224,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T6: Teste de fronteira arquitetural do domínio
+#### T6: Teste de fronteira arquitetural do domínio ✅ CONCLUÍDA
 **What**: Teste que lê recursivamente todos os arquivos de `src/domain/**`, extrai as declarações de import e falha se alguma apontar para fora do domínio (framework, ORM, infraestrutura, app, módulo do Node).
 **Where**: `src/domain/shared/arquitetura.test.ts`
 **Depends on**: T5, T2
@@ -232,9 +232,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: `node:fs` dentro do teste (permitido: é arquivo de teste, não de domínio)
 **Done when**:
-- [ ] Teste passa com o domínio atual
-- [ ] Teste falha ao introduzir `import { NextRequest } from 'next/server'` em um arquivo de `src/domain` (verificado manualmente e revertido)
-- [ ] O teste roda dentro do project `domain`, no gate `quick`
+- [x] Teste passa com o domínio atual
+- [x] Teste falha ao introduzir `import { NextRequest } from 'next/server'` em um arquivo de `src/domain` (verificado manualmente e revertido)
+- [x] O teste roda dentro do project `domain`, no gate `quick`
 **Tests**: unit
 **Gate**: quick
 
