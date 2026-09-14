@@ -238,7 +238,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T7: Workflow de integração contínua
+#### T7: Workflow de integração contínua ✅ CONCLUÍDA
 **What**: GitHub Actions rodando typecheck, lint, testes unitários e build, com `services: postgres` disponível para os testes de integração das fases seguintes.
 **Where**: `.github/workflows/ci.yml`
 **Depends on**: T2, T3
@@ -246,9 +246,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: Context7 MCP para a sintaxe atual de `services` no Actions
 **Done when**:
-- [ ] `pnpm verify` local sai com 0
-- [ ] O workflow declara Node 24 e pnpm via corepack
-- [ ] O job não executa nenhuma operação remota além de checkout e cache
+- [x] `pnpm verify` local sai com 0
+- [x] O workflow declara Node 24 e pnpm via corepack
+- [x] O job não executa nenhuma operação remota além de checkout e cache
 **Tests**: none
 **Gate**: build
 
