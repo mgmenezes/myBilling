@@ -157,7 +157,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T3: Ocorrência protegida da materialização
+#### T3: Ocorrência protegida da materialização ✅ CONCLUÍDA
 **What**: Predicado puro: uma ocorrência já materializada não pode ser reescrita quando está **paga** ou quando seu valor **difere do previsto**. São os dois sinais de que alguém tocou nela.
 
 > **Quem chama este predicado.** A proteção acontece no `WHERE` de um `UPDATE` (T7), e não em
@@ -171,11 +171,11 @@ T21 -> T22
 **Requirement**: FIXO-02, FIXO-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Ocorrência paga é protegida, mesmo com valor igual ao previsto
-- [ ] Ocorrência não paga com valor diferente do previsto é protegida
-- [ ] Ocorrência não paga com valor igual ao previsto **não** é protegida
-- [ ] Comentário no arquivo registra que confirmar exatamente o valor previsto é indistinguível de não confirmar, e que isso é aceito porque o número resultante é o mesmo
-- [ ] Comentário registra que o chamador é o teste de concordância de T7, e não código de produção
+- [x] Ocorrência paga é protegida, mesmo com valor igual ao previsto
+- [x] Ocorrência não paga com valor diferente do previsto é protegida
+- [x] Ocorrência não paga com valor igual ao previsto **não** é protegida
+- [x] Comentário no arquivo registra que confirmar exatamente o valor previsto é indistinguível de não confirmar, e que isso é aceito porque o número resultante é o mesmo
+- [x] Comentário registra que o chamador é o teste de concordância de T7, e não código de produção
 **Tests**: unit
 **Gate**: quick
 
