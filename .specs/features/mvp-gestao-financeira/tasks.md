@@ -812,7 +812,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T43: Formatação de apresentação em pt-BR
+#### T43: Formatação de apresentação em pt-BR ✅ CONCLUÍDA
 **What**: `formatarBRL(cents)` e `formatarData(iso)` usando `Intl`, isolados na camada de apresentação. **Única** fronteira onde centavos viram texto.
 **Where**: `src/lib/formatar.ts`
 **Depends on**: T8
@@ -820,11 +820,11 @@ T52 -> T53
 **Requirement**: UI-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] 123456 centavos formata como `R$ 1.234,56`
-- [ ] 5 centavos formata como `R$ 0,05`
-- [ ] 0 centavos formata como `R$ 0,00`
-- [ ] Datas formatam no padrão `dd/MM/yyyy`
-- [ ] Nenhuma outra parte do código chama `toFixed` sobre valor monetário
+- [x] 123456 centavos formata como `R$ 1.234,56`
+- [x] 5 centavos formata como `R$ 0,05`
+- [x] 0 centavos formata como `R$ 0,00`
+- [x] Datas formatam no padrão `dd/MM/yyyy`
+- [x] Nenhuma outra parte do código chama `toFixed` sobre valor monetário — provado por varredura de `src/`
 **Tests**: unit
 **Gate**: quick
 
