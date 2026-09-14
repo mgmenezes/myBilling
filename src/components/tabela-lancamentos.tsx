@@ -1,6 +1,7 @@
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import type { Natureza, Origem } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
+import { Chip } from "./ui";
 
 /**
  * Os lançamentos do mês, segmentados nos três blocos da planilha: Fixos,
@@ -19,6 +20,12 @@ import { formatarBRL, formatarData } from "@/lib/formatar";
  *
  * Pago e previsto se distinguem por preenchimento do selo, não por cor. Quem
  * não separa verde de vermelho continua lendo a diferença.
+ *
+ * **A coluna "Parcela" só existe no bloco de compra parcelada.** Fora dele ela
+ * era uma coluna permanentemente vazia, e coluna vazia não é neutra: ela
+ * empurra descrição e valor para as pontas opostas da tela e obriga o olho a
+ * atravessar um vão sem informação. No lugar dela entra a categoria, que é o
+ * dado que faltava para saber o que foi cada gasto sem abrir nada.
  */
 
 interface Bloco {
@@ -39,12 +46,15 @@ const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-mu
 
 export function TabelaLancamentos({
   lancamentos,
+  categorias,
 }: {
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
+  /** Id para nome. O lançamento só carrega o id; o nome vive no cadastro. */
+  readonly categorias: ReadonlyMap<string, string>;
 }) {
   if (lancamentos.length === 0) {
     return (
-      <p className="rounded-panel border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
+      <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
         Nenhum lançamento neste mês ainda. Cadastre uma compra parcelada abaixo: as parcelas dos
         meses seguintes aparecem sozinhas, sem você precisar criar nada.
       </p>
@@ -61,11 +71,20 @@ export function TabelaLancamentos({
           key={bloco.origem}
           id={bloco.id}
           titulo={bloco.titulo}
+          categorias={categorias}
+          /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
+          comParcela={bloco.origem === "PARCELA"}
           itens={despesas.filter((item) => item.lancamento.origem === bloco.origem)}
         />
       ))}
       {outros.length === 0 ? null : (
-        <BlocoDeLancamentos id="outros" titulo="Entradas e investimentos" itens={outros} />
+        <BlocoDeLancamentos
+          id="outros"
+          titulo="Entradas e investimentos"
+          categorias={categorias}
+          comParcela={false}
+          itens={outros}
+        />
       )}
     </div>
   );
@@ -75,11 +94,15 @@ function BlocoDeLancamentos({
   id,
   titulo,
   itens,
+  categorias,
+  comParcela,
 }: {
   /** Identificador sem espaço: `aria-labelledby` é uma lista de ids. */
   readonly id: string;
   readonly titulo: string;
   readonly itens: ReadonlyArray<LancamentoDoMes>;
+  readonly categorias: ReadonlyMap<string, string>;
+  readonly comParcela: boolean;
 }) {
   return (
     <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
@@ -88,7 +111,7 @@ function BlocoDeLancamentos({
           {titulo}
         </h3>
         {itens.length === 0 ? null : (
-          <span className="tabular text-[14px] text-ink-muted">
+          <span className="text-[14px] text-ink-muted">
             {itens.length === 1 ? "1 lançamento" : `${itens.length} lançamentos`}
           </span>
         )}
@@ -105,8 +128,13 @@ function BlocoDeLancamentos({
                 Descrição
               </th>
               <th scope="col" className={CABECALHO}>
-                Parcela
+                Categoria
               </th>
+              {comParcela ? (
+                <th scope="col" className={CABECALHO}>
+                  Parcela
+                </th>
+              ) : null}
               <th scope="col" className={CABECALHO}>
                 Data
               </th>
@@ -127,38 +155,58 @@ function BlocoDeLancamentos({
                  * uma. Régua dupla em toda linha é o que faz uma tabela
                  * parecer exportação de planilha.
                  */
-                className="mb-3 block rounded-card bg-surface p-4 shadow-lift md:mb-0 md:table-row md:rounded-none md:bg-transparent md:p-0 md:shadow-none md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line"
+                className="mb-3 block rounded-xl border border-line bg-surface p-4 md:mb-0 md:table-row md:rounded-none md:border-0 md:bg-transparent md:p-0 md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line"
               >
                 <td className={`${CELULA} font-medium`}>{lancamento.descricao}</td>
-                <td className={`${CELULA} tabular text-ink-muted`}>
-                  {parcela === null ? (
-                    <span className="sr-only">sem parcelamento</span>
+                <td className={CELULA}>
+                  {lancamento.categoriaId === null ? (
+                    <span className="text-[14px] text-ink-soft">Sem categoria</span>
                   ) : (
-                    <>
-                      {parcela.numero}/{parcela.total}{" "}
-                      <span className="text-ink-muted">
+                    <Chip>{categorias.get(lancamento.categoriaId) ?? "Categoria removida"}</Chip>
+                  )}
+                </td>
+                {comParcela ? (
+                  <td className={`${CELULA} text-ink-muted`}>
+                    {parcela === null ? (
+                      <span className="sr-only">sem parcelamento</span>
+                    ) : (
+                      <>
+                        <span className="tabular">
+                          {parcela.numero}/{parcela.total}
+                        </span>{" "}
                         {parcela.restantes === 0
                           ? "(última)"
                           : `(faltam ${parcela.restantes} depois desta)`}
-                      </span>
-                    </>
-                  )}
-                </td>
+                      </>
+                    )}
+                  </td>
+                ) : null}
                 <td className={`${CELULA} tabular text-ink-muted`}>
                   {formatarData(lancamento.dataEvento)}
                 </td>
                 <td className={CELULA}>
                   <span
-                    className={`inline-flex w-fit items-center rounded-chip px-2.5 py-0.5 text-[13px] font-medium ${
+                    className={`inline-flex w-fit items-center rounded-pill px-2.5 py-0.5 text-[13px] font-medium ${
                       lancamento.pagoEm === null
                         ? "border border-line text-ink-muted"
-                        : "bg-ink text-canvas"
+                        : "bg-surface-strong font-semibold text-ink"
                     }`}
                   >
                     {lancamento.pagoEm === null ? "Previsto" : "Pago"}
                   </span>
                 </td>
-                <td className={`${CELULA} tabular font-medium md:text-right`}>
+                <td
+                  className={`${CELULA} tabular whitespace-nowrap md:text-right ${corDaNatureza(lancamento.natureza)}`}
+                >
+                  {/*
+                    O sinal repete em forma o que a cor diz, para a linha não
+                    depender de matiz. O rótulo completo continua indo só para
+                    leitor de tela: na coluna ele seria ruído, e o sinal já
+                    carrega a distinção visual.
+                  */}
+                  {lancamento.natureza === "INVESTIMENTO" ? null : (
+                    <span aria-hidden="true">{lancamento.natureza === "RECEITA" ? "+" : "−"}</span>
+                  )}
                   {formatarBRL(lancamento.valor)}
                   <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
                 </td>
@@ -169,6 +217,19 @@ function BlocoDeLancamentos({
       )}
     </section>
   );
+}
+
+/**
+ * A semântica de valor do sistema, em cor de texto e nunca em preenchimento.
+ * Investimento fica neutro de propósito: ele não é nem entrada nem saída da
+ * casa, é dinheiro que mudou de lugar, e pintá-lo de verde ou de vermelho
+ * afirmaria uma coisa que o app não sabe.
+ */
+function corDaNatureza(natureza: Natureza): string {
+  if (natureza === "RECEITA") {
+    return "text-positivo";
+  }
+  return natureza === "INVESTIMENTO" ? "text-ink" : "text-negativo";
 }
 
 function rotuloDaNatureza(natureza: Natureza): string {

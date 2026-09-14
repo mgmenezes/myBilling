@@ -1,4 +1,4 @@
-import { asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import type { CadastroRepository, Usuario } from "@/application/ports/repositories";
 import type { Cartao, Categoria, MeioPagamento, MeioSemFatura } from "@/domain";
 import type { BancoDeDados } from "../client";
@@ -62,6 +62,27 @@ export class CadastroRepositoryDrizzle implements CadastroRepository {
     return linha ? paraMeioPagamento(linha) : null;
   }
 
+  /**
+   * Busca por nome **ignorando caixa**, entre os **não arquivados**.
+   *
+   * O recorte em ativos é a diferença para a busca de categoria. Lá o nome é
+   * `UNIQUE` no banco, então um nome arquivado continua ocupando o lugar e
+   * precisa ser reativável. Aqui não há `UNIQUE`: recriar um cartão que foi
+   * encerrado é operação legítima, e travá-la por causa de um homônimo
+   * arquivado seria inventar uma regra que o banco não tem.
+   */
+  async buscarMeioDePagamentoAtivoPorNome(nome: string): Promise<MeioPagamento | null> {
+    const linhas = await this.db
+      .select()
+      .from(meioPagamento)
+      .where(
+        and(sql`lower(${meioPagamento.nome}) = lower(${nome})`, isNull(meioPagamento.arquivadoEm)),
+      )
+      .limit(1);
+    const linha = linhas[0];
+    return linha ? paraMeioPagamento(linha) : null;
+  }
+
   async criarMeioDePagamento(novo: NovoMeioPagamento): Promise<MeioPagamento> {
     const ehCartao = novo.tipo === "CARTAO_CREDITO";
     const [linha] = await this.db
@@ -95,6 +116,42 @@ export class CadastroRepositoryDrizzle implements CadastroRepository {
     const linhas = await this.db.select().from(categoria).where(eq(categoria.id, id)).limit(1);
     const linha = linhas[0];
     return linha ? paraCategoria(linha) : null;
+  }
+
+  /**
+   * Busca por nome **ignorando caixa**, e é por isso que ela existe.
+   *
+   * O `UNIQUE` de `categoria.nome` é sensível a caixa no Postgres: sem esta
+   * consulta, `"Mercado"` e `"mercado"` entrariam as duas e a lista ficaria
+   * com duas linhas que ninguém distingue. Quem cria categoria consulta aqui
+   * primeiro e reaproveita o que já existe.
+   *
+   * Ela **não** filtra arquivada. É de propósito: o nome de uma categoria
+   * arquivada continua ocupando o `UNIQUE`, e quem tentasse criá-la de novo
+   * receberia "já existe" apontando para algo que não está em lista nenhuma.
+   * Devolvendo-a, quem chama consegue reativá-la em vez de travar.
+   */
+  async buscarCategoriaPorNome(nome: string): Promise<Categoria | null> {
+    const linhas = await this.db
+      .select()
+      .from(categoria)
+      .where(sql`lower(${categoria.nome}) = lower(${nome})`)
+      .limit(1);
+    const linha = linhas[0];
+    return linha ? paraCategoria(linha) : null;
+  }
+
+  /** Desfaz o arquivamento. Idempotente: reativar uma categoria ativa não a muda. */
+  async reativarCategoria(id: string): Promise<Categoria> {
+    const [linha] = await this.db
+      .update(categoria)
+      .set({ arquivadaEm: null })
+      .where(eq(categoria.id, id))
+      .returning();
+    if (!linha) {
+      throw new Error("update de categoria não retornou linha");
+    }
+    return paraCategoria(linha);
   }
 
   async criarCategoria(nova: NovaCategoria): Promise<Categoria> {

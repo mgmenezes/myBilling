@@ -260,3 +260,153 @@ async function transbordoHorizontal(page: Page): Promise<number> {
     Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
   );
 }
+
+/**
+ * O seletor de categoria **do formulário**. Existe um segundo com o mesmo
+ * rótulo no bloco de filtros, logo acima, e sem escopo o Playwright acerta os
+ * dois — o que é um lembrete útil de que os dois precisam receber a categoria
+ * nova, cada um por seu caminho.
+ */
+function seletorDeCategoria(page: Page) {
+  return page.getByRole("form", { name: "Nova compra" }).getByLabel("Categoria", { exact: true });
+}
+
+function seletorDeMeio(page: Page) {
+  return page
+    .getByRole("form", { name: "Nova compra" })
+    .getByLabel("Meio de pagamento", { exact: true });
+}
+
+/**
+ * **A segunda re-digitação da planilha.**
+ *
+ * Criar uma categoria na planilha obrigava a inseri-la à mão em cada aba de
+ * mês. Aqui ela nasce uma vez e vale para todos, inclusive os que ainda não
+ * chegaram — não porque exista código sincronizando mês a mês, mas porque
+ * `categoria` não tem competência. Este teste prova o efeito, que é o que o
+ * usuário percebe.
+ */
+test("criar uma categoria no formulário a torna disponível nos meses seguintes (DADO-02)", async ({
+  page,
+}) => {
+  await page.goto("/2026-03/lancamentos");
+
+  // Ela não existe antes: o seletor não a oferece.
+  await expect(seletorDeCategoria(page)).not.toContainText("Mercado");
+
+  await page.getByRole("button", { name: "+ nova" }).click();
+  await page.getByLabel("Nome da nova categoria").fill("Mercado");
+  await page.getByRole("button", { name: "Criar" }).click();
+
+  // Criada e já selecionada, sem sair do formulário.
+  await expect(seletorDeCategoria(page)).toHaveValue(/.+/);
+  await expect(seletorDeCategoria(page)).toContainText("Mercado");
+
+  await cadastrar(page, {
+    descricao: "Compra com categoria nova",
+    modo: "Valor total",
+    valor: "300,00",
+    qtdParcelas: "3",
+  });
+
+  // O mês seguinte: a parcela existe e a categoria continua oferecida,
+  // sem ninguém ter cadastrado nada de novo.
+  await page.goto("/2026-04/lancamentos");
+  await expect(linhaDaParcela(page, "Compra com categoria nova")).toBeVisible();
+  await expect(seletorDeCategoria(page)).toContainText("Mercado");
+
+  // E um mês que ainda não tem lançamento nenhum também a oferece.
+  await page.goto("/2026-11/lancamentos");
+  await expect(seletorDeCategoria(page)).toContainText("Mercado");
+});
+
+test("criar uma categoria com nome já existente não duplica a lista", async ({ page }) => {
+  await page.goto("/2026-03/lancamentos");
+
+  await page.getByRole("button", { name: "+ nova" }).click();
+  await page.getByLabel("Nome da nova categoria").fill("Mercado");
+  await page.getByRole("button", { name: "Criar" }).click();
+  await expect(seletorDeCategoria(page)).toContainText("Mercado");
+
+  // De novo, com outra caixa: o `UNIQUE` do Postgres é sensível a caixa e
+  // deixaria "mercado" entrar ao lado de "Mercado" se a action não olhasse.
+  await page.getByRole("button", { name: "+ nova" }).click();
+  await page.getByLabel("Nome da nova categoria").fill("MERCADO");
+  await page.getByRole("button", { name: "Criar" }).click();
+
+  // Escopado ao formulário de propósito: `next dev` injeta o próprio overlay
+  // de erro, e um `getByRole("alert")` solto na página acaba testando o
+  // framework em vez do app.
+  await expect(page.getByRole("form", { name: "Nova compra" }).getByRole("alert")).toHaveCount(0);
+  await expect(seletorDeCategoria(page).getByRole("option", { name: /^Mercado$/ })).toHaveCount(1);
+});
+
+/**
+ * Meio de pagamento fecha a outra metade da re-digitação: cadastrar o cartão
+ * uma vez e usá-lo em qualquer mês. O que este teste prova, além da criação, é
+ * que a compra **grava de verdade** no meio recém-criado — sem isso a feature
+ * seria só um `<option>` a mais na lista.
+ */
+test("criar um cartão no formulário e cadastrar uma compra nele (CART-02)", async ({ page }) => {
+  await page.goto("/2026-03/lancamentos");
+
+  await expect(seletorDeMeio(page)).not.toContainText("Cartão Novo");
+
+  await page.getByRole("button", { name: "+ novo" }).click();
+  await page.getByLabel("Nome do novo meio de pagamento").fill("Cartão Novo");
+  await page.getByLabel("Dia de fechamento").fill("25");
+  await page.getByLabel("Dia de vencimento").fill("5");
+  await page.getByRole("button", { name: "Criar" }).click();
+
+  // Criado e já selecionado, sem sair do formulário.
+  await expect(seletorDeMeio(page)).toContainText("Cartão Novo");
+  await expect(seletorDeMeio(page)).toHaveValue(/.+/);
+
+  await cadastrar(page, {
+    descricao: "Compra no cartão novo",
+    modo: "Valor total",
+    valor: "300,00",
+    qtdParcelas: "3",
+  });
+
+  // A parcela do mês seguinte existe, e o cartão continua oferecido lá.
+  await page.goto("/2026-04/lancamentos");
+  await expect(linhaDaParcela(page, "Compra no cartão novo")).toBeVisible();
+  await expect(seletorDeMeio(page)).toContainText("Cartão Novo");
+});
+
+test("conta corrente e rótulo não pedem dia de ciclo", async ({ page }) => {
+  await page.goto("/2026-03/lancamentos");
+
+  await page.getByRole("button", { name: "+ novo" }).click();
+  await expect(page.getByLabel("Dia de fechamento")).toBeVisible();
+
+  await page.getByLabel("Tipo").selectOption("ROTULO");
+  await expect(page.getByLabel("Dia de fechamento")).toHaveCount(0);
+  await expect(page.getByLabel("Dia de vencimento")).toHaveCount(0);
+
+  await page.getByLabel("Nome do novo meio de pagamento").fill("Seguro do carro");
+  await page.getByRole("button", { name: "Criar" }).click();
+
+  await expect(seletorDeMeio(page)).toContainText("Seguro do carro");
+});
+
+test("nome de meio já existente vira erro, e não um segundo item na lista", async ({ page }) => {
+  await page.goto("/2026-03/lancamentos");
+
+  await page.getByRole("button", { name: "+ novo" }).click();
+  await page.getByLabel("Nome do novo meio de pagamento").fill("Conta Nova");
+  await page.getByLabel("Tipo").selectOption("CONTA_CORRENTE");
+  await page.getByRole("button", { name: "Criar" }).click();
+  await expect(seletorDeMeio(page)).toContainText("Conta Nova");
+
+  await page.getByRole("button", { name: "+ novo" }).click();
+  await page.getByLabel("Nome do novo meio de pagamento").fill("conta nova");
+  await page.getByLabel("Tipo").selectOption("CONTA_CORRENTE");
+  await page.getByRole("button", { name: "Criar" }).click();
+
+  await expect(page.getByRole("form", { name: "Nova compra" }).getByRole("alert")).toContainText(
+    "Já existe um meio de pagamento com esse nome.",
+  );
+  await expect(seletorDeMeio(page).getByRole("option", { name: /^Conta Nova$/ })).toHaveCount(1);
+});

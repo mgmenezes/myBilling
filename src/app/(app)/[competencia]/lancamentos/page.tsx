@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import { criarCategoria } from "@/app/actions/categorias";
 import { criarCompra } from "@/app/actions/compras";
+import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import {
   contarFiltrosAtivos,
   type FiltroDeLancamentos,
@@ -81,6 +83,9 @@ export default async function PaginaDeLancamentos({
     ZERO_CENTS,
   );
   const temFiltro = contarFiltrosAtivos(filtro) > 0;
+  /* O lançamento carrega só o id da categoria; o nome vive no cadastro, e é
+     aqui que os dois se encontram — uma vez, e não por linha da tabela. */
+  const nomePorCategoria = new Map(categorias.map((c) => [c.id, c.nome]));
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,12 +105,15 @@ export default async function PaginaDeLancamentos({
         uma pede cadastro, a outra pede limpar filtro.
       */}
       {visao.lancamentos.length > 0 && visiveis.length === 0 ? (
-        <p className="rounded-panel border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
+        <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
           Nenhum lançamento corresponde aos filtros aplicados. O mês tem {visao.lancamentos.length}{" "}
           lançamentos no total.
         </p>
       ) : (
-        <TabelaLancamentos lancamentos={temFiltro ? visiveis : visao.lancamentos} />
+        <TabelaLancamentos
+          lancamentos={temFiltro ? visiveis : visao.lancamentos}
+          categorias={nomePorCategoria}
+        />
       )}
 
       <FormCompra
@@ -114,6 +122,8 @@ export default async function PaginaDeLancamentos({
         categorias={categorias.map((categoria) => ({ id: categoria.id, nome: categoria.nome }))}
         usuarios={usuarios.map((usuario) => ({ id: usuario.id, nome: usuario.nome }))}
         enviar={criarCompra}
+        criarCategoria={criarCategoria}
+        criarMeioDePagamento={criarMeioDePagamento}
       />
     </div>
   );

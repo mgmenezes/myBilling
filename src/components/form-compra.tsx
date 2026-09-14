@@ -4,14 +4,29 @@ import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useId, useMemo, useState, useTransition } from "react";
+import type { criarCategoria as criarCategoriaAction } from "@/app/actions/categorias";
 import type { criarCompra } from "@/app/actions/compras";
+import type { criarMeioDePagamento as criarMeioAction } from "@/app/actions/meios-de-pagamento";
 import { planoDaCompra } from "@/application/compras/plano-da-compra";
+import { entradaCategoriaSchema, MAX_NOME_CATEGORIA } from "@/application/schemas/categoria.schema";
 import { entradaCompraSchema } from "@/application/schemas/compra.schema";
+import {
+  entradaMeioPagamentoSchema,
+  MAX_NOME_MEIO,
+  TIPOS_DE_MEIO,
+} from "@/application/schemas/meio-pagamento.schema";
 import { parseBRL } from "@/domain";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
+import { CadastroInline } from "./cadastro-inline";
 
 /**
- * Cadastro da compra parcelada: o formulário que resolve a dor central.
+ * Cadastro de compra: o formulário que resolve a dor central.
+ *
+ * Ele se chama "Nova compra", e não "Nova compra parcelada", porque atende os
+ * dois casos com o mesmo campo: em `1` parcela é a compra avulsa no cartão, em
+ * `n` é o parcelamento que a planilha obrigava a redigitar mês a mês. Chamá-lo
+ * de parcelado escondia metade do que ele faz — quem queria lançar uma compra
+ * única não reconhecia o formulário como sendo para ela.
  *
  * Duas propriedades mandam aqui:
  *
@@ -42,6 +57,9 @@ export interface FormCompraProps {
   /** A Server Action de T49. Recebida por prop para o componente não conhecer
    * infraestrutura nenhuma. */
   readonly enviar: typeof criarCompra;
+  /** Mesma razão: a criação de cadastro chega por prop, não por import. */
+  readonly criarCategoria: typeof criarCategoriaAction;
+  readonly criarMeioDePagamento: typeof criarMeioAction;
 }
 
 type Campos = Record<string, string>;
@@ -53,22 +71,30 @@ interface Confirmacao {
 
 const ROTULO_CLASSE = "text-[14px] font-medium text-ink";
 const CONTROLE_CLASSE =
-  "w-full rounded-cta border border-line bg-surface-strong px-4 py-2.5 text-[15px] text-ink " +
+  "w-full rounded-md border border-line bg-surface px-4 py-2.5 text-[15px] text-ink " +
   "transition-colors duration-200 hover:border-line-strong " +
-  "aria-[invalid=true]:border-accent aria-[invalid=true]:border-2";
+  "aria-[invalid=true]:border-negativo aria-[invalid=true]:border-2";
 /*
- * Erro em tinta, nunca no laranja: o acento sobre o creme mede 4.11:1 e
- * reprova em texto de corpo. Quem sinaliza o erro é a borda do campo e o
- * ícone, que são elementos grandes o bastante para o acento passar.
+ * Erro na semântica negativa do sistema, que é cor de **texto** — e nunca
+ * sozinha: a borda do campo engrossa e um ícone acompanha, para quem não
+ * separa matiz continuar vendo qual campo falhou.
  */
-const ERRO_CLASSE = "flex items-center gap-1.5 text-[14px] text-ink";
+const ERRO_CLASSE = "flex items-center gap-1.5 text-[14px] font-medium text-negativo";
 
 function inteiro(texto: string): number {
   const valor = Number.parseInt(texto, 10);
   return Number.isNaN(valor) ? Number.NaN : valor;
 }
 
-export function FormCompra({ competencia, meios, categorias, usuarios, enviar }: FormCompraProps) {
+export function FormCompra({
+  competencia,
+  meios,
+  categorias,
+  usuarios,
+  enviar,
+  criarCategoria,
+  criarMeioDePagamento,
+}: FormCompraProps) {
   const router = useRouter();
   const id = useId();
   const [pendente, iniciarEnvio] = useTransition();
@@ -86,6 +112,23 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
   const [categoriaId, setCategoriaId] = useState("");
   const [usuarioId, setUsuarioId] = useState(usuarios[0]?.id ?? "");
   const [meioPagamentoId, setMeioPagamentoId] = useState(meios[0]?.id ?? "");
+
+  /*
+   * As listas de cadastro são semeadas pelas props do servidor e crescem
+   * localmente quando um item novo é criado. O `revalidatePath` da action traz
+   * a lista nova do servidor logo depois, mas o estado local é o que permite
+   * **selecionar o item no mesmo instante**, sem esperar o round-trip e sem
+   * que nada do formulário já preenchido se perca.
+   */
+  const [listaCategorias, setListaCategorias] = useState(categorias);
+  const [nomeCategoria, setNomeCategoria] = useState("");
+
+  const [listaMeios, setListaMeios] = useState(meios);
+  const [nomeMeio, setNomeMeio] = useState("");
+  const [tipoMeio, setTipoMeio] =
+    useState<(typeof TIPOS_DE_MEIO)[number]["valor"]>("CARTAO_CREDITO");
+  const [diaFechamento, setDiaFechamento] = useState("");
+  const [diaVencimento, setDiaVencimento] = useState("");
 
   const [campos, setCampos] = useState<Campos>({});
   const [erroGeral, setErroGeral] = useState("");
@@ -108,6 +151,39 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
     });
     return montado.ok ? montado.value.plano : null;
   }, [valorEmCentavos, modo, qtdParcelas, parcelaInicial, competencia]);
+
+  /**
+   * O payload da categoria, ou o erro de validação. O mesmo schema do
+   * servidor, para os dois nunca divergirem (AUTH-02, AC 4).
+   */
+  function payloadDeCategoria() {
+    return entradaCategoriaSchema.safeParse({ nome: nomeCategoria });
+  }
+
+  /**
+   * O payload do meio de pagamento. Os dias só entram quando o tipo é cartão:
+   * enviá-los para conta ou rótulo violaria o `CHECK` bicondicional do banco,
+   * e o schema é uma união discriminada justamente por isso.
+   */
+  function payloadDeMeio() {
+    return entradaMeioPagamentoSchema.safeParse(
+      tipoMeio === "CARTAO_CREDITO"
+        ? {
+            nome: nomeMeio,
+            tipo: tipoMeio,
+            diaFechamento: inteiro(diaFechamento),
+            diaVencimento: inteiro(diaVencimento),
+          }
+        : { nome: nomeMeio, tipo: tipoMeio },
+    );
+  }
+
+  function primeiroErro(resultado: {
+    success: boolean;
+    error?: { issues: { message: string }[] };
+  }) {
+    return resultado.success ? null : (resultado.error?.issues[0]?.message ?? "Dado inválido.");
+  }
 
   function enviarFormulario(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -178,7 +254,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
             size={16}
             weight="fill"
             aria-hidden="true"
-            className="shrink-0 text-accent"
+            className="shrink-0 text-negativo"
           />
           {mensagem}
         </p>
@@ -196,10 +272,10 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
     <form
       onSubmit={enviarFormulario}
       aria-labelledby={`${id}-titulo`}
-      className="flex w-full flex-col gap-5 rounded-panel bg-surface p-6 shadow-lift sm:p-8"
+      className="flex w-full flex-col gap-5 rounded-xl border border-line bg-surface p-6 sm:p-8"
     >
       <h2 id={`${id}-titulo`} className="text-[22px]">
-        Nova compra parcelada
+        Nova compra
       </h2>
 
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
@@ -295,10 +371,106 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="flex w-full flex-col gap-1">
-          <label className={ROTULO_CLASSE} htmlFor={`${id}-meio`}>
-            Meio de pagamento
-          </label>
+        <CadastroInline
+          rotulo="Meio de pagamento"
+          idDoControle={`${id}-meio`}
+          rotuloDoAtalho="+ novo"
+          descricaoDoGrupo="Novo meio de pagamento"
+          validar={() => primeiroErro(payloadDeMeio())}
+          aoCriar={async () => {
+            const validado = payloadDeMeio();
+            if (!validado.success) {
+              throw new Error("payload inválido chegou ao envio");
+            }
+            return criarMeioDePagamento(validado.data);
+          }}
+          aoCriado={(criado) => {
+            setListaMeios((atual) =>
+              atual.some((m) => m.id === criado.id) ? atual : [...atual, criado],
+            );
+            setMeioPagamentoId(criado.id);
+          }}
+          aoLimpar={() => {
+            setNomeMeio("");
+            setTipoMeio("CARTAO_CREDITO");
+            setDiaFechamento("");
+            setDiaVencimento("");
+          }}
+          ajuda={
+            tipoMeio === "ROTULO"
+              ? "Rótulo não é meio de pagamento: é uma etiqueta para separar um gasto específico, sem ciclo e sem fatura."
+              : "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram."
+          }
+          campos={(idCadastro) => (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-nome-meio`}>
+                  Nome do novo meio de pagamento
+                </label>
+                <input
+                  id={`${idCadastro}-nome-meio`}
+                  className={CONTROLE_CLASSE}
+                  value={nomeMeio}
+                  onChange={(e) => setNomeMeio(e.target.value)}
+                  maxLength={MAX_NOME_MEIO}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-tipo-meio`}>
+                  Tipo
+                </label>
+                <select
+                  id={`${idCadastro}-tipo-meio`}
+                  className={CONTROLE_CLASSE}
+                  value={tipoMeio}
+                  onChange={(e) => setTipoMeio(e.target.value as typeof tipoMeio)}
+                >
+                  {TIPOS_DE_MEIO.map((opcao) => (
+                    <option key={opcao.valor} value={opcao.valor}>
+                      {opcao.rotulo}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/*
+                Os dias aparecem **só** para cartão. Não é preferência: o banco
+                tem um CHECK bicondicional que proíbe dia de ciclo em conta
+                corrente e em rótulo. Mostrar os campos ali seria oferecer um
+                dado que a gravação rejeitaria.
+              */}
+              {tipoMeio === "CARTAO_CREDITO" ? (
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <div className="flex w-full flex-col gap-1">
+                    <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-fechamento`}>
+                      Dia de fechamento
+                    </label>
+                    <input
+                      id={`${idCadastro}-fechamento`}
+                      className={CONTROLE_CLASSE}
+                      inputMode="numeric"
+                      value={diaFechamento}
+                      onChange={(e) => setDiaFechamento(e.target.value)}
+                      placeholder="25"
+                    />
+                  </div>
+                  <div className="flex w-full flex-col gap-1">
+                    <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-vencimento`}>
+                      Dia de vencimento
+                    </label>
+                    <input
+                      id={`${idCadastro}-vencimento`}
+                      className={CONTROLE_CLASSE}
+                      inputMode="numeric"
+                      value={diaVencimento}
+                      onChange={(e) => setDiaVencimento(e.target.value)}
+                      placeholder="5"
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </>
+          )}
+        >
           <select
             id={`${id}-meio`}
             className={CONTROLE_CLASSE}
@@ -306,18 +478,55 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
             onChange={(e) => setMeioPagamentoId(e.target.value)}
             {...erroMeio.props}
           >
-            {meios.map((meio) => (
+            {listaMeios.map((meio) => (
               <option key={meio.id} value={meio.id}>
                 {meio.nome}
               </option>
             ))}
           </select>
           {erroMeio.no}
-        </div>
-        <div className="flex w-full flex-col gap-1">
-          <label className={ROTULO_CLASSE} htmlFor={`${id}-categoria`}>
-            Categoria
-          </label>
+        </CadastroInline>
+
+        <CadastroInline
+          rotulo="Categoria"
+          idDoControle={`${id}-categoria`}
+          rotuloDoAtalho="+ nova"
+          descricaoDoGrupo="Nova categoria"
+          validar={() => primeiroErro(payloadDeCategoria())}
+          aoCriar={async () => {
+            const validado = payloadDeCategoria();
+            if (!validado.success) {
+              throw new Error("payload inválido chegou ao envio");
+            }
+            return criarCategoria(validado.data);
+          }}
+          aoCriado={(criada) => {
+            setListaCategorias((atual) =>
+              atual.some((c) => c.id === criada.id)
+                ? atual
+                : [...atual, { id: criada.id, nome: criada.nome }].sort((a, b) =>
+                    a.nome.localeCompare(b.nome, "pt-BR"),
+                  ),
+            );
+            setCategoriaId(criada.id);
+          }}
+          aoLimpar={() => setNomeCategoria("")}
+          ajuda="Ela passa a valer para todos os meses, inclusive os que ainda não chegaram."
+          campos={(idCadastro) => (
+            <div className="flex flex-col gap-1">
+              <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-nome-categoria`}>
+                Nome da nova categoria
+              </label>
+              <input
+                id={`${idCadastro}-nome-categoria`}
+                className={CONTROLE_CLASSE}
+                value={nomeCategoria}
+                onChange={(e) => setNomeCategoria(e.target.value)}
+                maxLength={MAX_NOME_CATEGORIA}
+              />
+            </div>
+          )}
+        >
           <select
             id={`${id}-categoria`}
             className={CONTROLE_CLASSE}
@@ -325,13 +534,13 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
             onChange={(e) => setCategoriaId(e.target.value)}
           >
             <option value="">Sem categoria</option>
-            {categorias.map((categoria) => (
+            {listaCategorias.map((categoria) => (
               <option key={categoria.id} value={categoria.id}>
                 {categoria.nome}
               </option>
             ))}
           </select>
-        </div>
+        </CadastroInline>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -375,7 +584,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
       */}
       <section
         aria-label="Previsão das parcelas"
-        className="flex flex-col gap-3 rounded-card bg-canvas p-5"
+        className="flex flex-col gap-3 rounded-xl bg-canvas p-5"
       >
         <h3 className={ROTULO_CLASSE}>Parcelas que serão criadas</h3>
         {previa === null ? (
@@ -398,27 +607,30 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
                 }}
                 className="flex flex-wrap justify-between gap-2 text-[15px]"
               >
-                <span className="tabular text-ink-muted">
-                  {parcela.numero}/{inteiro(qtdParcelas)} {formatarCompetencia(parcela.competencia)}
+                <span className="text-ink-muted">
+                  <span className="tabular">
+                    {parcela.numero}/{inteiro(qtdParcelas)}
+                  </span>{" "}
+                  {formatarCompetencia(parcela.competencia)}
                 </span>
-                <span className="tabular font-medium">{formatarBRL(parcela.valor)}</span>
+                <span className="tabular">{formatarBRL(parcela.valor)}</span>
               </motion.li>
             ))}
             <li className="mt-1 flex flex-wrap justify-between gap-2 border-t border-line pt-2.5 text-[15px]">
               <span className="text-ink-muted">Total da compra</span>
-              <span className="tabular font-medium">{formatarBRL(previa.valorTotal)}</span>
+              <span className="tabular">{formatarBRL(previa.valorTotal)}</span>
             </li>
           </ul>
         )}
       </section>
 
       {erroGeral === "" ? null : (
-        <p role="alert" className={`${ERRO_CLASSE} rounded-card border border-accent px-4 py-3`}>
+        <p role="alert" className={`${ERRO_CLASSE} rounded-lg border border-negativo px-4 py-3`}>
           <WarningCircleIcon
             size={18}
             weight="fill"
             aria-hidden="true"
-            className="shrink-0 text-accent"
+            className="shrink-0 text-negativo"
           />
           {erroGeral}
         </p>
@@ -427,7 +639,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
       {confirmacao === null ? null : (
         <p
           role="status"
-          className="flex items-center gap-2 rounded-card bg-ink px-4 py-3 text-[15px] text-canvas"
+          className="flex items-center gap-2 rounded-lg border border-line bg-surface-soft px-4 py-3 text-[15px] font-medium text-positivo"
         >
           <CheckCircleIcon size={18} weight="fill" aria-hidden="true" className="shrink-0" />
           {confirmacao.descricao} gravada em {confirmacao.qtdParcelas} parcela
@@ -439,7 +651,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
         type="submit"
         disabled={pendente}
         aria-busy={pendente}
-        className="inline-flex items-center justify-center rounded-cta bg-ink px-6 py-3.5 text-[15px] font-medium text-canvas transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55"
+        className="inline-flex min-h-14 items-center justify-center rounded-pill bg-primary px-8 text-[16px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97] disabled:pointer-events-none disabled:bg-primary-inativo"
       >
         {pendente ? "Gravando…" : "Cadastrar compra"}
       </button>
