@@ -35,6 +35,7 @@ Explicitamente excluído desta feature. Documentado para prevenir scope creep.
 | Notificações, PWA/offline, anexos, metas, acerto de contas entre pessoas | Fora do MVP por decisão do usuário |
 | Alteração de lançamento já pago | Exige definir "estorno explícito" antes de ser testável. **Regra decidida para quando for implementado:** para alterar valor, competência ou meio de pagamento de um lançamento pago, o usuário primeiro **desmarca o pagamento**, ação registrada com autor e data; só então os campos liberam. Duas ações deliberadas em vez de uma — é aí que mora a proteção. O campo `pagoEm` já existe e já separa previsto de realizado; falta a guarda e o registro |
 | Limite de orçamento por competência | A tabela `orcamento_categoria` já tem chave `(categoria_id, competencia)` e o isolamento entre meses existe no schema. Falta a lógica de resolução e a UI, que são da Fase 8 |
+| Janela rolante de materialização de recorrência | O materializador que cria as ocorrências mês a mês é de fase posterior, junto com a UI de recorrências. O que existe hoje é a janela da **projeção**, que é outra coisa: projetar o comprometimento futuro não é materializar lançamento. O Verifier recusou promover este requisito por cobertura via proxy, e estava certo |
 | Versionamento de recorrência por vigência | A tabela `recorrencia_versao` já existe no schema. A lógica de "esta e as futuras" é da Fase 7+, junto com a UI de recorrências |
 | Integrações bancárias, IA, Open Finance | Descartados por pedido explícito do usuário |
 
@@ -249,7 +250,6 @@ Toda ambiguidade está resolvida ou registrada aqui.
 1. WHEN o valor real de uma ocorrência de recorrência é confirmado THEN o sistema SHALL alterar apenas o lançamento daquela competência, SHALL preservar o valor previsto original e SHALL não alterar nenhuma outra competência
 2. WHEN uma ocorrência recebe confirmação manual THEN o sistema SHALL marcá-la como sobrescrita, de modo que uma nova materialização não altere seu valor
 3. WHEN a materialização de recorrências é executada mais de uma vez para a mesma competência THEN o sistema SHALL não criar lançamento duplicado
-4. WHILE uma recorrência não possui competência de fim, o sistema SHALL materializar ocorrências em uma janela rolante limitada, e SHALL não gerar ocorrências indefinidamente
 
 **Independent Test**: Materializar uma recorrência de R$ 300,00 em três meses, confirmar R$ 347,50 no mês do meio, e verificar que os outros dois meses permanecem em R$ 300,00.
 
@@ -289,10 +289,13 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
+| MOV-06 | P2: Previsto versus realizado | Fase 3 | Implementing |
 | CART-01 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | CART-02 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | CART-03 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | ORC-01 | P2: Orçamento por categoria | Fase 3 | Verified |
+| ORC-02 | P2: Orçamento por categoria | Fase 3 | Implementing |
+| REC-01 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Verified |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Verified |
@@ -306,11 +309,11 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 29 requisitos na tabela, cobrindo 64 acceptance criteria em escopo. AUTH-01, AUTH-02, UI-01, UI-02 e UI-03 entram na Fase 6; UI-01 e UI-02 ganham a visão mensal completa na Fase 7
+**Coverage:** contagem, mapa requisito → AC e status são estabelecidos pelo Verifier independente em `validation.md`. Esta tabela não afirma completude por conta própria.
 
 **Verificação independente — iteração 2 (2026-09-14, HEAD `14c4a35`):** veredito **PASS**. 28 dos 29 requisitos em `Verified`, cada um com evidência `arquivo:linha` em `validation.md`. MOV-02 e UI-02 foram promovidos nesta iteração: os dois mutantes que sobreviveram na iteração 1 (acrescentar `natureza`/`categoria_id` a `pagamento_fatura`; esvaziar `loading.tsx` e `error.tsx`) agora morrem. REC-02 permanece `Implementing`: o AC 4 fala em **materializar** em janela limitada, e o que existe e é testado é a janela da **projeção** — cobertura por proxy não promove.
 
-**Dívida aberta na própria tabela (ver `validation.md` §9.7 F):** ao mover 3 acceptance criteria para Out of Scope, foram apagadas 3 linhas de requisito inteiras (MOV-06, ORC-02, REC-01), e cada uma carregava outros critérios. Ficaram **8 acceptance criteria em escopo, implementados e testados, sem nenhum requirement ID que os rastreie**: os 3 ACs de "P2: Previsto versus realizado" (história inteira sem ID), os ACs 4, 5 e 6 de "P2: Orçamento por categoria" e os ACs 1 e 2 de "P3: Recorrência". Nenhum comportamento ficou descoberto — 14 citações nos testes e 16 em `tasks.md` ainda apontam para esses IDs —, mas a tabela afirma uma completude que hoje não consegue provar. Reintroduzir os três IDs cobrindo só os critérios que ficaram em escopo fecha a dívida.
+**Dívida de traceability fechada.** Mover 3 acceptance criteria para Out of Scope apagou 3 linhas de requisito inteiras (MOV-06, ORC-02, REC-01), e cada uma carregava outros critérios — 8 ACs em escopo, implementados e testados, ficaram sem ID que os rastreasse. Os três IDs foram reintroduzidos, cobrindo apenas os critérios que permaneceram em escopo, e voltam como `Implementing`: quem promove a `Verified` é o Verifier independente, não o autor da correção.
 
 ---
 
