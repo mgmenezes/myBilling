@@ -19,16 +19,31 @@ import { MAX_PARCELAS, ratearParcelas } from "./ratear-parcelas";
 export function gerarParcelas(entrada: EntradaCompra): Result<PlanoParcelamento, DomainError> {
   // Rejeição antes de qualquer cálculo: nenhuma parcela é construída para
   // depois ser descartada.
-  if (entrada.qtdParcelas < 1 || entrada.qtdParcelas > MAX_PARCELAS) {
+  //
+  // Cada guarda testa **integralidade antes de faixa**, e não só faixa.
+  // Comparação com `NaN` é sempre falsa nos dois sentidos: `NaN < 1` e
+  // `NaN > qtdParcelas` são ambos falsos, então um `NaN` atravessava as três
+  // guardas e saía do outro lado como plano válido, com `.slice(NaN - 1)`
+  // devolvendo o array inteiro e competências `'0NaN-NaN'`. Faixa não é
+  // suficiente para um número que não se compara com nada.
+  if (
+    !Number.isInteger(entrada.qtdParcelas) ||
+    entrada.qtdParcelas < 1 ||
+    entrada.qtdParcelas > MAX_PARCELAS
+  ) {
     return err({ code: "QTD_PARCELAS_INVALIDA", detalhes: { qtdParcelas: entrada.qtdParcelas } });
   }
-  if (entrada.parcelaInicial < 1 || entrada.parcelaInicial > entrada.qtdParcelas) {
+  if (
+    !Number.isInteger(entrada.parcelaInicial) ||
+    entrada.parcelaInicial < 1 ||
+    entrada.parcelaInicial > entrada.qtdParcelas
+  ) {
     return err({
       code: "PARCELA_INICIAL_INVALIDA",
       detalhes: { parcelaInicial: entrada.parcelaInicial, qtdParcelas: entrada.qtdParcelas },
     });
   }
-  if (entrada.valorEntrada < 1) {
+  if (!Number.isInteger(entrada.valorEntrada) || entrada.valorEntrada < 1) {
     return err({ code: "VALOR_NAO_POSITIVO", detalhes: { valorEntrada: entrada.valorEntrada } });
   }
 

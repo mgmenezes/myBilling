@@ -386,6 +386,11 @@ T52 -> T53
 - [x] `n` maior que o total em centavos resulta em `PARCELA_INFERIOR_A_UM_CENTAVO` (PARC-05, AC 5)
 - [x] Parcela inicial 11 com 10 parcelas resulta em `PARCELA_INICIAL_INVALIDA` (PARC-08, AC 6)
 - [x] Em todos os casos de rejeição, nenhuma parcela é retornada
+- [x] `NaN`, `Infinity`, `-Infinity` e fracionário em `qtdParcelas`, `parcelaInicial` e `valorEntrada` são rejeitados com o código do próprio campo
+
+> **Correção posterior (fase 7).** As três guardas testavam só faixa, e faixa não pega `NaN`: `NaN < 1` e `NaN > qtdParcelas` são ambos falsos, então o valor atravessava. Com `parcelaInicial: NaN`, `.slice(NaN - 1)` virava `.slice(0)` e `gerarParcelas` devolvia `ok` com três parcelas de competência `'0NaN-NaN'`. As guardas passaram a testar **integralidade antes de faixa**. Nenhum código de erro novo.
+>
+> O buraco sobreviveu a 100% de cobertura de branches e a 46 mutações: cobertura mede quais linhas rodaram, mutação altera o código. Nenhuma das duas gera entrada nova.
 **Tests**: unit
 **Gate**: quick
 

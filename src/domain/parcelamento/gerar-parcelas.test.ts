@@ -204,3 +204,48 @@ describe("gerarParcelas — validações de entrada (PARC-05, PARC-08)", () => {
     expect("value" in resultado).toBe(false);
   });
 });
+
+/**
+ * Números que não são inteiros finitos. `NaN` é o caso perigoso: comparação
+ * com ele é falsa nos dois sentidos, então uma guarda que testa só faixa o
+ * deixa passar. `Infinity` e fracionário entram pelo mesmo buraco de
+ * raciocínio — a guarda certa é sobre o tipo do número, não sobre o intervalo.
+ */
+const NAO_INTEIROS = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 2.5];
+
+describe("gerarParcelas — entrada que não é inteiro finito (PARC-05, PARC-08)", () => {
+  it.each(NAO_INTEIROS)("rejeita qtdParcelas = %p com QTD_PARCELAS_INVALIDA", (n) => {
+    const resultado = gerarParcelas(entrada({ qtdParcelas: n }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("QTD_PARCELAS_INVALIDA");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it.each(NAO_INTEIROS)("rejeita parcelaInicial = %p com PARCELA_INICIAL_INVALIDA", (n) => {
+    const resultado = gerarParcelas(entrada({ qtdParcelas: 10, parcelaInicial: n }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("PARCELA_INICIAL_INVALIDA");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it.each(NAO_INTEIROS)("rejeita valorEntrada = %p com VALOR_NAO_POSITIVO", (n) => {
+    const resultado = gerarParcelas(entrada({ valorEntrada: n as Cents }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("VALOR_NAO_POSITIVO");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it("regressão: parcelaInicial NaN não produz plano com competência '0NaN-NaN'", () => {
+    const resultado = gerarParcelas(entrada({ qtdParcelas: 3, parcelaInicial: Number.NaN }));
+
+    // O caso reproduzido: `.slice(NaN - 1)` vira `.slice(0)` e devolvia o
+    // array inteiro, com três parcelas de competência `'0NaN-NaN'`.
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("PARCELA_INICIAL_INVALIDA");
+    expect("value" in resultado).toBe(false);
+    expect(JSON.stringify(resultado)).not.toContain("NaN");
+  });
+});

@@ -21,7 +21,11 @@ import {
  * preview: o usuário confere o centavo residual na tela, aprova, e grava outro
  * número.
  *
- * Pura e sem I/O: o formulário a chama a cada tecla.
+ * Pura e sem I/O: o formulário a chama a cada tecla — inclusive com campo em
+ * branco, que chega aqui como `NaN`. Entrada assim é rejeitada por
+ * `gerarParcelas`, que valida integralidade antes de faixa. **Não existe
+ * guarda de forma duplicada nesta função**: duas validações da mesma coisa
+ * divergem com o tempo, e a que vale é a do domínio.
  */
 
 export interface DadosDoPlano {
@@ -43,23 +47,6 @@ export interface PlanoDaCompra {
 }
 
 export function planoDaCompra(dados: DadosDoPlano): Result<PlanoDaCompra, DomainError> {
-  // Guarda de forma, não de regra: o formulário chama esta função a cada
-  // tecla, e um campo em branco chega aqui como `NaN`. `NaN < 1` é falso, de
-  // modo que a comparação do domínio o deixaria passar e a competência sairia
-  // como `NaN-NaN`. A regra financeira continua sendo do domínio.
-  if (!Number.isInteger(dados.qtdParcelas)) {
-    return err<DomainError>({
-      code: "QTD_PARCELAS_INVALIDA",
-      detalhes: { qtdParcelas: dados.qtdParcelas },
-    });
-  }
-  if (!Number.isInteger(dados.parcelaInicial)) {
-    return err<DomainError>({
-      code: "PARCELA_INICIAL_INVALIDA",
-      detalhes: { parcelaInicial: dados.parcelaInicial },
-    });
-  }
-
   const competenciaInicial = criarCompetencia(dados.competenciaInicial);
   if (!competenciaInicial.ok) {
     return err(competenciaInicial.error);
