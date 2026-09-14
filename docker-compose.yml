@@ -1,0 +1,32 @@
+# Postgres local para desenvolvimento e para os testes de integração (AD-010).
+# Nada aqui é credencial real: são valores de desenvolvimento local, iguais em
+# qualquer máquina. O banco de produção vive no Neon, com a URL em .env.local.
+
+configs:
+  criar_banco_de_teste:
+    content: |
+      CREATE DATABASE mybilling_test OWNER mybilling;
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: mybilling-db
+    environment:
+      POSTGRES_USER: mybilling
+      POSTGRES_PASSWORD: mybilling
+      POSTGRES_DB: mybilling
+    ports:
+      - "5433:5432"
+    configs:
+      - source: criar_banco_de_teste
+        target: /docker-entrypoint-initdb.d/01-criar-banco-de-teste.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mybilling -d mybilling"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - mybilling_pgdata:/var/lib/postgresql/data
+
+volumes:
+  mybilling_pgdata:

@@ -568,7 +568,7 @@ T52 -> T53
 
 ### Phase 4 — Persistência: schema e conexão
 
-#### T27: Postgres local em Docker
+#### T27: Postgres local em Docker ✅ CONCLUÍDA
 **What**: `docker-compose.yml` com Postgres e scripts `db:up`, `db:down` e `db:reset`, usando um banco de teste separado do de desenvolvimento.
 **Where**: `docker-compose.yml`
 **Depends on**: none
@@ -576,9 +576,9 @@ T52 -> T53
 **Requirement**: DADO-02
 **Tools**: Bash (`docker compose`)
 **Done when**:
-- [ ] `pnpm db:up` sobe o contêiner e responde a `pg_isready`
-- [ ] `pnpm db:reset` recria o banco do zero
-- [ ] Nenhuma credencial real aparece no arquivo — apenas valores locais de desenvolvimento
+- [x] `pnpm db:up` sobe o contêiner e responde a `pg_isready`
+- [x] `pnpm db:reset` recria o banco do zero
+- [x] Nenhuma credencial real aparece no arquivo — apenas valores locais de desenvolvimento
 **Tests**: none
 **Gate**: build
 
