@@ -145,3 +145,27 @@ describe("avaliarOrcamento — soma dos limites zero (ORC-02, AC 5)", () => {
     expect(avaliacao.percentualGlobal).toBeNull();
   });
 });
+
+describe("avaliarOrcamento — consumo exibe o arredondamento cru", () => {
+  it("gasto 200 com limite 300 consome 66,67%, não 66,66%", () => {
+    const avaliacao = avaliarOrcamento(
+      [categoria("cat-a", 200, CEM_PORCENTO)],
+      [{ categoriaId: "cat-a", limite: 300 as Cents }],
+      200 as Cents,
+    );
+
+    // O consumo não tem correção de sobra: o modo de arredondamento aparece
+    // direto no valor exibido e no sinal de estouro que depende dele.
+    expect(avaliacao.categorias[0]?.percentualConsumo).toBe(6667);
+  });
+
+  it("consumo com fração exatamente de meio desempata para cima", () => {
+    const avaliacao = avaliarOrcamento(
+      [categoria("cat-a", 1, CEM_PORCENTO)],
+      [{ categoriaId: "cat-a", limite: 32 as Cents }],
+      1 as Cents,
+    );
+
+    expect(avaliacao.categorias[0]?.percentualConsumo).toBe(313);
+  });
+});

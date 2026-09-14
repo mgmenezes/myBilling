@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import type { Competencia } from "../shared/competencia";
 import type { Cents } from "../shared/money";
 import type { Lancamento } from "../tipos";
-import { CEM_PORCENTO, resumoPorCategoria, resumoPorPessoa } from "./resumo-por-categoria";
+import {
+  CEM_PORCENTO,
+  percentual,
+  resumoPorCategoria,
+  resumoPorPessoa,
+} from "./resumo-por-categoria";
 
 const MARCO = "2026-03" as Competencia;
 const ABRIL = "2026-04" as Competencia;
@@ -198,5 +203,48 @@ describe("resumoPorPessoa", () => {
       { usuarioId: "pessoa-b", gasto: 750000 },
     ]);
     expect(pessoas.reduce((soma, p) => soma + p.gasto, 0)).toBe(1100000);
+  });
+});
+
+describe("percentual — modo de arredondamento", () => {
+  /**
+   * As duas porcentagens do orçamento saem desta função, e só a distribuição
+   * tem a correção de sobra que esconde o modo de arredondamento. O consumo
+   * exibe o valor cru, então a regra precisa estar pinçada aqui: meio para
+   * cima, com o empate exato indo para cima.
+   */
+  it("arredonda para cima a fração acima de meio", () => {
+    // 2/3 = 66,666…% — truncar daria 6666.
+    expect(percentual(2 as Cents, 3 as Cents)).toBe(6667);
+  });
+
+  it("arredonda para cima a fração exatamente de meio", () => {
+    // 1/32 = 3,125% — o empate exato desempata para cima; truncar daria 312.
+    expect(percentual(1 as Cents, 32 as Cents)).toBe(313);
+  });
+
+  it("arredonda para baixo a fração abaixo de meio", () => {
+    // 1/3 = 33,333…% — controle: aqui truncar e arredondar coincidem.
+    expect(percentual(1 as Cents, 3 as Cents)).toBe(3333);
+  });
+
+  it("a correção de sobra não mascara o arredondamento das demais categorias", () => {
+    const categorias = resumoPorCategoria(
+      [
+        lancamento({ id: "a", categoriaId: "cat-a", valor: 100 as Cents }),
+        lancamento({ id: "b", categoriaId: "cat-b", valor: 100 as Cents }),
+        lancamento({ id: "c", categoriaId: "cat-c", valor: 3000 as Cents }),
+      ],
+      MARCO,
+      3200 as Cents,
+    );
+
+    // 100/3200 = 3,125%: empate exato, arredonda para 3,13% — truncar daria
+    // 3,12% e a sobra iria parar em cat-c, deixando a soma em 100,00% assim
+    // mesmo. São as categorias menores que denunciam o modo de arredondamento.
+    expect(categorias[0]?.percentualDistribuicao).toBe(313);
+    expect(categorias[1]?.percentualDistribuicao).toBe(313);
+    expect(categorias[2]?.percentualDistribuicao).toBe(9374);
+    expect(categorias.reduce((soma, c) => soma + c.percentualDistribuicao, 0)).toBe(CEM_PORCENTO);
   });
 });

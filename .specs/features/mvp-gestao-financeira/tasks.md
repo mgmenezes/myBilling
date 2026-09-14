@@ -497,6 +497,7 @@ T52 -> T53
 - [x] A soma das porcentagens de distribuição de todas as categorias é 100,00% (MOV-01, AC 7)
 - [x] Total de Gastos zero produz distribuição 0% para todas as categorias, sem divisão por zero (MOV-01, AC 8)
 - [x] A sobra de arredondamento das porcentagens é atribuída à maior categoria
+- [x] O modo de arredondamento está pinçado: fração acima de meio sobe, fração exatamente de meio desempata para cima e fração abaixo de meio desce — trocar por truncamento faz a suíte falhar
 - [x] A agregação por pessoa soma exatamente o Total de Gastos
 **Tests**: unit
 **Gate**: quick
@@ -514,6 +515,7 @@ T52 -> T53
 - [x] Categoria sem limite no mês resulta em consumo nulo, nunca zero nem infinito (ORC-01, AC 3)
 - [x] Indicador global aplica total gasto dividido pela soma dos limites (ORC-02, AC 4)
 - [x] Soma dos limites zero resulta em indicador global nulo, sem `NaN` (ORC-02, AC 5)
+- [x] O consumo exibe o arredondamento sem correção de sobra: gasto 200 com limite 300 resulta em 66,67%, não 66,66%
 **Tests**: unit
 **Gate**: quick
 
