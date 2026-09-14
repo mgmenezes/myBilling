@@ -57,9 +57,19 @@ interface Compra {
   readonly parcelaInicial?: string;
 }
 
-/** Preenche e envia o formulário na competência já aberta. */
+/**
+ * Preenche e envia o formulário.
+ *
+ * O cadastro mora em `/AAAA-MM/lancamentos`, e não mais na visão geral: quem
+ * abre o painel quer entender o mês, quem abre Lançamentos está em manutenção.
+ * A asserção continua a mesma; só o endereço mudou.
+ */
 async function cadastrar(page: Page, compra: Compra): Promise<void> {
-  await page.getByLabel("Descrição").fill(compra.descricao);
+  if (!page.url().includes("/lancamentos")) {
+    const competencia = new URL(page.url()).pathname.split("/")[1];
+    await page.goto(`/${competencia}/lancamentos`);
+  }
+  await page.getByLabel("Descrição", { exact: true }).fill(compra.descricao);
   if (compra.modo === "Valor da parcela") {
     await page.getByRole("radio", { name: "Valor da parcela" }).check();
   }
@@ -72,7 +82,7 @@ async function cadastrar(page: Page, compra: Compra): Promise<void> {
   await expect(page.getByRole("status")).toContainText(compra.descricao);
 }
 
-/** A linha do bloco "Cartão de Crédito" daquela descrição. */
+/** A linha do bloco "Cartão de Crédito" daquela descrição, na área de Lançamentos. */
 function linhaDaParcela(page: Page, descricao: string) {
   return page.getByRole("region", { name: "Cartão de Crédito" }).getByRole("row", {
     name: new RegExp(descricao),
@@ -90,10 +100,10 @@ async function contarMovimentosAntesDe(competencia: string): Promise<number> {
 test("cadastrar R$ 1.000,00 em 3x em março e achar as parcelas em abril e maio sem nenhuma ação adicional (PARC-01, AC 1)", async ({
   page,
 }) => {
-  await page.goto("/2026-03");
+  await page.goto("/2026-03/lancamentos");
 
   // O preview mostra o rateio antes de gravar: o usuário confere o centavo.
-  await page.getByLabel("Descrição").fill("Compra parcelada A");
+  await page.getByLabel("Descrição", { exact: true }).fill("Compra parcelada A");
   await page.getByLabel("Valor total (R$)").fill("1.000,00");
   await page.getByLabel("Quantidade de parcelas").fill("3");
   const previa = page.getByRole("region", { name: "Previsão das parcelas" });
@@ -104,22 +114,22 @@ test("cadastrar R$ 1.000,00 em 3x em março e achar as parcelas em abril e maio 
   await page.getByRole("button", { name: "Cadastrar compra" }).click();
   await expect(page.getByRole("status")).toContainText("Compra parcelada A");
 
-  // Março: parcela 1/3.
+  // Março: parcela 1/3, já nesta mesma página.
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("1/3");
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("R$ 333,34");
 
   // Abril: **nenhuma ação além de navegar**. A parcela já está lá.
-  await page.goto("/2026-04");
+  await page.goto("/2026-04/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("2/3");
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("R$ 333,33");
 
   // Maio: idem.
-  await page.goto("/2026-05");
+  await page.goto("/2026-05/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("3/3");
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("R$ 333,33");
 
   // E acabou em maio: junho não tem parcela nenhuma desta compra.
-  await page.goto("/2026-06");
+  await page.goto("/2026-06/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada A")).toHaveCount(0);
 });
 
@@ -139,9 +149,9 @@ test("cadastrar uma compra 8/10 cria 3 parcelas e nenhum lançamento em competê
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("8/10");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("faltam 2 depois desta");
 
-  await page.goto("/2026-04");
+  await page.goto("/2026-04/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("9/10");
-  await page.goto("/2026-05");
+  await page.goto("/2026-05/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("10/10");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("(última)");
 
@@ -168,18 +178,16 @@ test("cadastrar em 2026-12 em 3x chega a 2027-02 (COMP-01, AC 1)", async ({ page
 
   await expect(linhaDaParcela(page, "Compra parcelada C")).toContainText("1/3");
 
-  await page.goto("/2027-01");
+  await page.goto("/2027-01/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada C")).toContainText("2/3");
   await expect(linhaDaParcela(page, "Compra parcelada C")).toContainText("R$ 100,00");
 
-  await page.goto("/2027-02");
+  await page.goto("/2027-02/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada C")).toContainText("3/3");
   await expect(linhaDaParcela(page, "Compra parcelada C")).toContainText("R$ 100,00");
 });
 
-test("os dois eixos ficam em blocos separados, cada um com o seu selo (MOV-03, UI-01 AC 4)", async ({
-  page,
-}) => {
+test("as duas visões nunca aparecem juntas (MOV-03, UI-01 AC 4)", async ({ page }) => {
   await page.goto("/2026-03");
   await cadastrar(page, {
     descricao: "Compra parcelada A",
@@ -188,30 +196,38 @@ test("os dois eixos ficam em blocos separados, cada um com o seu selo (MOV-03, U
     qtdParcelas: "3",
   });
 
-  const competencia = page.getByRole("region", { name: "Total de Gastos" });
-  const caixa = page.getByRole("region", { name: "Saídas" });
+  await page.goto("/2026-03");
+  const alternador = page.getByRole("navigation", { name: "Visão do mês" });
+  await expect(alternador).toBeVisible();
 
-  await expect(competencia).toContainText("Eixo competência");
-  await expect(caixa).toContainText("Eixo caixa");
+  /*
+   * Esta asserção é mais forte que a do desenho anterior. Antes os dois eixos
+   * ficavam na tela ao mesmo tempo, em caixas separadas, e o teste checava que
+   * uma não continha a outra. Agora só uma visão existe por vez, então a
+   * ausência da outra é verificável de forma direta: se o rótulo do eixo caixa
+   * não está no DOM, nenhuma composição pode somá-lo ao de competência.
+   */
+  await expect(page.getByText("Despesas do mês")).toBeVisible();
+  await expect(page.getByText("Saldo previsto")).toBeVisible();
+  await expect(page.getByText("Saiu da conta")).toHaveCount(0);
+  await expect(page.getByText("Saldo do período")).toHaveCount(0);
 
-  // São dois blocos, e um não contém o outro.
-  await expect(competencia).toHaveCount(1);
-  await expect(caixa).toHaveCount(1);
-  expect(await competencia.locator('[aria-labelledby="eixo-caixa"]').count()).toBe(0);
-  expect(await caixa.locator('[aria-labelledby="eixo-competencia"]').count()).toBe(0);
+  // A parcela de março aparece no indicador de despesas desta visão.
+  await expect(page.getByRole("link", { name: /Despesas do mês/ })).toContainText("R$ 333,34");
 
-  // O valor da competência está no bloco da competência e não no do caixa.
-  await expect(competencia).toContainText("R$ 333,34");
-  await expect(caixa).not.toContainText("R$ 333,34");
+  await alternador.getByRole("link", { name: "Movimentações" }).click();
+  await expect(page.getByText("Saiu da conta")).toBeVisible();
+  await expect(page.getByText("Saldo do período")).toBeVisible();
+  await expect(page.getByText("Despesas do mês")).toHaveCount(0);
+  await expect(page.getByText("Saldo previsto")).toHaveCount(0);
 
-  // Os dois números são medidos à parte: a compra foi assumida em março e
-  // ainda não foi paga, então o eixo caixa continua zerado enquanto o eixo
-  // competência já contabiliza a parcela. A divergência é a informação.
-  await expect(caixa).toContainText("R$ 0,00");
+  // A compra foi assumida em março e ainda não foi paga: o eixo caixa está
+  // zerado enquanto o de competência já contabiliza. A divergência é a
+  // informação, e a tela a explica em vez de calculá-la.
+  await expect(page.getByRole("link", { name: /Saiu da conta/ })).toContainText("R$ 0,00");
 
-  // E a tela explica a divergência em vez de calculá-la: nenhuma subtração
-  // entre os dois eixos aparece em lugar nenhum.
-  await expect(page.getByText(/não soma nem subtrai um do outro/)).toBeVisible();
+  await page.getByText("Qual é a diferença").click();
+  await expect(page.getByText(/nunca soma nem subtrai um do outro/)).toBeVisible();
 });
 
 test("em 400 pixels nada rola na horizontal, e a barra não foi escondida (UI-03, AC 9)", async ({

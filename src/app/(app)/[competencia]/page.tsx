@@ -1,208 +1,131 @@
+import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
-import { criarCompra } from "@/app/actions/compras";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
-import { FormCompra } from "@/components/form-compra";
+import { GraficoCategorias } from "@/components/grafico-categorias";
 import { HorizonteFuturo } from "@/components/horizonte-futuro";
-import { SeletorCompetencia } from "@/components/seletor-competencia";
-import { TabelaLancamentos } from "@/components/tabela-lancamentos";
+import { AlternadorDeVisao, GradeDeIndicadores, type Visao } from "@/components/painel-indicadores";
 import { TransicaoMes } from "@/components/transicao-mes";
-import { Chip } from "@/components/ui";
-import { type Cents, criarCompetencia } from "@/domain";
+import { criarCompetencia, resumoPorCategoria } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { sessaoDaUI } from "../sessao";
 
 /**
- * A página do mês.
+ * Visão geral do mês.
  *
- * O que ela garante, e que nenhuma outra tela pode desfazer: **os dois eixos
- * ficam em blocos separados, cada um com o seu selo, e nada aqui os soma nem
- * os subtrai** (MOV-03). Total de Gastos mede competência, o mês em que o
- * gasto foi assumido. Saídas mede caixa, o mês em que o dinheiro se moveu.
- * Eles divergem de verdade, e o usuário precisa entender por quê em vez de
- * achar que é defeito. Por isso a divergência aparece rotulada, e não
- * calculada: nenhuma subtração entre os dois existe nesta página.
+ * O jargão contábil saiu da tela. "Eixo competência" virou **Planejamento**,
+ * "eixo caixa" virou **Movimentações**, e só uma visão aparece por vez. Essa
+ * restrição é o que preserva `MOV-03` por construção: não existindo composição
+ * que exiba os dois eixos juntos, não existe composição que os some.
  *
- * Os dois painéis não têm o mesmo peso visual. Competência ocupa mais espaço
- * porque é o eixo que responde a pergunta do dia a dia, "quanto eu gastei
- * neste mês". Caixa responde uma pergunta mais rara e fica menor. Dois cartões
- * idênticos lado a lado diriam que as duas perguntas têm a mesma frequência,
- * o que é falso.
+ * A explicação da diferença entre os dois continua disponível, mas sob
+ * demanda, num `<details>`. Ela precisa ser lida uma vez, não todo dia.
  *
- * Carregamento e erro vivem em `loading.tsx` e `error.tsx`, ao lado
- * (UI-02, AC 7 e AC 8). Competência malformada na URL vira página de não
- * encontrado, sem erro não tratado (UI-02, AC 3).
- *
- * `requireSession` de novo, por baixo de `sessaoDaUI`: o layout já resolveu a
- * sessão, e mesmo assim a página resolve outra vez. Uma rota nunca deve
- * depender do guarda de outro arquivo.
+ * `resumoPorCategoria` já existia no domínio, testado e sem nenhum chamador.
+ * O gráfico de categorias não exigiu backend novo: só faltava chamá-lo.
  */
 
 export const dynamic = "force-dynamic";
 
-export default async function PaginaDoMes({ params }: PageProps<"/[competencia]">) {
+export default async function PainelDoMes({ params, searchParams }: PageProps<"/[competencia]">) {
   await sessaoDaUI();
 
   const { competencia } = await params;
+  const { visao: visaoBruta } = await searchParams;
   const resultado = criarCompetencia(competencia);
   if (!resultado.ok) {
     notFound();
   }
 
+  const visao: Visao = visaoBruta === "movimentacoes" ? "movimentacoes" : "planejamento";
+
   const repositorios = criarRepositorios();
-  const [visao, meios, categorias, usuarios] = await Promise.all([
-    obterVisaoMensal(repositorios, resultado.value),
-    repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),
-    repositorios.cadastros.listarCategoriasDisponiveis(),
-    repositorios.cadastros.listarUsuarios(),
-  ]);
+  const visaoMensal = await obterVisaoMensal(repositorios, resultado.value);
+
+  const categorias = resumoPorCategoria(
+    visaoMensal.lancamentos.map((item) => item.lancamento),
+    resultado.value,
+    visaoMensal.competenciaView.totalGastos,
+  );
+
+  const nomePorCategoria = new Map(
+    (await repositorios.cadastros.listarCategoriasDisponiveis()).map((c) => [c.id, c.nome]),
+  );
 
   return (
-    <div className="flex flex-col gap-8">
-      <SeletorCompetencia competencia={resultado.value} />
-
-      {/*
-        A transição cobre só o topo: título e os dois painéis, que é o que se
-        olha ao trocar de mês. Animar a página inteira a cada troca é movimento
-        demais numa ferramenta de uso diário.
-
-        Ela também **não pode** envolver o `HorizonteFuturo`: aquele componente
-        usa GSAP, e um ancestral com `transform` cria bloco de contenção que
-        faz o ScrollTrigger calcular posição errada enquanto a transição roda.
-        Motion e GSAP ficam em árvores irmãs, nunca aninhadas.
-      */}
-      <TransicaoMes competencia={resultado.value}>
-        <div className="flex flex-col gap-8">
-          <h1 className="text-[30px] leading-[1.1] sm:text-[38px]">
+    <TransicaoMes competencia={resultado.value}>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
             {formatarCompetencia(resultado.value)}
           </h1>
 
-          {/* Os dois eixos, lado a lado mas nunca no mesmo card (MOV-03). */}
-          <div className="grid gap-4 lg:grid-cols-5">
-            <BlocoDeEixo
-              id="eixo-competencia"
-              titulo="Total de Gastos"
-              selo="Eixo competência"
-              valor={visao.competenciaView.totalGastos}
-              explicacao="O que foi assumido neste mês, pago ou não."
-              className="lg:col-span-3"
-              linhas={[
-                { rotulo: "Fixos", valor: visao.competenciaView.fixos },
-                { rotulo: "Cartão de Crédito", valor: visao.competenciaView.cartao },
-                { rotulo: "Gastos do Mês", valor: visao.competenciaView.avulsos },
-                { rotulo: "Ainda não pago", valor: visao.competenciaView.pendente },
-                { rotulo: "Entradas", valor: visao.competenciaView.entradas },
-                { rotulo: "Investimentos", valor: visao.competenciaView.investimentos },
-                { rotulo: "Saldo de competência", valor: visao.competenciaView.saldo },
-              ]}
-            />
-            <BlocoDeEixo
-              id="eixo-caixa"
-              titulo="Saídas"
-              selo="Eixo caixa"
-              valor={visao.caixaView.saidas}
-              explicacao="O que de fato saiu da conta neste mês."
-              className="lg:col-span-2"
-              linhas={[
-                { rotulo: "Entradas recebidas", valor: visao.caixaView.entradasRecebidas },
-                {
-                  rotulo: "Investimentos realizados",
-                  valor: visao.caixaView.investimentosRealizados,
-                },
-                { rotulo: "Saldo de caixa", valor: visao.caixaView.saldo },
-              ]}
-            />
-          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <AlternadorDeVisao competencia={resultado.value} visao={visao} />
 
-          <p className="max-w-[68ch] text-[15px] leading-relaxed text-ink-muted">
-            Os dois blocos acima medem coisas diferentes e divergir entre eles é normal: a fatura
-            paga neste mês contém compras de meses anteriores. O myBilling não soma nem subtrai um
-            do outro.
-          </p>
+            <details className="group">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-chip px-3 text-[14px] text-ink-muted hover:text-ink">
+                <InfoIcon size={16} weight="bold" aria-hidden="true" />
+                Qual é a diferença
+              </summary>
+              <p className="mt-3 max-w-[62ch] rounded-card bg-surface p-4 text-[15px] leading-relaxed text-ink-muted">
+                <strong className="font-medium text-ink">Planejamento</strong> mede o que foi
+                assumido neste mês, pago ou não.{" "}
+                <strong className="font-medium text-ink">Movimentações</strong> mede o que de fato
+                saiu ou entrou na conta. Os dois divergem de propósito: a fatura paga neste mês
+                contém compras de meses anteriores. O myBilling nunca soma nem subtrai um do outro.
+              </p>
+            </details>
+          </div>
         </div>
-      </TransicaoMes>
 
-      <section aria-labelledby="titulo-lancamentos" className="flex flex-col gap-5">
-        <h2 id="titulo-lancamentos" className="text-[22px]">
-          Lançamentos do mês
-        </h2>
-        <TabelaLancamentos lancamentos={visao.lancamentos} />
-      </section>
-
-      <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
-        <h2 id="titulo-futuro" className="text-[22px]">
-          Já comprometido nos próximos meses
-        </h2>
-        <HorizonteFuturo
-          meses={visao.futuro.map((mes) => ({
-            competencia: mes.competencia,
-            rotulo: formatarCompetencia(mes.competencia),
-            valor: formatarBRL(mes.comprometido),
-          }))}
+        <GradeDeIndicadores
+          competencia={resultado.value}
+          visao={visao}
+          planejamento={{
+            entradas: visaoMensal.competenciaView.entradas,
+            totalGastos: visaoMensal.competenciaView.totalGastos,
+            pendente: visaoMensal.competenciaView.pendente,
+            saldo: visaoMensal.competenciaView.saldo,
+          }}
+          movimentacoes={{
+            entradasRecebidas: visaoMensal.caixaView.entradasRecebidas,
+            saidas: visaoMensal.caixaView.saidas,
+            saldo: visaoMensal.caixaView.saldo,
+          }}
         />
-      </section>
 
-      <FormCompra
-        competencia={resultado.value}
-        meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
-        categorias={categorias.map((categoria) => ({
-          id: categoria.id,
-          nome: categoria.nome,
-        }))}
-        usuarios={usuarios.map((usuario) => ({ id: usuario.id, nome: usuario.nome }))}
-        enviar={criarCompra}
-      />
-    </div>
-  );
-}
+        <section aria-labelledby="titulo-categorias" className="flex flex-col gap-5">
+          <h2 id="titulo-categorias" className="text-[20px]">
+            Gastos por categoria
+          </h2>
+          <GraficoCategorias
+            titulo="Gastos por categoria, ordenados do maior para o menor"
+            fatias={categorias.map((categoria) => ({
+              id: categoria.categoriaId ?? "sem-categoria",
+              nome:
+                categoria.categoriaId === null
+                  ? "Sem categoria"
+                  : (nomePorCategoria.get(categoria.categoriaId) ?? "Categoria removida"),
+              valor: categoria.gasto,
+              percentual: categoria.percentualDistribuicao,
+            }))}
+          />
+        </section>
 
-function BlocoDeEixo({
-  id,
-  titulo,
-  selo,
-  valor,
-  explicacao,
-  linhas,
-  className = "",
-}: {
-  readonly id: string;
-  readonly titulo: string;
-  readonly selo: string;
-  readonly valor: Cents;
-  readonly explicacao: string;
-  readonly className?: string;
-  readonly linhas: ReadonlyArray<{ readonly rotulo: string; readonly valor: Cents }>;
-}) {
-  return (
-    <section
-      aria-labelledby={id}
-      className={`flex flex-col gap-4 rounded-panel bg-surface p-6 shadow-lift sm:p-8 ${className}`}
-    >
-      <Chip>{selo}</Chip>
-
-      <div className="flex flex-col gap-1">
-        <h2 id={id} className="text-[15px] font-medium tracking-normal text-ink-muted">
-          {titulo}
-        </h2>
-        <p className="tabular text-[34px] leading-none font-medium tracking-[-0.02em] sm:text-[40px]">
-          {formatarBRL(valor)}
-        </p>
+        <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
+          <h2 id="titulo-futuro" className="text-[20px]">
+            Já comprometido nos próximos meses
+          </h2>
+          <HorizonteFuturo
+            meses={visaoMensal.futuro.map((mes) => ({
+              competencia: mes.competencia,
+              rotulo: formatarCompetencia(mes.competencia),
+              valor: formatarBRL(mes.comprometido),
+            }))}
+          />
+        </section>
       </div>
-
-      <p className="text-[15px] text-ink-muted">{explicacao}</p>
-
-      {/*
-        Uma linha divisória acima do grupo, nenhuma entre as linhas. Régua sob
-        cada item é o padrão que faz qualquer lista parecer planilha exportada.
-      */}
-      <dl className="flex flex-col gap-2.5 border-t border-line pt-4">
-        {linhas.map((linha) => (
-          <div key={linha.rotulo} className="flex flex-wrap items-baseline justify-between gap-2">
-            <dt className="text-[15px] text-ink-muted">{linha.rotulo}</dt>
-            <dd className="tabular text-[15px] font-medium">{formatarBRL(linha.valor)}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    </TransicaoMes>
   );
 }

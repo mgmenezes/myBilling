@@ -55,3 +55,19 @@ export function formatarCompetencia(competencia: string): string {
 export function nomeDoMes(competencia: string): string {
   return formatarCompetencia(competencia).split(" de ")[0] ?? "";
 }
+
+/**
+ * Porcentagem em centésimos de ponto percentual: `2183` vira `"21,83%"`.
+ *
+ * Mora aqui pelo mesmo motivo que `formatarBRL`: formatação de número é
+ * fronteira de apresentação, e espalhá-la produz duas convenções de vírgula no
+ * mesmo produto. O teste de fronteira deste arquivo recusa `toFixed` em
+ * qualquer outro lugar, e foi ele que pegou a primeira versão do gráfico.
+ */
+export function formatarPercentual(centesimos: number): string {
+  const formatado = new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(centesimos / 100);
+  return `${formatado}%`;
+}

@@ -33,6 +33,15 @@
    * Escala de raios. Pula de propósito a faixa de 1 a 19px: é a faixa que faz
    * qualquer interface parecer bootstrap genérico. Nada no app usa outro valor.
    */
+  /*
+   * Gráfico. A barra é neutra de propósito: o dado é um só (gasto), e quem
+   * identifica a categoria é o rótulo. Vinte matizes seria o anti-padrão.
+   * O laranja fica reservado para sinalizar estouro de orçamento, com ícone
+   * e texto junto, nunca cor sozinha.
+   */
+  --grafico-barra: #6b6560;
+  --grafico-trilho: rgb(20 20 19 / 0.07);
+
   --r-chip: 999px;
   --r-cta: 20px;
   --r-card: 24px;
@@ -41,9 +50,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #141413;
-    --surface: #1e1e1c;
-    --surface-strong: #262624;
+    --canvas: #100f0e;
+    --surface: #1e1e1a;
+    --surface-strong: #2e2e28;
     --ink: #f3f0ee;
     --ink-muted: #a8a49e;
     /* Mais claro que o acento do tema claro: 4.11:1 no creme reprovaria aqui. */
@@ -51,6 +60,8 @@
     --accent-contrast: #141413;
     --line: rgb(243 240 238 / 0.14);
     --line-strong: rgb(243 240 238 / 0.26);
+    --grafico-barra: #b5afa7;
+    --grafico-trilho: rgb(243 240 238 / 0.09);
     --sombra-1: 0 4px 24px rgb(0 0 0 / 0.34);
     --sombra-2: 0 18px 48px rgb(0 0 0 / 0.46);
   }
@@ -66,6 +77,8 @@
   --color-accent-contrast: var(--accent-contrast);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-grafico-barra: var(--grafico-barra);
+  --color-grafico-trilho: var(--grafico-trilho);
 
   --radius-chip: var(--r-chip);
   --radius-cta: var(--r-cta);
