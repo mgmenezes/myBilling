@@ -691,7 +691,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T35: Repositório de cadastros
+#### T35: Repositório de cadastros ✅ CONCLUÍDA
 **What**: Leitura e escrita de usuários, meios de pagamento e categorias, incluindo o filtro de arquivados nos seletores.
 **Where**: `src/infrastructure/db/repositories/cadastro.repository.ts`
 **Depends on**: T33
@@ -699,9 +699,9 @@ T52 -> T53
 **Requirement**: CART-03, DADO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Meio de pagamento arquivado não aparece na listagem para nova compra (CART-03, AC 7)
-- [ ] Meio de pagamento arquivado continua resolvível por id, para exibir parcelas existentes (CART-03, AC 6)
-- [ ] Categoria arquivada não aparece nos formulários mas continua resolvível em relatórios
+- [x] Meio de pagamento arquivado não aparece na listagem para nova compra (CART-03, AC 7)
+- [x] Meio de pagamento arquivado continua resolvível por id, para exibir parcelas existentes (CART-03, AC 6)
+- [x] Categoria arquivada não aparece nos formulários mas continua resolvível em relatórios
 **Tests**: integration
 **Gate**: full
 
