@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!.next", "!public", "!.agents", "!.claude"]
+    "includes": ["**", "!.next", "!public", "!.agents", "!.claude", "!drizzle"]
   },
   "css": {
     "parser": {

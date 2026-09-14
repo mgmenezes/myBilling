@@ -30,6 +30,11 @@ export default defineConfig({
           name: "integration",
           environment: "node",
           include: ["**/*.integration.test.ts"],
+          // Um único Postgres em Docker atende toda a suíte: arquivos em
+          // paralelo derrubariam o schema uns dos outros (AD-010).
+          fileParallelism: false,
+          testTimeout: 20_000,
+          hookTimeout: 60_000,
         },
       },
     ],

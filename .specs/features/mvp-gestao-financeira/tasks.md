@@ -599,7 +599,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T29: Migration inicial aplicada em Postgres real
+#### T29: Migration inicial aplicada em Postgres real ✅ CONCLUÍDA
 **What**: Gerar a migration SQL a partir do schema, revisar o SQL, aplicá-la no contêiner e provar por teste de integração que as restrições rejeitam dado inválido.
 **Where**: `drizzle/0000_init.sql`
 **Depends on**: T28, T27
@@ -607,11 +607,11 @@ T52 -> T53
 **Requirement**: MOV-01, DADO-02
 **Tools**: Bash (`drizzle-kit generate`, `drizzle-kit migrate`)
 **Done when**:
-- [ ] A migration aplica do zero num banco limpo, sem erro
-- [ ] Inserir duas parcelas com o mesmo `(compra_id, numero_parcela)` é rejeitado pelo banco
-- [ ] Inserir movimento com competência fora do dia 1 é rejeitado pelo `CHECK`
-- [ ] Inserir origem `PARCELA` sem `compra_id` é rejeitado pelo `CHECK`
-- [ ] O SQL foi revisado à mão, sem nenhum `DROP` não intencional
+- [x] A migration aplica do zero num banco limpo, sem erro
+- [x] Inserir duas parcelas com o mesmo `(compra_id, numero_parcela)` é rejeitado pelo banco
+- [x] Inserir movimento com competência fora do dia 1 é rejeitado pelo `CHECK`
+- [x] Inserir origem `PARCELA` sem `compra_id` é rejeitado pelo `CHECK`
+- [x] O SQL foi revisado à mão, sem nenhum `DROP` não intencional
 **Tests**: integration
 **Gate**: full
 
