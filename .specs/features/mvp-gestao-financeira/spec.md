@@ -285,7 +285,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | COMP-03 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-04 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | MOV-01 | P1: Integridade do razão e anti-dupla-contagem | Fases 3-5 | Verified |
-| MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Fase 4 | Implementing |
+| MOV-02 | P1: Integridade do razão e anti-dupla-contagem | Fase 4 | Verified |
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
@@ -297,7 +297,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Verified |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Verified |
 | UI-01 | P1: Visão do mês e navegação | Fases 6 e 7 | Verified |
-| UI-02 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
+| UI-02 | P1: Visão do mês e navegação | Fases 6 e 7 | Verified |
 | UI-03 | P1: Visão do mês e navegação | Fases 6 e 7 | Verified |
 | DADO-01 | P1: Compra parcelada com distribuição automática | Fases 3-5 | Verified |
 | DADO-02 | P1: Integridade do razão e anti-dupla-contagem | Fases 4-5 | Verified |
@@ -306,9 +306,11 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 32 total (a contagem anterior de 33 estava errada), todos cobertos por tasks. AUTH-01, AUTH-02, UI-01, UI-02 e UI-03 entram na Fase 6; UI-01 e UI-02 ganham a visão mensal completa na Fase 7
+**Coverage:** 29 requisitos na tabela, cobrindo 64 acceptance criteria em escopo. AUTH-01, AUTH-02, UI-01, UI-02 e UI-03 entram na Fase 6; UI-01 e UI-02 ganham a visão mensal completa na Fase 7
 
-**Verificação independente (2026-09-14):** 26 dos 32 requisitos foram promovidos a `Verified` pelo Verifier, cada um com evidência `arquivo:linha` em `validation.md`. Os 6 restantes continuam em `Implementing`: MOV-02 (AC 2 sem assertion — mutante sobrevivente), MOV-06 (AC 4 sem implementação), ORC-02 (AC 6 sem cobertura), REC-01 (AC 4 sem implementação), REC-02 (AC 5 coberto apenas por proxy) e UI-02 (ACs 7 e 8 sem assertion — mutante sobrevivente). MOV-02 e REC-01 foram **rebaixados** de `Verified` porque a marca anterior não tinha lastro em nenhuma assertion localizável. Detalhes, evidências e fix tasks em `validation.md`.
+**Verificação independente — iteração 2 (2026-09-14, HEAD `14c4a35`):** veredito **PASS**. 28 dos 29 requisitos em `Verified`, cada um com evidência `arquivo:linha` em `validation.md`. MOV-02 e UI-02 foram promovidos nesta iteração: os dois mutantes que sobreviveram na iteração 1 (acrescentar `natureza`/`categoria_id` a `pagamento_fatura`; esvaziar `loading.tsx` e `error.tsx`) agora morrem. REC-02 permanece `Implementing`: o AC 4 fala em **materializar** em janela limitada, e o que existe e é testado é a janela da **projeção** — cobertura por proxy não promove.
+
+**Dívida aberta na própria tabela (ver `validation.md` §9.7 F):** ao mover 3 acceptance criteria para Out of Scope, foram apagadas 3 linhas de requisito inteiras (MOV-06, ORC-02, REC-01), e cada uma carregava outros critérios. Ficaram **8 acceptance criteria em escopo, implementados e testados, sem nenhum requirement ID que os rastreie**: os 3 ACs de "P2: Previsto versus realizado" (história inteira sem ID), os ACs 4, 5 e 6 de "P2: Orçamento por categoria" e os ACs 1 e 2 de "P3: Recorrência". Nenhum comportamento ficou descoberto — 14 citações nos testes e 16 em `tasks.md` ainda apontam para esses IDs —, mas a tabela afirma uma completude que hoje não consegue provar. Reintroduzir os três IDs cobrindo só os critérios que ficaram em escopo fecha a dívida.
 
 ---
 

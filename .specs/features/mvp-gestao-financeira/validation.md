@@ -1,8 +1,11 @@
 # mvp-gestao-financeira Validation
 
-**Veredito: FAIL ❌**
+**Veredito (iteração 2, HEAD `14c4a35`): PASS ✅**
 
-**Result**: FAIL
+**Result**: PASS
+
+> Veredito da iteração 1 (HEAD `f62f27c`): **FAIL** — mantido abaixo na íntegra como trilha de evidência.
+> A iteração 2 está na seção **9**, no fim deste arquivo. Onde as duas seções divergirem, vale a 9.
 
 **Date**: 2026-09-14
 **Spec**: `.specs/features/mvp-gestao-financeira/spec.md`
@@ -354,3 +357,186 @@ Promovidos a `Verified` **26 de 32** requisitos — apenas aqueles cujos accepta
 **O que impede o PASS**: a ironia é que a lacuna mais séria está exatamente na propriedade que o projeto mais orgulhosamente declara. O `AD-003` diz que a dupla contagem fica "impossível de compilar"; a regra 5 do `AGENTS.md` diz "não acrescente as colunas". Nada verifica isso. Acrescentei as colunas e a suíte inteira ficou verde. Uma invariante estrutural sem teste é uma convenção com boa reputação — e convenções erodem em silêncio, que é precisamente o argumento que o próprio `AD-006` usa para justificar o `arquitetura.test.ts`. O padrão certo já existe no repositório (`arquitetura.test.ts` lê `biome.json`; `movimento.repository.integration.test.ts:155` fecha as chaves do mapeamento); ele só não foi aplicado a `pagamento_fatura`.
 
 **Next steps**: Fix 1 é bloqueante e barato — uma consulta a `information_schema.columns`. Fix 2 é barato e fecha o buraco de `src/app/**` na configuração do `vitest`. Fixes 3, 4 e 5 tocam ACs de P2/P3 cujo domínio o spec coloca em escopo; o Fix 5 precisa antes de uma decisão de spec sobre o que é "estorno explícito". Fix 6 e 7 são de registro.
+
+---
+
+# 9. Iteração 2 — re-verificação (HEAD `14c4a35`)
+
+**Veredito da iteração 2: PASS ✅**
+
+**Range re-verificado**: `3c23b16..14c4a35` (4 commits, 5 arquivos, +170 / −9)
+**Método**: re-derivado do `spec.md`. Não confiei no resumo do coordenador — e fiz bem: dois pontos dele não conferem (itens **B** e **F** abaixo).
+
+## 9.1 Gates (executados por mim, nesta iteração)
+
+| Gate | Resultado | Exit | Delta vs. iteração 1 |
+| --- | --- | --- | --- |
+| `pnpm test:unit` | 28 arquivos, **365 testes**; branches `src/domain` **128/128** | **0** | +2 arquivos, **+7 testes** |
+| `pnpm test:integration` | 8 arquivos, **115 testes** | **0** | **+3 testes** |
+| `pnpm test:e2e` | **10 testes** | **0** | — |
+| `pnpm verify` | tudo verde, `✓ Compiled successfully` | **0** | — |
+
+Total **490** (era 480). Contagem só subiu; nenhum teste removido, nenhum `skip`, nenhuma assertion enfraquecida. Os +7 e +3 batem exatamente com os arquivos novos (2 de `loading` + 5 de `error`; 3 de `pagamento_fatura`/`movimento`).
+
+## 9.2 Lacuna 1 (Blocker, AD-003) — **fechada**
+
+Teste novo em `src/infrastructure/db/restricoes.integration.test.ts:296-347`, lendo `information_schema.columns` do Postgres real — não o objeto Drizzle, que é a escolha certa: o que vale é o que a migration criou.
+
+- `:301` — `expect(colunas, "<mensagem que cita o AD-003>").toEqual(COLUNAS_PAGAMENTO_FATURA)` com `COLUNAS_PAGAMENTO_FATURA = ["criado_em","data_pagamento","fatura_id","id","valor_pago_centavos"]`
+- `:319` — `expect(colunas, …).not.toContain("natureza")`
+- `:326` — `expect(colunas, …).not.toContain("categoria_id")`
+- `:337` — `expect(colunas, …).toEqual(expect.arrayContaining(["natureza","categoria_id"]))` sobre `movimento`
+
+O `ORDER BY column_name` na consulta (`:286`) torna a igualdade de lista ordenada equivalente a igualdade de conjunto, já que nome de coluna é único por tabela. Correto.
+
+**Reavaliação de MOV-02 AC 2**: coberto, com o valor asserido batendo exatamente com o que o spec define ("tabela própria, sem natureza e sem categoria"). **MOV-02 promovido a `Verified`** — a marca que rebaixei na iteração 1 agora tem lastro.
+
+Ponto de qualidade que merece registro: as três assertions carregam mensagem de falha que explica *por que* a invariante existe e instrui "Se a mudança é mesmo desejada, mude o AD-003 antes de mudar este teste". Isso converte uma falha de teste em prompt de decisão, que é o contrário do convite a relaxar o teste.
+
+## 9.3 Lacuna 2 (Major, `src/app/**`) — **fechada**
+
+`vitest.config.ts:46` passou a incluir `src/app/**/*.test.tsx` no project `componentes`. 7 testes novos:
+
+- `src/app/(app)/[competencia]/loading.test.tsx:18` — `const aviso = screen.getByRole("status")` + `:19` — `expect(aviso.getAttribute("aria-live")).toBe("polite")`; `:25` — `expect(screen.getByRole("status").textContent).toMatch(/carregando/i)`
+- `src/app/(app)/[competencia]/error.test.tsx:31` — `expect(screen.getByRole("alert").textContent).toMatch(/não foi possível carregar/i)`
+- `:37` — `expect(screen.getByRole("alert").textContent).toContain("abc123def")` (identificador de correlação)
+- `:44-47` — `expect(naTela).not.toContain(MENSAGEM_TECNICA)`, `expect(naTela).not.toContain(LINHA_DE_STACK)`, `expect(naTela).not.toMatch(/\bat \S+ \(/)`, `expect(screen.queryByText(new RegExp(MENSAGEM_TECNICA,"i"))).toBeNull()`
+- `:54-55` — `expect(naTela).not.toMatch(/undefined|null|NaN/)` e `expect(naTela).toMatch(/sem-identificador/)` (digest ausente)
+- `:64` — `expect(reset).toHaveBeenCalledTimes(1)`
+
+A **metade negativa** (`:44-47`) é o que faz este teste valer: mostrar o código de correlação sem esconder a mensagem técnica seria vazamento, e o AC 8 pede as duas coisas. O teste constrói um erro com `stack` sintética (`:20-25`) em vez de confiar no stack real, o que torna a assertion determinística.
+
+**Reavaliação de UI-02**: ACs 3, 6, 7 e 8 todos cobertos. **UI-02 promovido a `Verified`**.
+
+## 9.4 Sensor — iteração 2
+
+15 mutações novas, em `git worktree add --detach` descartável (sem `git stash`). Baseline `git status --porcelain` vazio antes e idêntico depois; `next-env.d.ts`, sujo pelo e2e, restaurado.
+
+| # | Onde | Mutação | Gate | Resultado |
+| --- | --- | --- | --- | --- |
+| A | `loading.tsx` | `return null` — **o sobrevivente nº 13 da iteração 1** | componentes | ✅ **Morto** (2 testes) |
+| B | `error.tsx:24` | identificador de correlação removido — **o outro sobrevivente nº 13** | componentes | ✅ **Morto** (2 testes) |
+| C | `error.tsx:21` | vaza `{error.message}` na tela | componentes | ✅ **Morto** — `não expõe a mensagem técnica` |
+| D | `error.tsx:21` | vaza `{error.stack}` na tela | componentes | ✅ **Morto** — mesma assertion |
+| E | `error.tsx:24` | `digest ?? "sem-identificador"` → `String(digest)` (mostra `undefined`) | componentes | ✅ **Morto** — `degrada de forma legível` |
+| F | `loading.tsx:4` | remove `role="status"` e `aria-live` | componentes | ✅ **Morto** (2 testes) |
+| G | `0000_init.sql` + `schema.ts` | `pagamento_fatura` ganha `natureza` **e** `categoria_id` — **o sobrevivente nº 12 da iteração 1, o blocker** | integration | ✅ **Morto** por 2 testes independentes |
+| H | `0000_init.sql` | `pagamento_fatura` ganha **só** `categoria_id` | integration | ✅ **Morto** por 2 testes |
+| I | `0000_init.sql` | `pagamento_fatura` **perde** `criado_em` (metade "nenhuma a menos") | integration | ✅ **Morto** pelo conjunto fechado |
+| J | `0000_init.sql` | `movimento` perde `categoria_id` (+ a FK) | integration | ✅ **Morto** — 28 testes, **incluindo** `movimento mantém natureza e categoria_id`, que discrimina por conta própria e não só por arrasto |
+| K | `0000_init.sql` | `pagamento_fatura` ganha uma coluna **inócua** (`observacao text`) | integration | ✅ **Morto** pelo conjunto fechado |
+| L | `0000_init.sql` | `movimento` ganha uma coluna **inócua** (`observacao_livre text`) | integration | ❌ **Sobreviveu — por desenho.** Ver 9.5 |
+| M | `ratear-parcelas.ts:36` | **AD-011 (a)** — truncamento do resíduo (reconfirmação) | unit | ✅ **Morto** — 21 testes / 6 arquivos |
+| N | `competencia.ts:35` | **AD-011 (b)** — `addMeses` sem virada de ano (reconfirmação) | unit | ✅ **Morto** — 21 testes / 8 arquivos |
+| O | `vitest.config.ts:46` | **meta-mutação** — reverte o include para excluir `src/app/**` | unit + componentes | ❌ **Sobreviveu.** Ver 9.6 |
+
+**14 de 15 mortas** (L é equivalente por desenho). Somando as duas iterações: **29 mutações, 26 mortas, 1 equivalente, 1 fragilidade estrutural medida, 0 lacunas de comportamento em aberto.**
+
+## 9.5 A assimetria `pagamento_fatura` × `movimento` — **concordo, e agora com evidência**
+
+O coordenador pediu que eu avaliasse a decisão de fechar o conjunto de colunas de `pagamento_fatura` mas fixar em `movimento` apenas a metade assimétrica (`arrayContaining`, "tem que manter", não "só pode ter"). **Concordo, e a mutação L é a prova, não a opinião.**
+
+A garantia do AD-003 é de fato **relativa** e se decompõe em duas condições: (a) `pagamento_fatura` nunca ganha `natureza`/`categoria_id`; (b) `movimento` nunca as perde. O conjunto fechado enforça (a) com folga; o `arrayContaining` enforça (b) com precisão.
+
+Fechar `movimento` também pegaria a mutação L — e L **não é defeito**: acrescentar `observacao_livre` a `movimento` não enfraquece a separação em nada. É um **mutante semanticamente equivalente com respeito ao AD-003**, e forçar um teste a matá-lo degradaria a suíte. O argumento é reforçado pelo próprio roadmap: o AD-003 já prevê que "`movimento` acumula colunas nullable específicas de cada origem", `origem_dado`/`origem_hash` já estão lá para o importador, e o Out of Scope planeja `visibilidade` e `competencia_mes` como colunas aditivas. Um conjunto fechado ali falharia na próxima mudança legítima, seria relaxado, e um teste que se relaxa por rotina para de ser acreditado.
+
+A escolha assimétrica é superior à que eu mesmo sugeri na iteração 1 ("fechar o conjunto de colunas"). **Registro a correção.** O custo residual está medido pela mutação K: o conjunto fechado também recusa uma adição *legítima* a `pagamento_fatura` — e isso é aceitável exatamente porque a mensagem de falha manda mudar o AD-003 primeiro.
+
+## 9.6 Mudança de escopo: legítima, e verifiquei por quê
+
+O coordenador perguntou explicitamente se isto foi adiamento legítimo ou lacuna escondida. **Legítimo, nos três casos** — e não aceitei as justificativas de palavra; testei cada uma.
+
+| AC movido | Justificativa registrada | O que eu verifiquei | Veredito |
+| --- | --- | --- | --- |
+| **MOV-06 AC 4** — rejeitar alteração de lançamento pago | "Exige definir estorno explícito antes de ser testável" + a regra decidida (desmarcar primeiro, com autor e data) | **A guarda não tem o que guardar hoje.** `grep` por `.update(`/`.delete(` em `src/infrastructure` e `src/application` devolve **uma única** escrita sobre linha existente: `src/infrastructure/db/repositories/movimento.repository.ts:35` — `await this.db.update(movimento).set({ pagoEm }).where(eq(movimento.id, id))`, que mexe **só** em `pagoEm`. Não existe nenhum caminho no código que altere `valor`, `competencia` ou `meioPagamentoId` de lançamento nenhum, pago ou não. `regenerarParcelas` tem **zero chamadores** fora de testes (`grep`: só o barrel `src/domain/index.ts:33` e a própria definição) | ✅ Adiamento. A superfície que o AC protege não foi construída. E o adiamento **resolveu** a lacuna de precisão que eu apontei: a regra agora está escrita |
+| **ORC-02 AC 6** — limite por competência | "A tabela já tem chave `(categoria_id, competencia)` e o isolamento existe no schema" | **Verdadeiro, conferido no SQL**: `drizzle/0000_init.sql:161` — `CREATE UNIQUE INDEX "orcamento_categoria_categoria_competencia_uq" ON "orcamento_categoria" USING btree ("categoria_id","competencia")`, mais o `CHECK orcamento_categoria_competencia_dia_1` em `:95`. O isolamento entre meses é estrutural; falta a lógica de resolução e a UI | ✅ Adiamento aditivo |
+| **REC-01 AC 4** — versionamento por vigência | "A tabela `recorrencia_versao` já existe no schema" | **Verdadeiro**: `drizzle/0000_init.sql:124-130`, com `vigente_desde date NOT NULL` e `CHECK recorrencia_versao_vigencia_dia_1`. A coluna de vigência, que é a parte que dita retrabalho, já está lá | ✅ Adiamento aditivo |
+
+**Nenhum dos três deveria ter sido implementado agora.** Os três são funcionalidades de Fase 7/8 que o usuário já havia adiado, o schema já as acomoda sem retrabalho, e nenhuma delas tem superfície exposta hoje. Mover um AC para Out of Scope seria trapaça se escondesse comportamento que o usuário vai exercitar; nenhum destes é.
+
+**Uma ressalva honesta sobre MOV-06 AC 4**: `marcarPagamento(id, pagoEm: string | null)` (`src/application/ports/repositories.ts:97`) já aceita `null`, ou seja, **desmarcar pagamento já é possível** na port. O que não existe é o registro de autor e data que a regra nova exige. Quando a Fase 7 ligar a UI de marcar pago, essa metade precisa entrar junto — desmarcar sem rastro é precisamente o furo que a regra existe para fechar. Registrado para que não se perca.
+
+## 9.7 O que o resumo do coordenador diz e os arquivos não confirmam
+
+### B. "A linha `Coverage: 33 total` saiu" — **não saiu, e agora está errada de novo**
+
+`spec.md` ainda traz `**Coverage:** 32 total (a contagem anterior de 33 estava errada), todos cobertos por tasks`. Era o meu texto da iteração 1. A tabela agora tem **29 linhas**. E o parágrafo logo abaixo — também meu — ainda lista `MOV-06`, `ORC-02` e `REC-01` como "Implementing", requisitos que não existem mais. Corrigido por mim nesta iteração.
+
+### F. Os três requisitos saíram inteiros, e levaram junto 8 ACs que continuam em escopo — **o achado desta iteração**
+
+O coordenador descreve a mudança como "os três requisitos saíram da traceability". É literalmente o que aconteceu — e é mais do que se pretendia. Só **3 acceptance criteria** foram movidos para Out of Scope, mas foram apagadas **3 linhas de requisito**, e cada uma carregava outros ACs:
+
+| Requisito apagado | AC que foi para Out of Scope | ACs que ficaram **órfãos**, em escopo e testados |
+| --- | --- | --- |
+| MOV-06 | AC 4 (alterar lançamento pago) | ACs 1, 2, 3 da história "P2: Previsto versus realizado" — a história inteira ficou **sem nenhum requirement ID** |
+| ORC-02 | AC 6 (limite por competência) | ACs 4, 5 e 6-renumerado (indicador global, denominador zero, arredondamento) |
+| REC-01 | AC 4 (versionamento) | ACs 1 e 2 (confirmar valor real sem vazar para outro mês; sobrescrita manual) |
+
+São **8 acceptance criteria** que continuam no spec, continuam implementados e continuam cobertos — com a evidência que localizei na iteração 1, ainda válida — mas que hoje **nenhum requirement ID rastreia**. A tabela de traceability existe justamente para que nada fique sem dono; oito ACs ficaram.
+
+A evidência de que foi over-deletion mecânica e não ocultação está espalhada pelo repositório: **14 citações** nos testes (`grep -rno "MOV-06\|ORC-02\|REC-01"` em `src` e `e2e`) e **16 em `tasks.md`** ainda apontam para IDs que sumiram da tabela — entre elas `src/domain/recorrencia/valor-efetivo.test.ts:26` (`REC-01, AC 1`) e `src/domain/orcamento/avaliar-orcamento.test.ts:110` (`ORC-02, AC 4`). Ninguém escondeu nada: apagou-se a linha errada.
+
+**Por que isto não derruba o PASS**: nenhum comportamento ficou sem teste. É defeito do artefato de rastreabilidade, não de cobertura — a mesma classe do item 7 da iteração 1, que ranqueei como Minor. Mas precisa ser corrigido antes que a tabela volte a significar alguma coisa, porque uma tabela que perde ACs em silêncio é pior que nenhuma tabela: ela afirma completude.
+
+## 9.8 Checagem ancorada no spec — iteração 2
+
+O spec passou de 67 para **64 acceptance criteria** em escopo (3 movidos para Out of Scope). Re-contados por script a partir das histórias: 9 + 5 + 7 + 9 + 6 + 8 + 7 + 3 + 6 + 4 = **64**.
+
+- **63 cobertos** com `arquivo:linha`, expressão reproduzida e valor batendo com o spec.
+- **1 parcial**: REC-02 AC 4 (ver 9.9).
+- **0 sem evidência** — era 6 na iteração 1.
+- Lacunas de precisão do spec: caíram de 4 para **3**. A de MOV-06 AC 4 ("estorno explícito" indefinido) foi **resolvida** — a regra está escrita no Out of Scope. Permanecem: UI-02 AC 3 (não fixa status HTTP), MOV-01 AC 1 (universal negativo sem observável), REC-02 AC 4 (não fixa o tamanho da janela).
+
+Toda a evidência das seções 2 a 5 desta página foi conferida contra o HEAD novo e continua válida: os 4 commits desta iteração não tocaram nenhum arquivo de produção, só `vitest.config.ts`, `spec.md` e três arquivos de teste.
+
+## 9.9 REC-02 — permanece `Implementing`, e por quê
+
+REC-02 AC 4 (renumerado; era AC 5): *"WHILE uma recorrência não possui competência de fim, o sistema SHALL **materializar** ocorrências em uma janela rolante limitada"*.
+
+Não existe materializador nesta feature. O que existe e é testado é `projetarProximosMeses`, que limita a janela da **projeção**: `src/domain/mes/projecao.test.ts:140` — `expect(projecao).toEqual([…3 competências…])` com 24 ocorrências semeadas, e `:145` — `expect(projecao).toHaveLength(3)`. Isso prova que a *leitura* é limitada; não prova nada sobre a *geração*, que é o sujeito do AC.
+
+Evidence-or-zero: não promovo REC-02 com base em proxy. **Permanece `Implementing`.**
+
+A observação construtiva é que este AC está na mesma situação dos três que acabaram de sair: a materialização de recorrência é Fase 7, e o próprio Out of Scope já diz "UI de marcar pago, lançamento avulso e recorrência | Fase 7". O AC 4 simplesmente ficou para trás quando os outros saíram. As duas saídas honestas são (a) movê-lo para Out of Scope com a mesma justificativa dos outros três, ou (b) implementar o materializador limitado. **Não é (c) promover REC-02 assumindo que a projeção conta.**
+
+## 9.10 Traceability — iteração 2
+
+| Requirement | Status iteração 1 | Status iteração 2 | Motivo |
+| --- | --- | --- | --- |
+| **MOV-02** | Implementing (rebaixado por mim) | ✅ **Verified** | AC 2 coberto em `restricoes.integration.test.ts:301,319,326`; mutações G, H, I, K mortas |
+| **UI-02** | Implementing | ✅ **Verified** | ACs 3, 6, 7, 8 cobertos; mutações A, B, C, D, E, F mortas |
+| REC-02 | Implementing | ❌ **Implementing** | AC 4 coberto apenas por proxy (9.9) |
+| Os outros 26 | Verified | ✅ Verified (reconferidos) | Nenhum arquivo de produção mudou nesta iteração; mutações M e N reconfirmam o núcleo |
+
+**28 de 29 requisitos em `Verified`.**
+
+## 9.11 O que permanece frágil apesar do PASS
+
+Um PASS que não separa "provado" de "ainda não quebrou" não serve para nada. Isto é o que **não** está provado:
+
+1. **A traceability perdeu 8 ACs de vista (9.7 F).** Correção necessária, de documento: reintroduzir MOV-06, ORC-02 e REC-01 cobrindo apenas os ACs que ficaram em escopo — ou renumerar os IDs e atualizar as 14 citações nos testes e as 16 em `tasks.md`. Enquanto não for feito, a tabela afirma uma completude que não tem. **Recomendo fazer antes de considerar a feature encerrada**, e é a única coisa desta lista que eu pediria de volta.
+
+2. **Nada protege o `vitest.config.ts` (mutação O).** Reverter o include de `src/app/**` faz 7 testes sumirem e a suíte fica **verde** — 28→26 arquivos, 365→358 testes, exit 0. A correção da lacuna 2 depende de uma linha de configuração que nenhum teste vigia; é a mesma classe de erosão silenciosa que o AD-006 cita para justificar o `arquitetura.test.ts`. **Não estou pedindo correção** — um teste que assere a configuração do próprio runner tem valor duvidoso, e um glob mais largo (`src/**/*.test.tsx`) resolveria melhor do que uma assertion. Registro porque é exposição medida, não hipotética.
+
+3. **O eixo caixa é parcial por escopo.** `obterVisaoMensal` soma apenas os lançamentos *desta* competência já pagos; a fórmula do `design.md:207` inclui `Σ pagamentoFatura.valor`, que não tem repositório nesta feature. A tela rotula o número como caixa em vez de apresentá-lo como total do mês, o que é honesto — mas o número **não é** o caixa completo, e nenhum teste poderia detectar isso porque é limite de escopo, não defeito. Quando `pagamento_fatura` ganhar repositório, os testes do eixo caixa precisam crescer junto.
+
+4. **`pagamento_fatura` nunca é escrita nem lida em teste nenhum.** A forma da tabela agora está provada; o *comportamento* dela não existe ainda. Cuidado com a leitura "MOV-02 está Verified, logo o pagamento de fatura funciona" — o que está verificado é que a dupla contagem é estruturalmente impossível, não que registrar pagamento de fatura funcione.
+
+5. **`regenerarParcelas` é código sem chamador em produção.** 153 linhas de domínio com 8 testes e zero uso fora deles. Está correto e coberto, mas é superfície que ainda não foi exercitada por nenhum caminho real — e quando for ligada, é ela que vai encostar em MOV-06 AC 4, o AC que acabou de sair de escopo.
+
+6. **Os testes de concorrência são simulações.** `sessao.integration.test.ts:148-156` e `compra.repository.integration.test.ts:280-292` reproduzem a janela de corrida com dublês determinísticos, não com concorrência real. Os próprios testes documentam isso. É a escolha certa para uma suíte reprodutível, mas o comportamento sob corrida real nunca foi observado.
+
+7. **A cobertura de 100% de branches vale só para `src/domain`.** `coverage.include` em `vitest.config.ts:17` é `["src/domain/**/*.ts"]`. Aplicação, infraestrutura e componentes não têm número de cobertura nenhum — o que eu verifiquei ali foi mapeamento AC→assertion e discriminação por mutação, que é mais forte que cobertura, mas não é exaustivo do mesmo jeito.
+
+## 9.12 Summary — iteração 2
+
+**Overall: ✅ Ready**, com um item de documento pendente (9.11.1).
+
+**Spec-anchored check**: 63/64 ACs com valor asserido batendo com o spec · 1 parcial · **0 sem evidência** · 3 lacunas de precisão do spec
+**Sensor (iteração 2)**: 15 mutações, **14 mortas**, 1 equivalente por desenho · acumulado nas duas iterações: 29 mutações, 26 mortas
+**Gates**: unit 0 · integration 0 · e2e 0 · verify 0 · 490 testes
+**Traceability**: 28/29 `Verified`
+
+**O que mudou de verdade**: os dois mutantes que sobreviveram na iteração 1 morrem agora, e morrem pelos testes certos — não por arrasto. O blocker do AD-003 morre por duas assertions independentes, com mensagem que ensina por que a invariante existe. A correção dos estados de UI cobre as duas metades do AC 8, inclusive a negativa, que é a que costuma faltar. E as três mudanças de escopo resistiram à verificação: cada justificativa apoiada em schema foi conferida no SQL, e a que dependia de "não há superfície exposta" foi conferida por busca exaustiva dos caminhos de escrita.
+
+**O que eu ainda entrego como dívida**: a tabela de traceability perdeu 8 acceptance criteria de vista ao apagar três linhas inteiras quando só três critérios saíram. Nenhum comportamento ficou descoberto — mas o artefato que existe para garantir isso deixou de conseguir prová-lo.
