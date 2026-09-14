@@ -260,3 +260,123 @@ describe("concordância entre `ocorrenciaProtegida` e o WHERE do UPDATE", () => 
     expect(oSqlProtegeu).toBe(protegidaPeloDominio);
   });
 });
+
+describe("confirmar o valor real (FIXO-04)", () => {
+  beforeEach(async () => {
+    await repo.materializarOcorrencias([ocorrencia("2026-03"), ocorrencia("2026-04")]);
+  });
+
+  async function idDe(competencia: string): Promise<string> {
+    const { rows } = await pool.query<{ id: string }>(
+      "SELECT id FROM movimento WHERE competencia = $1::date",
+      [`${competencia}-01`],
+    );
+    return rows[0]?.id ?? "";
+  }
+
+  it("altera o valor e preserva o previsto (FIXO-04, AC 1)", async () => {
+    await repo.confirmarValorReal(await idDe("2026-03"), 19240 as Cents);
+
+    const marco = (await linhas()).find((l) => l.competencia === "2026-03-01");
+    expect(marco?.valor).toBe(19240);
+    expect(marco?.previsto).toBe(18000);
+  });
+
+  it("não altera nenhuma outra competência (FIXO-04, AC 2)", async () => {
+    await repo.confirmarValorReal(await idDe("2026-03"), 19240 as Cents);
+
+    const abril = (await linhas()).find((l) => l.competencia === "2026-04-01");
+    expect(abril?.valor).toBe(18000);
+  });
+
+  it("confirmar não marca como pago: são gestos diferentes", async () => {
+    await repo.confirmarValorReal(await idDe("2026-03"), 19240 as Cents);
+
+    const marco = (await linhas()).find((l) => l.competencia === "2026-03-01");
+    expect(marco?.pago).toBeNull();
+  });
+
+  it("confirmar de novo sobrescreve, e o previsto continua o original", async () => {
+    const id = await idDe("2026-03");
+    await repo.confirmarValorReal(id, 19240 as Cents);
+    await repo.confirmarValorReal(id, 17510 as Cents);
+
+    const marco = (await linhas()).find((l) => l.competencia === "2026-03-01");
+    expect(marco?.valor).toBe(17510);
+    expect(marco?.previsto).toBe(18000);
+  });
+
+  it("uma vez confirmada, a ocorrência fica protegida da propagação", async () => {
+    await repo.confirmarValorReal(await idDe("2026-03"), 19240 as Cents);
+
+    await repo.atualizarPrevistoNaoProtegido(recorrenciaId, c("2026-03"), 24000 as Cents);
+
+    const marco = (await linhas()).find((l) => l.competencia === "2026-03-01");
+    expect(marco?.valor).toBe(19240);
+  });
+});
+
+describe("remover ocorrências não pagas (FIXO-06, AC 2)", () => {
+  beforeEach(async () => {
+    await repo.materializarOcorrencias([
+      ocorrencia("2026-03"),
+      ocorrencia("2026-04"),
+      ocorrencia("2026-05"),
+      ocorrencia("2026-06"),
+    ]);
+  });
+
+  it("apaga da competência em diante e preserva o que veio antes", async () => {
+    await repo.removerNaoPagasDaRecorrencia(recorrenciaId, c("2026-05"));
+
+    expect((await linhas()).map((l) => l.competencia)).toEqual(["2026-03-01", "2026-04-01"]);
+  });
+
+  it("preserva a paga, mesmo dentro da faixa removida", async () => {
+    const { rows } = await pool.query<{ id: string }>(
+      "SELECT id FROM movimento WHERE competencia = '2026-06-01'",
+    );
+    await repo.marcarPagamento(rows[0]?.id ?? "", "2026-06-10");
+
+    await repo.removerNaoPagasDaRecorrencia(recorrenciaId, c("2026-05"));
+
+    expect((await linhas()).map((l) => l.competencia)).toEqual([
+      "2026-03-01",
+      "2026-04-01",
+      "2026-06-01",
+    ]);
+  });
+
+  it("não toca em ocorrência de outra recorrência", async () => {
+    const outra = await new RecorrenciaRepositoryDrizzle(db).criar({
+      dados: {
+        descricao: "Conta fixa B",
+        natureza: "DESPESA",
+        categoriaId: base.categoriaId,
+        usuarioId: base.usuarioId,
+        meioPagamentoId: base.contaId,
+        competenciaInicio: c("2026-03"),
+        competenciaFim: null,
+        diaVencimento: 20,
+      },
+      valorInicial: 12456 as Cents,
+    });
+    await repo.materializarOcorrencias([
+      { ...ocorrencia("2026-05", 12456), recorrenciaId: outra.id },
+    ]);
+
+    await repo.removerNaoPagasDaRecorrencia(recorrenciaId, c("2026-03"));
+
+    const { rows } = await pool.query<{ total: string }>(
+      "SELECT count(*)::text AS total FROM movimento WHERE recorrencia_id = $1",
+      [outra.id],
+    );
+    expect(rows[0]?.total).toBe("1");
+  });
+
+  it("remover onde não há nada é inofensivo", async () => {
+    await repo.removerNaoPagasDaRecorrencia(recorrenciaId, c("2027-01"));
+
+    expect(await linhas()).toHaveLength(4);
+  });
+});

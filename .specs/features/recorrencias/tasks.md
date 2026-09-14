@@ -243,7 +243,7 @@ T21 -> T22
 **Tests**: integration
 **Gate**: full
 
-#### T8: Confirmação de valor e remoção de ocorrência no repositório
+#### T8: Confirmação de valor e remoção de ocorrência no repositório ✅ CONCLUÍDA
 **What**: `confirmarValorReal(id, valorCentavos)` grava o valor efetivo preservando `valor_previsto_centavos`, e `removerNaoPagasDaRecorrencia(recorrenciaId, desde)` apaga só o que não foi pago. Drizzle e fake.
 **Where**: `src/infrastructure/db/repositories/movimento.repository.ts`, `src/application/ports/repositories.ts`, `src/application/ports/fakes.ts`
 **Depends on**: T6

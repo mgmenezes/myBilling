@@ -110,4 +110,34 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
         ),
       );
   }
+
+  /**
+   * O valor real, sem tocar no previsto — e sem marcar como pago.
+   *
+   * O `valor_previsto_centavos` fica intacto de propósito: é ele que permite
+   * comparar o que foi planejado com o que veio, e é a diferença entre os dois
+   * que torna a ocorrência protegida da propagação de uma vigência nova.
+   */
+  async confirmarValorReal(id: string, valor: Cents): Promise<void> {
+    await this.db.update(movimento).set({ valorCentavos: valor }).where(eq(movimento.id, id));
+  }
+
+  /**
+   * Apaga as não pagas da competência em diante.
+   *
+   * O filtro de `pago_em` não é gentileza: apagar uma ocorrência paga
+   * removeria do razão um dinheiro que saiu da conta, e o mês fechado deixaria
+   * de bater com o extrato (AD-003).
+   */
+  async removerNaoPagasDaRecorrencia(recorrenciaId: string, desde: Competencia): Promise<void> {
+    await this.db
+      .delete(movimento)
+      .where(
+        and(
+          eq(movimento.recorrenciaId, recorrenciaId),
+          gte(movimento.competencia, deCompetencia(desde)),
+          isNull(movimento.pagoEm),
+        ),
+      );
+  }
 }

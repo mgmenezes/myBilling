@@ -133,6 +133,21 @@ export interface MovimentoRepository {
     desde: Competencia,
     valorPrevisto: Cents,
   ): Promise<void>;
+  /**
+   * Grava o valor que a conta realmente veio, **preservando o previsto**
+   * (FIXO-04, AC 1). Os dois convivem: é a diferença entre eles que permite
+   * comparar o planejado com o realizado.
+   *
+   * Não marca como pago. Confirmar quanto veio e registrar que saiu da conta
+   * são gestos diferentes, ainda que costumem acontecer juntos.
+   */
+  confirmarValorReal(id: string, valor: Cents): Promise<void>;
+  /**
+   * Apaga as ocorrências **não pagas** de uma recorrência, da competência
+   * informada em diante (FIXO-06, AC 2). As pagas ficam: cancelar a internet
+   * não pode apagar o que já foi pago por ela.
+   */
+  removerNaoPagasDaRecorrencia(recorrenciaId: string, desde: Competencia): Promise<void>;
 }
 
 /** Os campos descritivos da recorrência. O valor vem separado, na versão. */

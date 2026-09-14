@@ -241,6 +241,25 @@ export class FakeMovimentoRepository implements MovimentoRepository {
       this.estado.movimentos.set(id, { ...atual, valor: valorPrevisto, valorPrevisto });
     }
   }
+
+  async confirmarValorReal(id: string, valor: Cents): Promise<void> {
+    const atual = this.estado.movimentos.get(id);
+    if (!atual) {
+      return;
+    }
+    this.estado.movimentos.set(id, { ...atual, valor });
+  }
+
+  async removerNaoPagasDaRecorrencia(recorrenciaId: string, desde: Competencia): Promise<void> {
+    for (const [id, atual] of this.estado.movimentos) {
+      if (atual.recorrenciaId !== recorrenciaId || atual.pagoEm !== null) {
+        continue;
+      }
+      if (compararCompetencias(atual.competencia, desde) >= 0) {
+        this.estado.movimentos.delete(id);
+      }
+    }
+  }
 }
 
 export class FakeCadastroRepository implements CadastroRepository {
