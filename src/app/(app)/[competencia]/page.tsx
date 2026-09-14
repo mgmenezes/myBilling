@@ -23,6 +23,12 @@ import { sessaoDaUI } from "../sessao";
  *
  * `resumoPorCategoria` já existia no domínio, testado e sem nenhum chamador.
  * O gráfico de categorias não exigiu backend novo: só faltava chamá-lo.
+ *
+ * **O horizonte futuro fica fora do `TransicaoMes` de propósito.** Ele é a
+ * única árvore com GSAP da página, e o `TransicaoMes` é Motion: fora de as
+ * duas disputarem os mesmos frames, o `transform` que o Motion mantém no
+ * ancestral desloca toda medida de posição do ScrollTrigger, e o gatilho da
+ * revelação nunca casa com a posição real da seção.
  */
 
 export const dynamic = "force-dynamic";
@@ -53,79 +59,83 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
   );
 
   return (
-    <TransicaoMes competencia={resultado.value}>
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-4">
-          <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
-            {formatarCompetencia(resultado.value)}
-          </h1>
+    <div className="flex flex-col gap-8">
+      <TransicaoMes competencia={resultado.value}>
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4">
+            <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
+              {formatarCompetencia(resultado.value)}
+            </h1>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <AlternadorDeVisao competencia={resultado.value} visao={visao} />
+            <div className="flex flex-wrap items-center gap-3">
+              <AlternadorDeVisao competencia={resultado.value} visao={visao} />
 
-            <details className="group">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-chip px-3 text-[14px] text-ink-muted hover:text-ink">
-                <InfoIcon size={16} weight="bold" aria-hidden="true" />
-                Qual é a diferença
-              </summary>
-              <p className="mt-3 max-w-[62ch] rounded-card bg-surface p-4 text-[15px] leading-relaxed text-ink-muted">
-                <strong className="font-medium text-ink">Planejamento</strong> mede o que foi
-                assumido neste mês, pago ou não.{" "}
-                <strong className="font-medium text-ink">Movimentações</strong> mede o que de fato
-                saiu ou entrou na conta. Os dois divergem de propósito: a fatura paga neste mês
-                contém compras de meses anteriores. O myBilling nunca soma nem subtrai um do outro.
-              </p>
-            </details>
+              <details className="group">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-pill px-3 text-[14px] text-ink-muted hover:text-ink">
+                  <InfoIcon size={16} weight="bold" aria-hidden="true" />
+                  Qual é a diferença
+                </summary>
+                <p className="mt-3 max-w-[62ch] rounded-lg bg-surface-soft p-4 text-[15px] leading-relaxed text-ink-muted">
+                  <strong className="font-medium text-ink">Planejamento</strong> mede o que foi
+                  assumido neste mês, pago ou não.{" "}
+                  <strong className="font-medium text-ink">Movimentações</strong> mede o que de fato
+                  saiu ou entrou na conta. Os dois divergem de propósito: a fatura paga neste mês
+                  contém compras de meses anteriores. O myBilling nunca soma nem subtrai um do
+                  outro.
+                </p>
+              </details>
+            </div>
           </div>
+
+          <GradeDeIndicadores
+            competencia={resultado.value}
+            visao={visao}
+            planejamento={{
+              entradas: visaoMensal.competenciaView.entradas,
+              totalGastos: visaoMensal.competenciaView.totalGastos,
+              pendente: visaoMensal.competenciaView.pendente,
+              saldo: visaoMensal.competenciaView.saldo,
+            }}
+            movimentacoes={{
+              entradasRecebidas: visaoMensal.caixaView.entradasRecebidas,
+              saidas: visaoMensal.caixaView.saidas,
+              saldo: visaoMensal.caixaView.saldo,
+            }}
+          />
+
+          <section aria-labelledby="titulo-categorias" className="flex flex-col gap-5">
+            <h2 id="titulo-categorias" className="text-[20px]">
+              Gastos por categoria
+            </h2>
+            <GraficoCategorias
+              titulo="Gastos por categoria, ordenados do maior para o menor"
+              fatias={categorias.map((categoria) => ({
+                id: categoria.categoriaId ?? "sem-categoria",
+                nome:
+                  categoria.categoriaId === null
+                    ? "Sem categoria"
+                    : (nomePorCategoria.get(categoria.categoriaId) ?? "Categoria removida"),
+                valor: categoria.gasto,
+                percentual: categoria.percentualDistribuicao,
+              }))}
+            />
+          </section>
         </div>
+      </TransicaoMes>
 
-        <GradeDeIndicadores
-          competencia={resultado.value}
-          visao={visao}
-          planejamento={{
-            entradas: visaoMensal.competenciaView.entradas,
-            totalGastos: visaoMensal.competenciaView.totalGastos,
-            pendente: visaoMensal.competenciaView.pendente,
-            saldo: visaoMensal.competenciaView.saldo,
-          }}
-          movimentacoes={{
-            entradasRecebidas: visaoMensal.caixaView.entradasRecebidas,
-            saidas: visaoMensal.caixaView.saidas,
-            saldo: visaoMensal.caixaView.saldo,
-          }}
+      {/* Fora da árvore do Motion: veja a nota no topo do arquivo. */}
+      <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
+        <h2 id="titulo-futuro" className="text-[20px]">
+          Já comprometido nos próximos meses
+        </h2>
+        <HorizonteFuturo
+          meses={visaoMensal.futuro.map((mes) => ({
+            competencia: mes.competencia,
+            rotulo: formatarCompetencia(mes.competencia),
+            valor: formatarBRL(mes.comprometido),
+          }))}
         />
-
-        <section aria-labelledby="titulo-categorias" className="flex flex-col gap-5">
-          <h2 id="titulo-categorias" className="text-[20px]">
-            Gastos por categoria
-          </h2>
-          <GraficoCategorias
-            titulo="Gastos por categoria, ordenados do maior para o menor"
-            fatias={categorias.map((categoria) => ({
-              id: categoria.categoriaId ?? "sem-categoria",
-              nome:
-                categoria.categoriaId === null
-                  ? "Sem categoria"
-                  : (nomePorCategoria.get(categoria.categoriaId) ?? "Categoria removida"),
-              valor: categoria.gasto,
-              percentual: categoria.percentualDistribuicao,
-            }))}
-          />
-        </section>
-
-        <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
-          <h2 id="titulo-futuro" className="text-[20px]">
-            Já comprometido nos próximos meses
-          </h2>
-          <HorizonteFuturo
-            meses={visaoMensal.futuro.map((mes) => ({
-              competencia: mes.competencia,
-              rotulo: formatarCompetencia(mes.competencia),
-              valor: formatarBRL(mes.comprometido),
-            }))}
-          />
-        </section>
-      </div>
-    </TransicaoMes>
+      </section>
+    </div>
   );
 }
