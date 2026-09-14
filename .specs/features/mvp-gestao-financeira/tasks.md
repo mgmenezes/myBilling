@@ -796,17 +796,19 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T42: Tela de login
+#### T42: Tela de login ✅ CONCLUÍDA
 **What**: Página com botão de entrar com Google e mensagem explícita para e-mail não autorizado. Acessível, com contraste adequado.
-**Where**: `src/app/login/page.tsx`
+**Where**: `src/app/login/page.tsx`, `src/app/forbidden.tsx`
 **Depends on**: T39, T40
 **Reuses**: o handler de T39
 **Requirement**: AUTH-01, UI-02
 **Tools**: shadcn/ui para botão e alerta
 **Done when**:
-- [ ] O botão inicia o fluxo do Google
-- [ ] E-mail não autorizado exibe mensagem clara, sem detalhe técnico
-- [ ] A página funciona em viewport de 400 pixels sem rolagem horizontal (UI-03, AC 9)
+- [x] O botão inicia o fluxo do Google
+- [x] E-mail não autorizado exibe mensagem clara, sem detalhe técnico — `AccessDenied` vira `forbidden()`, que responde **403** com a tela de `src/app/forbidden.tsx` (AUTH-01, AC 2). Exigiu `experimental.authInterrupts` no `next.config.ts`
+- [x] A página funciona em viewport de 400 pixels sem rolagem horizontal (UI-03, AC 9) — medido no e2e de T46
+
+> **Desvio**: o botão e o alerta são HTML nativo com Tailwind, sem shadcn/ui. Um `<button>` e um `role="alert"` já entregam teclado e leitor de tela; puxar Radix e a CLI do shadcn para dois elementos seria dependência sem contrapartida.
 **Tests**: none
 **Gate**: build
 
