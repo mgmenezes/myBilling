@@ -755,7 +755,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T39: Route handler de autenticação
+#### T39: Route handler de autenticação ✅ CONCLUÍDA
 **What**: Expor o handler do Auth.js na rota de autenticação, sem lógica própria.
 **Where**: `src/app/api/auth/[...nextauth]/route.ts`
 **Depends on**: T38
@@ -763,8 +763,8 @@ T52 -> T53
 **Requirement**: AUTH-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O fluxo de login redireciona para o Google e retorna à aplicação
-- [ ] O handler não contém nenhuma regra de autorização — ela vive em T38
+- [x] O fluxo de login redireciona para o Google e retorna à aplicação — a rota é o handler catch-all do Auth.js, que resolve `signin/google` e `callback/google` pela configuração de T38. A ida ao Google em si só é observável com credencial real, que ainda não existe; o e2e de T46 exercita o mesmo handler pelo provider de teste
+- [x] O handler não contém nenhuma regra de autorização — ela vive em T38
 **Tests**: none
 **Gate**: build
 
