@@ -532,7 +532,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T25: Projeção de comprometimento futuro
+#### T25: Projeção de comprometimento futuro ✅ CONCLUÍDA
 **What**: `projetarProximosMeses` somando despesas não pagas de competências posteriores, **quebradas por competência**, nunca agregadas em número único.
 **Where**: `src/domain/mes/projecao.ts`
 **Depends on**: T21, T24
@@ -540,10 +540,10 @@ T52 -> T53
 **Requirement**: MOV-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] O resultado é uma lista por competência, não um total agregado (MOV-06, AC 3)
-- [ ] Apenas despesas sem `pagoEm` de competências posteriores à corrente entram
-- [ ] Uma compra `8/10` cadastrada em março contribui para abril e maio, e para nenhum mês anterior
-- [ ] Recorrência sem competência de fim é projetada apenas dentro da janela limitada (REC-02, AC 5)
+- [x] O resultado é uma lista por competência, não um total agregado (MOV-06, AC 3)
+- [x] Apenas despesas sem `pagoEm` de competências posteriores à corrente entram
+- [x] Uma compra `8/10` cadastrada em março contribui para abril e maio, e para nenhum mês anterior
+- [x] Recorrência sem competência de fim é projetada apenas dentro da janela limitada (REC-02, AC 5)
 **Tests**: unit
 **Gate**: quick
 

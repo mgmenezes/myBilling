@@ -295,7 +295,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | ORC-01 | P2: Orçamento por categoria | Fase 3 | Verified |
 | ORC-02 | P2: Orçamento por categoria | Fase 3 | Implementing |
 | REC-01 | P3: Recorrência com valor variável | Fase 3 | Verified |
-| REC-02 | P3: Recorrência com valor variável | Design | Pending |
+| REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Design | Pending |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Design | Pending |
 | UI-01 | P1: Visão do mês e navegação | Design | Pending |
