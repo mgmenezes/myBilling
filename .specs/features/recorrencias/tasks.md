@@ -125,7 +125,7 @@ T21 -> T22
 
 ### Phase 0 — Núcleo puro
 
-#### T1: Versão vigente para uma competência
+#### T1: Versão vigente para uma competência ✅ CONCLUÍDA
 **What**: Função pura que escolhe, entre as versões de uma recorrência, a de **maior vigência que não seja posterior** à competência pedida. Devolve `null` quando nenhuma vigência alcança a competência — é o que impede uma recorrência de existir antes de começar.
 **Where**: `src/domain/recorrencia/versao-vigente.ts`, exportada em `src/domain/index.ts`
 **Depends on**: nenhuma
@@ -133,11 +133,11 @@ T21 -> T22
 **Requirement**: FIXO-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Com uma versão só, toda competência a partir da vigência recebe aquela versão
-- [ ] Com duas versões, a competência anterior à segunda vigência recebe a primeira, e a igual ou posterior recebe a segunda
-- [ ] Competência anterior a toda vigência devolve `null`
-- [ ] Lista vazia devolve `null`
-- [ ] A ordem de entrada das versões não altera o resultado
+- [x] Com uma versão só, toda competência a partir da vigência recebe aquela versão
+- [x] Com duas versões, a competência anterior à segunda vigência recebe a primeira, e a igual ou posterior recebe a segunda
+- [x] Competência anterior a toda vigência devolve `null`
+- [x] Lista vazia devolve `null`
+- [x] A ordem de entrada das versões não altera o resultado
 **Tests**: unit
 **Gate**: quick
 

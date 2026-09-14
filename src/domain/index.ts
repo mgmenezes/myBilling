@@ -33,6 +33,8 @@ export type {
 export { regenerarParcelas } from "./parcelamento/regenerar-parcelas";
 export type { OcorrenciaRecorrencia, ValorEfetivo } from "./recorrencia/valor-efetivo";
 export { confirmarValorReal, resolverValorEfetivo } from "./recorrencia/valor-efetivo";
+export type { VersaoRecorrencia } from "./recorrencia/versao-vigente";
+export { versaoVigente } from "./recorrencia/versao-vigente";
 export type { Competencia } from "./shared/competencia";
 export {
   addMeses,
