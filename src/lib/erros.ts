@@ -1,4 +1,5 @@
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
+import type { CodigoErroConfirmacao } from "@/application/mes/confirmar-valor/handler";
 import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
 import type { CodigoErroRecorrencia } from "@/application/recorrencias/criar-recorrencia/handler";
 import type { CodigoErroVersao } from "@/application/recorrencias/registrar-versao/handler";
@@ -26,6 +27,7 @@ export type CodigoErroDeBorda =
 export type CodigoErroExibivel =
   | CodigoErroAplicacao
   | CodigoErroPagamento
+  | CodigoErroConfirmacao
   | CodigoErroRecorrencia
   | CodigoErroVersao
   | CodigoErroDeBorda;
@@ -56,6 +58,7 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
+  LANCAMENTO_NAO_CONFIRMAVEL: "Só gasto fixo tem valor a confirmar.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",

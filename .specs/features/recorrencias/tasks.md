@@ -306,18 +306,20 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T12: Confirmar valor real
+#### T12: Confirmar valor real ✅ CONCLUÍDA
 **What**: Caso de uso que confirma o valor de **uma** ocorrência. Verifica existência antes, como `marcar-pagamento` faz, porque a escrita é silenciosa para id inexistente.
 **Where**: `src/application/mes/confirmar-valor/handler.ts`
 **Depends on**: T8
-**Reuses**: `resolverValorEfetivo` do domínio, que deixa de ser código sem chamador
+**Reuses**: nenhum
+
+> **`resolverValorEfetivo` não ganhou chamador aqui, ao contrário do que a task previa.** A tentação era grande — ela está sem chamador desde a fase 3 do MVP —, mas o lugar dela é a **leitura**: decidir qual valor vale ao exibir uma ocorrência. Chamá-la na escrita para conferir o que acabou de ser gravado seria encenação, com uma condição que nunca falha. Ela ganha chamador de verdade em T20.
 **Requirement**: FIXO-04
 **Tools**: nenhuma
 **Done when**:
-- [ ] O valor confirmado passa a valer e o previsto é preservado (FIXO-04, AC 1)
-- [ ] Nenhuma outra competência da mesma recorrência muda (FIXO-04, AC 2)
-- [ ] Id inexistente devolve `LANCAMENTO_NAO_ENCONTRADO` em vez de confirmar em silêncio
-- [ ] Valor não positivo é rejeitado
+- [x] O valor confirmado passa a valer e o previsto é preservado (FIXO-04, AC 1)
+- [x] Nenhuma outra competência da mesma recorrência muda (FIXO-04, AC 2)
+- [x] Id inexistente devolve `LANCAMENTO_NAO_ENCONTRADO` em vez de confirmar em silêncio
+- [x] Valor não positivo é rejeitado
 **Tests**: unit
 **Gate**: quick
 
