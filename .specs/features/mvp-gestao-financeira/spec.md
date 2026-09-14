@@ -291,7 +291,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | MOV-06 | P2: Previsto versus realizado | Design | Pending |
 | CART-01 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | CART-02 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
-| CART-03 | P2: Ciclo de fatura do cartão | Design | Pending |
+| CART-03 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | ORC-01 | P2: Orçamento por categoria | Design | Pending |
 | ORC-02 | P2: Orçamento por categoria | Design | Pending |
 | REC-01 | P3: Recorrência com valor variável | Design | Pending |

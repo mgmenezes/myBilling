@@ -407,7 +407,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T17: Regras de meio de pagamento
+#### T17: Regras de meio de pagamento ✅ CONCLUÍDA
 **What**: `podeReceberNovaCompra(meio)` e as invariantes de tipo: cartão de crédito exige fechamento e vencimento; conta corrente e rótulo não geram fatura; meio arquivado rejeita nova compra mas preserva parcelas pendentes.
 **Where**: `src/domain/cartao/regras-cartao.ts`
 **Depends on**: T16
@@ -415,10 +415,10 @@ T52 -> T53
 **Requirement**: CART-02, CART-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Meio do tipo `CONTA_CORRENTE` não gera fatura e não exige dia de fechamento (CART-02, AC 5)
-- [ ] Meio do tipo `ROTULO` — o caso Porto Seguro — não gera fatura e não exige ciclo (CART-02, AC 5)
-- [ ] Meio arquivado rejeita nova compra com `MEIO_PAGAMENTO_ARQUIVADO` (CART-03, AC 7)
-- [ ] Meio arquivado com parcelas pendentes mantém as parcelas contabilizadas — o caso Latam (CART-03, AC 6)
+- [x] Meio do tipo `CONTA_CORRENTE` não gera fatura e não exige dia de fechamento (CART-02, AC 5)
+- [x] Meio do tipo `ROTULO` — o caso Porto Seguro — não gera fatura e não exige ciclo (CART-02, AC 5)
+- [x] Meio arquivado rejeita nova compra com `MEIO_PAGAMENTO_ARQUIVADO` (CART-03, AC 7)
+- [x] Meio arquivado com parcelas pendentes mantém as parcelas contabilizadas — o caso Latam (CART-03, AC 6)
 **Tests**: unit
 **Gate**: quick
 
