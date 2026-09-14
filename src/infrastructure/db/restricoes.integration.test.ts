@@ -277,3 +277,71 @@ describe("restrições dos demais agregados", () => {
     expect(rows[0]?.total).toBe("2");
   });
 });
+
+/**
+ * Conjunto **exato** de colunas de `pagamento_fatura` (AD-003, MOV-02 AC 2).
+ * Lido de `information_schema`, e não do objeto Drizzle, porque o que vale é
+ * o que a migration criou no banco. Ordenado por nome, como vem da consulta:
+ * com nomes de coluna únicos, igualdade de lista ordenada é igualdade de
+ * conjunto — e pega tanto coluna a menos quanto coluna a mais.
+ */
+const COLUNAS_PAGAMENTO_FATURA = [
+  "criado_em",
+  "data_pagamento",
+  "fatura_id",
+  "id",
+  "valor_pago_centavos",
+];
+
+async function listarColunas(tabela: string): Promise<string[]> {
+  const { rows } = await pool.query<{ column_name: string }>(
+    `SELECT column_name FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = $1
+      ORDER BY column_name`,
+    [tabela],
+  );
+  return rows.map((r) => r.column_name);
+}
+
+describe("forma de pagamento_fatura: a anti-dupla-contagem é estrutural (MOV-02, AC 2)", () => {
+  it("tem exatamente as colunas do eixo caixa — nenhuma a mais, nenhuma a menos", async () => {
+    const colunas = await listarColunas("pagamento_fatura");
+
+    expect(
+      colunas,
+      "o conjunto de colunas de pagamento_fatura é fechado de propósito (AD-003): " +
+        "acrescentar coluna aqui abre caminho para consulta de gasto ler esta tabela. " +
+        "Se a mudança é mesmo desejada, mude o AD-003 antes de mudar este teste.",
+    ).toEqual(COLUNAS_PAGAMENTO_FATURA);
+  });
+
+  it("não tem natureza nem categoria_id, para que somar fatura com compra não compile", async () => {
+    const colunas = await listarColunas("pagamento_fatura");
+
+    expect(
+      colunas,
+      "pagamento_fatura ganhou a coluna `natureza`. Toda consulta do eixo competência " +
+        "filtra por natureza; com a coluna aqui, o pagamento da fatura passa a poder ser " +
+        "somado junto com a compra que o originou — a dupla contagem que o AD-003 existe " +
+        "para tornar impossível de escrever. Remova a coluna; não relaxe este teste.",
+    ).not.toContain("natureza");
+    expect(
+      colunas,
+      "pagamento_fatura ganhou a coluna `categoria_id`. Toda consulta do eixo competência " +
+        "agrupa por categoria; com a coluna aqui, o pagamento da fatura entra na " +
+        "distribuição por categoria e o gasto é contado duas vezes (AD-003). " +
+        "Remova a coluna; não relaxe este teste.",
+    ).not.toContain("categoria_id");
+  });
+
+  it("movimento mantém natureza e categoria_id, que são o que o eixo competência lê", async () => {
+    const colunas = await listarColunas("movimento");
+
+    expect(
+      colunas,
+      "movimento perdeu natureza ou categoria_id. A garantia do AD-003 é relativa: " +
+        "pagamento_fatura é ilegível para o eixo competência porque é exatamente destas " +
+        "duas colunas que aquelas consultas dependem. Sem elas no razão, a separação some.",
+    ).toEqual(expect.arrayContaining(["natureza", "categoria_id"]));
+  });
+});
