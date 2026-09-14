@@ -1,7 +1,15 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
+/** Mesmo alias `@/*` do tsconfig, para que os testes resolvam como o build. */
+const raizSrc = fileURLToPath(new URL("./src", import.meta.url));
+
 export default defineConfig({
+  resolve: {
+    alias: { "@": raizSrc },
+  },
   test: {
+    alias: { "@": raizSrc },
     passWithNoTests: true,
     coverage: {
       provider: "v8",

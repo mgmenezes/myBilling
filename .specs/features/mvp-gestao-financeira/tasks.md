@@ -615,7 +615,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T30: Cliente de conexão com o banco
+#### T30: Cliente de conexão com o banco ✅ CONCLUÍDA
 **What**: Cliente Drizzle lendo `DATABASE_URL` da configuração validada, com pool adequado a ambiente serverless e `sslmode` exigido fora de desenvolvimento.
 **Where**: `src/infrastructure/db/client.ts`
 **Depends on**: T29
@@ -623,9 +623,9 @@ T52 -> T53
 **Requirement**: AUTH-02, DADO-02
 **Tools**: Context7 MCP para o driver serverless recomendado
 **Done when**:
-- [ ] A conexão usa exclusivamente a configuração validada de T4, nunca `process.env` direto
-- [ ] Teste de integração abre conexão e executa `SELECT 1`
-- [ ] Nenhuma credencial aparece em log
+- [x] A conexão usa exclusivamente a configuração validada de T4, nunca `process.env` direto
+- [x] Teste de integração abre conexão e executa `SELECT 1`
+- [x] Nenhuma credencial aparece em log
 **Tests**: integration
 **Gate**: full
 
