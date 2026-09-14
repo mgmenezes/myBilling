@@ -1,3 +1,4 @@
+import { planoDaCompra } from "@/application/compras/plano-da-compra";
 import type {
   CadastroRepository,
   CompraPersistida,
@@ -5,14 +6,10 @@ import type {
 } from "@/application/ports/repositories";
 import type { EntradaCompraValidada } from "@/application/schemas/compra.schema";
 import {
-  addMeses,
   type Cents,
   type CodigoErro,
   type Competencia,
-  criarCents,
-  criarCompetencia,
   err,
-  gerarParcelas,
   ok,
   podeReceberNovaCompra,
   type Result,
@@ -84,32 +81,11 @@ export async function criarCompraParcelada(
     return err(disponivel.error);
   }
 
-  const competenciaInicial = criarCompetencia(entrada.competenciaInicial);
-  if (!competenciaInicial.ok) {
-    return err(competenciaInicial.error);
-  }
-
-  const valorEntrada = criarCents(entrada.valorCentavos);
-  if (!valorEntrada.ok) {
-    return err(valorEntrada.error);
-  }
-
-  // O domínio conta as competências a partir da parcela 1; o formulário fala
-  // da parcela que o usuário está lançando. A ponte entre as duas é `addMeses`
-  // com deslocamento negativo — numa compra 8/10 que cai em 2026-03, a
-  // parcela 1 é 2025-08 e nenhum lançamento é criado lá (AD-005).
-  const competenciaCompra = addMeses(competenciaInicial.value, -(entrada.parcelaInicial - 1));
-
-  const plano = gerarParcelas({
-    modo: entrada.modo,
-    valorEntrada: valorEntrada.value,
-    qtdParcelas: entrada.qtdParcelas,
-    competenciaCompra,
-    parcelaInicial: entrada.parcelaInicial,
-    politicaResiduo: entrada.politicaResiduo,
-  });
-  if (!plano.ok) {
-    return err(plano.error);
+  // A **mesma** função que o preview do formulário chama: o número que o
+  // usuário aprovou na tela é o número que vai para o banco.
+  const montado = planoDaCompra(entrada);
+  if (!montado.ok) {
+    return err(montado.error);
   }
 
   const persistida = await deps.compras.salvarComParcelas({
@@ -118,7 +94,7 @@ export async function criarCompraParcelada(
       descricao: entrada.descricao,
       modo: entrada.modo,
       politicaResiduo: entrada.politicaResiduo,
-      competenciaCompra,
+      competenciaCompra: montado.value.competenciaCompra,
       qtdParcelas: entrada.qtdParcelas,
       parcelaInicial: entrada.parcelaInicial,
       categoriaId: entrada.categoriaId,
@@ -126,7 +102,7 @@ export async function criarCompraParcelada(
       meioPagamentoId: entrada.meioPagamentoId,
       dataEvento: entrada.dataEvento,
     },
-    plano: plano.value,
+    plano: montado.value.plano,
   });
   if (!persistida.ok) {
     return err(persistida.error);

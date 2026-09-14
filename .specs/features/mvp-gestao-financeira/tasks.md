@@ -954,7 +954,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T50: Formulário de compra com preview ao vivo
+#### T50: Formulário de compra com preview ao vivo ✅ CONCLUÍDA
 **What**: Formulário com react-hook-form e o schema de T47, exibindo **preview ao vivo das parcelas** calculado pela mesma função pura do domínio. Chave de idempotência gerada ao abrir o formulário.
 **Where**: `src/components/form-compra.tsx`
 **Depends on**: T49, T47
@@ -962,12 +962,20 @@ T52 -> T53
 **Requirement**: PARC-01, PARC-04, PARC-06, UI-03
 **Tools**: shadcn/ui, react-hook-form
 **Done when**:
-- [ ] Digitar R$ 1.000,00 e 3 parcelas exibe o preview `333,34 / 333,33 / 333,33` com as competências
-- [ ] Alternar para modo valor da parcela recalcula o total (PARC-04, AC 4)
-- [ ] Informar "já estou na parcela 8 de 10" exibe apenas as parcelas 8, 9 e 10 no preview (PARC-06)
-- [ ] A chave de idempotência é gerada ao abrir, não ao submeter (PARC-05, AC 9)
-- [ ] Estados de carregamento e erro são exibidos; o botão fica desabilitado durante o envio (UI-02, AC 7 e AC 8)
-- [ ] O formulário é usável em viewport de 400 pixels (UI-03, AC 9)
+- [x] Digitar R$ 1.000,00 e 3 parcelas exibe o preview `333,34 / 333,33 / 333,33` com as competências
+- [x] Alternar para modo valor da parcela recalcula o total (PARC-04, AC 4)
+- [x] Informar "já estou na parcela 8 de 10" exibe apenas as parcelas 8, 9 e 10 no preview (PARC-06)
+- [x] A chave de idempotência é gerada ao abrir, não ao submeter (PARC-05, AC 9)
+- [x] Estados de carregamento e erro são exibidos; o botão fica desabilitado durante o envio (UI-02, AC 7 e AC 8)
+- [x] O formulário é usável em viewport de 400 pixels (UI-03, AC 9) — medido no e2e de T54
+
+> **Preview e gravação são a mesma função.** `planoDaCompra` (`src/application/compras/plano-da-compra.ts`) foi extraída do caso de uso de T48 para ser chamada pelos dois: o formulário a cada tecla, a Server Action ao gravar. Não são dois cálculos que coincidem, é um só — o centavo residual que aparece na tela é o que vai para o banco.
+>
+> **Desvio de ferramenta**: sem `react-hook-form` e sem `shadcn/ui`. O formulário usa React 19 (`useTransition`, `useState`) mais o schema Zod de T47, que já é a fonte das mensagens de campo. Nenhum critério do Done-when depende das duas bibliotecas, e instalá-las traria Radix, `cva` e um scaffold de `components/ui` para um formulário só.
+>
+> **Testes acrescentados** (a matriz classifica componente de apresentação como `Tests: none`): `form-compra.test.tsx`, no projeto `componentes` que já existia desde T44. O gate declarado continua sendo `build`, que roda `test:unit` e portanto os inclui. Sem eles, nenhum critério deste Done-when teria evidência `file:line`.
+>
+> **Guarda de forma acrescentada em `planoDaCompra`**: o formulário chama a função a cada tecla e um campo em branco chega como `NaN`. `NaN < 1` é falso, então a comparação do domínio o deixaria passar e a competência sairia `NaN-NaN`. A guarda é de forma (`Number.isInteger`), não de regra — o rateio continua inteiro no domínio.
 **Tests**: none
 **Gate**: build
 
