@@ -33,6 +33,9 @@ Explicitamente excluído desta feature. Documentado para prevenir scope creep.
 | Lançamento privado (`visibilidade`) | Aditivo: coluna com default mais um `WHERE`. Custo zero de retrabalho ao adiar |
 | Migração do histórico da planilha | O usuário optou por cadastro manual. O histórico antigo permanece na planilha |
 | Notificações, PWA/offline, anexos, metas, acerto de contas entre pessoas | Fora do MVP por decisão do usuário |
+| Alteração de lançamento já pago | Exige definir "estorno explícito" antes de ser testável. **Regra decidida para quando for implementado:** para alterar valor, competência ou meio de pagamento de um lançamento pago, o usuário primeiro **desmarca o pagamento**, ação registrada com autor e data; só então os campos liberam. Duas ações deliberadas em vez de uma — é aí que mora a proteção. O campo `pagoEm` já existe e já separa previsto de realizado; falta a guarda e o registro |
+| Limite de orçamento por competência | A tabela `orcamento_categoria` já tem chave `(categoria_id, competencia)` e o isolamento entre meses existe no schema. Falta a lógica de resolução e a UI, que são da Fase 8 |
+| Versionamento de recorrência por vigência | A tabela `recorrencia_versao` já existe no schema. A lógica de "esta e as futuras" é da Fase 7+, junto com a UI de recorrências |
 | Integrações bancárias, IA, Open Finance | Descartados por pedido explícito do usuário |
 
 ---
@@ -211,7 +214,6 @@ Toda ambiguidade está resolvida ou registrada aqui.
 1. WHEN um lançamento possui data de pagamento preenchida THEN o sistema SHALL considerá-lo realizado, e SHALL considerá-lo previsto caso contrário
 2. WHEN o total pendente de um mês é calculado THEN o sistema SHALL somar apenas os lançamentos de despesa daquela competência sem data de pagamento
 3. WHEN o comprometimento futuro é calculado THEN o sistema SHALL somar os lançamentos de despesa sem pagamento de competências posteriores ao mês corrente, SHALL quebrar o resultado por competência e SHALL não agregá-lo em um único número
-4. WHILE um lançamento possui data de pagamento preenchida, o sistema SHALL rejeitar alteração de valor, de competência e de meio de pagamento sem estorno explícito
 
 **Independent Test**: Marcar um lançamento como pago via caso de uso e confirmar que ele migra de pendente para realizado sem alterar o valor previsto registrado.
 
@@ -230,8 +232,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 3. IF uma categoria não possui limite definido no mês THEN o sistema SHALL retornar porcentagem de consumo nula, e SHALL não retornar zero nem infinito
 4. WHEN o indicador global do mês é calculado THEN o sistema SHALL aplicar `total gasto ÷ soma dos limites do mês`
 5. IF a soma dos limites do mês é zero THEN o sistema SHALL retornar indicador global nulo, sem produzir `NaN`
-6. WHEN um limite de categoria é definido THEN o sistema SHALL associá-lo a uma competência específica, de modo que alterar o limite de um mês não altere outro mês
-7. WHEN qualquer porcentagem é calculada THEN o sistema SHALL arredondá-la ao centésimo de ponto percentual mais próximo, e SHALL arredondar o empate para cima
+6. WHEN qualquer porcentagem é calculada THEN o sistema SHALL arredondá-la ao centésimo de ponto percentual mais próximo, e SHALL arredondar o empate para cima
 
 **Independent Test**: Avaliar uma categoria com limite R$ 1.000,00 e gasto R$ 2.460,00 e confirmar consumo de 246,0% com sinalização de estouro, e distribuição calculada sobre o total de gastos.
 
@@ -248,8 +249,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 1. WHEN o valor real de uma ocorrência de recorrência é confirmado THEN o sistema SHALL alterar apenas o lançamento daquela competência, SHALL preservar o valor previsto original e SHALL não alterar nenhuma outra competência
 2. WHEN uma ocorrência recebe confirmação manual THEN o sistema SHALL marcá-la como sobrescrita, de modo que uma nova materialização não altere seu valor
 3. WHEN a materialização de recorrências é executada mais de uma vez para a mesma competência THEN o sistema SHALL não criar lançamento duplicado
-4. WHEN o valor de uma recorrência muda a partir de uma competência THEN o sistema SHALL registrar uma nova versão vigente, e SHALL preservar as competências anteriores inalteradas
-5. WHILE uma recorrência não possui competência de fim, o sistema SHALL materializar ocorrências em uma janela rolante limitada, e SHALL não gerar ocorrências indefinidamente
+4. WHILE uma recorrência não possui competência de fim, o sistema SHALL materializar ocorrências em uma janela rolante limitada, e SHALL não gerar ocorrências indefinidamente
 
 **Independent Test**: Materializar uma recorrência de R$ 300,00 em três meses, confirmar R$ 347,50 no mês do meio, e verificar que os outros dois meses permanecem em R$ 300,00.
 
@@ -289,13 +289,10 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Fase 3 | Verified |
-| MOV-06 | P2: Previsto versus realizado | Fase 3 | Implementing |
 | CART-01 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | CART-02 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | CART-03 | P2: Ciclo de fatura do cartão | Tasks | Verified |
 | ORC-01 | P2: Orçamento por categoria | Fase 3 | Verified |
-| ORC-02 | P2: Orçamento por categoria | Fase 3 | Implementing |
-| REC-01 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Verified |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Verified |
