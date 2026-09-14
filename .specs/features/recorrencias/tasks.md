@@ -276,7 +276,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T10: Criar recorrência
+#### T10: Criar recorrência ✅ CONCLUÍDA
 **What**: Caso de uso que valida referências (categoria, meio, pessoa existem) e grava recorrência mais versão inicial vigente na competência de início.
 **Where**: `src/application/recorrencias/criar-recorrencia/handler.ts`
 **Depends on**: T5
@@ -284,10 +284,10 @@ T21 -> T22
 **Requirement**: FIXO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Grava recorrência e versão inicial numa chamada (FIXO-01, AC 1)
-- [ ] Meio de pagamento inexistente devolve `MEIO_PAGAMENTO_NAO_ENCONTRADO`
-- [ ] Meio de pagamento arquivado devolve `MEIO_PAGAMENTO_ARQUIVADO`
-- [ ] Competência de fim anterior à de início é rejeitada
+- [x] Grava recorrência e versão inicial numa chamada (FIXO-01, AC 1)
+- [x] Meio de pagamento inexistente devolve `MEIO_PAGAMENTO_NAO_ENCONTRADO`
+- [x] Meio de pagamento arquivado devolve `MEIO_PAGAMENTO_ARQUIVADO`
+- [x] Competência de fim anterior à de início é rejeitada
 **Tests**: unit
 **Gate**: quick
 

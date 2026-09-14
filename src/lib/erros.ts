@@ -1,5 +1,6 @@
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
 import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
+import type { CodigoErroRecorrencia } from "@/application/recorrencias/criar-recorrencia/handler";
 
 /**
  * A fronteira entre código de erro e texto de usuário.
@@ -21,7 +22,11 @@ export type CodigoErroDeBorda =
   | "ACESSO_NEGADO"
   | "ERRO_INESPERADO";
 
-export type CodigoErroExibivel = CodigoErroAplicacao | CodigoErroPagamento | CodigoErroDeBorda;
+export type CodigoErroExibivel =
+  | CodigoErroAplicacao
+  | CodigoErroPagamento
+  | CodigoErroRecorrencia
+  | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
 export type ResultadoAction<T> =
@@ -47,6 +52,7 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   /* Sem "recarregue a página": a mensagem diz o que aconteceu, e a própria
      revalidação da action já traz a lista nova. */
   LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
+  PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",
@@ -65,6 +71,7 @@ const CAMPO_DO_ERRO: Partial<Record<CodigoErroExibivel, string>> = {
   MEIO_PAGAMENTO_ARQUIVADO: "meioPagamentoId",
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "meioPagamentoId",
   COMPETENCIA_INVALIDA: "competenciaInicial",
+  PERIODO_INVALIDO: "competenciaFim",
 };
 
 export function mensagemDoErro(code: CodigoErroExibivel): string {
