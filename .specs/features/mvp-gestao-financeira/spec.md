@@ -231,6 +231,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 4. WHEN o indicador global do mês é calculado THEN o sistema SHALL aplicar `total gasto ÷ soma dos limites do mês`
 5. IF a soma dos limites do mês é zero THEN o sistema SHALL retornar indicador global nulo, sem produzir `NaN`
 6. WHEN um limite de categoria é definido THEN o sistema SHALL associá-lo a uma competência específica, de modo que alterar o limite de um mês não altere outro mês
+7. WHEN qualquer porcentagem é calculada THEN o sistema SHALL arredondá-la ao centésimo de ponto percentual mais próximo, e SHALL arredondar o empate para cima
 
 **Independent Test**: Avaliar uma categoria com limite R$ 1.000,00 e gasto R$ 2.460,00 e confirmar consumo de 246,0% com sinalização de estouro, e distribuição calculada sobre o total de gastos.
 
@@ -308,7 +309,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 32 total, 0 mapped to tasks, 32 unmapped
+**Coverage:** 33 total, 26 cobertos por tasks das Fases 0 a 3, 7 aguardando as Fases 4 a 7
 
 ---
 

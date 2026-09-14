@@ -194,6 +194,31 @@ interface ResumoMensal {                   // três objetos, nunca somados entre
 
 ---
 
+## Definição formal de cada total exibido
+
+Seja `M = movimento WHERE canceladoEm IS NULL`, para o mês `m`. Cada total é uma função nomeada e isolada em `src/domain/mes`, nunca uma expressão solta numa tela.
+
+| Total | Fórmula | Eixo |
+| --- | --- | --- |
+| Total de Gastos | `Σ M.valor WHERE natureza='DESPESA' AND competencia=m` | competência |
+| — Fixos / Cartão / Avulsos | idem `AND origem='RECORRENCIA' / 'PARCELA' / 'AVULSO'` | competência |
+| Entradas | `Σ M.valor WHERE natureza='RECEITA' AND competencia=m` | competência |
+| Investimentos | `Σ M.valor WHERE natureza='INVESTIMENTO' AND competencia=m` | competência |
+| **Saídas (caixa)** | `Σ pagamentoFatura.valor WHERE dataPagamento ∈ m` **+** `Σ M.valor WHERE natureza='DESPESA' AND meio.geraFatura=false AND pagoEm ∈ m` | caixa |
+| Pendente | `Σ M.valor WHERE natureza='DESPESA' AND competencia=m AND pagoEm IS NULL` | competência |
+| Saldo de Competência | `Entradas − TotalGastos − Investimentos` | competência |
+| Saldo de Caixa | `EntradasRecebidas − Saidas − InvestimentosRealizados` | caixa |
+| Comprometido futuro | `Σ M.valor WHERE natureza='DESPESA' AND competencia > m AND pagoEm IS NULL`, **quebrado por competência** | futuro |
+| % consumo do orçamento | `gasto(c,m) ÷ limite(c,m)` — **pode exceder 100%, nunca trunca** | — |
+| % distribuição | `gasto(c,m) ÷ TotalGastos(m)` — **Σ = 100,00% exatos** | — |
+| Indicador global | `TotalGastos(m) ÷ Σ_c limite(c,m)` | — |
+
+**Arredondamento de porcentagem.** Porcentagem é inteiro em centésimos de ponto percentual (100,00% = `10000`), calculada por divisão inteira com quociente e resto, arredondada ao centésimo mais próximo, **com empate arredondado para cima**. A sobra da soma das distribuições vai inteira para a categoria de maior gasto; empate de gasto fica com a primeira. A regra é normativa, não incidental: `resumo-por-categoria.test.ts:218-228` a pinça nos três lados da fronteira.
+
+**A divergência entre os eixos.** `Saidas(m) − TotalGastos(m)` é diferente de zero sempre que uma fatura paga em `m` contém compras de meses anteriores. Isso não é erro. O app exibe os dois com selos distintos e **nenhuma tela os soma nem os subtrai** — por isso `ResumoMensal` os entrega em objetos aninhados separados (MOV-03).
+
+---
+
 ## Error Handling Strategy
 
 O domínio nunca lança: retorna `Result<T, DomainError>` com `DomainError = { code: CodigoErro; detalhes?: Record<string, unknown> }`. `CodigoErro` é union fechada, sem mensagem — a mensagem em pt-BR vive em `src/lib/erros.ts`, que é apresentação.

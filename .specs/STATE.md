@@ -95,12 +95,16 @@
 ## Handoff
 
 - **Feature**: mvp-gestao-financeira
-- **Phase/Task**: Fase 0 (Fundação) CONCLUÍDA — T1 a T7 commitadas. Próxima: Fase 1.
-- **Completed**: `.specs/` completo (spec 32 requisitos EARS, design, 54 tasks, STATE). `AGENTS.md`. Hook `commit-msg` ativo. T1 scaffold Next 16.3.5 + TS strict + Tailwind 4.3.3 · T2 Biome 2.5.13 com `noRestrictedImports` em `src/domain` · T3 Vitest 5.0.0 com projects `domain` e `integration` · T4 `env.ts` Zod fail-fast · T5 `Result` + `CodigoErro` · T6 teste de fronteira arquitetural · T7 CI.
+- **Phase/Task**: Fases 0, 1, 2 e 3 CONCLUÍDAS (T1 a T26). Próxima: Fase 4 (persistência).
+- **Completed**: núcleo financeiro puro completo e provado. 212 testes, 100% de branches em `src/domain` (124/124). `pnpm verify` exit 0. Toda a matemática do produto existe e foi verificada antes de haver banco ou tela.
 - **In-progress**: nenhum
-- **Next step**: despachar Batch Worker 2 com as Fases 1 e 2 (T8 a T19) — dinheiro, competência e rateio de parcelas
-- **Blockers**: push para `github.com/mgmenezes/myBilling` bloqueado por falta de credencial (keychain sem entrada para github.com, sem chave SSH, porta 22 com timeout). Aguardando autenticação HTTPS.
-- **Verificado independentemente**: `pnpm verify` exit 0 · 22 testes passando · sensor adversarial confirmou que injetar `next/server` em `src/domain` faz a suíte E o lint falharem, revertido e árvore limpa.
-- **Histórico**: reescrito com `filter-branch` para remover dados financeiros reais (AD-009) e trocar o autor para o e-mail privado do GitHub. Auditoria em 766 KB de objetos: 0 ocorrências dos 15 padrões reais.
-- **Uncommitted files**: nenhum além de `.agents/` e `.claude/` (untracked, intencional)
+- **Next step**: Fase 4 (T27 a T31, schema e conexão) — **bloqueada por credenciais**: precisa de Google OAuth para a Fase 6. Postgres roda em Docker local, o Neon só é necessário no deploy.
+- **Blockers**: credenciais do Google OAuth pendentes com o usuário.
+- **Verificação adversarial independente do orquestrador** (além dos gates dos workers):
+  - Fase 0: 5 mutações, 5 mortas. Confirmado que o teste de fronteira derruba a suíte E o lint ao injetar `next/server` em `src/domain`.
+  - Fases 1 e 2: 12 mutações, 12 mortas, incluindo os dois obrigatórios do AD-011 (truncar o resíduo do rateio; esquecer a virada de ano).
+  - Fase 3: 14 mutações. Na primeira rodada, 11 mortas e **1 sobrevivente** — o modo de arredondamento de porcentagem não estava pinçado por teste. Roteado como fix task; após o commit `b3cafa7`, **14 de 14 mortas**.
+- **Lição registrada**: mutação de tipo exige gate de `typecheck`; rodá-la contra `vitest` produz falso positivo. O harness escolhe o gate por mutação.
+- **Correções do orquestrador**: `AGENTS.md` afirmava que `pnpm verify` roda `test:integration` (não roda até a Fase 4). `design.md` não continha a tabela "Definição formal de cada total exibido" que os briefings citavam — portada, com a regra de arredondamento. `spec.md` ganhou o AC ORC-03, que faltava.
+- **Uncommitted files**: nenhum
 - **Branch**: main
