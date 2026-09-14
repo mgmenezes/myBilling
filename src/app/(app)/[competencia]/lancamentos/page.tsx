@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { criarCategoria } from "@/app/actions/categorias";
 import { criarCompra } from "@/app/actions/compras";
 import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
+import { alternarPagamento } from "@/app/actions/pagamentos";
 import {
   contarFiltrosAtivos,
   type FiltroDeLancamentos,
@@ -113,6 +114,7 @@ export default async function PaginaDeLancamentos({
         <TabelaLancamentos
           lancamentos={temFiltro ? visiveis : visao.lancamentos}
           categorias={nomePorCategoria}
+          alternarPagamento={alternarPagamento}
         />
       )}
 

@@ -1,10 +1,16 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import type { Cents, Competencia, Lancamento } from "@/domain";
 import { TabelaLancamentos } from "./tabela-lancamentos";
 
 const CATEGORIAS = new Map([["cat-1", "Categoria Um"]]);
+
+/** Dublê da action; os testes que precisam observar a chamada passam o seu. */
+const alternarOk = vi.fn(async (lancamentoId: string, pago: boolean) => ({
+  ok: true as const,
+  data: { lancamentoId, pagoEm: pago ? "2026-03-15" : null },
+}));
 
 /**
  * Testes derivados do Done-when de T52 e dos ACs UI-01 (AC 5), UI-02 (AC 6) e
@@ -45,6 +51,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item(
@@ -71,6 +78,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item({ id: "3", origem: "AVULSO", descricao: "Lançamento avulso A" }),
@@ -90,6 +98,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
       <TabelaLancamentos
         lancamentos={[item({ id: "3", origem: "AVULSO" })]}
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
       />,
     );
 
@@ -101,6 +110,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item({ id: "r", natureza: "RECEITA", descricao: "Entrada A", valor: 500000 as Cents }),
         ]}
@@ -117,6 +127,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item(
             {
@@ -141,6 +152,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item(
             {
@@ -166,6 +178,7 @@ describe("valores e situação", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", descricao: "Previsto A", valor: 33334 as Cents }),
           item({
@@ -188,7 +201,9 @@ describe("valores e situação", () => {
 
 describe("estado vazio (UI-02, AC 6)", () => {
   it("explica o que fazer em vez de mostrar tabela em branco", () => {
-    render(<TabelaLancamentos lancamentos={[]} categorias={CATEGORIAS} />);
+    render(
+      <TabelaLancamentos lancamentos={[]} categorias={CATEGORIAS} alternarPagamento={alternarOk} />,
+    );
 
     expect(screen.queryByRole("table")).toBeNull();
     expect(screen.getByText(/Nenhum lançamento neste mês ainda/)).toBeDefined();
@@ -205,6 +220,7 @@ describe("categoria na lista", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[
           item(
             { id: "1", origem: "PARCELA", categoriaId: "cat-1" },
@@ -224,6 +240,7 @@ describe("categoria na lista", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[item({ id: "2", origem: "AVULSO", categoriaId: "cat-1" })]}
       />,
     );
@@ -238,6 +255,7 @@ describe("categoria na lista", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[item({ id: "3", origem: "AVULSO", categoriaId: null })]}
       />,
     );
@@ -249,6 +267,7 @@ describe("categoria na lista", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
         lancamentos={[item({ id: "4", origem: "AVULSO", categoriaId: "cat-sumida" })]}
       />,
     );

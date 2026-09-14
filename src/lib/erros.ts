@@ -1,4 +1,5 @@
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
+import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
 
 /**
  * A fronteira entre código de erro e texto de usuário.
@@ -20,7 +21,7 @@ export type CodigoErroDeBorda =
   | "ACESSO_NEGADO"
   | "ERRO_INESPERADO";
 
-export type CodigoErroExibivel = CodigoErroAplicacao | CodigoErroDeBorda;
+export type CodigoErroExibivel = CodigoErroAplicacao | CodigoErroPagamento | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
 export type ResultadoAction<T> =
@@ -43,6 +44,9 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "Escolha um meio de pagamento válido.",
   CONSERVACAO_VIOLADA: "A soma das parcelas não fechou com o total. Nada foi gravado.",
   COMPETENCIA_INVALIDA: "Informe a competência no formato AAAA-MM.",
+  /* Sem "recarregue a página": a mensagem diz o que aconteceu, e a própria
+     revalidação da action já traz a lista nova. */
+  LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",

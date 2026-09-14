@@ -5,7 +5,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 
 > Última auditoria: 2026-09-14, sobre a branch `ajustes-visuais-e-cadastros`. A ordem das fatias
 > mudou nesta revisão — recorrência subiu na frente de lançamento avulso, e a justificativa está
-> registrada na própria fatia.
+> registrada na própria fatia. **Marcar pago saiu do roadmap: foi entregue.**
 
 ## Pronto
 
@@ -19,6 +19,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Cadastros | Categoria e meio de pagamento criados **dentro do formulário**, pelo `CadastroInline`. Valem para todo mês, porque nenhum dos dois tem competência |
 | Identidade | Derivada do `DESIGN.md`, com contraste medido; tema claro, escuro ou do sistema |
 | Dados de desenvolvimento | Seed ancorado no relógio (dois meses atrás a três à frente) e idempotente |
+| Marcar pago | O selo de situação **é** o botão que alterna, com estado otimista. Marcar move o indicador do painel, não só a lista |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -27,7 +28,6 @@ existe. Toda vez que uma destas ganhar tela, o trabalho é menor do que parece.
 
 | Peça | Camada | Espera por |
 | --- | --- | --- |
-| `marcarPagamento` | **Repositório** (Drizzle **e** fake) | Caso de uso, action e um controle na lista |
 | `avaliarOrcamento` | Domínio | Repositório de `orcamento_categoria` e tela de limites |
 | `regenerarParcelas` | Domínio | Caso de uso de edição de compra com escopo de série |
 | `resolverCicloFatura` | Domínio | Repositório de `fatura` e área de Cartões |
@@ -36,21 +36,14 @@ existe. Toda vez que uma destas ganhar tela, o trabalho é menor do que parece.
 Quatro tabelas existem no banco sem nenhum repositório que as leia ou escreva:
 `orcamento_categoria`, `pagamento_fatura`, `recorrencia`, `recorrencia_versao`.
 
-## Fatia 1: marcar pago
-
-1. **Marcar pago e desfazer.** O menor item da lista e o de maior efeito. `marcarPagamento` já está
-   implementado nos dois repositórios, com zero chamadores — faltam caso de uso, action e o
-   controle na lista. Sem ele o eixo **Movimentações é decorativo**: ele só mostra o que o seed
-   marcou, e nada que o usuário faça no app muda "Recebido" ou "Saiu da conta".
-
-## Fatia 2: recorrências
+## Fatia 1: recorrências
 
 > **Esta fatia subiu.** Ela era a última, adiada com o argumento de que "fazer certo exige
 > `recorrencia_versao`, materialização em janela rolante e semântica de 'esta e as futuras'".
 > A auditoria mostrou que **duas dessas três já estão feitas**, migradas e com constraint no banco.
 > O texto anterior foi escrito quando o trabalho pesado estava à frente; hoje ele está atrás.
 
-2. **Recorrência com versionamento por vigência.** É o gasto fixo: água, luz, internet. Hoje eles
+1. **Recorrência com versionamento por vigência.** É o gasto fixo: água, luz, internet. Hoje eles
    não têm caminho nenhum — e o bloco **"Fixos"** da lista, que filtra por `origem = 'RECORRENCIA'`,
    promete um lugar que nunca recebe conteúdo.
 
@@ -67,13 +60,13 @@ Quatro tabelas existem no banco sem nenhum repositório que as leia ou escreva:
 
    O que falta: repositório das duas tabelas, caso de uso de materialização, action e formulário.
 
-   **Por que junto da fatia 1.** Confirmar o valor real de uma conta quando ela chega e marcar essa
-   conta como paga são o **mesmo gesto** para quem usa. Feitos separados, viram dois controles na
-   mesma linha da lista; feitos juntos, viram um.
+   **O botão de pago já está lá.** Confirmar o valor real de uma conta quando ela chega e marcá-la
+   paga são o mesmo gesto para quem usa. O selo-botão da lista é onde a confirmação de valor entra —
+   como um passo do mesmo controle, não como um segundo controle ao lado.
 
-## Fatia 3: fechar o mês
+## Fatia 2: fechar o mês
 
-3. **Criar despesa avulsa e receita.** Enquanto não existir, o mês nunca fecha: só compra parcelada
+2. **Criar despesa avulsa e receita.** Enquanto não existir, o mês nunca fecha: só compra parcelada
    e recorrência entram no app. Hoje o contorno é cadastrar compra com 1 parcela, o que funciona
    para o cartão e não para receita.
 
@@ -82,22 +75,22 @@ Quatro tabelas existem no banco sem nenhum repositório que as leia ou escreva:
    "Gastos do Mês" quer dizer "é avulso" — então uma despesa avulsa **no cartão** cai no segundo
    bloco, que provavelmente não é o que o usuário espera.
 
-4. **Excluir despesa avulsa e receita.** Parcela isolada continua não excluível: removê-la quebraria
+3. **Excluir despesa avulsa e receita.** Parcela isolada continua não excluível: removê-la quebraria
    a conservação da soma da compra, que é invariante do domínio.
 
-## Fatia 4: orçamento e cartões
+## Fatia 3: orçamento e cartões
 
-5. **Orçamento por categoria.** Repositório de limites e tela para defini-los. O alerta de estouro
+4. **Orçamento por categoria.** Repositório de limites e tela para defini-los. O alerta de estouro
    já está implementado no gráfico, esperando o dado.
-6. **Faturas.** Repositório de `fatura` e `pagamento_fatura`, área de Cartões, e o eixo caixa passa
+5. **Faturas.** Repositório de `fatura` e `pagamento_fatura`, área de Cartões, e o eixo caixa passa
    a somar pagamento de fatura. Hoje ele soma apenas lançamentos da própria competência já pagos, o
    que o torna parcial por escopo.
-7. **Editar e excluir compra com escopo.** Esta ocorrência, as futuras, ou a série inteira.
+6. **Editar e excluir compra com escopo.** Esta ocorrência, as futuras, ou a série inteira.
    `regenerarParcelas` já sabe preservar as parcelas pagas e redistribuir as pendentes.
 
-## Fatia 5: comparação no tempo
+## Fatia 4: comparação no tempo
 
-8. **Série histórica.** `listarPorCompetencia` lê um mês só. O gráfico de evolução mensal precisa de
+7. **Série histórica.** `listarPorCompetencia` lê um mês só. O gráfico de evolução mensal precisa de
    uma consulta agregada por competência, com teste de concordância entre o SQL e a função pura.
 
 ## Dívida de interface

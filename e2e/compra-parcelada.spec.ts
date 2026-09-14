@@ -410,3 +410,59 @@ test("nome de meio já existente vira erro, e não um segundo item na lista", as
   );
   await expect(seletorDeMeio(page).getByRole("option", { name: /^Conta Nova$/ })).toHaveCount(1);
 });
+
+/**
+ * **A fatia que destrava o eixo Movimentações.**
+ *
+ * `marcarPagamento` existia no repositório desde a fase 3 sem nenhum chamador,
+ * e por isso "Recebido" e "Saiu da conta" nunca mudavam pelo uso do app — só
+ * pelo que o seed tivesse marcado.
+ *
+ * O que este teste prende não é o clique: é que o **indicador do painel se
+ * move**, e move exatamente o valor daquele lançamento. Um teste que só
+ * verificasse o selo virando "Pago" passaria com a revalidação do painel
+ * esquecida, que é o defeito fácil de cometer aqui — são duas rotas.
+ */
+test("marcar pago move o indicador do painel, não só o selo (MOV-06, AC 1 e AC 2)", async ({
+  page,
+}) => {
+  await page.goto("/2026-03/lancamentos");
+  await cadastrar(page, {
+    descricao: "Compra para pagar",
+    modo: "Valor total",
+    valor: "300,00",
+    qtdParcelas: "1",
+  });
+
+  await page.goto("/2026-03");
+  const pendenteAntes = await valorDoIndicador(page, "Ainda não pago");
+
+  await page.goto("/2026-03/lancamentos");
+  const selo = page.getByRole("button", { name: /Compra para pagar/ });
+  await expect(selo).toHaveAttribute("aria-pressed", "false");
+  await selo.click();
+  await expect(selo).toHaveAttribute("aria-pressed", "true");
+
+  await page.goto("/2026-03");
+  expect(await valorDoIndicador(page, "Ainda não pago")).toBe(pendenteAntes - 30000);
+
+  // E desfazer devolve o indicador ao que era: a operação é reversível de fato.
+  await page.goto("/2026-03/lancamentos");
+  await page.getByRole("button", { name: /Compra para pagar/ }).click();
+  await page.goto("/2026-03");
+  expect(await valorDoIndicador(page, "Ainda não pago")).toBe(pendenteAntes);
+});
+
+/** O valor de um indicador do painel, em centavos, lido do texto renderizado. */
+async function valorDoIndicador(page: Page, rotulo: string): Promise<number> {
+  const texto = await page
+    .locator("a, div")
+    .filter({ hasText: new RegExp(`^${rotulo}`) })
+    .last()
+    .innerText();
+  const encontrado = texto.match(/R\$\s*([\d.]+),(\d{2})/);
+  if (encontrado === null) {
+    throw new Error(`indicador "${rotulo}" sem valor legível em: ${texto}`);
+  }
+  return Number(encontrado[1]?.replaceAll(".", "")) * 100 + Number(encontrado[2]);
+}

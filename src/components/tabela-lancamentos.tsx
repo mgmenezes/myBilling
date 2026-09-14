@@ -1,6 +1,8 @@
+import type { alternarPagamento as alternarPagamentoAction } from "@/app/actions/pagamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import type { Natureza, Origem } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
+import { BotaoPago } from "./botao-pago";
 import { Chip } from "./ui";
 
 /**
@@ -19,7 +21,9 @@ import { Chip } from "./ui";
  * passar sem significar nada (UI-03, AC 9).
  *
  * Pago e previsto se distinguem por preenchimento do selo, não por cor. Quem
- * não separa verde de vermelho continua lendo a diferença.
+ * não separa verde de vermelho continua lendo a diferença. **O selo é também o
+ * botão** que alterna o pagamento — é o único ponto cliente desta árvore, e
+ * está isolado em `BotaoPago` para a tabela continuar no servidor.
  *
  * **A coluna "Parcela" só existe no bloco de compra parcelada.** Fora dele ela
  * era uma coluna permanentemente vazia, e coluna vazia não é neutra: ela
@@ -47,10 +51,13 @@ const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-mu
 export function TabelaLancamentos({
   lancamentos,
   categorias,
+  alternarPagamento,
 }: {
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
   /** Id para nome. O lançamento só carrega o id; o nome vive no cadastro. */
   readonly categorias: ReadonlyMap<string, string>;
+  /** A action chega por prop: a tabela não conhece infraestrutura nenhuma. */
+  readonly alternarPagamento: typeof alternarPagamentoAction;
 }) {
   if (lancamentos.length === 0) {
     return (
@@ -72,6 +79,7 @@ export function TabelaLancamentos({
           id={bloco.id}
           titulo={bloco.titulo}
           categorias={categorias}
+          alternarPagamento={alternarPagamento}
           /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
           comParcela={bloco.origem === "PARCELA"}
           itens={despesas.filter((item) => item.lancamento.origem === bloco.origem)}
@@ -82,6 +90,7 @@ export function TabelaLancamentos({
           id="outros"
           titulo="Entradas e investimentos"
           categorias={categorias}
+          alternarPagamento={alternarPagamento}
           comParcela={false}
           itens={outros}
         />
@@ -96,6 +105,7 @@ function BlocoDeLancamentos({
   itens,
   categorias,
   comParcela,
+  alternarPagamento,
 }: {
   /** Identificador sem espaço: `aria-labelledby` é uma lista de ids. */
   readonly id: string;
@@ -103,6 +113,7 @@ function BlocoDeLancamentos({
   readonly itens: ReadonlyArray<LancamentoDoMes>;
   readonly categorias: ReadonlyMap<string, string>;
   readonly comParcela: boolean;
+  readonly alternarPagamento: typeof alternarPagamentoAction;
 }) {
   return (
     <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
@@ -185,15 +196,12 @@ function BlocoDeLancamentos({
                   {formatarData(lancamento.dataEvento)}
                 </td>
                 <td className={CELULA}>
-                  <span
-                    className={`inline-flex w-fit items-center rounded-pill px-2.5 py-0.5 text-[13px] font-medium ${
-                      lancamento.pagoEm === null
-                        ? "border border-line text-ink-muted"
-                        : "bg-surface-strong font-semibold text-ink"
-                    }`}
-                  >
-                    {lancamento.pagoEm === null ? "Previsto" : "Pago"}
-                  </span>
+                  <BotaoPago
+                    lancamentoId={lancamento.id}
+                    descricao={lancamento.descricao}
+                    pago={lancamento.pagoEm !== null}
+                    alternar={alternarPagamento}
+                  />
                 </td>
                 <td
                   className={`${CELULA} tabular whitespace-nowrap md:text-right ${corDaNatureza(lancamento.natureza)}`}
