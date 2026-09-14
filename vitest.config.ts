@@ -43,7 +43,10 @@ export default defineConfig({
         test: {
           name: "componentes",
           environment: "jsdom",
-          include: ["src/components/**/*.test.tsx"],
+          // `src/app/**` também entra aqui: `loading.tsx` e `error.tsx` são
+          // componentes de verdade, e fora de um project nenhum teste deles
+          // roda — a suíte passaria com os dois arquivos vazios.
+          include: ["src/components/**/*.test.tsx", "src/app/**/*.test.tsx"],
         },
       },
       {
