@@ -647,7 +647,7 @@ T52 -> T53
 
 ### Phase 5 — Persistência: repositórios
 
-#### T32: Fakes em memória das ports
+#### T32: Fakes em memória das ports ✅ CONCLUÍDA
 **What**: Implementações em memória das três ports, para que os casos de uso sejam testáveis sem banco. Devem respeitar as mesmas restrições de unicidade do schema.
 **Where**: `src/application/ports/fakes.ts`
 **Depends on**: T31
@@ -655,9 +655,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O fake de compras rejeita duas parcelas com o mesmo par compra e número
-- [ ] O fake de compras devolve a compra existente quando a chave de idempotência se repete (PARC-05, AC 9)
-- [ ] Os fakes não dependem de nenhum módulo de infraestrutura
+- [x] O fake de compras rejeita duas parcelas com o mesmo par compra e número
+- [x] O fake de compras devolve a compra existente quando a chave de idempotência se repete (PARC-05, AC 9)
+- [x] Os fakes não dependem de nenhum módulo de infraestrutura
 **Tests**: unit
 **Gate**: quick
 
