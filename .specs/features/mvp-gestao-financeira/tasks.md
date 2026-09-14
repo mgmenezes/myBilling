@@ -389,7 +389,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T16: Resolução do ciclo de fatura
+#### T16: Resolução do ciclo de fatura ✅ CONCLUÍDA
 **What**: `resolverCicloFatura(cartao, dataCompra)` devolvendo competência da fatura, início e fim do ciclo e data de vencimento. Auxiliar `diaEfetivo` aplicando `min(dia, último dia do mês)`. **A competência do lançamento não é afetada por esta função.**
 **Where**: `src/domain/cartao/ciclo-fatura.ts`
 **Depends on**: T10
@@ -397,13 +397,13 @@ T52 -> T53
 **Requirement**: CART-01, CART-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Compra em 20/03 com fechamento dia 25 cai na fatura de abril (CART-01)
-- [ ] Compra em 25/03 com fechamento dia 25 configurado como fatura seguinte cai na fatura de maio (CART-02, AC 2)
-- [ ] Compra em 26/03 com fechamento dia 25 cai na fatura de maio
-- [ ] Nos três casos acima, a competência do lançamento permanece `2026-03` (CART-01, AC 1)
-- [ ] Fechamento dia 31 em fevereiro usa o dia 28, e 29 em ano bissexto (CART-03, AC 3)
-- [ ] Vencimento dia 31 em abril usa o dia 30 (CART-03, AC 3)
-- [ ] Ao longo de 24 ciclos consecutivos, o início de cada ciclo é o dia seguinte ao fim do anterior, sem intervalo e sem sobreposição (CART-03, AC 4)
+- [x] Compra em 20/03 com fechamento dia 25 cai na fatura de abril (CART-01)
+- [x] Compra em 25/03 com fechamento dia 25 configurado como fatura seguinte cai na fatura de maio (CART-02, AC 2)
+- [x] Compra em 26/03 com fechamento dia 25 cai na fatura de maio
+- [x] Nos três casos acima, a competência do lançamento permanece `2026-03` (CART-01, AC 1)
+- [x] Fechamento dia 31 em fevereiro usa o dia 28, e 29 em ano bissexto (CART-03, AC 3)
+- [x] Vencimento dia 31 em abril usa o dia 30 (CART-03, AC 3)
+- [x] Ao longo de 24 ciclos consecutivos, o início de cada ciclo é o dia seguinte ao fim do anterior, sem intervalo e sem sobreposição (CART-03, AC 4)
 **Tests**: unit
 **Gate**: quick
 
