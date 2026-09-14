@@ -891,7 +891,7 @@ T52 -> T53
 
 ### Phase 7 — Corte vertical mínimo
 
-#### T47: Schema Zod da compra parcelada
+#### T47: Schema Zod da compra parcelada ✅ CONCLUÍDA
 **What**: Schema compartilhado entre cliente e servidor, cobrindo modo de entrada, valor, quantidade de parcelas, parcela inicial, competência, cartão, categoria e dono, com chave de idempotência.
 **Where**: `src/application/schemas/compra.schema.ts`
 **Depends on**: T12
@@ -899,10 +899,14 @@ T52 -> T53
 **Requirement**: PARC-05, AUTH-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Quantidade de parcelas fora de 1 a 120 é rejeitada na validação (PARC-05, AC 6)
-- [ ] Valor não positivo é rejeitado (PARC-05, AC 7)
-- [ ] Competência fora do formato `AAAA-MM` é rejeitada
-- [ ] O mesmo schema é importável pelo cliente e pelo servidor
+- [x] Quantidade de parcelas fora de 1 a 120 é rejeitada na validação (PARC-05, AC 6)
+- [x] Valor não positivo é rejeitado (PARC-05, AC 7)
+- [x] Competência fora do formato `AAAA-MM` é rejeitada
+- [x] O mesmo schema é importável pelo cliente e pelo servidor
+
+> O schema não redigita regra do domínio: competência e valor são validados por `criarCompetencia` e `criarCents`, e o teto de parcelas é `MAX_PARCELAS` do barrel. `parcelaInicial <= qtdParcelas` fica com `gerarParcelas`, que é quem devolve `PARCELA_INICIAL_INVALIDA` — uma regra, um dono.
+>
+> `competenciaInicial` é a competência da **parcela inicial** (o mês que o usuário está vendo), não a da parcela 1: é o que o Independent Test de PARC-06 descreve ("iniciando na parcela 8 na competência 2026-03"). A conversão para a competência da parcela 1 é feita por `addMeses` no caso de uso.
 **Tests**: unit
 **Gate**: quick
 
