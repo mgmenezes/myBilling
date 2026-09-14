@@ -26,6 +26,7 @@ function lancamento(sobrescrever: Partial<Lancamento> = {}): Lancamento {
     meioPagamentoId: "meio-a",
     compraId: null,
     numeroParcela: null,
+    recorrenciaId: null,
     canceladoEm: null,
     ...sobrescrever,
   };
@@ -105,6 +106,7 @@ describe("projetarProximosMeses — o que entra na projeção", () => {
         origem: "PARCELA",
         compraId: "compra-a",
         numeroParcela: numero,
+        recorrenciaId: null,
         competencia,
         valor: 50000 as Cents,
       });

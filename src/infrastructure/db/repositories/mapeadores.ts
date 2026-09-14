@@ -92,6 +92,7 @@ export function paraLancamento(linha: LinhaMovimento): Lancamento {
     meioPagamentoId: linha.meioPagamentoId,
     compraId: linha.compraId,
     numeroParcela: linha.numeroParcela,
+    recorrenciaId: linha.recorrenciaId,
     canceladoEm: paraInstante(linha.canceladoEm),
   };
 }

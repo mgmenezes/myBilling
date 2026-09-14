@@ -5,6 +5,7 @@ import type {
   DomainError,
   Lancamento,
   MeioPagamento,
+  Natureza,
   PlanoParcelamento,
   PoliticaResiduo,
   Recorrencia,
@@ -91,12 +92,47 @@ export interface CompraRepository {
   totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>>;
 }
 
+/** Uma ocorrência de recorrência pronta para virar linha de `movimento`. */
+export interface OcorrenciaParaMaterializar {
+  readonly recorrenciaId: string;
+  readonly natureza: Natureza;
+  readonly descricao: string;
+  readonly competencia: Competencia;
+  readonly dataEvento: string;
+  readonly valorPrevisto: Cents;
+  readonly categoriaId: string | null;
+  readonly usuarioId: string;
+  readonly meioPagamentoId: string;
+}
+
 export interface MovimentoRepository {
   /** Apenas lançamentos daquela competência que não foram cancelados. */
   listarPorCompetencia(competencia: Competencia): Promise<ReadonlyArray<Lancamento>>;
   buscarPorId(id: string): Promise<Lancamento | null>;
   /** `pagoEm` em `'YYYY-MM-DD'`; `null` desfaz a marcação (MOV-06, AC 1). */
   marcarPagamento(id: string, pagoEm: string | null): Promise<void>;
+  /**
+   * Cria as ocorrências que ainda não existem, **ignorando as que já existem**.
+   * Devolve quantas foram criadas de fato.
+   *
+   * A idempotência é da restrição única `(recorrencia, competência)`, e não de
+   * uma consulta prévia: a materialização roda durante a leitura da página, e
+   * "consultar e depois inserir" perderia a corrida entre dois carregamentos
+   * simultâneos (FIXO-02, AC 2).
+   */
+  materializarOcorrencias(ocorrencias: ReadonlyArray<OcorrenciaParaMaterializar>): Promise<number>;
+  /**
+   * Propaga um valor previsto novo a partir de uma competência, **pulando o
+   * que está protegido** — pago ou com valor já confirmado (FIXO-03, AC 3).
+   *
+   * A definição de protegido é `ocorrenciaProtegida`, no domínio. Aqui ela
+   * vira `WHERE`, e um teste de concordância exige que os dois concordem.
+   */
+  atualizarPrevistoNaoProtegido(
+    recorrenciaId: string,
+    desde: Competencia,
+    valorPrevisto: Cents,
+  ): Promise<void>;
 }
 
 /** Os campos descritivos da recorrência. O valor vem separado, na versão. */

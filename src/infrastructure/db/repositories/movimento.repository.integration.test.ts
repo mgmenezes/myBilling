@@ -28,6 +28,11 @@ const CHAVES_DE_LANCAMENTO = [
   "numeroParcela",
   "origem",
   "pagoEm",
+  /* Acrescentado com a fatia de recorrências: `Lancamento` passou a expor de
+   * qual recorrência a ocorrência veio, simétrico ao `compraId` que já existia.
+   * A lista mudar aqui é o teste funcionando — ela obriga a adição a ser
+   * consciente, em vez de uma coluna do Drizzle vazando sem ninguém ver. */
+  "recorrenciaId",
   "usuarioId",
   "valor",
   "valorPrevisto",

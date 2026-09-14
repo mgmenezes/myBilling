@@ -7,6 +7,7 @@ import {
   err,
   type Lancamento,
   type MeioPagamento,
+  ocorrenciaProtegida,
   ok,
   type Recorrencia,
   type Result,
@@ -20,6 +21,7 @@ import type {
   EntradaCriarRecorrencia,
   EntradaSalvarCompra,
   MovimentoRepository,
+  OcorrenciaParaMaterializar,
   RecorrenciaComVersoes,
   RecorrenciaRepository,
   Usuario,
@@ -134,6 +136,7 @@ export class FakeCompraRepository implements CompraRepository {
         meioPagamentoId: dados.meioPagamentoId,
         compraId,
         numeroParcela: parcela.numero,
+        recorrenciaId: null,
         canceladoEm: null,
       };
       this.estado.movimentos.set(chave, lancamento);
@@ -173,6 +176,70 @@ export class FakeMovimentoRepository implements MovimentoRepository {
       return;
     }
     this.estado.movimentos.set(id, { ...atual, pagoEm });
+  }
+
+  /**
+   * Reproduz a restrição `(recorrencia, competência)` do banco, que é o que
+   * torna a materialização idempotente. Um fake que aceitasse a segunda
+   * ocorrência deixaria o caso de uso passar no teste e duplicar em produção.
+   */
+  async materializarOcorrencias(
+    ocorrencias: ReadonlyArray<OcorrenciaParaMaterializar>,
+  ): Promise<number> {
+    let criadas = 0;
+    for (const o of ocorrencias) {
+      const jaExiste = [...this.estado.movimentos.values()].some(
+        (m) => m.recorrenciaId === o.recorrenciaId && m.competencia === o.competencia,
+      );
+      if (jaExiste) {
+        continue;
+      }
+      const id = `mov-rec-${this.estado.movimentos.size + 1}`;
+      this.estado.movimentos.set(id, {
+        id,
+        natureza: o.natureza,
+        origem: "RECORRENCIA",
+        descricao: o.descricao,
+        competencia: o.competencia,
+        dataEvento: o.dataEvento,
+        valor: o.valorPrevisto,
+        valorPrevisto: o.valorPrevisto,
+        pagoEm: null,
+        categoriaId: o.categoriaId,
+        usuarioId: o.usuarioId,
+        meioPagamentoId: o.meioPagamentoId,
+        compraId: null,
+        numeroParcela: null,
+        recorrenciaId: o.recorrenciaId,
+        canceladoEm: null,
+      });
+      criadas += 1;
+    }
+    return criadas;
+  }
+
+  /**
+   * Aqui o filtro é a **própria** `ocorrenciaProtegida`, e não uma tradução
+   * dela. O repositório real usa `WHERE`, e é o teste de concordância que
+   * prende os dois à mesma definição.
+   */
+  async atualizarPrevistoNaoProtegido(
+    recorrenciaId: string,
+    desde: Competencia,
+    valorPrevisto: Cents,
+  ): Promise<void> {
+    for (const [id, atual] of this.estado.movimentos) {
+      if (atual.recorrenciaId !== recorrenciaId) {
+        continue;
+      }
+      if (compararCompetencias(atual.competencia, desde) < 0) {
+        continue;
+      }
+      if (ocorrenciaProtegida(atual)) {
+        continue;
+      }
+      this.estado.movimentos.set(id, { ...atual, valor: valorPrevisto, valorPrevisto });
+    }
   }
 }
 

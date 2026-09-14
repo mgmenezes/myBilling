@@ -226,7 +226,7 @@ T21 -> T22
 **Tests**: integration
 **Gate**: full
 
-#### T7: Escrita de ocorrência no repositório de movimento
+#### T7: Escrita de ocorrência no repositório de movimento ✅ CONCLUÍDA
 **What**: `MovimentoRepository` ganha `materializarOcorrencias(ocorrencias)`, que insere com `ON CONFLICT DO NOTHING` sobre `movimento_recorrencia_competencia_uq`, e `atualizarPrevistoNaoProtegido(recorrenciaId, desde, valor)`. Drizzle e fake.
 **Where**: `src/infrastructure/db/repositories/movimento.repository.ts`, `src/application/ports/repositories.ts`, `src/application/ports/fakes.ts`
 **Depends on**: T5
@@ -234,12 +234,12 @@ T21 -> T22
 **Requirement**: FIXO-02, FIXO-03
 **Tools**: Postgres em Docker
 **Done when**:
-- [ ] Materializar a mesma competência duas vezes deixa exatamente uma linha
-- [ ] Materializar não lança em conflito
-- [ ] `atualizarPrevistoNaoProtegido` altera só as ocorrências não pagas e com valor igual ao previsto
-- [ ] Ocorrência paga e ocorrência com valor confirmado sobrevivem intactas à atualização
-- [ ] O fake se comporta igual ao Drizzle nos quatro pontos acima
-- [ ] **Teste de concordância**: os mesmos casos passados por `ocorrenciaProtegida` (T3) e pelo `WHERE` do `UPDATE` produzem o mesmo veredito. É este teste que impede o SQL e a definição de divergirem
+- [x] Materializar a mesma competência duas vezes deixa exatamente uma linha
+- [x] Materializar não lança em conflito
+- [x] `atualizarPrevistoNaoProtegido` altera só as ocorrências não pagas e com valor igual ao previsto
+- [x] Ocorrência paga e ocorrência com valor confirmado sobrevivem intactas à atualização
+- [x] O fake se comporta igual ao Drizzle nos quatro pontos acima
+- [x] **Teste de concordância**: os mesmos casos passados por `ocorrenciaProtegida` (T3) e pelo `WHERE` do `UPDATE` produzem o mesmo veredito. É este teste que impede o SQL e a definição de divergirem
 **Tests**: integration
 **Gate**: full
 

@@ -32,6 +32,7 @@ function lancamento(campos: Partial<Lancamento> & { id: string }): Lancamento {
     meioPagamentoId: CARTAO,
     compraId: null,
     numeroParcela: null,
+    recorrenciaId: null,
     canceladoEm: null,
     ...campos,
   };
@@ -152,6 +153,7 @@ describe("segmentação por origem (UI-01, AC 5)", () => {
         valor: 20000 as Cents,
         compraId: "c1",
         numeroParcela: 1,
+        recorrenciaId: null,
       }),
       lancamento({ id: "avulso", origem: "AVULSO", valor: 10000 as Cents }),
     );

@@ -33,6 +33,7 @@ function lancamento(id: string, pagoEm: string | null): Lancamento {
     meioPagamentoId: "m1",
     compraId: null,
     numeroParcela: null,
+    recorrenciaId: null,
     canceladoEm: null,
   };
 }

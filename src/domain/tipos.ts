@@ -86,6 +86,8 @@ export interface Lancamento {
   readonly meioPagamentoId: string;
   readonly compraId: string | null;
   readonly numeroParcela: number | null;
+  /** Preenchido se e somente se `origem` é `'RECORRENCIA'`, por `CHECK` no banco. */
+  readonly recorrenciaId: string | null;
   readonly canceladoEm: string | null;
 }
 

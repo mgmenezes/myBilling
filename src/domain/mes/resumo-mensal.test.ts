@@ -28,6 +28,7 @@ function lancamento(sobrescrever: Partial<Lancamento> = {}): Lancamento {
     meioPagamentoId: "meio-a",
     compraId: null,
     numeroParcela: null,
+    recorrenciaId: null,
     canceladoEm: null,
     ...sobrescrever,
   };
