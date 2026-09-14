@@ -275,10 +275,10 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | PARC-02 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-03 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-04 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
-| PARC-05 | P1: Compra parcelada com distribuição automática | Design | Pending |
+| PARC-05 | P1: Compra parcelada com distribuição automática | Tasks | Implementing |
 | PARC-06 | P1: Compra já em andamento | Tasks | Implementing |
 | PARC-07 | P1: Compra já em andamento | Tasks | Implementing |
-| PARC-08 | P1: Compra já em andamento | Design | Pending |
+| PARC-08 | P1: Compra já em andamento | Tasks | Implementing |
 | COMP-01 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-02 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |
 | COMP-03 | P1: Virada de ano e aritmética de calendário | Fase 1-2 | Verified |

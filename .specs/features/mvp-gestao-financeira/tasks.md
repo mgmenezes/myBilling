@@ -373,7 +373,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T15: Validações de entrada da geração de parcelas
+#### T15: Validações de entrada da geração de parcelas ✅ CONCLUÍDA
 **What**: Rejeitar, antes de qualquer cálculo, quantidade de parcelas fora de 1 a 120, valor total menor que 1 centavo, número de parcelas maior que o total em centavos, e parcela inicial fora do intervalo válido.
 **Where**: `src/domain/parcelamento/gerar-parcelas.test.ts`
 **Depends on**: T14
@@ -381,11 +381,11 @@ T52 -> T53
 **Requirement**: PARC-05, PARC-08
 **Tools**: nenhuma
 **Done when**:
-- [ ] `n = 0` e `n = 121` resultam em `QTD_PARCELAS_INVALIDA` (PARC-05, AC 6)
-- [ ] Total zero resulta em `VALOR_NAO_POSITIVO` (PARC-05, AC 7)
-- [ ] `n` maior que o total em centavos resulta em `PARCELA_INFERIOR_A_UM_CENTAVO` (PARC-05, AC 5)
-- [ ] Parcela inicial 11 com 10 parcelas resulta em `PARCELA_INICIAL_INVALIDA` (PARC-08, AC 6)
-- [ ] Em todos os casos de rejeição, nenhuma parcela é retornada
+- [x] `n = 0` e `n = 121` resultam em `QTD_PARCELAS_INVALIDA` (PARC-05, AC 6)
+- [x] Total zero resulta em `VALOR_NAO_POSITIVO` (PARC-05, AC 7)
+- [x] `n` maior que o total em centavos resulta em `PARCELA_INFERIOR_A_UM_CENTAVO` (PARC-05, AC 5)
+- [x] Parcela inicial 11 com 10 parcelas resulta em `PARCELA_INICIAL_INVALIDA` (PARC-08, AC 6)
+- [x] Em todos os casos de rejeição, nenhuma parcela é retornada
 **Tests**: unit
 **Gate**: quick
 

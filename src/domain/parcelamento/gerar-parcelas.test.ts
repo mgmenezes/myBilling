@@ -163,11 +163,44 @@ describe("gerarParcelas — compra já em andamento (AD-005)", () => {
   });
 });
 
-describe("gerarParcelas — propagação de erro do rateio", () => {
-  it("devolve PARCELA_INFERIOR_A_UM_CENTAVO quando n é maior que o total", () => {
+describe("gerarParcelas — validações de entrada (PARC-05, PARC-08)", () => {
+  it.each([0, 121])("rejeita qtdParcelas = %p com QTD_PARCELAS_INVALIDA (PARC-05, AC 6)", (n) => {
+    const resultado = gerarParcelas(entrada({ qtdParcelas: n }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("QTD_PARCELAS_INVALIDA");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it("rejeita total zero com VALOR_NAO_POSITIVO (PARC-05, AC 7)", () => {
+    const resultado = gerarParcelas(entrada({ valorEntrada: 0 as Cents }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("VALOR_NAO_POSITIVO");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it("rejeita n maior que o total em centavos com PARCELA_INFERIOR_A_UM_CENTAVO (PARC-05, AC 5)", () => {
     const resultado = gerarParcelas(entrada({ valorEntrada: 2 as Cents, qtdParcelas: 3 }));
 
     expect(isErr(resultado)).toBe(true);
     expect(isErr(resultado) && resultado.error.code).toBe("PARCELA_INFERIOR_A_UM_CENTAVO");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it("rejeita parcela inicial 11 com 10 parcelas, com PARCELA_INICIAL_INVALIDA (PARC-08, AC 6)", () => {
+    const resultado = gerarParcelas(entrada({ qtdParcelas: 10, parcelaInicial: 11 }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("PARCELA_INICIAL_INVALIDA");
+    expect("value" in resultado).toBe(false);
+  });
+
+  it("rejeita parcela inicial 0, abaixo do intervalo válido, com PARCELA_INICIAL_INVALIDA", () => {
+    const resultado = gerarParcelas(entrada({ qtdParcelas: 10, parcelaInicial: 0 }));
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("PARCELA_INICIAL_INVALIDA");
+    expect("value" in resultado).toBe(false);
   });
 });

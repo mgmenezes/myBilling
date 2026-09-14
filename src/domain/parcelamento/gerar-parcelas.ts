@@ -2,7 +2,7 @@ import { addMeses } from "../shared/competencia";
 import { type Cents, multiplicar, somar, ZERO_CENTS } from "../shared/money";
 import { type DomainError, err, ok, type Result } from "../shared/result";
 import type { EntradaCompra, Parcela, PlanoParcelamento } from "../tipos";
-import { ratearParcelas } from "./ratear-parcelas";
+import { MAX_PARCELAS, ratearParcelas } from "./ratear-parcelas";
 
 /**
  * Gera o plano de parcelas de uma compra.
@@ -17,6 +17,21 @@ import { ratearParcelas } from "./ratear-parcelas";
  * nenhuma — o app não inventa meses que não existiram nele (AD-005).
  */
 export function gerarParcelas(entrada: EntradaCompra): Result<PlanoParcelamento, DomainError> {
+  // Rejeição antes de qualquer cálculo: nenhuma parcela é construída para
+  // depois ser descartada.
+  if (entrada.qtdParcelas < 1 || entrada.qtdParcelas > MAX_PARCELAS) {
+    return err({ code: "QTD_PARCELAS_INVALIDA", detalhes: { qtdParcelas: entrada.qtdParcelas } });
+  }
+  if (entrada.parcelaInicial < 1 || entrada.parcelaInicial > entrada.qtdParcelas) {
+    return err({
+      code: "PARCELA_INICIAL_INVALIDA",
+      detalhes: { parcelaInicial: entrada.parcelaInicial, qtdParcelas: entrada.qtdParcelas },
+    });
+  }
+  if (entrada.valorEntrada < 1) {
+    return err({ code: "VALOR_NAO_POSITIVO", detalhes: { valorEntrada: entrada.valorEntrada } });
+  }
+
   const valorTotal =
     entrada.modo === "TOTAL"
       ? entrada.valorEntrada
