@@ -1021,7 +1021,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T53: Página do mês
+#### T53: Página do mês ✅ CONCLUÍDA
 **What**: Página da competência com cabeçalho de saldo, os dois eixos **rotulados e visualmente separados**, a lista segmentada, o acesso ao formulário de compra e os estados de carregamento e erro.
 **Where**: `src/app/(app)/[competencia]/page.tsx`
 **Depends on**: T51, T52, T50
@@ -1029,11 +1029,13 @@ T52 -> T53
 **Requirement**: UI-01, UI-02, MOV-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Total de Gastos e Saídas aparecem em blocos separados, cada um com o selo do seu eixo (UI-01, AC 4)
-- [ ] Os dois números nunca aparecem no mesmo card e nada na tela os subtrai (MOV-03)
-- [ ] Estado de carregamento é exibido durante a busca (UI-02, AC 7)
-- [ ] Falha de leitura exibe estado de erro com identificador de correlação, sem stack trace (UI-02, AC 8)
-- [ ] `pnpm verify` sai com 0
+- [x] Total de Gastos e Saídas aparecem em blocos separados, cada um com o selo do seu eixo (UI-01, AC 4) — verificado na tela pelo e2e de T54
+- [x] Os dois números nunca aparecem no mesmo card e nada na tela os subtrai (MOV-03) — verificado na tela pelo e2e de T54
+- [x] Estado de carregamento é exibido durante a busca (UI-02, AC 7) — `loading.tsx`, de T45
+- [x] Falha de leitura exibe estado de erro com identificador de correlação, sem stack trace (UI-02, AC 8) — `error.tsx`, de T45
+- [x] `pnpm verify` sai com 0
+
+> A divergência entre os eixos aparece **rotulada, não calculada**: a página explica por que os dois números diferem e não faz nenhuma subtração entre eles. Cada bloco é uma `<section>` própria, com o selo "Eixo competência" ou "Eixo caixa".
 **Tests**: none
 **Gate**: build
 
