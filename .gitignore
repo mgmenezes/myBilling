@@ -1,0 +1,36 @@
+# dependências
+node_modules/
+.pnp.*
+.yarn/
+
+# build
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# segredos — nada de .env no repositório, exceto o exemplo
+.env
+.env.*
+!.env.example
+
+# testes
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# sistema operacional e editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
