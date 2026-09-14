@@ -629,7 +629,7 @@ T52 -> T53
 **Tests**: integration
 **Gate**: full
 
-#### T31: Interfaces de repositório
+#### T31: Interfaces de repositório ✅ CONCLUÍDA
 **What**: Declarar as ports `MovimentoRepository`, `CompraRepository` e `CadastroRepository` como interfaces puras, em termos de tipos de domínio — sem tipo do Drizzle atravessando a fronteira.
 **Where**: `src/application/ports/repositories.ts`
 **Depends on**: T12
@@ -637,9 +637,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Nenhuma assinatura menciona tipo do Drizzle ou linha de banco
-- [ ] `CompraRepository` expõe `salvarComParcelas` recebendo o plano de domínio e a chave de idempotência
-- [ ] `pnpm verify` sai com 0
+- [x] Nenhuma assinatura menciona tipo do Drizzle ou linha de banco
+- [x] `CompraRepository` expõe `salvarComParcelas` recebendo o plano de domínio e a chave de idempotência
+- [x] `pnpm verify` sai com 0
 **Tests**: none
 **Gate**: build
 

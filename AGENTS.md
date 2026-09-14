@@ -55,7 +55,7 @@ entre si na interface.
 | `pnpm test:unit` | Testes puros de domínio e aplicação (gate `quick`) |
 | `pnpm test:integration` | Testes com Postgres em Docker (gate `full`) |
 | `pnpm test:e2e` | Playwright |
-| `pnpm verify` | `typecheck && lint && test:unit && build` (gate `build`). **`test:integration` entra aqui na Fase 4**, quando existir schema — até lá não há o que rodar. |
+| `pnpm verify` | `typecheck && lint && test:unit && test:integration && build` (gate `build`). Exige `pnpm db:up` antes, porque roda os testes de integração. |
 | `pnpm db:up` / `pnpm db:reset` | Sobe e recria o Postgres local |
 
 ## Commits

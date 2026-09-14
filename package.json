@@ -10,7 +10,7 @@
     "lint": "biome check .",
     "test:unit": "vitest run --project domain --coverage",
     "test:integration": "vitest run --project integration",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test:unit && pnpm build",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test:unit && pnpm test:integration && pnpm build",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d --wait db"
