@@ -1,5 +1,9 @@
+import { carregarEnvLocal } from "../config/env-local";
 import { criarCliente, criarPool } from "./client";
 import { semear } from "./seed";
+
+// `tsx` não carrega `.env.local`; só o Next faz isso.
+carregarEnvLocal();
 
 /**
  * Entrada de linha de comando do seed (`pnpm db:seed [semente]`).
