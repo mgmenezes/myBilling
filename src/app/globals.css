@@ -1,124 +1,257 @@
 @import "tailwindcss";
 
 /*
- * Identidade visual do myBilling. Decisões e medições em `docs/design.md`.
+ * Identidade visual do myBilling, derivada do sistema descrito em `DESIGN.md`
+ * (análise das superfícies da Coinbase), **sem usar a marca Coinbase**: o
+ * documento descreve uma linguagem visual; o logotipo e o nome são ativos de
+ * marca deles e não entram aqui. Decisões e medições em `docs/design.md`.
  *
- * Uma regra manda em tudo aqui: o canvas é creme quente, nunca branco puro.
- * Trocar `--canvas` por `#fff` desmancha a identidade inteira, porque toda a
- * escala de cinzas foi calibrada contra esse fundo.
+ * Uma regra manda em tudo: **o azul é escasso.** `--primary` é a única cor de
+ * ação do sistema e vale para CTA primário e link. Espalhá-la por barra de
+ * gráfico, selo e ícone decorativo desmancha a identidade inteira, porque é a
+ * escassez — e não o matiz — que faz o azul significar "aja aqui".
+ *
+ * Profundidade vem de hairline e de empilhamento, não de sombra. O documento
+ * tem **um** nível de sombra e diz para não criar outros; o padrão de 80% das
+ * superfícies é chapado com borda de 1px.
+ *
+ * **Como os dois temas convivem.** Cada token é declarado uma única vez, com
+ * `light-dark(claro, escuro)`. Quem escolhe o lado é `color-scheme`, e não uma
+ * segunda cópia da paleta dentro de `@media (prefers-color-scheme: dark)`.
+ * Paleta duplicada é o jeito consagrado de os dois temas divergirem: alguém
+ * ajusta um token no bloco de cima e esquece o de baixo. Aqui isso é
+ * impossível por construção.
+ *
+ * Sem `data-tema` no `<html>`, `color-scheme: light dark` deixa o sistema
+ * operacional decidir — é o comportamento para quem nunca tocou no botão, e
+ * também para quem está sem JavaScript. Com `data-tema`, a escolha da pessoa
+ * vence a do sistema. Quem aplica o atributo antes da primeira pintura é o
+ * script inline de `layout.tsx`.
+ *
+ * **O que foi derivado, e por quê.** O `DESIGN.md` analisa um site de
+ * marketing claro: ele não traz tema escuro, e três das cores dele reprovam em
+ * contraste no uso que este app faz (texto pequeno, não manchete). Os valores
+ * derivados preservam matiz e saturação e movem só a luminosidade, cada um
+ * medido contra a superfície mais exigente onde aparece. A tabela está em
+ * `docs/design.md` — nenhum tom aqui foi escolhido no olho.
  */
 
 :root {
   color-scheme: light dark;
 
-  --canvas: #f3f0ee;
-  --surface: #fcfbfa;
-  --surface-strong: #ffffff;
-  --ink: #141413;
-  --ink-muted: #5c5a57;
-  --accent: #cf4500;
-  --accent-contrast: #ffffff;
-  --line: rgb(20 20 19 / 0.12);
-  --line-strong: rgb(20 20 19 / 0.22);
+  /* ---- Superfícies ---- */
+  /* O piso é branco puro, ao contrário do creme do sistema anterior. */
+  --canvas: light-dark(#ffffff, #0a0b0d);
+  /* Faixa alternada, para dar ritmo sem desenhar caixa. */
+  --surface-soft: light-dark(#f7f7f7, #101216);
+  /* Cartão. No claro é o próprio branco: quem o separa do fundo é o hairline. */
+  --surface: light-dark(#ffffff, #16181c);
+  /* Preenchimento de botão secundário, campo de busca, placa de ícone. */
+  --surface-strong: light-dark(#eef0f3, #21242a);
 
   /*
-   * Sombra tingida com a cor do fundo, nunca preto puro: preto sobre creme
-   * suja a cor. Raio grande e opacidade baixa: o cartão respira acima da
-   * página em vez de projetar uma borda dura.
+   * A superfície invertida. No documento ela aparece no plano de destaque
+   * ("visual inversion signals 'highlighted choice' without colored ribbons")
+   * e nas faixas editoriais escuras. Ela **inverte junto com o tema**: num app
+   * escuro, o destaque invertido é claro, senão deixa de ser inversão.
    */
-  --sombra-1: 0 4px 24px rgb(20 20 19 / 0.05);
-  --sombra-2: 0 18px 48px rgb(20 20 19 / 0.09);
+  --inverso: light-dark(#0a0b0d, #eef0f3);
+  --on-inverso: light-dark(#ffffff, #0a0b0d);
+  /* Rótulo dentro do card invertido. Nunca usar `--ink-muted` ali: ele foi
+   * medido contra o canvas, e sobre a inversão despenca para 2,7:1. */
+  --on-inverso-suave: light-dark(#a8acb3, #5b616e);
+
+  /* ---- Texto ---- */
+  --ink: light-dark(#0a0b0d, #ffffff);
+  /*
+   * Corpo e rótulo. Mapeado para o **body** do documento (#5b616e), não para o
+   * **muted** (#7c828a): muted mede 3,88 sobre branco e reprova em AA no
+   * tamanho que este app usa. Muted vive em `--ink-soft`, para texto terciário
+   * que não carrega informação.
+   */
+  --ink-muted: light-dark(#5b616e, #a8acb3);
+  --ink-soft: light-dark(#7c828a, #7c828a);
+
+  /* ---- Ação ---- */
+  /* Preenchimento de CTA. Igual nos dois temas: o branco sobre ele mede 5,75. */
+  --primary: #0052ff;
+  --primary-ativo: #003ecc;
+  --primary-inativo: light-dark(#a8b8cc, #2a3242);
+  --on-primary: #ffffff;
+  /*
+   * O mesmo azul como **texto** (link, botão terciário). Sobre o canvas escuro
+   * o #0052ff mede 3,42 e reprova, então o tema escuro recebe um azul mais
+   * claro — é a mesma lógica que o documento não precisou ter, por não ter
+   * tema escuro.
+   */
+  --primary-texto: light-dark(#0052ff, #3979ff);
+
+  /* ---- Semântica de valor ---- */
+  /*
+   * Cor **só de texto**, nunca preenchimento: é regra explícita do documento
+   * ("text color only, never background fills"). E nunca sozinha: receita e
+   * despesa continuam separadas por rótulo e por sinal, porque cor sozinha não
+   * distingue para quem não separa matiz.
+   *
+   * O verde do documento (#05b169) mede 2,80 sobre branco e reprova; o tema
+   * claro usa a versão escurecida. No escuro o original passa com folga.
+   */
+  --positivo: light-dark(#047d4a, #05b169);
+  --negativo: light-dark(#cf202f, #e34855);
+
+  /* ---- Hairline ---- */
+  /* É daqui que vem a separação de cartão sobre branco, não da sombra. */
+  --line: light-dark(#dee1e6, rgb(255 255 255 / 0.1));
+  --line-strong: light-dark(#c2c8d0, rgb(255 255 255 / 0.2));
 
   /*
-   * Escala de raios. Pula de propósito a faixa de 1 a 19px: é a faixa que faz
-   * qualquer interface parecer bootstrap genérico. Nada no app usa outro valor.
+   * **Um** nível de sombra, e só para estado levantado. O documento é
+   * explícito: "Don't add drop shadow tiers — system has one shadow tier".
    */
+  --sombra-1: 0 4px 12px light-dark(rgb(10 11 13 / 0.06), rgb(0 0 0 / 0.5));
+
   /*
    * Gráfico. A barra é neutra de propósito: o dado é um só (gasto), e quem
-   * identifica a categoria é o rótulo. Vinte matizes seria o anti-padrão.
-   * O laranja fica reservado para sinalizar estouro de orçamento, com ícone
-   * e texto junto, nunca cor sozinha.
+   * identifica a categoria é o rótulo. Vinte matizes seria o anti-padrão — e
+   * usar o azul aqui gastaria a única cor de ação em quatro barras seguidas.
    */
-  --grafico-barra: #6b6560;
-  --grafico-trilho: rgb(20 20 19 / 0.07);
+  --grafico-barra: light-dark(#5b616e, #a8acb3);
+  --grafico-trilho: light-dark(#eef0f3, rgb(255 255 255 / 0.08));
 
-  --r-chip: 999px;
-  --r-cta: 20px;
-  --r-card: 24px;
-  --r-panel: 40px;
+  /*
+   * Escala de raios do documento. Pílula para tudo que é interativo, 24px para
+   * contêiner, círculo para placa de ícone. Canto vivo é ausente do sistema.
+   */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 100px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --canvas: #100f0e;
-    --surface: #1e1e1a;
-    --surface-strong: #2e2e28;
-    --ink: #f3f0ee;
-    --ink-muted: #a8a49e;
-    /* Mais claro que o acento do tema claro: 4.11:1 no creme reprovaria aqui. */
-    --accent: #ff8a4c;
-    --accent-contrast: #141413;
-    --line: rgb(243 240 238 / 0.14);
-    --line-strong: rgb(243 240 238 / 0.26);
-    --grafico-barra: #b5afa7;
-    --grafico-trilho: rgb(243 240 238 / 0.09);
-    --sombra-1: 0 4px 24px rgb(0 0 0 / 0.34);
-    --sombra-2: 0 18px 48px rgb(0 0 0 / 0.46);
-  }
+/*
+ * A escolha explícita da pessoa. Uma linha por tema, porque trocar o
+ * `color-scheme` já reavalia todo `light-dark()` acima — e também faz o
+ * navegador pintar barra de rolagem, seletor de data e campo de formulário
+ * nativo no tema certo, coisa que classe utilitária nenhuma alcança.
+ */
+:root[data-tema="claro"] {
+  color-scheme: light;
+}
+
+:root[data-tema="escuro"] {
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
   --color-surface-strong: var(--surface-strong);
+  --color-inverso: var(--inverso);
+  --color-on-inverso: var(--on-inverso);
+  --color-on-inverso-suave: var(--on-inverso-suave);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
-  --color-accent: var(--accent);
-  --color-accent-contrast: var(--accent-contrast);
+  --color-ink-soft: var(--ink-soft);
+  --color-primary: var(--primary);
+  --color-primary-ativo: var(--primary-ativo);
+  --color-primary-inativo: var(--primary-inativo);
+  --color-on-primary: var(--on-primary);
+  --color-primary-texto: var(--primary-texto);
+  --color-positivo: var(--positivo);
+  --color-negativo: var(--negativo);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-grafico-barra: var(--grafico-barra);
   --color-grafico-trilho: var(--grafico-trilho);
 
-  --radius-chip: var(--r-chip);
-  --radius-cta: var(--r-cta);
-  --radius-card: var(--r-card);
-  --radius-panel: var(--r-panel);
+  /*
+   * A largura do conteúdo, num token só. Ela precisa valer para o cabeçalho e
+   * para o miolo ao mesmo tempo: se os dois escolherem a sua, a pílula de
+   * navegação deixa de alinhar com o conteúdo embaixo dela, e o desalinhamento
+   * de poucos pixels é do tipo que ninguém consegue nomear mas todo mundo
+   * sente.
+   *
+   * **1440px, e não os ~1200px do `DESIGN.md`.** É divergência deliberada, e a
+   * razão é a diferença de gênero: aquele documento descreve páginas de
+   * marketing, onde a largura serve a parágrafo e a foto, e 1200px é generoso.
+   * Aqui o conteúdo é tabela de lançamento lida todo dia — largura vira coluna
+   * legível, não linha comprida de texto. A única prosa da tela continua
+   * limitada em `62ch` por conta própria, então esticar o contêiner não
+   * estraga leitura de texto corrido em lugar nenhum.
+   */
+  --container-conteudo: 90rem;
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+  --radius-pill: var(--r-pill);
 
   --shadow-lift: var(--sombra-1);
-  --shadow-float: var(--sombra-2);
 
-  --font-sans: var(--font-sofia), "Sofia Sans", system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 }
 
 body {
   background: var(--canvas);
   color: var(--ink);
   font-family: var(--font-sans);
-  /* Peso 450 é a assinatura da fonte: mais macio que 500, mais firme que 400. */
-  font-weight: 450;
+  /* Peso 400 no corpo. O sistema inteiro é modesto de peso: o que dá hierarquia
+   * é tamanho e espaço, não gordura de traço. */
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
-h1,
-h2,
+/*
+ * A divisão tipográfica do documento: **display em peso 400 com tracking
+ * negativo**, título pequeno em 600 com tracking zero. É a escolha mais
+ * distintiva do sistema — engrossar o display vira plataforma de trading, que
+ * é exatamente o oposto do tom.
+ */
+h1 {
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 h3 {
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 /*
- * Dinheiro em algarismos de largura fixa. Sem isto, a coluna de valores dança
- * a cada dígito e comparar dois números vira trabalho de leitura.
+ * Dinheiro em monoespaçada, e não só em algarismo de largura fixa. O documento
+ * manda toda grandeza numérica para a mono ("CoinbaseMono on every number"), e
+ * o efeito é o mesmo que já se queria aqui: a coluna de valores para de dançar
+ * a cada dígito e comparar dois números deixa de ser trabalho de leitura.
  */
 .tabular {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  /* A mono desenha maior no mesmo corpo; o ajuste devolve o alinhamento óptico
+   * com o texto ao lado. */
+  letter-spacing: -0.01em;
 }
 
+/*
+ * Foco em azul e 2px, como o campo de formulário do documento faz no estado
+ * de foco. É a única aparição do azul que não é ação — e é justificada: o anel
+ * de foco precisa ser a coisa mais visível da tela quando existe.
+ */
 :focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
 }
 
 /*

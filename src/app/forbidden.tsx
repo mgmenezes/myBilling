@@ -11,7 +11,7 @@ import Link from "next/link";
 export default function AcessoNegado() {
   return (
     <main className="flex min-h-[100dvh] flex-1 items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-panel bg-surface px-6 py-10 shadow-float sm:px-10">
+      <div className="w-full max-w-md rounded-xl border border-line bg-surface px-6 py-10 sm:px-10">
         <h1 className="text-[30px] leading-[1.1]">Acesso não autorizado</h1>
         <p className="mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted">
           Esta conta não tem permissão para usar o myBilling. Se você acredita que deveria ter
@@ -19,7 +19,7 @@ export default function AcessoNegado() {
         </p>
         <Link
           href="/login"
-          className="mt-8 inline-flex w-fit items-center gap-2 rounded-cta border border-ink bg-surface-strong px-6 py-3 text-[15px] font-medium text-ink transition-[transform,background-color] duration-200 hover:bg-canvas active:scale-[0.97]"
+          className="mt-8 inline-flex w-fit items-center gap-2 rounded-pill bg-primary px-6 py-3 text-[16px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97]"
         >
           <ArrowLeftIcon size={17} weight="bold" aria-hidden="true" />
           Entrar com outra conta

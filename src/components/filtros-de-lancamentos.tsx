@@ -18,7 +18,7 @@ import type { OpcaoDeCadastro } from "./form-compra";
  */
 
 const CAMPO =
-  "min-h-11 rounded-cta border border-line bg-surface-strong px-3.5 py-2 text-[15px] text-ink " +
+  "min-h-11 rounded-md border border-line bg-surface px-3.5 py-2 text-[15px] text-ink " +
   "transition-colors duration-200 hover:border-line-strong";
 
 export function FiltrosDeLancamentos({
@@ -109,7 +109,7 @@ export function FiltrosDeLancamentos({
   }
 
   return (
-    <search className="flex flex-col gap-4 rounded-card bg-surface p-4 shadow-lift sm:p-5">
+    <search className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 sm:p-5">
       <div className="flex flex-col gap-1">
         <label className="text-[13px] text-ink-muted" htmlFor={`${id}-busca`}>
           Buscar por descrição
@@ -159,14 +159,14 @@ export function FiltrosDeLancamentos({
           {quantidadeVisivel === 1 ? "1 lançamento" : `${quantidadeVisivel} lançamentos`}
           {ativos === 0 ? "" : ` com ${ativos === 1 ? "1 filtro" : `${ativos} filtros`}`}
           {". Total "}
-          <span className="tabular font-medium text-ink">{totalVisivel}</span>
+          <span className="tabular text-ink">{totalVisivel}</span>
         </p>
 
         {ativos === 0 ? null : (
           <button
             type="button"
             onClick={limparTudo}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-cta border border-line px-4 text-[14px] text-ink transition-colors duration-200 hover:border-line-strong hover:bg-canvas"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-pill border border-line px-4 text-[14px] text-ink transition-colors duration-200 hover:border-line-strong hover:bg-canvas"
           >
             <XIcon size={15} weight="bold" aria-hidden="true" />
             Limpar filtros

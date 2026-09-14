@@ -22,11 +22,20 @@ import { formatarBRL } from "@/lib/formatar";
 
 export type Visao = "planejamento" | "movimentacoes";
 
+/**
+ * `'entrada'` e `'saida'` pintam o valor com a semântica de cor do sistema.
+ * `'neutro'` é o padrão e vale para tudo que não é fluxo realizado — "ainda
+ * não pago" é obrigação pendente, não dinheiro que saiu, e pintá-lo de
+ * vermelho deixaria três dos quatro cartões vermelhos, o que esvazia a cor.
+ */
+type Sinal = "entrada" | "saida" | "neutro";
+
 interface Indicador {
   readonly chave: string;
   readonly rotulo: string;
   readonly valor: Cents;
   readonly filtro: string;
+  readonly sinal?: Sinal;
   readonly enfase?: boolean;
 }
 
@@ -45,10 +54,7 @@ export function AlternadorDeVisao({
   return (
     /* <nav> e não <div role="group">: são dois links que mudam a URL, o que é
        navegação de fato. O rótulo distingue este do menu principal. */
-    <nav
-      aria-label="Visão do mês"
-      className="inline-flex w-fit rounded-chip bg-surface p-1 shadow-lift"
-    >
+    <nav aria-label="Visão do mês" className="inline-flex w-fit rounded-pill bg-surface-strong p-1">
       {opcoes.map((opcao) => {
         const ativa = visao === opcao.chave;
         return (
@@ -60,8 +66,10 @@ export function AlternadorDeVisao({
                 : `/${competencia}?visao=movimentacoes`
             }
             aria-current={ativa ? "true" : undefined}
-            className={`min-h-11 rounded-chip px-4 py-2 text-[15px] transition-colors duration-200 ${
-              ativa ? "bg-ink font-medium text-canvas" : "font-normal text-ink-muted hover:text-ink"
+            className={`min-h-11 rounded-pill px-4 py-2 text-[15px] transition-colors duration-200 ${
+              ativa
+                ? "bg-inverso font-semibold text-on-inverso"
+                : "font-normal text-ink-muted hover:text-ink"
             }`}
           >
             {opcao.rotulo}
@@ -100,12 +108,14 @@ export function GradeDeIndicadores({
             rotulo: "Receitas do mês",
             valor: planejamento.entradas,
             filtro: "natureza=RECEITA",
+            sinal: "entrada",
           },
           {
             chave: "despesas",
             rotulo: "Despesas do mês",
             valor: planejamento.totalGastos,
             filtro: "natureza=DESPESA",
+            sinal: "saida",
           },
           {
             chave: "pendente",
@@ -127,12 +137,14 @@ export function GradeDeIndicadores({
             rotulo: "Recebido",
             valor: movimentacoes.entradasRecebidas,
             filtro: "natureza=RECEITA&situacao=PAGO",
+            sinal: "entrada",
           },
           {
             chave: "saiu",
             rotulo: "Saiu da conta",
             valor: movimentacoes.saidas,
             filtro: "natureza=DESPESA&situacao=PAGO",
+            sinal: "saida",
           },
           {
             chave: "pendente",
@@ -152,21 +164,62 @@ export function GradeDeIndicadores({
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {indicadores.map((indicador) => {
+        const sinal = indicador.sinal ?? "neutro";
+        /*
+         * A cor do valor. Ela nunca anda sozinha: o rótulo acima já diz
+         * "Receitas" ou "Despesas", e o `+` / `−` à esquerda repete a
+         * informação em forma. Quem não separa matiz continua lendo o cartão.
+         *
+         * Dentro do cartão invertido não entra semântica: a inversão já é o
+         * destaque, e o verde e o vermelho do tema claro foram medidos contra
+         * o canvas claro, não contra a superfície escura.
+         */
+        const corDoValor = indicador.enfase
+          ? "text-on-inverso"
+          : sinal === "entrada"
+            ? "text-positivo"
+            : sinal === "saida"
+              ? "text-negativo"
+              : "text-ink";
+
         const conteudo = (
           <>
-            <span className="text-[14px] text-ink-muted">{indicador.rotulo}</span>
             <span
-              className={`tabular font-medium tracking-[-0.02em] ${
-                indicador.enfase ? "text-[30px]" : "text-[26px]"
-              }`}
+              className={`text-[14px] ${indicador.enfase ? "text-on-inverso-suave" : "text-ink-muted"}`}
             >
+              {indicador.rotulo}
+            </span>
+            <span
+              /*
+                20px nos quatro, e não 26px com um de 30px como no sistema
+                anterior. Dois motivos, e o segundo é o que manda: a mono
+                desenha bem mais larga no mesmo corpo e os tamanhos antigos
+                quebravam o valor em duas linhas; e o cartão de ênfase deste
+                sistema se destaca **pela inversão**, não por corpo maior —
+                "visual inversion signals 'highlighted choice' without colored
+                ribbons". Aumentar a fonte lá seria dizer a mesma coisa duas
+                vezes e estourar a caixa.
+              */
+              className={`tabular whitespace-nowrap text-[20px] ${corDoValor}`}
+            >
+              {sinal === "neutro" ? null : (
+                <span aria-hidden="true">{sinal === "entrada" ? "+" : "−"}</span>
+              )}
               {formatarBRL(indicador.valor)}
             </span>
           </>
         );
 
-        const classe = `flex min-h-[104px] flex-col justify-between gap-2 rounded-card p-5 transition-colors duration-200 ${
-          indicador.enfase ? "bg-ink text-canvas" : "bg-surface shadow-lift hover:bg-surface-strong"
+        /*
+         * Cartão chapado com hairline, e não cartão com sombra: sobre canvas
+         * branco é a borda que separa, e o sistema guarda a sombra única para
+         * estado levantado. O de ênfase é a inversão do documento — destaque
+         * sem fita colorida.
+         */
+        const classe = `flex min-h-[104px] flex-col justify-between gap-2 rounded-xl p-4 transition-colors duration-200 ${
+          indicador.enfase
+            ? "bg-inverso text-on-inverso"
+            : "border border-line bg-surface hover:bg-surface-soft"
         }`;
 
         if (indicador.filtro === "") {

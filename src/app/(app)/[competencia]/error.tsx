@@ -20,9 +20,9 @@ export default function ErroDoMes({
   return (
     <div
       role="alert"
-      className="flex flex-col items-start gap-5 rounded-panel bg-surface p-6 shadow-lift sm:p-8"
+      className="flex flex-col items-start gap-5 rounded-xl border border-line bg-surface p-6 sm:p-8"
     >
-      <WarningCircleIcon size={30} weight="duotone" aria-hidden="true" className="text-accent" />
+      <WarningCircleIcon size={30} weight="duotone" aria-hidden="true" className="text-negativo" />
 
       <div className="flex flex-col gap-3">
         <h1 className="text-[26px] leading-[1.15]">Não foi possível carregar este mês</h1>
@@ -31,14 +31,14 @@ export default function ErroDoMes({
         </p>
       </div>
 
-      <p className="rounded-cta bg-canvas px-4 py-2.5 font-mono text-[14px] select-all">
+      <p className="rounded-pill bg-canvas px-4 py-2.5 font-mono text-[14px] select-all">
         Código: {error.digest ?? "sem-identificador"}
       </p>
 
       <button
         type="button"
         onClick={reset}
-        className="inline-flex items-center gap-2 rounded-cta border border-ink bg-surface-strong px-6 py-3 text-[15px] font-medium text-ink transition-[transform,background-color] duration-200 hover:bg-canvas active:scale-[0.97]"
+        className="inline-flex items-center gap-2 rounded-pill bg-primary px-6 py-3 text-[16px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97]"
       >
         <ArrowClockwiseIcon size={17} weight="bold" aria-hidden="true" />
         Tentar novamente

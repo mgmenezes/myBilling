@@ -41,7 +41,7 @@ export function GraficoCategorias({
 }) {
   if (fatias.length === 0) {
     return (
-      <p className="rounded-card border border-dashed border-line px-5 py-10 text-center text-[15px] text-ink-muted">
+      <p className="rounded-xl border border-dashed border-line px-5 py-10 text-center text-[15px] text-ink-muted">
         Nenhuma despesa categorizada neste mês. O gráfico aparece assim que houver lançamentos com
         categoria.
       </p>
@@ -65,21 +65,14 @@ export function GraficoCategorias({
                 <span className="flex items-center gap-1.5 text-[15px]">
                   {fatia.nome}
                   {estourou ? (
-                    <span className="flex items-center gap-1 text-[13px] text-ink">
-                      <WarningIcon
-                        size={14}
-                        weight="fill"
-                        aria-hidden="true"
-                        className="text-accent"
-                      />
+                    <span className="flex items-center gap-1 text-[13px] font-semibold text-negativo">
+                      <WarningIcon size={14} weight="fill" aria-hidden="true" />
                       acima do limite
                     </span>
                   ) : null}
                 </span>
                 <span className="flex items-baseline gap-2">
-                  <span className="tabular text-[15px] font-medium">
-                    {formatarBRL(fatia.valor)}
-                  </span>
+                  <span className="tabular text-[15px]">{formatarBRL(fatia.valor)}</span>
                   <span className="tabular text-[13px] text-ink-muted">
                     {formatarPercentual(fatia.percentual)}
                   </span>
@@ -89,10 +82,16 @@ export function GraficoCategorias({
               {/*
                 O trilho existe para dar referência de escala à barra curta.
                 Ele é recessivo o bastante para não competir com o dado.
+
+                **A barra do estouro não muda de cor.** A semântica negativa do
+                sistema é cor de texto e nunca preenchimento, e o azul de ação
+                seria pior ainda: quatro barras de azul gastariam a única cor
+                que significa "aja aqui". Quem sinaliza o estouro é o par ícone
+                mais texto acima, que também funciona sem enxergar matiz.
               */}
-              <div className="h-2.5 w-full overflow-hidden rounded-chip bg-grafico-trilho">
+              <div className="h-2.5 w-full overflow-hidden rounded-pill bg-grafico-trilho">
                 <div
-                  className={`h-full rounded-chip ${estourou ? "bg-accent" : "bg-grafico-barra"}`}
+                  className="h-full rounded-pill bg-grafico-barra"
                   style={{ width: `${largura}%` }}
                 />
               </div>

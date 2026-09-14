@@ -28,9 +28,9 @@ export default async function PaginaDeLogin({ searchParams }: PageProps<"/login"
 
   return (
     <main className="flex min-h-[100dvh] flex-1 items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md rounded-panel bg-surface px-6 py-10 shadow-float sm:px-10">
+      <div className="w-full max-w-md rounded-xl border border-line bg-surface px-6 py-10 sm:px-10">
         <p className="flex items-center gap-2 text-[17px] font-medium tracking-[-0.02em]">
-          <WalletIcon size={24} weight="duotone" aria-hidden="true" className="text-accent" />
+          <WalletIcon size={24} weight="fill" aria-hidden="true" className="text-primary-texto" />
           myBilling
         </p>
 
@@ -47,7 +47,7 @@ export default async function PaginaDeLogin({ searchParams }: PageProps<"/login"
         {error !== undefined && error !== "AccessDenied" ? (
           <p
             role="alert"
-            className="mt-8 rounded-card border border-accent bg-surface-strong px-4 py-3 text-[15px] text-ink"
+            className="mt-8 rounded-lg border border-negativo bg-surface-soft px-4 py-3 text-[15px] text-ink"
           >
             Não foi possível concluir a entrada. Tente novamente.
           </p>
@@ -56,7 +56,7 @@ export default async function PaginaDeLogin({ searchParams }: PageProps<"/login"
         <form action={entrarComGoogle} className="mt-8">
           <button
             type="submit"
-            className="inline-flex w-full items-center justify-center gap-2.5 rounded-cta bg-ink px-6 py-3.5 text-[15px] font-medium text-canvas transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.97]"
+            className="inline-flex w-full items-center justify-center gap-2.5 rounded-pill bg-primary px-6 py-4 text-[16px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97]"
           >
             <GoogleLogoIcon size={19} weight="bold" aria-hidden="true" />
             Entrar com o Google

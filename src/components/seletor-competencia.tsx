@@ -36,12 +36,12 @@ const MESES = Array.from({ length: 12 }, (_, indice) => {
 });
 
 const SETA =
-  "inline-flex size-11 shrink-0 items-center justify-center rounded-chip border border-line " +
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-pill border border-line " +
   "text-ink transition-[transform,background-color,border-color] duration-200 " +
   "hover:border-line-strong hover:bg-canvas active:scale-[0.94]";
 
 const CAMPO =
-  "rounded-chip border border-line bg-surface-strong px-4 py-2.5 text-[15px] text-ink " +
+  "rounded-md border border-line bg-surface px-4 py-2.5 text-[15px] text-ink " +
   "transition-colors duration-200 hover:border-line-strong";
 
 export function SeletorCompetencia({ competencia }: { competencia: Competencia }) {
@@ -60,7 +60,7 @@ export function SeletorCompetencia({ competencia }: { competencia: Competencia }
   return (
     <nav
       aria-label="Navegação entre meses"
-      className="flex flex-wrap items-center gap-2 rounded-chip bg-surface p-2 shadow-lift sm:gap-3"
+      className="flex flex-wrap items-center gap-2 rounded-pill border border-line bg-surface p-2 sm:gap-3"
     >
       <Link
         href={`/${anterior}`}

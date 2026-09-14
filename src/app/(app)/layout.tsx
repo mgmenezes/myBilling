@@ -1,4 +1,5 @@
 import { WalletIcon } from "@phosphor-icons/react/dist/ssr";
+import { AlternadorDeTema } from "@/components/alternador-de-tema";
 import { sessaoDaUI } from "./sessao";
 
 /**
@@ -20,16 +21,21 @@ export default async function LayoutDoApp({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-full flex-col">
       <header className="px-4 pt-6 sm:px-6">
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 rounded-chip bg-surface-strong px-5 py-3 shadow-lift sm:px-7">
+        <div className="mx-auto flex w-full max-w-conteudo flex-wrap items-center justify-between gap-3 rounded-pill border border-line bg-surface px-5 py-3 sm:px-7">
           <p className="flex items-center gap-2 text-[17px] font-medium tracking-[-0.02em]">
-            <WalletIcon size={22} weight="duotone" aria-hidden="true" className="text-accent" />
+            <WalletIcon size={22} weight="fill" aria-hidden="true" className="text-primary-texto" />
             myBilling
           </p>
-          <p className="text-[15px] text-ink-muted">{usuario.nome}</p>
+          <div className="flex items-center gap-3">
+            <AlternadorDeTema />
+            <p className="text-[15px] text-ink-muted">{usuario.nome}</p>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-10">{children}</main>
+      <main className="mx-auto w-full max-w-conteudo flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        {children}
+      </main>
     </div>
   );
 }

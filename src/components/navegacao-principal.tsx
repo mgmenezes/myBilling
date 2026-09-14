@@ -35,7 +35,7 @@ export function NavegacaoPrincipal({ competencia }: { readonly competencia: stri
   return (
     <nav aria-label="Áreas do myBilling" className="contents">
       <ul
-        className="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-line bg-surface-strong p-2 md:static md:flex-col md:gap-1 md:border-0 md:bg-transparent md:p-0"
+        className="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-line bg-surface p-2 md:static md:flex-col md:gap-1 md:border-0 md:bg-transparent md:p-0"
         /* Espaço para a barra inferior não cobrir conteúdo no celular. */
       >
         {AREAS.map(({ slug, rotulo, Icone }) => {
@@ -47,9 +47,9 @@ export function NavegacaoPrincipal({ competencia }: { readonly competencia: stri
               <Link
                 href={destino}
                 aria-current={ativa ? "page" : undefined}
-                className={`relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-cta px-3 py-2 text-[13px] transition-colors duration-200 md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:text-[15px] ${
+                className={`relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-pill px-3 py-2 text-[13px] transition-colors duration-200 md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:text-[15px] ${
                   ativa
-                    ? "bg-canvas font-medium text-ink md:bg-surface-strong"
+                    ? "bg-surface-strong font-semibold text-ink"
                     : "font-normal text-ink-muted hover:text-ink"
                 }`}
               >
@@ -57,7 +57,7 @@ export function NavegacaoPrincipal({ competencia }: { readonly competencia: stri
                 {ativa ? (
                   <span
                     aria-hidden="true"
-                    className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-chip bg-accent md:top-1/2 md:left-0 md:h-6 md:w-0.5 md:-translate-x-0 md:-translate-y-1/2"
+                    className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-pill bg-primary md:top-1/2 md:left-0 md:h-6 md:w-0.5 md:-translate-x-0 md:-translate-y-1/2"
                   />
                 ) : null}
                 <Icone size={20} weight={ativa ? "fill" : "regular"} aria-hidden="true" />

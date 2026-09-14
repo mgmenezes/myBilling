@@ -10,7 +10,7 @@
  * crítico de uma tela que dura menos de um segundo.
  */
 function Bloco({ className }: { readonly className: string }) {
-  return <div className={`animate-pulse rounded-card bg-surface ${className}`} />;
+  return <div className={`animate-pulse rounded-xl bg-surface-strong ${className}`} />;
 }
 
 export default function CarregandoMes() {
@@ -18,11 +18,11 @@ export default function CarregandoMes() {
     <div role="status" aria-live="polite" className="flex flex-col gap-8">
       <span className="sr-only">Carregando o mês</span>
 
-      <Bloco className="h-[68px] w-full rounded-chip sm:max-w-md" />
+      <Bloco className="h-[68px] w-full rounded-pill sm:max-w-md" />
 
       <div className="grid gap-4 lg:grid-cols-5">
-        <Bloco className="h-64 rounded-panel lg:col-span-3" />
-        <Bloco className="h-64 rounded-panel lg:col-span-2" />
+        <Bloco className="h-64 rounded-xl lg:col-span-3" />
+        <Bloco className="h-64 rounded-xl lg:col-span-2" />
       </div>
 
       <div className="flex flex-col gap-3">

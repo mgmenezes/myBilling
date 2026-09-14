@@ -1,22 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { Sofia_Sans } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import { SCRIPT_TEMA } from "@/components/alternador-de-tema";
 import "./globals.css";
 
 /**
- * Sofia Sans é variável de 1 a 1000, então o peso 450 do corpo existe de
- * verdade em vez de ser arredondado para 400. O documento de referência a
- * indica como o substituto aberto mais próximo do MarkForMC.
+ * As duas famílias do sistema. `DESIGN.md` descreve tipos licenciados da
+ * Coinbase e indica os substitutos abertos na própria seção de lacunas:
+ * **CoinbaseDisplay e CoinbaseSans → Inter**, **CoinbaseMono → JetBrains
+ * Mono**. É o que está aqui — nenhum arquivo de marca deles é distribuído.
  *
- * Antes desta troca o app renderizava em **Arial**: o `globals.css` de
- * scaffold sobrescrevia o `body` e as variáveis do Geist nunca eram usadas.
+ * Inter variável, sem lista de pesos: o eixo contínuo dá 400 para corpo e
+ * display e 600 para rótulo e título pequeno, que é a divisão do documento.
+ * Declarar `weight` traria estáticos e obrigaria a carregar dois arquivos.
+ *
+ * A mono não é enfeite: ela carrega **toda grandeza numérica** do app, por
+ * regra do sistema. Por isso vem com subset latino e `display: swap`, como a
+ * outra — um valor monetário que chega tarde é pior que um rótulo que chega
+ * tarde.
  */
-const sofia = Sofia_Sans({
-  variable: "--font-sofia",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
-  // Sem `weight`: carrega o arquivo variável com o eixo inteiro. Declarar a
-  // lista de pesos traria estáticos e 450 nem existe lá. O eixo contínuo é
-  // justamente o que permite o peso intermediário do corpo.
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -29,14 +40,32 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f0ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#141413" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0b0d" },
   ],
 };
 
+/**
+ * O `<script>` inline do `<head>` aplica o tema escolhido durante o parse do
+ * HTML, antes da primeira pintura. Sem ele o navegador pintaria o tema do
+ * sistema e só depois, na hidratação, corrigiria — o lampejo branco que
+ * qualquer app de tema persistido dá quando resolve isso em `useEffect`.
+ *
+ * `suppressHydrationWarning` no `<html>` é consequência direta disso: o
+ * script escreve `data-tema` antes de o React hidratar, e sem a supressão o
+ * React trataria o atributo a mais como divergência e descartaria a correção.
+ */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${sofia.variable} h-full`}>
+    <html
+      lang="pt-BR"
+      className={`${inter.variable} ${jetbrains.variable} h-full`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: conteúdo constante do próprio módulo, sem nenhum dado de usuário ou de requisição. É a única forma de rodar antes da pintura. */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
       <body className="flex min-h-full flex-col bg-canvas text-ink">{children}</body>
     </html>
   );
