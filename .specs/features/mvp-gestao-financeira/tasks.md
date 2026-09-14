@@ -979,7 +979,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T51: Caso de uso obter visão mensal
+#### T51: Caso de uso obter visão mensal ✅ CONCLUÍDA
 **What**: Ler os lançamentos da competência e produzir `ResumoMensal` pelas funções puras, devolvendo `competenciaView`, `caixaView` e `futuro` separados.
 **Where**: `src/application/mes/obter-visao-mensal/handler.ts`
 **Depends on**: T26, T33
@@ -987,12 +987,18 @@ T52 -> T53
 **Requirement**: MOV-03, MOV-05, UI-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] A resposta entrega os três objetos distintos, sem campo que some valores entre eles (MOV-03, AC 3)
-- [ ] O saldo aplica `Entradas − Saídas − Investimentos` (MOV-05, AC 5)
-- [ ] Mês sem lançamentos devolve estrutura válida com zeros, não erro (UI-02, AC 6)
-- [ ] Testado com os fakes de T32, sem banco
-**Tests**: unit
-**Gate**: quick
+- [x] A resposta entrega os três objetos distintos, sem campo que some valores entre eles (MOV-03, AC 3)
+- [x] O saldo aplica `Entradas − Saídas − Investimentos` (MOV-05, AC 5)
+- [x] Mês sem lançamentos devolve estrutura válida com zeros, não erro (UI-02, AC 6)
+- [x] Testado com os fakes de T32, sem banco
+
+> **Port estendida**: `CompraRepository.totaisDeParcelas(ids)`. O lançamento guarda o número da parcela, mas o total vive em `compra_parcelada` — sem esta leitura a tela mostraria "parcela 8" sem o "de 10", e PARC-08 AC 7 ficaria sem como ser satisfeito. Implementada no Drizzle e no fake, com dois testes de integração em `compra.repository.integration.test.ts`.
+>
+> **Gate elevado de `quick` para `full`**: a nova leitura tem implementação em SQL, e a matriz exige teste de integração para repositório. Gate mais estrito, nunca mais frouxo.
+>
+> **Alcance do eixo caixa nesta fase**: as Saídas somam os lançamentos *desta* competência já pagos. A fórmula completa do design inclui `pagamento_fatura`, que não tem repositório nesta feature (a tela de marcar pago e a de conciliação estão fora do MVP). Por isso a tela rotula o número como caixa, em vez de apresentá-lo como o total do mês.
+**Tests**: unit + integration
+**Gate**: full
 
 #### T52: Lista de lançamentos responsiva
 **What**: Componente que renderiza tabela no desktop e cartões empilhados no mobile, segmentando por origem em Fixos, Cartão de Crédito e Gastos do Mês, com identificação de parcela no formato `8/10`.

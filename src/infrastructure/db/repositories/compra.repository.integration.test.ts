@@ -371,3 +371,33 @@ describe("buscarPorIdempotencyKey (T34)", () => {
     expect(compra?.valorAmortizadoAnterior).toBe(0);
   });
 });
+
+describe("totaisDeParcelas (T51, PARC-08, AC 7)", () => {
+  it("devolve a quantidade total de parcelas de cada compra informada", async () => {
+    const dez = await repo.salvarComParcelas(
+      entrada("chave-8-de-10", planoOitoDeDez(), {
+        qtdParcelas: 10,
+        parcelaInicial: 8,
+        competenciaCompra: competencia("2025-08"),
+        modo: "VALOR_PARCELA",
+      }),
+    );
+    const tres = await repo.salvarComParcelas(entrada("chave-3"));
+    expect(dez.ok && tres.ok).toBe(true);
+    if (!dez.ok || !tres.ok) {
+      return;
+    }
+
+    const totais = await repo.totaisDeParcelas([dez.value.id, tres.value.id]);
+
+    expect(totais.get(dez.value.id)).toBe(10);
+    expect(totais.get(tres.value.id)).toBe(3);
+  });
+
+  it("ignora id que não corresponde a nenhuma compra e aceita lista vazia", async () => {
+    const totais = await repo.totaisDeParcelas(["99999999-9999-4999-8999-999999999999"]);
+
+    expect(totais.size).toBe(0);
+    expect((await repo.totaisDeParcelas([])).size).toBe(0);
+  });
+});

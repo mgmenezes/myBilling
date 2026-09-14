@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, eq, inArray, sql } from "drizzle-orm";
 import type {
   CompraPersistida,
   CompraRepository,
@@ -86,6 +86,17 @@ export class CompraRepositoryDrizzle implements CompraRepository {
       ),
       parcelas: parcelas.map(paraLancamento),
     };
+  }
+
+  async totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>> {
+    if (compraIds.length === 0) {
+      return new Map();
+    }
+    const linhas = await this.db
+      .select({ id: compraParcelada.id, qtdParcelas: compraParcelada.qtdParcelas })
+      .from(compraParcelada)
+      .where(inArray(compraParcelada.id, [...compraIds]));
+    return new Map(linhas.map((linha) => [linha.id, linha.qtdParcelas]));
   }
 
   async salvarComParcelas(

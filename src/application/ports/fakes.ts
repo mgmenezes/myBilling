@@ -75,6 +75,17 @@ export class FakeCompraRepository implements CompraRepository {
     return null;
   }
 
+  async totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>> {
+    const totais = new Map<string, number>();
+    for (const id of compraIds) {
+      const compra = this.estado.compras.get(id);
+      if (compra) {
+        totais.set(id, compra.qtdParcelas);
+      }
+    }
+    return totais;
+  }
+
   async salvarComParcelas(
     entrada: EntradaSalvarCompra,
   ): Promise<Result<CompraPersistida, DomainError>> {

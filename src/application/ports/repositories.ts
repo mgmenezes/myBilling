@@ -75,6 +75,18 @@ export interface CompraRepository {
    */
   salvarComParcelas(entrada: EntradaSalvarCompra): Promise<Result<CompraPersistida, DomainError>>;
   buscarPorIdempotencyKey(idempotencyKey: string): Promise<CompraPersistida | null>;
+  /**
+   * Quantidade total de parcelas de cada compra informada.
+   *
+   * O lançamento guarda o número da parcela, mas não o total: `qtd_parcelas`
+   * vive no plano, que é a única coisa que ele sabe sobre a compra. Sem esta
+   * leitura, a tela mostraria "parcela 8" sem o "de 10" — e o usuário não
+   * teria como saber quantas ainda faltam (PARC-08, AC 7).
+   *
+   * Devolve um mapa por id; ids sem compra correspondente simplesmente não
+   * aparecem nele.
+   */
+  totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>>;
 }
 
 export interface MovimentoRepository {
