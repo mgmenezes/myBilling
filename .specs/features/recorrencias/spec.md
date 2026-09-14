@@ -216,12 +216,12 @@ domínio de valor efetivo. Reusar os números faria duas specs reivindicarem o m
 
 | ID | User Story | Status |
 | --- | --- | --- |
-| FIXO-01 | P1: Cadastrar um gasto fixo uma vez | Tasks |
-| FIXO-02 | P1: Materializar sem duplicar | Tasks |
-| FIXO-03 | P1: Registrar que o valor mudou | Tasks |
-| FIXO-04 | P2: Confirmar o valor real | Tasks |
-| FIXO-05 | P2: Ver os fixos no comprometimento futuro | Tasks |
-| FIXO-06 | P3: Encerrar uma recorrência | Tasks |
+| FIXO-01 | P1: Cadastrar um gasto fixo uma vez | Verified |
+| FIXO-02 | P1: Materializar sem duplicar | Verified |
+| FIXO-03 | P1: Registrar que o valor mudou | Verified |
+| FIXO-04 | P2: Confirmar o valor real | Verified |
+| FIXO-05 | P2: Ver os fixos no comprometimento futuro | Verified |
+| FIXO-06 | P3: Encerrar uma recorrência | Verified |
 
 ## Success Criteria
 

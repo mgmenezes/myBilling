@@ -5,7 +5,7 @@
 > `699cc64` em `main`.
 
 > [!IMPORTANT]
-> **O trabalho desta sessão está em branch, não em `main`.** Cinco commits, sem push.
+> **O trabalho desta sessão está em branch, não em `main`.** Sem push.
 > `main` continua em `699cc64`. Integrar é `git checkout main && git merge --ff-only
 > ajustes-visuais-e-cadastros` — o histórico é linear, então o fast-forward passa.
 
@@ -81,6 +81,7 @@ decidir, inclusive sem JavaScript. **Nunca escrever `data-tema="sistema"`.**
 .specs/HANDOFF.md                                este arquivo
 .specs/features/mvp-gestao-financeira/           54 tasks, todas concluídas, Verifier PASS
 .specs/features/painel-e-lancamentos/spec.md     20 requisitos EARS (fatia 1)
+.specs/features/recorrencias/                    spec (FIXO-01..06) + 22 tasks, todas concluídas
 DESIGN.md                                        referência de linguagem visual (Coinbase), não rastreado
 docs/design.md                                   identidade visual normativa, derivada dela, com contraste medido
 docs/referencias/LEIA-ME.md                      o que da referência entra e o que nunca entra
@@ -123,6 +124,14 @@ parcelas sem nenhuma ação adicional.
 - Lista com **pílula de categoria** em todo bloco; a coluna "Parcela" existe **só** no bloco de
   compra parcelada, onde carrega informação. Fora dele ela era coluna permanentemente vazia,
   empurrando descrição e valor para pontas opostas da tela
+- **Gastos fixos e receita recorrente**, na área "Fixos". Cadastrar uma vez e aparecer em todo mês;
+  reajustar a partir de um mês **sem reescrever o passado** (versionamento por vigência); confirmar o
+  valor real quando a conta chega, com a previsão ainda visível ao lado; encerrar preservando o que
+  foi pago. As ocorrências são materializadas **na abertura do mês**, para a competência visível mais
+  a janela de projeção — é um GET que escreve, e só é seguro porque a garantia é a restrição única
+  `movimento_recorrencia_competencia_uq`, não uma consulta prévia
+- **Marcar pago e desfazer**: o selo de situação **é** o botão, com estado otimista. Marcar move o
+  indicador do painel, não só a lista — a action revalida as duas rotas
 - **Criar categoria e meio de pagamento dentro do formulário**, pelo "+ nova"/"+ novo" ao lado do
   rótulo. Os dois usam `CadastroInline` (`src/components/cadastro-inline.tsx`), que carrega o padrão
   inteiro: atalho, bloco que abre, foco na transição, `Enter` que não submete o formulão, estado de
@@ -157,9 +166,9 @@ parcelas sem nenhuma ação adicional.
 
 1. **Eixo Movimentações parcial**: soma só lançamentos da própria competência já pagos,
    sem `pagamento_fatura`.
-2. **A UI só cria compra, categoria e meio de pagamento.** Marcar pago, lançamento avulso,
-   recorrência, orçamento e edição estão em `docs/roadmap.md`. Renomear e arquivar cadastro
-   também ficaram de fora, para a área "Cadastros" que nascerá com orçamento.
+2. **Falta lançamento avulso e receita à vista**, que é a fatia 1 do roadmap: sem eles o mês não
+   fecha, porque só compra parcelada e recorrência entram no app. Orçamento, faturas e edição com
+   escopo vêm depois. Renomear e arquivar cadastro seguem sem tela.
 3. **Os blocos da lista agrupam por `origem`, não por meio de pagamento.** "Cartão de Crédito"
    quer dizer "veio de compra parcelada" e "Gastos do Mês" quer dizer "é avulso" — um lançamento
    avulso num cartão cai no segundo. É decisão de modelo a resolver junto com o formulário de

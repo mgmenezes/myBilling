@@ -3,9 +3,8 @@
 O que existe hoje, o que falta, e por quê. Escrito a partir de **auditoria do código**, não da
 documentação: várias coisas descritas como prontas não tinham caminho até a tela.
 
-> Última auditoria: 2026-09-14, sobre a branch `ajustes-visuais-e-cadastros`. A ordem das fatias
-> mudou nesta revisão — recorrência subiu na frente de lançamento avulso, e a justificativa está
-> registrada na própria fatia. **Marcar pago saiu do roadmap: foi entregue.**
+> Última auditoria: 2026-09-14, sobre a branch `ajustes-visuais-e-cadastros`. **Marcar pago e
+> recorrências saíram do roadmap: foram entregues.** Lançamento avulso passou a ser a fatia 1.
 
 ## Pronto
 
@@ -20,6 +19,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Identidade | Derivada do `DESIGN.md`, com contraste medido; tema claro, escuro ou do sistema |
 | Dados de desenvolvimento | Seed ancorado no relógio (dois meses atrás a três à frente) e idempotente |
 | Marcar pago | O selo de situação **é** o botão que alterna, com estado otimista. Marcar move o indicador do painel, não só a lista |
+| Gastos fixos e receita recorrente | Área "Fixos": cadastrar uma vez e aparecer em todo mês, reajustar a partir de um mês sem reescrever o passado, confirmar o valor real quando a conta chega, e encerrar preservando o que foi pago |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -31,42 +31,18 @@ existe. Toda vez que uma destas ganhar tela, o trabalho é menor do que parece.
 | `avaliarOrcamento` | Domínio | Repositório de `orcamento_categoria` e tela de limites |
 | `regenerarParcelas` | Domínio | Caso de uso de edição de compra com escopo de série |
 | `resolverCicloFatura` | Domínio | Repositório de `fatura` e área de Cartões |
-| `resolverValorEfetivo`, `confirmarValorReal` | Domínio | Repositório de `recorrencia` (ver fatia 2) |
 
-Quatro tabelas existem no banco sem nenhum repositório que as leia ou escreva:
-`orcamento_categoria`, `pagamento_fatura`, `recorrencia`, `recorrencia_versao`.
+Duas tabelas existem no banco sem nenhum repositório que as leia ou escreva:
+`orcamento_categoria` e `pagamento_fatura`. `recorrencia` e `recorrencia_versao` saíram desta lista
+com a fatia de recorrências.
 
-## Fatia 1: recorrências
+`confirmarValorReal` do domínio continua sem chamador: `resolverValorEfetivo` ganhou o dele na
+leitura da lista, mas a confirmação em lote que a outra modela não tem tela — e fabricar um chamador
+para ela seria a encenação que esta fatia recusou três vezes.
 
-> **Esta fatia subiu.** Ela era a última, adiada com o argumento de que "fazer certo exige
-> `recorrencia_versao`, materialização em janela rolante e semântica de 'esta e as futuras'".
-> A auditoria mostrou que **duas dessas três já estão feitas**, migradas e com constraint no banco.
-> O texto anterior foi escrito quando o trabalho pesado estava à frente; hoje ele está atrás.
+## Fatia 1: fechar o mês
 
-1. **Recorrência com versionamento por vigência.** É o gasto fixo: água, luz, internet. Hoje eles
-   não têm caminho nenhum — e o bloco **"Fixos"** da lista, que filtra por `origem = 'RECORRENCIA'`,
-   promete um lugar que nunca recebe conteúdo.
-
-   O que **já existe** e não precisa ser decidido de novo:
-
-   - `recorrencia` e `recorrencia_versao` criadas, com `vigente_desde` + `valor_previsto_centavos` e
-     índice único por `(recorrencia, vigência)` — o versionamento está modelado
-   - `movimento.recorrencia_id`, `movimento.valor_previsto_centavos`, o `CHECK` bicondicional, e o
-     índice único `movimento_recorrencia_competencia_uq`. **Esse índice torna a materialização
-     idempotente de graça**: dá para rodá-la a cada abertura de mês sem duplicar nada e sem job de
-     fundo
-   - `resolverValorEfetivo` e `confirmarValorReal`, testados: previsto convive com real, e confirmar
-     um mês não alcança outro
-
-   O que falta: repositório das duas tabelas, caso de uso de materialização, action e formulário.
-
-   **O botão de pago já está lá.** Confirmar o valor real de uma conta quando ela chega e marcá-la
-   paga são o mesmo gesto para quem usa. O selo-botão da lista é onde a confirmação de valor entra —
-   como um passo do mesmo controle, não como um segundo controle ao lado.
-
-## Fatia 2: fechar o mês
-
-2. **Criar despesa avulsa e receita.** Enquanto não existir, o mês nunca fecha: só compra parcelada
+1. **Criar despesa avulsa e receita.** Enquanto não existir, o mês nunca fecha: só compra parcelada
    e recorrência entram no app. Hoje o contorno é cadastrar compra com 1 parcela, o que funciona
    para o cartão e não para receita.
 
@@ -75,22 +51,22 @@ Quatro tabelas existem no banco sem nenhum repositório que as leia ou escreva:
    "Gastos do Mês" quer dizer "é avulso" — então uma despesa avulsa **no cartão** cai no segundo
    bloco, que provavelmente não é o que o usuário espera.
 
-3. **Excluir despesa avulsa e receita.** Parcela isolada continua não excluível: removê-la quebraria
+2. **Excluir despesa avulsa e receita.** Parcela isolada continua não excluível: removê-la quebraria
    a conservação da soma da compra, que é invariante do domínio.
 
-## Fatia 3: orçamento e cartões
+## Fatia 2: orçamento e cartões
 
-4. **Orçamento por categoria.** Repositório de limites e tela para defini-los. O alerta de estouro
+3. **Orçamento por categoria.** Repositório de limites e tela para defini-los. O alerta de estouro
    já está implementado no gráfico, esperando o dado.
-5. **Faturas.** Repositório de `fatura` e `pagamento_fatura`, área de Cartões, e o eixo caixa passa
+4. **Faturas.** Repositório de `fatura` e `pagamento_fatura`, área de Cartões, e o eixo caixa passa
    a somar pagamento de fatura. Hoje ele soma apenas lançamentos da própria competência já pagos, o
    que o torna parcial por escopo.
-6. **Editar e excluir compra com escopo.** Esta ocorrência, as futuras, ou a série inteira.
+5. **Editar e excluir compra com escopo.** Esta ocorrência, as futuras, ou a série inteira.
    `regenerarParcelas` já sabe preservar as parcelas pagas e redistribuir as pendentes.
 
-## Fatia 4: comparação no tempo
+## Fatia 3: comparação no tempo
 
-7. **Série histórica.** `listarPorCompetencia` lê um mês só. O gráfico de evolução mensal precisa de
+6. **Série histórica.** `listarPorCompetencia` lê um mês só. O gráfico de evolução mensal precisa de
    uma consulta agregada por competência, com teste de concordância entre o SQL e a função pura.
 
 ## Dívida de interface

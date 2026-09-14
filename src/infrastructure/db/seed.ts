@@ -1,21 +1,21 @@
+import { materializarRecorrencias } from "@/application/recorrencias/materializar/handler";
 import {
   addMeses,
   type Cents,
   type Competencia,
   criarCents,
   criarCompetencia,
-  diaEfetivo,
   diffMeses,
   gerarParcelas,
-  janelaMaterializacao,
   type PlanoParcelamento,
-  versaoVigente,
 } from "@/domain";
 import type { BancoDeDados } from "./client";
 import { CadastroRepositoryDrizzle } from "./repositories/cadastro.repository";
 import { CompraRepositoryDrizzle } from "./repositories/compra.repository";
 import { deCompetencia } from "./repositories/mapeadores";
-import { movimento, recorrencia, recorrenciaVersao } from "./schema";
+import { MovimentoRepositoryDrizzle } from "./repositories/movimento.repository";
+import { RecorrenciaRepositoryDrizzle } from "./repositories/recorrencia.repository";
+import { movimento } from "./schema";
 
 /**
  * Seed sintético.
@@ -386,19 +386,16 @@ export async function semear(
   }
 
   /*
-   * As recorrências e as ocorrências delas.
+   * As recorrências, e a materialização feita **pelo caso de uso real**.
    *
-   * A materialização aqui usa **as mesmas funções puras** que o caso de uso vai
-   * usar (`janelaMaterializacao` e `versaoVigente`), e não uma segunda versão
-   * da regra escrita à mão. Duas implementações do mesmo cálculo divergiriam, e
-   * o seed é o primeiro lugar onde a divergência apareceria como dado errado.
-   *
-   * Nenhuma ocorrência nasce paga, nem quando a competência já passou: pagar é
-   * gesto do usuário, e um ambiente de desenvolvimento onde tudo já veio pago
-   * esconderia justamente o botão que acabou de ser construído.
+   * O seed antes montava as ocorrências à mão, repetindo o cálculo. Agora ele
+   * cria as recorrências pelo repositório e chama `materializarRecorrencias`,
+   * o mesmo que a abertura de um mês chama. Duas consequências: o seed deixa de
+   * ser uma segunda implementação que pode divergir, e ele passa a exercitar o
+   * caminho de produção a cada `pnpm db:seed`.
    */
-  const ultimaCoberta = addMeses(base, MESES_DE_AVULSOS - 1);
-  let ocorrenciasDeRecorrencia = 0;
+  const repoRecorrencia = new RecorrenciaRepositoryDrizzle(db);
+  const repoMovimento = new MovimentoRepositoryDrizzle(db);
 
   for (const modelo of RECORRENCIAS) {
     const categoriaDaRecorrencia =
@@ -406,61 +403,36 @@ export async function semear(
     const pessoa =
       modelo.natureza === "RECEITA" && modelo.descricao.endsWith("B") ? pessoaB : pessoaA;
 
-    const [linha] = await db
-      .insert(recorrencia)
-      .values({
+    const criada = await repoRecorrencia.criar({
+      dados: {
         descricao: modelo.descricao,
         natureza: modelo.natureza,
         categoriaId: categoriaDaRecorrencia,
         usuarioId: pessoa.id,
         meioPagamentoId: contaCorrente.id,
-        competenciaInicio: deCompetencia(base),
+        competenciaInicio: base,
         competenciaFim: null,
         diaVencimento: modelo.diaVencimento,
-        encerradaEm: null,
-      })
-      .returning();
-    if (!linha) {
-      throw new Error(`insert de recorrencia não retornou linha: ${modelo.descricao}`);
-    }
+      },
+      valorInicial: cents(modelo.versoes[0][1]),
+    });
 
-    const versoes = modelo.versoes.map(([deslocamento, valor]) => ({
-      vigenteDesde: addMeses(base, deslocamento),
-      valorPrevisto: cents(valor),
-    }));
-    for (const versao of versoes) {
-      await db.insert(recorrenciaVersao).values({
-        recorrenciaId: linha.id,
-        vigenteDesde: deCompetencia(versao.vigenteDesde),
-        valorPrevistoCentavos: versao.valorPrevisto,
-      });
-    }
-
-    const competencias = janelaMaterializacao({ inicio: base, fim: null }, base, ultimaCoberta);
-    for (const comp of competencias) {
-      const vigente = versaoVigente(versoes, comp);
-      if (vigente === null) {
-        continue;
-      }
-      const ano = Number.parseInt(comp.slice(0, 4), 10);
-      const mes = Number.parseInt(comp.slice(5, 7), 10);
-      await db.insert(movimento).values({
-        natureza: modelo.natureza,
-        origem: "RECORRENCIA",
-        descricao: modelo.descricao,
-        competencia: deCompetencia(comp),
-        dataEvento: dia(comp, diaEfetivo(modelo.diaVencimento, ano, mes)),
-        valorCentavos: vigente.valorPrevisto,
-        valorPrevistoCentavos: vigente.valorPrevisto,
-        pagoEm: null,
-        categoriaId: categoriaDaRecorrencia,
-        usuarioId: pessoa.id,
-        meioPagamentoId: contaCorrente.id,
-        recorrenciaId: linha.id,
-      });
-      ocorrenciasDeRecorrencia += 1;
+    /* As vigências seguintes, se houver. A primeira já entrou na criação. */
+    for (const [deslocamento, valor] of modelo.versoes.slice(1)) {
+      await repoRecorrencia.registrarVersao(criada.id, addMeses(base, deslocamento), cents(valor));
     }
   }
+
+  /*
+   * Uma chamada só cobre toda a janela do seed: `materializarRecorrencias`
+   * recebe a base e quantos meses cobrir, e a idempotência do índice único
+   * torna a repetição inofensiva.
+   */
+  const ocorrenciasDeRecorrencia = await materializarRecorrencias(
+    { recorrencias: repoRecorrencia, movimentos: repoMovimento },
+    base,
+    MESES_DE_AVULSOS - 1,
+  );
 
   const meiosAvulsos = [contaCorrente, cartaoAzul, rotulo];
   let movimentosAvulsos = 0;

@@ -97,9 +97,11 @@
 - **Feature**: painel-e-lancamentos (fatia 1) — **entregue**. `mvp-gestao-financeira` concluída e com Verifier PASS. Em cima dela veio uma sessão de ajustes conduzida por conversa, sem spec própria: identidade visual, seed, tema e cadastros.
 - **Commit**: branch `ajustes-visuais-e-cadastros`, cinco commits a partir de `699cc64`. **Sem push, e `main` ainda não integrou.** Ver o aviso no topo de `.specs/HANDOFF.md`.
 - **Gates**: `pnpm verify` exit 0 — 429 unit, 128/128 branches em `src/domain`, 138 integração, 15/15 e2e. Medidos **com as mudanças não commitadas aplicadas**.
-- **Next step**: fatia 1 do roadmap revisado — marcar pago — e na sequência a fatia 2, recorrências. A ordem foi invertida após auditoria: recorrência subiu na frente de lançamento avulso porque o gasto fixo é a lacuna que o usuário sentiu primeiro, e porque `recorrencia_versao` e o índice que torna a materialização idempotente **já existem migrados**, o que reduz muito o custo que o roadmap anterior supunha.
+- **Next step**: integrar a branch em `main` e seguir para a fatia 1 do roadmap — lançamento avulso e receita à vista. **Há uma decisão de modelo a resolver junto com ela**, não depois: os blocos da lista agrupam por `origem`, então uma despesa avulsa no cartão cai em "Gastos do Mês" e não em "Cartão de Crédito".
 - **Contexto completo de retomada**: `.specs/HANDOFF.md` — stack, regras invioláveis, decisões, estado da UI, pendências e comandos.
 - **Entregue na sessão de ajustes**:
+  - **Recorrências (fatia completa, spec + 22 tasks)**: gasto fixo e receita recorrente, com versionamento por vigência, materialização idempotente na abertura do mês, confirmação de valor real e encerramento. `FIXO-01` a `FIXO-06` em Verified.
+  - Marcar pago e desfazer pela lista, com o indicador do painel acompanhando.
   - Identidade visual trocada de Mastercard para Coinbase (`DESIGN.md`), com três cores do documento derivadas por reprovarem em contraste no uso deste app. Paleta declarada uma vez só, com `light-dark()`.
   - Tema claro, escuro ou do sistema, aplicado antes da primeira pintura por script inline.
   - Seed ancorado numa competência-base derivada do relógio pela CLI, cobrindo de dois meses atrás a três à frente, e idempotente (limpa antes de popular).

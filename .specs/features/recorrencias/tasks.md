@@ -462,7 +462,7 @@ T21 -> T22
 **Tests**: e2e
 **Gate**: build
 
-#### T22: Seed, roadmap e handoff
+#### T22: Seed, roadmap e handoff ✅ CONCLUÍDA
 **What**: O seed ganha uma recorrência de despesa e uma de receita, para o ambiente de desenvolvimento exercitar o bloco Fixos e o indicador de receitas. Roadmap e handoff passam a refletir a fatia entregue.
 **Where**: `src/infrastructure/db/seed.ts`, `docs/roadmap.md`, `.specs/HANDOFF.md`, `.specs/STATE.md`
 **Depends on**: T21
@@ -470,9 +470,9 @@ T21 -> T22
 **Requirement**: FIXO-01
 **Tools**: Postgres em Docker
 **Done when**:
-- [ ] O seed continua determinístico: mesma semente e mesma base, mesmos dados
-- [ ] Nenhum valor ou nome real da família entra no seed (AD-009)
-- [ ] `resolverValorEfetivo` e `confirmarValorReal` saem da lista de domínio sem chamador
-- [ ] `pnpm verify` em 0 e e2e verde
+- [x] O seed continua determinístico: mesma semente e mesma base, mesmos dados
+- [x] Nenhum valor ou nome real da família entra no seed (AD-009)
+- [x] `resolverValorEfetivo` e `confirmarValorReal` saem da lista de domínio sem chamador
+- [x] `pnpm verify` em 0 e e2e verde
 **Tests**: integration
 **Gate**: build
