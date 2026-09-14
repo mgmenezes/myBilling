@@ -356,7 +356,7 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T15: Server Actions de recorrência
+#### T15: Server Actions de recorrência ✅ CONCLUÍDA
 **What**: `criarRecorrencia`, `registrarNovaVigencia` e `encerrarRecorrencia`. `requireSession()` na primeira instrução, payload revalidado no servidor com o schema de T14, envelope `ResultadoAction`, e revalidação das **três** rotas afetadas: painel, lançamentos e a área Fixos.
 **Where**: `src/app/actions/recorrencias.ts`, `src/lib/erros.ts`
 **Depends on**: T14, T11, T13
@@ -364,10 +364,10 @@ T21 -> T22
 **Requirement**: FIXO-01, FIXO-03, FIXO-06
 **Tools**: Postgres em Docker
 **Done when**:
-- [ ] Não autenticado devolve `NAO_AUTENTICADO` sem tocar no banco
-- [ ] Payload inválido devolve `VALIDACAO` endereçado ao campo
-- [ ] Falha não prevista devolve `ERRO_INESPERADO` com identificador de correlação, sem stack trace
-- [ ] As três rotas são revalidadas
+- [x] Não autenticado devolve `NAO_AUTENTICADO` sem tocar no banco
+- [x] Payload inválido devolve `VALIDACAO` endereçado ao campo
+- [x] Falha não prevista devolve `ERRO_INESPERADO` com identificador de correlação, sem stack trace
+- [x] As três rotas são revalidadas
 **Tests**: integration
 **Gate**: full
 
