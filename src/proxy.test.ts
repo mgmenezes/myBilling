@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { config, decidirAcesso, ehRotaPublica } from "./middleware";
+import { config, decidirAcesso, ehRotaPublica } from "./proxy";
 
 const ROTAS_PROTEGIDAS = ["/", "/2026-03", "/2026-03/detalhe", "/api/compras"];
 

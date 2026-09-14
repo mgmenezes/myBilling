@@ -299,9 +299,9 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | REC-02 | P3: Recorrência com valor variável | Fase 3 | Implementing |
 | AUTH-01 | P1: Acesso restrito às duas pessoas | Fase 6 | Implementing |
 | AUTH-02 | P1: Acesso restrito às duas pessoas | Fases 4 e 6 | Implementing |
-| UI-01 | P1: Visão do mês e navegação | Design | Pending |
-| UI-02 | P1: Visão do mês e navegação | Design | Pending |
-| UI-03 | P1: Visão do mês e navegação | Design | Pending |
+| UI-01 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
+| UI-02 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
+| UI-03 | P1: Visão do mês e navegação | Fases 6 e 7 | Implementing |
 | DADO-01 | P1: Compra parcelada com distribuição automática | Fases 3-5 | Verified |
 | DADO-02 | P1: Integridade do razão e anti-dupla-contagem | Fases 4-5 | Verified |
 
@@ -309,7 +309,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 33 total, 29 cobertos por tasks das Fases 0 a 5, 4 aguardando as Fases 6 e 7 (AUTH-01, UI-01, UI-02, UI-03)
+**Coverage:** 33 total, todos cobertos por tasks. AUTH-01, AUTH-02, UI-01, UI-02 e UI-03 entram na Fase 6; UI-01 e UI-02 ganham a visão mensal completa na Fase 7
 
 ---
 

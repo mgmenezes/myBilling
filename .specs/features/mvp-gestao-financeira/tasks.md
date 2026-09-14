@@ -770,7 +770,7 @@ T52 -> T53
 
 #### T40: Middleware protegendo as rotas ✅ CONCLUÍDA
 **What**: Middleware exigindo sessão em tudo, exceto `/login`, `/api/auth/*` e `/api/health`.
-**Where**: `src/middleware.ts`
+**Where**: `src/proxy.ts` (o Next 16 renomeou a convenção `middleware` para `proxy`; comportamento idêntico)
 **Depends on**: T38
 **Reuses**: a sessão de T38
 **Requirement**: AUTH-01
@@ -862,7 +862,7 @@ T52 -> T53
 **Tests**: none
 **Gate**: build
 
-#### T46: Teste de ponta a ponta de autenticação
+#### T46: Teste de ponta a ponta de autenticação ✅ CONCLUÍDA
 **What**: Fluxo e2e cobrindo acesso não autenticado, autenticação válida e e-mail fora da allowlist.
 **Where**: `e2e/auth.spec.ts`
 **Depends on**: T42, T45
@@ -870,10 +870,20 @@ T52 -> T53
 **Requirement**: AUTH-01
 **Tools**: Playwright, e o MCP do Playwright para depuração interativa
 **Done when**:
-- [ ] Não autenticado redireciona para `/login` (AUTH-01, AC 1)
-- [ ] Autenticado cai na competência corrente
-- [ ] E-mail fora da allowlist recebe 403 e a consulta ao banco confirma **zero** registros de usuário criados (AUTH-01, AC 2)
-- [ ] `pnpm verify` sai com 0
+- [x] Não autenticado redireciona para `/login` (AUTH-01, AC 1)
+- [x] Autenticado cai na competência corrente
+- [x] E-mail fora da allowlist recebe 403 e a consulta ao banco confirma **zero** registros de usuário criados (AUTH-01, AC 2)
+- [x] `pnpm verify` sai com 0
+
+> **Como o e2e entra sem credencial do Google**: pelo provider de credenciais de teste, registrado só com `NODE_ENV=test` **e** `AUTH_PROVIDER_DE_TESTE=1`. Ele autentica e nada mais — o e-mail continua passando pela allowlist no callback `signIn`, igual ao Google. Se ele desse acesso livre, este arquivo estaria testando um bypass em vez do AC 2.
+>
+> **O bundler do Next substitui `process.env.NODE_ENV` por literal**, em todas as formas sintáticas. A condição `NODE_ENV === "test"` lê o valor real do processo com `Reflect.get`, e a guarda de produção usa o literal do build — que é `"production"` em qualquer build de produção, mesmo com `NODE_ENV=test` injetado por fora.
+>
+> **Corrida de provisionamento encontrada e corrigida aqui**: o Next renderiza layout e página em paralelo, as duas chamam `requireSession`, e no primeiro acesso as duas tentavam gravar o mesmo usuário. A restrição de unicidade decide quem grava; quem perde relê. Dois testes de integração cobrem o caminho.
+>
+> **Desvio**: `src/middleware.ts` virou `src/proxy.ts`. O Next 16 renomeou a convenção e o `next dev` recusa a forma antiga com a configuração montada por requisição. Comportamento idêntico.
+>
+> **Manutenção autorizada**: script `db:seed` no `package.json`, com a casca de linha de comando em `src/infrastructure/db/seed.cli.ts`.
 **Tests**: e2e
 **Gate**: build
 

@@ -158,15 +158,26 @@ export function montarConfigAuth(ambiente: AmbienteAuth): NextAuthConfig {
   };
 }
 
+/**
+ * `NODE_ENV` real do processo.
+ *
+ * O bundler do Next substitui `process.env.NODE_ENV` pelo literal do modo de
+ * build — e faz o mesmo com `process.env["NODE_ENV"]` e com qualquer acesso a
+ * `.NODE_ENV` sobre um alias. `Reflect.get` é uma chamada de runtime, escapa da
+ * substituição e devolve o valor que o processo de fato tem.
+ *
+ * Se um bundler futuro passar a dobrar isto também, a falha é segura: o
+ * provider de teste simplesmente deixa de ser registrado e o e2e quebra alto.
+ * A guarda de produção não depende desta leitura — ela usa o literal do build,
+ * que é `"production"` em qualquer build de produção.
+ */
+function nodeEnvDoProcesso(): string | undefined {
+  return Reflect.get(process.env, "NODE_ENV");
+}
+
 export function lerAmbienteAuth(): AmbienteAuth {
   return {
-    // Índice de propósito: o bundler do Next substitui `process.env.NODE_ENV`
-    // por literal em tempo de build, e a guarda de produção precisa do valor
-    // real do processo. O literal entra como segunda leitura, logo abaixo, de
-    // modo que um `NODE_ENV=test` injetado sobre um build de produção ainda
-    // caia na guarda.
-    // biome-ignore lint/complexity/useLiteralKeys: acesso por índice evita a substituição do bundler
-    nodeEnv: process.env["NODE_ENV"],
+    nodeEnv: nodeEnvDoProcesso(),
     buildEnv: process.env.NODE_ENV,
     provedorDeTeste: process.env[VAR_PROVEDOR_DE_TESTE],
     authSecret: env.AUTH_SECRET,

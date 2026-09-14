@@ -1,8 +1,10 @@
+import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { auth } from "@/infrastructure/auth/auth";
 
 /**
- * Primeira camada de proteção. A segunda é `requireSession()`, chamada na
+ * Primeira camada de proteção. O arquivo se chama `proxy` porque o Next 16
+ * renomeou a convenção `middleware`; o comportamento é o mesmo. A segunda é `requireSession()`, chamada na
  * primeira instrução de toda Server Action e de todo Route Handler protegido
  * (AUTH-01, AC 3). As duas existem porque middleware sozinho já falhou
  * publicamente em frameworks deste tipo: um matcher mal escrito ou um caminho
@@ -40,13 +42,25 @@ export function decidirAcesso(pathname: string, autenticado: boolean): DecisaoDe
   return autenticado ? { tipo: "seguir" } : { tipo: "redirecionar", destino: "/login" };
 }
 
-export default auth((requisicao) => {
+/**
+ * A configuração do Auth.js é montada por requisição, e nessa forma `auth()`
+ * devolve uma **promessa** de middleware, não um middleware. O Next exige uma
+ * função exportada, então a promessa é resolvida aqui dentro. Ela é criada uma
+ * vez, na importação, e reaproveitada.
+ */
+const proxyDeAuth = auth((requisicao) => {
   const decisao = decidirAcesso(requisicao.nextUrl.pathname, requisicao.auth !== null);
   if (decisao.tipo === "seguir") {
     return NextResponse.next();
   }
   return NextResponse.redirect(new URL(decisao.destino, requisicao.nextUrl.origin));
-});
+}) as unknown as Promise<
+  (requisicao: NextRequest, evento: NextFetchEvent) => Promise<Response | undefined>
+>;
+
+export default async function proxy(requisicao: NextRequest, evento: NextFetchEvent) {
+  return (await proxyDeAuth)(requisicao, evento);
+}
 
 export const config = {
   // Roda em tudo menos os artefatos do próprio Next e arquivos estáticos.

@@ -7,7 +7,7 @@ import {
   recriarBancoDeTeste,
   URL_BANCO_DE_TESTE,
 } from "@/infrastructure/db/testing/banco-de-teste";
-import { ErroDeSessao, resolverSessao, type SessaoRecebida } from "./sessao";
+import { ErroDeSessao, resolverSessao, type SessaoRecebida, type UsuariosDeSessao } from "./sessao";
 
 const ALLOWLIST = ["pessoa-a@example.com", "pessoa-b@example.com"];
 
@@ -140,5 +140,41 @@ describe("requireSession: sessão válida", () => {
     );
 
     expect(resolvido.nome).toBe("pessoa-b@example.com");
+  });
+});
+
+describe("requireSession: provisionamento concorrente", () => {
+  /** Simula a corrida: outra requisição gravou o mesmo e-mail primeiro. */
+  function perdendoACorrida(): UsuariosDeSessao {
+    return {
+      listarUsuarios: () => cadastros.listarUsuarios(),
+      criarUsuario: async (novo) => {
+        await cadastros.criarUsuario(novo);
+        return cadastros.criarUsuario(novo);
+      },
+    };
+  }
+
+  it("devolve o usuário gravado pela outra requisição, sem duplicar nem estourar", async () => {
+    const resolvido = await resolverSessao(
+      sessaoDe("pessoa-a@example.com"),
+      perdendoACorrida(),
+      ALLOWLIST,
+    );
+
+    expect(resolvido.email).toBe("pessoa-a@example.com");
+    expect(await contarUsuarios()).toBe(1);
+  });
+
+  it("propaga a falha quando a gravação não foi de outra requisição", async () => {
+    const sempreFalha: UsuariosDeSessao = {
+      listarUsuarios: () => cadastros.listarUsuarios(),
+      criarUsuario: () => Promise.reject(new Error("banco indisponível")),
+    };
+
+    await expect(
+      resolverSessao(sessaoDe("pessoa-a@example.com"), sempreFalha, ALLOWLIST),
+    ).rejects.toThrow("banco indisponível");
+    expect(await contarUsuarios()).toBe(0);
   });
 });

@@ -55,17 +55,37 @@ export async function resolverSessao(
   }
 
   const normalizado = normalizarEmail(email);
-  const existente = (await usuarios.listarUsuarios()).find(
-    (usuario) => normalizarEmail(usuario.email) === normalizado,
-  );
+  const existente = await buscarPorEmail(usuarios, normalizado);
   if (existente) {
     return existente;
   }
+
   const nome = sessao?.user?.name?.trim();
-  return usuarios.criarUsuario({
-    nome: nome === undefined || nome === "" ? normalizado : nome,
-    email: normalizado,
-  });
+  try {
+    return await usuarios.criarUsuario({
+      nome: nome === undefined || nome === "" ? normalizado : nome,
+      email: normalizado,
+    });
+  } catch (erro) {
+    // O primeiro acesso de um e-mail pode ser provisionado por duas
+    // requisições ao mesmo tempo: o Next renderiza layout e página em
+    // paralelo, e as duas resolvem a sessão. A restrição de unicidade de
+    // e-mail decide quem grava; quem perde relê em vez de estourar.
+    const gravadoPorOutro = await buscarPorEmail(usuarios, normalizado);
+    if (gravadoPorOutro) {
+      return gravadoPorOutro;
+    }
+    throw erro;
+  }
+}
+
+async function buscarPorEmail(
+  usuarios: UsuariosDeSessao,
+  emailNormalizado: string,
+): Promise<Usuario | undefined> {
+  return (await usuarios.listarUsuarios()).find(
+    (usuario) => normalizarEmail(usuario.email) === emailNormalizado,
+  );
 }
 
 export async function requireSession(): Promise<Usuario> {
