@@ -501,7 +501,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T23: Avaliação de orçamento com as duas porcentagens
+#### T23: Avaliação de orçamento com as duas porcentagens ✅ CONCLUÍDA
 **What**: `avaliarOrcamento` devolvendo, por categoria, porcentagem de consumo do limite e porcentagem de distribuição como **campos distintos**, mais sinalização de estouro e o indicador global do mês.
 **Where**: `src/domain/orcamento/avaliar-orcamento.ts`
 **Depends on**: T22
@@ -509,11 +509,11 @@ T52 -> T53
 **Requirement**: ORC-01, ORC-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Consumo e distribuição são campos separados na mesma estrutura (ORC-01, AC 1)
-- [ ] Gasto R$ 2.460,00 com limite R$ 1.000,00 resulta em consumo de 246,0% com estouro sinalizado, sem truncamento (ORC-01, AC 2)
-- [ ] Categoria sem limite no mês resulta em consumo nulo, nunca zero nem infinito (ORC-01, AC 3)
-- [ ] Indicador global aplica total gasto dividido pela soma dos limites (ORC-02, AC 4)
-- [ ] Soma dos limites zero resulta em indicador global nulo, sem `NaN` (ORC-02, AC 5)
+- [x] Consumo e distribuição são campos separados na mesma estrutura (ORC-01, AC 1)
+- [x] Gasto R$ 2.460,00 com limite R$ 1.000,00 resulta em consumo de 246,0% com estouro sinalizado, sem truncamento (ORC-01, AC 2)
+- [x] Categoria sem limite no mês resulta em consumo nulo, nunca zero nem infinito (ORC-01, AC 3)
+- [x] Indicador global aplica total gasto dividido pela soma dos limites (ORC-02, AC 4)
+- [x] Soma dos limites zero resulta em indicador global nulo, sem `NaN` (ORC-02, AC 5)
 **Tests**: unit
 **Gate**: quick
 

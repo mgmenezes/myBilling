@@ -32,11 +32,12 @@ export interface ResumoPessoa {
 
 /**
  * `parte ÷ total` na escala de `Porcentagem`, arredondado para o centésimo
- * mais próximo. A divisão é feita em inteiros — quociente e resto — em vez
+ * mais próximo. Exportada para que `avaliarOrcamento` use a mesma regra de
+ * arredondamento das duas porcentagens, em vez de uma cópia dela. A divisão é feita em inteiros — quociente e resto — em vez
  * de `parte / total`, de modo que o critério de desempate seja explícito e
  * não herdado do arredondamento binário.
  */
-function percentual(parte: Cents, total: Cents): Porcentagem {
+export function percentual(parte: Cents, total: Cents): Porcentagem {
   if (total === 0) {
     return 0 as Porcentagem;
   }
