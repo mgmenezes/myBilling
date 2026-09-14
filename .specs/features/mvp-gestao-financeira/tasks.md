@@ -455,7 +455,7 @@ T52 -> T53
 ---
 ### Phase 3 — Núcleo puro: agregação, orçamento e projeção
 
-#### T20: Resumo mensal do eixo competência
+#### T20: Resumo mensal do eixo competência ✅ CONCLUÍDA
 **What**: `resumoMensal` produzindo `competenciaView` com Total de Gastos segmentado por origem (Fixos, Cartão, Avulsos), Entradas, Investimentos e Saldo de competência.
 **Where**: `src/domain/mes/resumo-mensal.ts`
 **Depends on**: T12
@@ -463,11 +463,11 @@ T52 -> T53
 **Requirement**: MOV-01, MOV-04, MOV-05
 **Tools**: nenhuma
 **Done when**:
-- [ ] Total de Gastos é a soma dos lançamentos de natureza despesa, não cancelados, da competência (MOV-01)
-- [ ] Lançamento de natureza investimento fica fora do Total de Gastos (MOV-04, AC 4)
-- [ ] Saldo aplica `Entradas − Saídas − Investimentos` (MOV-05, AC 5)
-- [ ] Lançamento com `canceladoEm` preenchido não entra em nenhuma soma
-- [ ] A segmentação por origem soma exatamente o Total de Gastos
+- [x] Total de Gastos é a soma dos lançamentos de natureza despesa, não cancelados, da competência (MOV-01)
+- [x] Lançamento de natureza investimento fica fora do Total de Gastos (MOV-04, AC 4)
+- [x] Saldo aplica `Entradas − Saídas − Investimentos` (MOV-05, AC 5)
+- [x] Lançamento com `canceladoEm` preenchido não entra em nenhuma soma
+- [x] A segmentação por origem soma exatamente o Total de Gastos
 **Tests**: unit
 **Gate**: quick
 
