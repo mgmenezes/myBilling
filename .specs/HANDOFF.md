@@ -1,10 +1,10 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-09-14, branch `main`, último commit `464c0d7`.
+> Última atualização: 2026-09-14, branch `main`.
 
 > [!IMPORTANT]
-> **`main` está 31 commits à frente de `origin/main`, sem push.** O histórico é linear e o
+> **`main` está 32 commits à frente de `origin/main`, sem push.** O histórico é linear e o
 > `pnpm verify` sai 0 neste ponto. `git push` continua exigindo autorização explícita e separada,
 > como toda operação remota. A branch `ajustes-visuais-e-cadastros` aponta para o mesmo commit e
 > pode ser apagada.
@@ -74,6 +74,23 @@ Restrição de tema: a **ausência** de `data-tema` no `<html>` é o estado "sis
 significativa — sem atributo, `color-scheme: light dark` deixa o sistema operacional
 decidir, inclusive sem JavaScript. **Nunca escrever `data-tema="sistema"`.**
 
+Restrição de materialização: as ocorrências de recorrência nascem **durante a leitura** da
+página do mês. É um GET que escreve, aceito com a razão registrada na spec — a alternativa
+deixaria buraco em todo mês fora da janela daquele momento. Ele só é seguro porque a
+idempotência vem da restrição única `movimento_recorrencia_competencia_uq`, e **não** de
+consultar antes de inserir: consultar-e-inserir perderia a corrida entre dois carregamentos
+simultâneos. Há teste de integração disparando três materializações concorrentes.
+
+Restrição de encerramento: `recorrencia.competencia_fim` é a **última competência em que ela
+ainda vale**; a pessoa informa a partir de qual mês ela para. Encerrar a partir de maio grava
+abril. A tradução vive num ponto único — o caso de uso `encerrar` — porque espalhada viraria
+duas verdades, e a segunda estaria errada por um mês.
+
+Regra de dívida: **função de domínio sem chamador é dívida, não prevenção.** A fatia de
+recorrências recusou três tentativas de fabricar chamador, e a quarta — `ocorrenciaProtegida` —
+virou especificação executável, com teste de concordância que confronta a função pura contra o
+`WHERE` do `UPDATE`. Se um dia esse teste sumir, a função vira dívida de novo.
+
 ## Onde está o trabalho
 
 ```
@@ -85,14 +102,20 @@ decidir, inclusive sem JavaScript. **Nunca escrever `data-tema="sistema"`.**
 DESIGN.md                                        referência de linguagem visual (Coinbase), não rastreado
 docs/design.md                                   identidade visual normativa, derivada dela, com contraste medido
 docs/referencias/LEIA-ME.md                      o que da referência entra e o que nunca entra
-docs/roadmap.md                                  o que ficou para depois, em 4 fatias
+docs/roadmap.md                                  o que ficou para depois, em 3 fatias
 AGENTS.md                                        as 5 regras acima
 
-src/app/actions/                                 compras.ts, categorias.ts, meios-de-pagamento.ts
-src/application/schemas/                         nome.ts é a normalização compartilhada dos cadastros
+src/app/actions/                                 compras · categorias · meios-de-pagamento ·
+                                                 pagamentos · recorrencias
+src/application/recorrencias/                    materializar · criar · registrar-versao · encerrar
+src/application/schemas/nome.ts                  normalização de nome compartilhada pelos cadastros
 src/components/cadastro-inline.tsx               o padrão "criar sem sair do formulário"
+src/components/botao-pago.tsx                    o selo de situação que é botão
+src/components/valor-confirmavel.tsx             o valor de gasto fixo que abre campo
 src/components/alternador-de-tema.tsx            o seletor e o SCRIPT_TEMA do <head>
 src/infrastructure/db/limpar.ts                  TRUNCATE compartilhado entre o seed e os testes
+drizzle/0001_valor_previsto_positivo.sql         CHECK que faltava; sem ele a transação de criar
+                                                 recorrência era infalsificável
 ```
 
 **Toda Server Action segue a mesma forma** (`compras.ts` é a referência): `requireSession()`
@@ -101,15 +124,15 @@ schema Zod que o formulário usou, e nada lança para o cliente — todo caminho
 `ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
 correlação. Stack trace não chega ao navegador.
 
-Backend do MVP **está pronto e testado**: `pnpm verify` sai 0 com 429 testes unitários,
-128/128 branches no domínio e 138 de integração, mais 15/15 no e2e. O e2e prova a dor central:
-cadastra 1.000,00 em 3x em `2026-03`, navega para `2026-04` e `2026-05` e acha as
-parcelas sem nenhuma ação adicional.
+`pnpm verify` sai 0: **582 testes unitários, 144/144 branches no domínio, 187 de integração** e
+**23 e2e**. Os dois e2e que mais importam provam as duas re-digitações que a planilha impunha:
+cadastrar 1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; e
+cadastrar um gasto fixo uma vez e vê-lo em março, abril e maio.
 
 ## Estado da UI
 
-- Navegação por áreas: **Visão geral** e **Lançamentos** (lateral no desktop, barra fixa
-  no mobile)
+- Navegação por áreas: **Visão geral**, **Lançamentos** e **Fixos** (lateral no desktop, barra
+  fixa no mobile). Área sem implementação não entra na lista (NAV-03, AC 5)
 - Painel com **alternador Planejamento ┊ Movimentações**, estado na URL
   (`?visao=movimentacoes`), 4 indicadores que trocam de rótulo junto
 - Cada indicador é link para a lista já filtrada; painel e lista usam **o mesmo
@@ -174,17 +197,24 @@ parcelas sem nenhuma ação adicional.
    avulso num cartão cai no segundo. É decisão de modelo a resolver junto com o formulário de
    avulso, não depois dele.
 4. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,
-   `resolverCicloFatura`, `resolverValorEfetivo`. Quatro tabelas ainda sem repositório.
+   `resolverCicloFatura` e `confirmarValorReal`. Duas tabelas ainda sem repositório:
+   `orcamento_categoria` e `pagamento_fatura`. `resolverValorEfetivo` saiu desta lista com a fatia
+   de recorrências — ela decide o que exibir na linha de um gasto fixo.
 5. **Credenciais do Google OAuth não configuradas** — bloqueia login real, não o desenvolvimento.
-6. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
+6. **Não existe caminho de deploy, e o roadmap não o cobre.** Ele foi escrito como roadmap de
+   produto e nunca teve linha de infraestrutura. O que falta decidir e fazer: onde o app roda,
+   como as variáveis de ambiente chegam lá, e como `pnpm db:migrate` é executado contra o banco
+   gerenciado. As duas migrations aplicam num banco limpo — `recriarBancoDeTeste` prova isso a
+   cada execução da suíte de integração —, então o risco não é a migration: é não haver processo.
+7. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
    (`DESIGN-mastercard.md`) foi mantida fora do repositório de propósito, por descrever identidade
    de marca de terceiros. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra.
    Registrado em `docs/referencias/LEIA-ME.md`.
-7. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
+8. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
    pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão, mas a correção real é
    deixar a descrição absorver a folga e as demais colunas ocuparem só o que precisam.
 
-## Como subir
+## Como subir, localmente
 
 ```bash
 pnpm install
@@ -192,6 +222,26 @@ pnpm db:up && pnpm db:migrate && pnpm db:seed
 pnpm dev          # http://localhost:3000 redireciona para o mês corrente
 pnpm verify       # gate completo
 ```
+
+## Banco gerenciado, quando houver
+
+O projeto no Neon estava sendo criado quando esta sessão terminou; nada foi provisionado por
+aqui — criação de recurso em nuvem exige autorização explícita e separada, como `git push`.
+
+Três coisas que o app exige e que valem no momento de configurar:
+
+- **Desligar o Neon Auth.** A autenticação é do app: Auth.js v5 com Google OAuth e allowlist de
+  dois e-mails (AD-007). Ligar o serviço acrescenta uma peça que nada no código usa.
+- **Região São Paulo**, e não só por latência: competência e data de pagamento são resolvidas em
+  `America/Sao_Paulo` explicitamente, nunca no fuso da máquina. Banco e fuso na mesma região
+  evitam uma classe inteira de confusão de virada de mês.
+- **"Scales to zero" tem custo específico aqui.** Toda abertura de mês faz uma escrita — a
+  materialização de recorrências roda durante a leitura da página. Com o banco hibernando, o
+  primeiro acesso do dia paga o cold start em cima disso. Não quebra nada: a materialização é
+  idempotente e a janela é de quatro meses.
+
+O caminho é `DATABASE_URL` no ambiente e `pnpm db:migrate`. As duas migrations aplicam num banco
+limpo, e `recriarBancoDeTeste` prova isso a cada execução da suíte de integração.
 
 **O Next 16 recusa um segundo `next dev` no mesmo diretório.** Com `pnpm dev` de pé, tanto o
 `pnpm test:e2e` (que sobe o próprio servidor na 3100) quanto qualquer inspeção manual falham com
