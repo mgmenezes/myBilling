@@ -95,15 +95,20 @@
 ## Handoff
 
 - **Feature**: mvp-gestao-financeira
-- **Phase/Task**: Fases 0 a 6 CONCLUÍDAS (T1 a T46). Próxima e última: Fase 7 (corte vertical, T47 a T54).
-- **Completed**: núcleo puro + persistência + autenticação e shell. 288 unit + 98 integration + 5 e2e. `pnpm verify` exit 0. 100% de branches em `src/domain`.
-- **Next step**: Fase 7 (T47 a T54) — cadastro de compra parcelada e visão do mês. Fecha a dor central do produto.
-- **Blockers**: nenhum para desenvolvimento. Para **usar** o app de verdade falta o Google OAuth Client ID e Secret, que o usuário vai criar.
-- **Decisão de segurança desta fase**: provider de credenciais de teste, exigindo `NODE_ENV=test` **e** `AUTH_PROVIDER_DE_TESTE=1` simultaneamente, com guarda que lança se montado em produção. Ele **autentica apenas**; quem decide acesso é o callback `signIn`, que roda para todo provider. Nenhum provider consegue pular a allowlist por construção.
-- **Verificação adversarial do orquestrador — 46 mutações no total**:
-  - Fase 0: 5/5 · Fases 1 e 2: 12/12 · Fase 3: 14/14 após fix · Fases 4 e 5: 8 com 1 fix · Fase 6: **7/7 na camada de segurança**.
-  - As 7 da Fase 6: guarda de produção não lança, uma condição em vez de duas, allowlist desligada, e-mail nulo aceito, cookie sem `httpOnly`, cookie sem `secure` em produção, provider de teste sempre registrado. **Todas mortas.**
-- **Bug real encontrado pelo e2e da Fase 6**: o Next renderiza layout e página em paralelo; as duas chamavam `requireSession` e ambas tentavam gravar o mesmo usuário no primeiro acesso, violando a unicidade em todo primeiro login. Corrigido: a unicidade decide quem grava, quem perde relê. Coberto por `sessao.integration.test.ts:157-182`.
-- **Desvios de plataforma registrados**: `src/middleware.ts` virou `src/proxy.ts` (o Next 16 deprecou a convenção anterior); `forbidden()` exigiu `experimental.authInterrupts`; `AGENTS.md` ganhou um bloco que o próprio `next dev` reescreve a cada execução.
+- **Phase/Task**: Fase 7 CONCLUÍDA (T47 a T54). **Todas as 54 tasks implementadas.**
+- **Completed**: 345 unit + 112 integration + 10 e2e, todos verdes. `pnpm verify` exit 0. 100% de branches em `src/domain` (124/124).
+- **Next step**: **Verifier independente**. Nenhum requisito foi promovido a `Verified` por este worker — a tabela de traceability do `spec.md` continua em `Implementing` para tudo que a Fase 7 tocou, de propósito.
+- **Blockers**: nenhum para desenvolvimento. Para **usar** o app falta o Google OAuth Client ID e Secret, que o usuário vai criar.
+- **A dor central está resolvida e provada**: `e2e/compra-parcelada.spec.ts:112-119` cadastra R$ 1.000,00 em 3x em `2026-03` e encontra as parcelas 2/3 e 3/3 em `/2026-04` e `/2026-05` com **apenas um `page.goto` entre as duas coisas**.
+- **Decisões estruturais desta fase**:
+  - `planoDaCompra` (`src/application/compras/plano-da-compra.ts`) é chamada pelo preview do formulário **e** pela Server Action. Preview e gravação não são dois cálculos que coincidem: são um só.
+  - `CompraRepository.totaisDeParcelas` foi acrescentada à port. O lançamento guarda o número da parcela; o total vive no plano. Sem ela, PARC-08 AC 7 (`8/10` e quantas faltam) não teria como ser satisfeito.
+  - `src/lib/erros.ts` passa a ser o contrato de apresentação: `ResultadoAction`, mapa código → mensagem em pt-BR e mapa código → campo do formulário. O identificador de correlação vai dentro da mensagem, preservando o contrato `{ code, mensagem, campos? }` do design.
+- **Desvios registrados**:
+  - **Sem `react-hook-form` e sem `shadcn/ui`** em T50, apesar do campo `Tools` da task. React 19 (`useTransition`) mais o schema Zod de T47 cobrem todo o Done-when; as duas bibliotecas trariam Radix, `cva` e um scaffold de `components/ui` para um formulário só.
+  - **Gate de T51 elevado de `quick` para `full`**, porque a nova leitura de repositório exige teste de integração pela matriz. Mais estrito, nunca mais frouxo.
+  - **Testes de componente acrescentados** em T50 e T52, que a matriz classifica como `Tests: none`. Sem eles, nenhum critério do Done-when dos dois teria evidência `file:line`.
+- **Limite de escopo consciente**: o eixo caixa soma apenas os lançamentos *desta* competência já pagos. A fórmula completa do design inclui `pagamento_fatura`, que não tem repositório nesta feature. É por isso que a tela rotula o número como caixa em vez de apresentá-lo como o total do mês.
+- **Observação sobre o domínio (não corrigida, fora de escopo)**: `gerarParcelas` valida `parcelaInicial < 1` e `> qtdParcelas`, mas não `Number.isInteger`. Com `NaN` as duas comparações são falsas e a competência sai como `NaN-NaN`. A guarda de forma foi posta em `planoDaCompra`, na camada de aplicação; `src/domain` não foi tocado.
 - **Uncommitted files**: nenhum
 - **Branch**: main
