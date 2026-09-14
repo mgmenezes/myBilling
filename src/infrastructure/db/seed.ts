@@ -4,15 +4,18 @@ import {
   type Competencia,
   criarCents,
   criarCompetencia,
+  diaEfetivo,
   diffMeses,
   gerarParcelas,
+  janelaMaterializacao,
   type PlanoParcelamento,
+  versaoVigente,
 } from "@/domain";
 import type { BancoDeDados } from "./client";
 import { CadastroRepositoryDrizzle } from "./repositories/cadastro.repository";
 import { CompraRepositoryDrizzle } from "./repositories/compra.repository";
 import { deCompetencia } from "./repositories/mapeadores";
-import { movimento } from "./schema";
+import { movimento, recorrencia, recorrenciaVersao } from "./schema";
 
 /**
  * Seed sintético.
@@ -122,6 +125,63 @@ const DESCRICOES_AVULSAS = [
   "Lançamento avulso F",
 ] as const;
 
+/**
+ * As recorrências do ambiente de desenvolvimento.
+ *
+ * Elas existem para o bloco "Fixos" da lista parar de estar permanentemente
+ * vazio, e para exercitar os dois casos que a fatia precisa cobrir: **valor que
+ * muda** (a conta de luz ganha uma segunda vigência no meio da cobertura) e
+ * **receita recorrente** (salário, que é o que faz "Receitas do mês" deixar de
+ * ser avulso inventado).
+ *
+ * `versoes` é uma lista de `[deslocamento em meses a partir da base, valor]`.
+ * Deslocamento e não competência literal: o seed inteiro é ancorado no relógio,
+ * e uma vigência escrita à mão envelheceria junto.
+ */
+const RECORRENCIAS = [
+  {
+    descricao: "Conta fixa A",
+    natureza: "DESPESA",
+    diaVencimento: 10,
+    indiceCategoria: 0,
+    versoes: [[0, 18734]],
+  },
+  {
+    descricao: "Conta fixa B",
+    natureza: "DESPESA",
+    diaVencimento: 20,
+    /* Duas vigências: o valor sobe a partir do terceiro mês da cobertura. É o
+     * caso que distingue um cadastro de recorrência que funciona de um que
+     * reescreve o passado. */
+    indiceCategoria: 1,
+    versoes: [
+      [0, 12456],
+      [3, 16789],
+    ],
+  },
+  {
+    descricao: "Serviço fixo C",
+    natureza: "DESPESA",
+    diaVencimento: 28,
+    indiceCategoria: 2,
+    versoes: [[0, 9900]],
+  },
+  {
+    descricao: "Entrada recorrente A",
+    natureza: "RECEITA",
+    diaVencimento: 5,
+    indiceCategoria: null,
+    versoes: [[0, 412345]],
+  },
+  {
+    descricao: "Entrada recorrente B",
+    natureza: "RECEITA",
+    diaVencimento: 6,
+    indiceCategoria: null,
+    versoes: [[0, 318976]],
+  },
+] as const;
+
 /** Despesas avulsas por mês. Oito basta para o gráfico de categorias ter forma. */
 const AVULSOS_POR_MES = 8;
 
@@ -145,6 +205,7 @@ function chanceDeEstarPago(distancia: number): number {
 }
 
 export interface ResultadoSeed {
+  readonly recorrencias: number;
   readonly competenciaBase: string;
   readonly usuarios: number;
   readonly meiosDePagamento: number;
@@ -324,6 +385,87 @@ export async function semear(
     throw new Error(`seed falhou na compra C: ${compraLonga.error.code}`);
   }
 
+  /*
+   * As recorrências e as ocorrências delas.
+   *
+   * A materialização aqui usa **as mesmas funções puras** que o caso de uso vai
+   * usar (`janelaMaterializacao` e `versaoVigente`), e não uma segunda versão
+   * da regra escrita à mão. Duas implementações do mesmo cálculo divergiriam, e
+   * o seed é o primeiro lugar onde a divergência apareceria como dado errado.
+   *
+   * Nenhuma ocorrência nasce paga, nem quando a competência já passou: pagar é
+   * gesto do usuário, e um ambiente de desenvolvimento onde tudo já veio pago
+   * esconderia justamente o botão que acabou de ser construído.
+   */
+  const ultimaCoberta = addMeses(base, MESES_DE_AVULSOS - 1);
+  let ocorrenciasDeRecorrencia = 0;
+
+  for (const modelo of RECORRENCIAS) {
+    const categoriaDaRecorrencia =
+      modelo.indiceCategoria === null ? null : (categorias[modelo.indiceCategoria]?.id ?? null);
+    const pessoa =
+      modelo.natureza === "RECEITA" && modelo.descricao.endsWith("B") ? pessoaB : pessoaA;
+
+    const [linha] = await db
+      .insert(recorrencia)
+      .values({
+        descricao: modelo.descricao,
+        natureza: modelo.natureza,
+        categoriaId: categoriaDaRecorrencia,
+        usuarioId: pessoa.id,
+        meioPagamentoId: contaCorrente.id,
+        competenciaInicio: deCompetencia(base),
+        competenciaFim: null,
+        diaVencimento: modelo.diaVencimento,
+        encerradaEm: null,
+      })
+      .returning();
+    if (!linha) {
+      throw new Error(`insert de recorrencia não retornou linha: ${modelo.descricao}`);
+    }
+
+    const versoes = modelo.versoes.map(([deslocamento, valor]) => ({
+      vigenteDesde: addMeses(base, deslocamento),
+      valorPrevisto: cents(valor),
+    }));
+    for (const versao of versoes) {
+      await db.insert(recorrenciaVersao).values({
+        recorrenciaId: linha.id,
+        vigenteDesde: deCompetencia(versao.vigenteDesde),
+        valorPrevistoCentavos: versao.valorPrevisto,
+      });
+    }
+
+    const competencias = janelaMaterializacao(
+      { inicio: base, fim: null, encerradaDesde: null },
+      base,
+      ultimaCoberta,
+    );
+    for (const comp of competencias) {
+      const vigente = versaoVigente(versoes, comp);
+      if (vigente === null) {
+        continue;
+      }
+      const ano = Number.parseInt(comp.slice(0, 4), 10);
+      const mes = Number.parseInt(comp.slice(5, 7), 10);
+      await db.insert(movimento).values({
+        natureza: modelo.natureza,
+        origem: "RECORRENCIA",
+        descricao: modelo.descricao,
+        competencia: deCompetencia(comp),
+        dataEvento: dia(comp, diaEfetivo(modelo.diaVencimento, ano, mes)),
+        valorCentavos: vigente.valorPrevisto,
+        valorPrevistoCentavos: vigente.valorPrevisto,
+        pagoEm: null,
+        categoriaId: categoriaDaRecorrencia,
+        usuarioId: pessoa.id,
+        meioPagamentoId: contaCorrente.id,
+        recorrenciaId: linha.id,
+      });
+      ocorrenciasDeRecorrencia += 1;
+    }
+  }
+
   const meiosAvulsos = [contaCorrente, cartaoAzul, rotulo];
   let movimentosAvulsos = 0;
 
@@ -390,10 +532,12 @@ export async function semear(
     meiosDePagamento: 5,
     categorias: CATEGORIAS.length + 1,
     compras: 3,
+    recorrencias: RECORRENCIAS.length,
     movimentos:
       movimentosAvulsos +
       compraDoResiduo.value.parcelas.length +
       compraEmAndamento.value.parcelas.length +
-      compraLonga.value.parcelas.length,
+      compraLonga.value.parcelas.length +
+      ocorrenciasDeRecorrencia,
   };
 }
