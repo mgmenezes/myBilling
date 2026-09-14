@@ -448,7 +448,7 @@ T21 -> T22
 
 ### Phase 5 — Fechamento
 
-#### T21: E2E do ciclo completo
+#### T21: E2E do ciclo completo ✅ CONCLUÍDA
 **What**: Um fluxo que percorre a feature inteira: cadastrar água com valor previsto, navegar três meses e achar a ocorrência em cada, registrar valor novo a partir do terceiro, conferir que os dois primeiros não mudaram, confirmar o valor real de um, e encerrar.
 **Where**: `e2e/recorrencias.spec.ts`
 **Depends on**: T19, T20
@@ -456,9 +456,9 @@ T21 -> T22
 **Requirement**: FIXO-01, FIXO-03, FIXO-04, FIXO-06
 **Tools**: Postgres em Docker, Chrome do sistema
 **Done when**:
-- [ ] O teste assere **valores**, não só presença de elemento
-- [ ] O indicador do painel muda ao confirmar o valor real
-- [ ] Encerrar remove as ocorrências futuras e preserva as pagas
+- [x] O teste assere **valores**, não só presença de elemento
+- [x] O indicador do painel muda ao confirmar o valor real
+- [x] Encerrar remove as ocorrências futuras e preserva as pagas
 **Tests**: e2e
 **Gate**: build
 
