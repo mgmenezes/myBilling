@@ -910,7 +910,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T48: Caso de uso criar compra parcelada
+#### T48: Caso de uso criar compra parcelada ✅ CONCLUÍDA
 **What**: Orquestrar validação, `gerarParcelas` do domínio e persistência transacional, devolvendo `Result`. Testado **sem banco**, com os fakes de T32.
 **Where**: `src/application/compras/criar-compra-parcelada/handler.ts`
 **Depends on**: T47, T32, T19
@@ -918,11 +918,17 @@ T52 -> T53
 **Requirement**: PARC-01, PARC-02, PARC-05, PARC-06, CART-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] R$ 1.000,00 em 3x com competência `2026-03` produz 3 parcelas com 33334, 33333 e 33333 nas competências `2026-03`, `2026-04` e `2026-05` (PARC-01, AC 1)
-- [ ] Compra `8/10` produz 3 parcelas e zero lançamentos anteriores (PARC-06, AC 1 e AC 3)
-- [ ] Cartão arquivado é rejeitado com `MEIO_PAGAMENTO_ARQUIVADO` (CART-03, AC 7)
-- [ ] Chave de idempotência repetida devolve a compra existente sem duplicar parcelas (PARC-05, AC 9)
-- [ ] Todos os testes rodam sem banco, no gate `quick`
+- [x] R$ 1.000,00 em 3x com competência `2026-03` produz 3 parcelas com 33334, 33333 e 33333 nas competências `2026-03`, `2026-04` e `2026-05` (PARC-01, AC 1)
+- [x] Compra `8/10` produz 3 parcelas e zero lançamentos anteriores (PARC-06, AC 1 e AC 3)
+- [x] Cartão arquivado é rejeitado com `MEIO_PAGAMENTO_ARQUIVADO` (CART-03, AC 7)
+- [x] Chave de idempotência repetida devolve a compra existente sem duplicar parcelas (PARC-05, AC 9)
+- [x] Todos os testes rodam sem banco, no gate `quick`
+
+> Nenhuma conta acontece no caso de uso: rateio é `gerarParcelas`, deslocamento de mês é `addMeses`, conservação é do repositório. Ele decide a ordem, não os números.
+>
+> A ponte entre o formulário e o domínio é `addMeses(competenciaInicial, -(parcelaInicial - 1))`: o usuário informa o mês da parcela que está lançando, o domínio conta a partir da parcela 1. Numa compra `8/10` em `2026-03` a parcela 1 é `2025-08` e continua sem gerar lançamento nenhum (AD-005).
+>
+> **Ampliação registrada**: `MEIO_PAGAMENTO_NAO_ENCONTRADO` é código da aplicação, não do domínio. Id que não existe é erro de referência, não regra financeira — a união fechada de `CodigoErro` fica intacta.
 **Tests**: unit
 **Gate**: quick
 
