@@ -288,7 +288,7 @@ Toda ambiguidade está resolvida ou registrada aqui.
 | MOV-03 | P1: Integridade do razão e anti-dupla-contagem | Tasks | Implementing |
 | MOV-04 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
 | MOV-05 | P1: Integridade do razão e anti-dupla-contagem | Design | Pending |
-| MOV-06 | P2: Previsto versus realizado | Design | Pending |
+| MOV-06 | P2: Previsto versus realizado | Tasks | Implementing |
 | CART-01 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | CART-02 | P2: Ciclo de fatura do cartão | Tasks | Implementing |
 | CART-03 | P2: Ciclo de fatura do cartão | Tasks | Implementing |

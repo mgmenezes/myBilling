@@ -422,7 +422,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T18: Regeneração de parcelas preservando as pagas
+#### T18: Regeneração de parcelas preservando as pagas ✅ CONCLUÍDA
 **What**: `regenerarParcelas(compra, alteracoes, parcelasPagas)` redistribuindo apenas o remanescente entre as parcelas não pagas, rejeitando redução abaixo do já pago e preservando a conservação da soma.
 **Where**: `src/domain/parcelamento/regenerar-parcelas.ts`
 **Depends on**: T14
@@ -430,11 +430,11 @@ T52 -> T53
 **Requirement**: PARC-02, MOV-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] Alterar o total de uma compra 12x com 3 parcelas pagas redistribui apenas as 9 pendentes e não altera as 3 pagas (MOV-06, AC 4)
-- [ ] Reduzir de 10 para 6 parcelas com 8 já pagas é rejeitado
-- [ ] Reduzir de 10 para 9 com 8 pagas cancela a parcela 10 e mantém a conservação
-- [ ] Novo total abaixo do já pago é rejeitado
-- [ ] Após qualquer regeneração aceita, soma das não canceladas mais amortizado mais cancelado é exatamente o total (PARC-02)
+- [x] Alterar o total de uma compra 12x com 3 parcelas pagas redistribui apenas as 9 pendentes e não altera as 3 pagas (MOV-06, AC 4)
+- [x] Reduzir de 10 para 6 parcelas com 8 já pagas é rejeitado
+- [x] Reduzir de 10 para 9 com 8 pagas cancela a parcela 10 e mantém a conservação
+- [x] Novo total abaixo do já pago é rejeitado
+- [x] Após qualquer regeneração aceita, soma das não canceladas mais amortizado mais cancelado é exatamente o total (PARC-02)
 **Tests**: unit
 **Gate**: quick
 
