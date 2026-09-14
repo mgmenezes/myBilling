@@ -341,7 +341,7 @@ T21 -> T22
 
 ### Phase 3 — Borda
 
-#### T14: Schema de entrada da recorrência
+#### T14: Schema de entrada da recorrência ✅ CONCLUÍDA
 **What**: Schema Zod compartilhado entre cliente e servidor, com natureza, descrição, dia de vencimento (1 a 31), competência de início, competência de fim opcional e valor previsto.
 **Where**: `src/application/schemas/recorrencia.schema.ts`
 **Depends on**: T10
@@ -349,10 +349,10 @@ T21 -> T22
 **Requirement**: FIXO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Dia de vencimento fora de 1 a 31 é rejeitado, e dia fracionário também
-- [ ] Competência fora de `AAAA-MM` é rejeitada
-- [ ] Valor não positivo é rejeitado
-- [ ] Fim ausente é aceito e significa sem fim
+- [x] Dia de vencimento fora de 1 a 31 é rejeitado, e dia fracionário também
+- [x] Competência fora de `AAAA-MM` é rejeitada
+- [x] Valor não positivo é rejeitado
+- [x] Fim ausente é aceito e significa sem fim
 **Tests**: unit
 **Gate**: quick
 
