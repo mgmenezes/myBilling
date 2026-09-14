@@ -10,11 +10,17 @@ import {
   type Situacao,
 } from "@/application/mes/filtrar-lancamentos";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
+import {
+  MESES_DE_PROJECAO,
+  materializarRecorrencias,
+} from "@/application/recorrencias/materializar/handler";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
 import { FormCompra } from "@/components/form-compra";
 import { TabelaLancamentos } from "@/components/tabela-lancamentos";
 import { type Cents, criarCompetencia, type Natureza, somar, ZERO_CENTS } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
+import { db } from "@/infrastructure/db/client";
+import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
 import { formatarBRL } from "@/lib/formatar";
 import { sessaoDaUI } from "../../sessao";
 
@@ -71,6 +77,13 @@ export default async function PaginaDeLancamentos({
   };
 
   const repositorios = criarRepositorios();
+  /* Mesma materialização do painel: as duas páginas mostram o mês, e abrir uma
+   * ou outra primeiro não pode mudar o que existe. */
+  await materializarRecorrencias(
+    { recorrencias: new RecorrenciaRepositoryDrizzle(db()), movimentos: repositorios.movimentos },
+    resultado.value,
+    MESES_DE_PROJECAO,
+  );
   const [visao, meios, categorias, usuarios] = await Promise.all([
     obterVisaoMensal(repositorios, resultado.value),
     repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),

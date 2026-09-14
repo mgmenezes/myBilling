@@ -371,7 +371,7 @@ T21 -> T22
 **Tests**: integration
 **Gate**: full
 
-#### T16: Materializar ao abrir o mês
+#### T16: Materializar ao abrir o mês ✅ CONCLUÍDA
 **What**: Chamar a materialização antes da leitura, nas duas páginas que mostram lançamentos do mês. É o ponto que a spec registra como decisão discutível: um GET que escreve, tornado seguro pelo índice único.
 **Where**: `src/app/(app)/[competencia]/page.tsx`, `src/app/(app)/[competencia]/lancamentos/page.tsx`
 **Depends on**: T9

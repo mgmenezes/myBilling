@@ -1,12 +1,18 @@
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
+import {
+  MESES_DE_PROJECAO,
+  materializarRecorrencias,
+} from "@/application/recorrencias/materializar/handler";
 import { GraficoCategorias } from "@/components/grafico-categorias";
 import { HorizonteFuturo } from "@/components/horizonte-futuro";
 import { AlternadorDeVisao, GradeDeIndicadores, type Visao } from "@/components/painel-indicadores";
 import { TransicaoMes } from "@/components/transicao-mes";
 import { criarCompetencia, resumoPorCategoria } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
+import { db } from "@/infrastructure/db/client";
+import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { sessaoDaUI } from "../sessao";
 
@@ -46,6 +52,18 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
   const visao: Visao = visaoBruta === "movimentacoes" ? "movimentacoes" : "planejamento";
 
   const repositorios = criarRepositorios();
+  /*
+   * As ocorrências de recorrência da janela são garantidas **antes** da
+   * leitura. É um GET que escreve, e a decisão está registrada na spec: a
+   * alternativa, materializar só na criação, deixaria buraco em todo mês fora
+   * da janela daquele momento. A repetição é inofensiva — quem garante é a
+   * restrição única `(recorrência, competência)`, não uma consulta prévia.
+   */
+  await materializarRecorrencias(
+    { recorrencias: new RecorrenciaRepositoryDrizzle(db()), movimentos: repositorios.movimentos },
+    resultado.value,
+    MESES_DE_PROJECAO,
+  );
   const visaoMensal = await obterVisaoMensal(repositorios, resultado.value);
 
   const categorias = resumoPorCategoria(
