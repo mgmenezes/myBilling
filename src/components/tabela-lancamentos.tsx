@@ -14,8 +14,11 @@ import { formatarBRL, formatarData } from "@/lib/formatar";
  * duplicado no DOM quebra leitor de tela e busca de página.
  *
  * Em 400 pixels nada força largura: sem `min-width`, sem coluna fixa, e
- * **sem `overflow-x: hidden`** — esconder a barra faria a medição do e2e
+ * **sem `overflow-x: hidden`**, porque esconder a barra faria a medição do e2e
  * passar sem significar nada (UI-03, AC 9).
+ *
+ * Pago e previsto se distinguem por preenchimento do selo, não por cor. Quem
+ * não separa verde de vermelho continua lendo a diferença.
  */
 
 interface Bloco {
@@ -31,8 +34,8 @@ const BLOCOS: ReadonlyArray<Bloco> = [
   { id: "avulsos", titulo: "Gastos do Mês", origem: "AVULSO" },
 ];
 
-const CELULA = "block md:table-cell md:px-3 md:py-2 md:align-top";
-const CABECALHO = "md:px-3 md:py-2 text-left text-xs font-semibold uppercase tracking-wide";
+const CELULA = "block md:table-cell md:px-4 md:py-3.5 md:align-top";
+const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-muted";
 
 export function TabelaLancamentos({
   lancamentos,
@@ -41,7 +44,7 @@ export function TabelaLancamentos({
 }) {
   if (lancamentos.length === 0) {
     return (
-      <p className="rounded-md border border-dashed border-zinc-300 px-4 py-8 text-center text-sm text-zinc-700 dark:border-zinc-700 dark:text-zinc-300">
+      <p className="rounded-panel border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
         Nenhum lançamento neste mês ainda. Cadastre uma compra parcelada abaixo: as parcelas dos
         meses seguintes aparecem sozinhas, sem você precisar criar nada.
       </p>
@@ -52,7 +55,7 @@ export function TabelaLancamentos({
   const outros = lancamentos.filter((item) => item.lancamento.natureza !== "DESPESA");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-7">
       {BLOCOS.map((bloco) => (
         <BlocoDeLancamentos
           key={bloco.origem}
@@ -79,17 +82,25 @@ function BlocoDeLancamentos({
   readonly itens: ReadonlyArray<LancamentoDoMes>;
 }) {
   return (
-    <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-2">
-      <h3 id={`bloco-${id}`} className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-        {titulo}
-      </h3>
+    <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline gap-3">
+        <h3 id={`bloco-${id}`} className="text-[17px] font-medium tracking-[-0.01em]">
+          {titulo}
+        </h3>
+        {itens.length === 0 ? null : (
+          <span className="tabular text-[14px] text-ink-muted">
+            {itens.length === 1 ? "1 lançamento" : `${itens.length} lançamentos`}
+          </span>
+        )}
+      </div>
+
       {itens.length === 0 ? (
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">Nenhum lançamento neste bloco.</p>
+        <p className="text-[15px] text-ink-muted">Nenhum lançamento neste bloco.</p>
       ) : (
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full border-collapse text-[15px]">
           <caption className="sr-only">{titulo}</caption>
           <thead className="hidden md:table-header-group">
-            <tr className="border-b border-zinc-200 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+            <tr>
               <th scope="col" className={CABECALHO}>
                 Descrição
               </th>
@@ -111,18 +122,21 @@ function BlocoDeLancamentos({
             {itens.map(({ lancamento, parcela }) => (
               <tr
                 key={lancamento.id}
-                className="mb-2 block rounded-md border border-zinc-200 p-3 md:mb-0 md:table-row md:rounded-none md:border-0 md:border-b md:p-0 dark:border-zinc-800"
+                /*
+                 * Uma régua só, entre as linhas, nunca acima e abaixo de cada
+                 * uma. Régua dupla em toda linha é o que faz uma tabela
+                 * parecer exportação de planilha.
+                 */
+                className="mb-3 block rounded-card bg-surface p-4 shadow-lift md:mb-0 md:table-row md:rounded-none md:bg-transparent md:p-0 md:shadow-none md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line"
               >
-                <td className={`${CELULA} font-medium text-zinc-900 dark:text-zinc-50`}>
-                  {lancamento.descricao}
-                </td>
-                <td className={`${CELULA} text-zinc-700 dark:text-zinc-300`}>
+                <td className={`${CELULA} font-medium`}>{lancamento.descricao}</td>
+                <td className={`${CELULA} tabular text-ink-muted`}>
                   {parcela === null ? (
-                    <span className="md:sr-only">—</span>
+                    <span className="sr-only">sem parcelamento</span>
                   ) : (
                     <>
                       {parcela.numero}/{parcela.total}{" "}
-                      <span className="text-zinc-700 dark:text-zinc-300">
+                      <span className="text-ink-muted">
                         {parcela.restantes === 0
                           ? "(última)"
                           : `(faltam ${parcela.restantes} depois desta)`}
@@ -130,15 +144,21 @@ function BlocoDeLancamentos({
                     </>
                   )}
                 </td>
-                <td className={`${CELULA} text-zinc-700 dark:text-zinc-300`}>
+                <td className={`${CELULA} tabular text-ink-muted`}>
                   {formatarData(lancamento.dataEvento)}
                 </td>
-                <td className={`${CELULA} text-zinc-700 dark:text-zinc-300`}>
-                  {lancamento.pagoEm === null ? "Previsto" : "Pago"}
+                <td className={CELULA}>
+                  <span
+                    className={`inline-flex w-fit items-center rounded-chip px-2.5 py-0.5 text-[13px] font-medium ${
+                      lancamento.pagoEm === null
+                        ? "border border-line text-ink-muted"
+                        : "bg-ink text-canvas"
+                    }`}
+                  >
+                    {lancamento.pagoEm === null ? "Previsto" : "Pago"}
+                  </span>
                 </td>
-                <td
-                  className={`${CELULA} font-medium text-zinc-900 md:text-right dark:text-zinc-50`}
-                >
+                <td className={`${CELULA} tabular font-medium md:text-right`}>
                   {formatarBRL(lancamento.valor)}
                   <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
                 </td>

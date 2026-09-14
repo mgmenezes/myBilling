@@ -1,5 +1,7 @@
 "use client";
 
+import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useId, useMemo, useState, useTransition } from "react";
 import type { criarCompra } from "@/app/actions/compras";
@@ -15,7 +17,7 @@ import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
  *
  * 1. **O preview usa a mesma função que persiste.** `planoDaCompra` é a função
  *    que a Server Action chama para gravar. O centavo residual que aparece na
- *    tela é o mesmo que vai para o banco — preview e gravação não têm como
+ *    tela é o mesmo que vai para o banco. Preview e gravação não têm como
  *    divergir, porque não são dois cálculos (PARC-01, PARC-04, PARC-06).
  * 2. **A chave de idempotência nasce ao abrir o formulário**, não ao submeter
  *    (PARC-05, AC 9). Gerar no submit não protegeria contra o duplo-clique,
@@ -49,10 +51,17 @@ interface Confirmacao {
   readonly qtdParcelas: number;
 }
 
-const ROTULO_CLASSE = "text-sm font-medium text-zinc-900 dark:text-zinc-50";
+const ROTULO_CLASSE = "text-[14px] font-medium text-ink";
 const CONTROLE_CLASSE =
-  "w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50";
-const ERRO_CLASSE = "text-sm text-red-700 dark:text-red-400";
+  "w-full rounded-cta border border-line bg-surface-strong px-4 py-2.5 text-[15px] text-ink " +
+  "transition-colors duration-200 hover:border-line-strong " +
+  "aria-[invalid=true]:border-accent aria-[invalid=true]:border-2";
+/*
+ * Erro em tinta, nunca no laranja: o acento sobre o creme mede 4.11:1 e
+ * reprova em texto de corpo. Quem sinaliza o erro é a borda do campo e o
+ * ícone, que são elementos grandes o bastante para o acento passar.
+ */
+const ERRO_CLASSE = "flex items-center gap-1.5 text-[14px] text-ink";
 
 function inteiro(texto: string): number {
   const valor = Number.parseInt(texto, 10);
@@ -63,6 +72,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
   const router = useRouter();
   const id = useId();
   const [pendente, iniciarEnvio] = useTransition();
+  const reduzir = useReducedMotion();
 
   // Gerada **ao abrir**, não ao submeter (PARC-05, AC 9).
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
@@ -164,6 +174,12 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
       props: { "aria-invalid": true, "aria-describedby": `${id}-${campo}-erro` },
       no: (
         <p id={`${id}-${campo}-erro`} className={ERRO_CLASSE}>
+          <WarningCircleIcon
+            size={16}
+            weight="fill"
+            aria-hidden="true"
+            className="shrink-0 text-accent"
+          />
           {mensagem}
         </p>
       ),
@@ -180,9 +196,9 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
     <form
       onSubmit={enviarFormulario}
       aria-labelledby={`${id}-titulo`}
-      className="flex w-full flex-col gap-4 rounded-md border border-zinc-200 p-4 dark:border-zinc-800"
+      className="flex w-full flex-col gap-5 rounded-panel bg-surface p-6 shadow-lift sm:p-8"
     >
-      <h2 id={`${id}-titulo`} className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+      <h2 id={`${id}-titulo`} className="text-[22px]">
         Nova compra parcelada
       </h2>
 
@@ -205,7 +221,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
       <fieldset className="flex flex-col gap-2">
         <legend className={ROTULO_CLASSE}>O valor informado é</legend>
         <div className="flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 text-sm text-zinc-900 dark:text-zinc-50">
+          <label className="flex items-center gap-2 text-[15px] text-ink">
             <input
               type="radio"
               name="modo"
@@ -215,7 +231,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
             />
             Valor total
           </label>
-          <label className="flex items-center gap-2 text-sm text-zinc-900 dark:text-zinc-50">
+          <label className="flex items-center gap-2 text-[15px] text-ink">
             <input
               type="radio"
               name="modo"
@@ -350,41 +366,70 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
         </div>
       </div>
 
-      <section aria-label="Previsão das parcelas" className="flex flex-col gap-2">
+      {/*
+        A previsão é o momento central do app: uma compra vira N parcelas nos
+        meses seguintes, que é exatamente a re-digitação que a planilha exigia.
+        A cascata comunica isso, e por isso ela é disparada pela **quantidade**
+        de parcelas (a chave do `ul`), não por cada tecla digitada. Recomeçar a
+        animação a cada dígito do valor seria ruído, não informação.
+      */}
+      <section
+        aria-label="Previsão das parcelas"
+        className="flex flex-col gap-3 rounded-card bg-canvas p-5"
+      >
         <h3 className={ROTULO_CLASSE}>Parcelas que serão criadas</h3>
         {previa === null ? (
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">
+          <p className="text-[15px] text-ink-muted">
             Informe o valor e a quantidade de parcelas para ver a previsão.
           </p>
         ) : (
-          <ul className="flex flex-col gap-1">
-            {previa.parcelas.map((parcela) => (
-              <li
+          <ul key={previa.parcelas.length} className="flex flex-col gap-1.5">
+            {previa.parcelas.map((parcela, indice) => (
+              <motion.li
                 key={parcela.numero}
-                className="flex flex-wrap justify-between gap-2 text-sm text-zinc-900 dark:text-zinc-50"
+                initial={reduzir ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.22,
+                  // Teto no atraso: em 120 parcelas, 0.03s cada levaria 3,6
+                  // segundos até a última aparecer.
+                  delay: Math.min(indice * 0.03, 0.45),
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="flex flex-wrap justify-between gap-2 text-[15px]"
               >
-                <span>
+                <span className="tabular text-ink-muted">
                   {parcela.numero}/{inteiro(qtdParcelas)} {formatarCompetencia(parcela.competencia)}
                 </span>
-                <span className="font-medium">{formatarBRL(parcela.valor)}</span>
-              </li>
+                <span className="tabular font-medium">{formatarBRL(parcela.valor)}</span>
+              </motion.li>
             ))}
-            <li className="flex flex-wrap justify-between gap-2 border-t border-zinc-200 pt-1 text-sm text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
-              <span>Total da compra</span>
-              <span className="font-medium">{formatarBRL(previa.valorTotal)}</span>
+            <li className="mt-1 flex flex-wrap justify-between gap-2 border-t border-line pt-2.5 text-[15px]">
+              <span className="text-ink-muted">Total da compra</span>
+              <span className="tabular font-medium">{formatarBRL(previa.valorTotal)}</span>
             </li>
           </ul>
         )}
       </section>
 
       {erroGeral === "" ? null : (
-        <p role="alert" className={ERRO_CLASSE}>
+        <p role="alert" className={`${ERRO_CLASSE} rounded-card border border-accent px-4 py-3`}>
+          <WarningCircleIcon
+            size={18}
+            weight="fill"
+            aria-hidden="true"
+            className="shrink-0 text-accent"
+          />
           {erroGeral}
         </p>
       )}
 
       {confirmacao === null ? null : (
-        <p role="status" className="text-sm text-green-700 dark:text-green-400">
+        <p
+          role="status"
+          className="flex items-center gap-2 rounded-card bg-ink px-4 py-3 text-[15px] text-canvas"
+        >
+          <CheckCircleIcon size={18} weight="fill" aria-hidden="true" className="shrink-0" />
           {confirmacao.descricao} gravada em {confirmacao.qtdParcelas} parcela
           {confirmacao.qtdParcelas === 1 ? "" : "s"}.
         </p>
@@ -394,7 +439,7 @@ export function FormCompra({ competencia, meios, categorias, usuarios, enviar }:
         type="submit"
         disabled={pendente}
         aria-busy={pendente}
-        className="rounded-md bg-zinc-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 dark:bg-zinc-50 dark:text-zinc-900"
+        className="inline-flex items-center justify-center rounded-cta bg-ink px-6 py-3.5 text-[15px] font-medium text-canvas transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-55"
       >
         {pendente ? "Gravando…" : "Cadastrar compra"}
       </button>

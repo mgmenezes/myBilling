@@ -61,6 +61,16 @@ export default async function PaginaDoMes({ params }: PageProps<"/[competencia]"
     <div className="flex flex-col gap-8">
       <SeletorCompetencia competencia={resultado.value} />
 
+      {/*
+        A transição cobre só o topo: título e os dois painéis, que é o que se
+        olha ao trocar de mês. Animar a página inteira a cada troca é movimento
+        demais numa ferramenta de uso diário.
+
+        Ela também **não pode** envolver o `HorizonteFuturo`: aquele componente
+        usa GSAP, e um ancestral com `transform` cria bloco de contenção que
+        faz o ScrollTrigger calcular posição errada enquanto a transição roda.
+        Motion e GSAP ficam em árvores irmãs, nunca aninhadas.
+      */}
       <TransicaoMes competencia={resultado.value}>
         <div className="flex flex-col gap-8">
           <h1 className="text-[30px] leading-[1.1] sm:text-[38px]">
@@ -109,39 +119,39 @@ export default async function PaginaDoMes({ params }: PageProps<"/[competencia]"
             paga neste mês contém compras de meses anteriores. O myBilling não soma nem subtrai um
             do outro.
           </p>
-
-          <section aria-labelledby="titulo-lancamentos" className="flex flex-col gap-5">
-            <h2 id="titulo-lancamentos" className="text-[22px]">
-              Lançamentos do mês
-            </h2>
-            <TabelaLancamentos lancamentos={visao.lancamentos} />
-          </section>
-
-          <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
-            <h2 id="titulo-futuro" className="text-[22px]">
-              Já comprometido nos próximos meses
-            </h2>
-            <HorizonteFuturo
-              meses={visao.futuro.map((mes) => ({
-                competencia: mes.competencia,
-                rotulo: formatarCompetencia(mes.competencia),
-                valor: formatarBRL(mes.comprometido),
-              }))}
-            />
-          </section>
-
-          <FormCompra
-            competencia={resultado.value}
-            meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
-            categorias={categorias.map((categoria) => ({
-              id: categoria.id,
-              nome: categoria.nome,
-            }))}
-            usuarios={usuarios.map((usuario) => ({ id: usuario.id, nome: usuario.nome }))}
-            enviar={criarCompra}
-          />
         </div>
       </TransicaoMes>
+
+      <section aria-labelledby="titulo-lancamentos" className="flex flex-col gap-5">
+        <h2 id="titulo-lancamentos" className="text-[22px]">
+          Lançamentos do mês
+        </h2>
+        <TabelaLancamentos lancamentos={visao.lancamentos} />
+      </section>
+
+      <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
+        <h2 id="titulo-futuro" className="text-[22px]">
+          Já comprometido nos próximos meses
+        </h2>
+        <HorizonteFuturo
+          meses={visao.futuro.map((mes) => ({
+            competencia: mes.competencia,
+            rotulo: formatarCompetencia(mes.competencia),
+            valor: formatarBRL(mes.comprometido),
+          }))}
+        />
+      </section>
+
+      <FormCompra
+        competencia={resultado.value}
+        meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
+        categorias={categorias.map((categoria) => ({
+          id: categoria.id,
+          nome: categoria.nome,
+        }))}
+        usuarios={usuarios.map((usuario) => ({ id: usuario.id, nome: usuario.nome }))}
+        enviar={criarCompra}
+      />
     </div>
   );
 }

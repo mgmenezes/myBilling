@@ -1,10 +1,36 @@
-/** Estado de carregamento do mês (UI-01, AC 7). */
+/**
+ * Estado de carregamento do mês (UI-02, AC 7).
+ *
+ * O esqueleto tem a forma do conteúdo que vai chegar: o seletor, os dois
+ * painéis com a proporção 3 para 2, e a lista. Um spinner genérico no lugar
+ * disso diria apenas "espere"; isto diz "o mês está vindo, e ele se parece
+ * com isto", e a página não salta quando o conteúdo real substitui.
+ *
+ * A pulsação é CSS puro. Motion aqui carregaria a biblioteca no caminho
+ * crítico de uma tela que dura menos de um segundo.
+ */
+function Bloco({ className }: { readonly className: string }) {
+  return <div className={`animate-pulse rounded-card bg-surface ${className}`} />;
+}
+
 export default function CarregandoMes() {
   return (
-    <div role="status" aria-live="polite" className="flex flex-col gap-4">
-      <p className="text-sm text-zinc-700 dark:text-zinc-300">Carregando o mês…</p>
-      <div className="h-10 w-full animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-800" />
-      <div className="h-32 w-full animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-800" />
+    <div role="status" aria-live="polite" className="flex flex-col gap-8">
+      <span className="sr-only">Carregando o mês</span>
+
+      <Bloco className="h-[68px] w-full rounded-chip sm:max-w-md" />
+
+      <div className="grid gap-4 lg:grid-cols-5">
+        <Bloco className="h-64 rounded-panel lg:col-span-3" />
+        <Bloco className="h-64 rounded-panel lg:col-span-2" />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <Bloco className="h-6 w-44" />
+        <Bloco className="h-14 w-full" />
+        <Bloco className="h-14 w-full" />
+        <Bloco className="h-14 w-full" />
+      </div>
     </div>
   );
 }

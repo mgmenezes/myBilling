@@ -16,7 +16,7 @@ import { useRef } from "react";
  * string é exata aqui, sem precisar converter para data.
  *
  * Folha de cliente isolada: o conteúdo chega pronto do servidor como
- * `children` e esta camada só o envolve. **Nenhum GSAP nesta árvore** — as
+ * `children` e esta camada só o envolve. **Nenhum GSAP nesta árvore**: as
  * duas bibliotecas brigam pelos mesmos frames.
  *
  * Só `transform` e `opacity` animam. Nada de `left` ou `width`, que forçam
