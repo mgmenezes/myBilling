@@ -209,18 +209,20 @@ T21 -> T22
 **Tests**: unit
 **Gate**: quick
 
-#### T6: Repositório Drizzle de recorrência
+#### T6: Repositório Drizzle de recorrência ✅ CONCLUÍDA
 **What**: Implementação concreta da port. `listarComVersoes` faz uma consulta com join, não N+1. `criar` grava recorrência e versão inicial **em transação**: recorrência sem versão é um estado que não pode existir.
 **Where**: `src/infrastructure/db/repositories/recorrencia.repository.ts`
 **Depends on**: T5
 **Reuses**: `paraLancamento` e os mapeadores de `repositories/mapeadores.ts`
 **Requirement**: FIXO-01, FIXO-03, FIXO-06
-**Tools**: Postgres em Docker
+**Tools**: Postgres em Docker, `drizzle-kit`
+
+> **Migration não prevista.** O critério de atomicidade não era demonstrável: `recorrencia_versao.valor_previsto_centavos` não tinha `CHECK` de positividade, e sem ele `criar` não tinha como falhar na segunda inserção — a transação era proteção infalsificável. `drizzle/0001_valor_previsto_positivo.sql` fecha o buraco, alinhando a tabela com as irmãs, que já tinham a restrição.
 **Done when**:
-- [ ] Criar grava recorrência e versão inicial, e falha na versão reverte a recorrência
-- [ ] `listarComVersoes` devolve as versões ordenadas por vigência
-- [ ] Registrar versão com vigência já existente **substitui** o valor, e não cria uma segunda linha (FIXO-03, AC 4)
-- [ ] Recorrência encerrada continua aparecendo em `listarComVersoes`, marcada como encerrada
+- [x] Criar grava recorrência e versão inicial, e falha na versão reverte a recorrência
+- [x] `listarComVersoes` devolve as versões ordenadas por vigência
+- [x] Registrar versão com vigência já existente **substitui** o valor, e não cria uma segunda linha (FIXO-03, AC 4)
+- [x] Recorrência encerrada continua aparecendo em `listarComVersoes`, marcada como encerrada
 **Tests**: integration
 **Gate**: full
 

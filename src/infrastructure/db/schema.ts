@@ -198,6 +198,15 @@ export const recorrenciaVersao = pgTable(
   (t) => [
     uniqueIndex("recorrencia_versao_recorrencia_vigencia_uq").on(t.recorrenciaId, t.vigenteDesde),
     check("recorrencia_versao_vigencia_dia_1", competenciaNoDiaUm(t.vigenteDesde)),
+    /*
+     * Valor previsto é estritamente positivo, como o de `movimento` e o limite
+     * de `orcamento_categoria`. A ausência desta restrição era descuido, não
+     * decisão: o previsto alimenta soma de mês e régua de comprometimento
+     * futuro, e um negativo ali não é dado estranho — é número errado em
+     * indicador. A validação da aplicação protege quem passa pelo formulário;
+     * esta protege o seed e a correção feita direto no banco.
+     */
+    check("recorrencia_versao_valor_positivo", sql`${t.valorPrevistoCentavos} > 0`),
   ],
 );
 

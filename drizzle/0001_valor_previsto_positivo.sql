@@ -1,0 +1,1 @@
+ALTER TABLE "recorrencia_versao" ADD CONSTRAINT "recorrencia_versao_valor_positivo" CHECK ("recorrencia_versao"."valor_previsto_centavos" > 0);
