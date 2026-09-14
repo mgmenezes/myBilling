@@ -438,7 +438,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T19: API pública do núcleo
+#### T19: API pública do núcleo ✅ CONCLUÍDA
 **What**: Barrel exportando exclusivamente as funções e tipos que as camadas externas podem consumir. Nada de `export *` de arquivo interno.
 **Where**: `src/domain/index.ts`
 **Depends on**: T15, T17, T18
@@ -446,9 +446,9 @@ T52 -> T53
 **Requirement**: DADO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] `pnpm test:unit` com cobertura mostra 100% de branches em `src/domain/shared`, `src/domain/parcelamento` e `src/domain/cartao`
-- [ ] O teste de fronteira de T6 continua verde
-- [ ] `pnpm verify` sai com 0
+- [x] `pnpm test:unit` com cobertura mostra 100% de branches em `src/domain/shared`, `src/domain/parcelamento` e `src/domain/cartao`
+- [x] O teste de fronteira de T6 continua verde
+- [x] `pnpm verify` sai com 0
 **Tests**: none
 **Gate**: build
 
