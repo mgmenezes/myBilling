@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { confirmarValor } from "@/application/mes/confirmar-valor/handler";
 import { marcarPagamento } from "@/application/mes/marcar-pagamento/handler";
-import { dataParaCompetencia } from "@/domain";
+import { type Cents, dataParaCompetencia } from "@/domain";
 import { ErroDeSessao, requireSession } from "@/infrastructure/auth/sessao";
 import { criarRepositorios } from "@/infrastructure/container";
 import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros";
@@ -94,6 +95,46 @@ function hoje(): string {
     throw new Error("não foi possível resolver o dia corrente");
   }
   return `${competencia.value}-${dia}`;
+}
+
+/**
+ * Confirmar quanto a conta realmente veio.
+ *
+ * Vive ao lado de `alternarPagamento` porque são o mesmo gesto para quem usa —
+ * a conta chegou, com este valor, e foi paga — ainda que sejam fatos
+ * diferentes para o sistema. Estando juntas, as duas revalidam as mesmas rotas
+ * e a lista nunca discorda do painel.
+ */
+export async function confirmarValorDaOcorrencia(
+  lancamentoId: string,
+  valorCentavos: number,
+): Promise<ResultadoAction<{ readonly valorCentavos: number }>> {
+  const sessao = await requireSession().catch(apenasErroDeSessao);
+  if (sessao instanceof ErroDeSessao) {
+    return erroDeAction(sessao.codigo);
+  }
+
+  try {
+    const resultado = await confirmarValor(criarRepositorios(), {
+      lancamentoId,
+      valor: valorCentavos as Cents,
+    });
+    if (!resultado.ok) {
+      return erroDeAction(resultado.error.code);
+    }
+
+    revalidatePath("/[competencia]/lancamentos", "page");
+    revalidatePath("/[competencia]", "page");
+
+    return { ok: true, data: { valorCentavos: resultado.value.valor } };
+  } catch (erro) {
+    const correlationId = crypto.randomUUID();
+    console.error(`[${correlationId}] falha ao confirmar valor`, erro);
+    return erroDeAction(
+      "ERRO_INESPERADO",
+      `${mensagemDoErro("ERRO_INESPERADO")} (ref. ${correlationId})`,
+    );
+  }
 }
 
 function apenasErroDeSessao(erro: unknown): ErroDeSessao {

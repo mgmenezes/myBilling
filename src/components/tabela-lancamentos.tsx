@@ -1,9 +1,13 @@
-import type { alternarPagamento as alternarPagamentoAction } from "@/app/actions/pagamentos";
+import type {
+  alternarPagamento as alternarPagamentoAction,
+  confirmarValorDaOcorrencia as confirmarValorAction,
+} from "@/app/actions/pagamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
-import type { Natureza, Origem } from "@/domain";
+import { type Natureza, type Origem, resolverValorEfetivo } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
 import { BotaoPago } from "./botao-pago";
 import { Chip } from "./ui";
+import { ValorConfirmavel } from "./valor-confirmavel";
 
 /**
  * Os lançamentos do mês, segmentados nos três blocos da planilha: Fixos,
@@ -52,12 +56,14 @@ export function TabelaLancamentos({
   lancamentos,
   categorias,
   alternarPagamento,
+  confirmarValor,
 }: {
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
   /** Id para nome. O lançamento só carrega o id; o nome vive no cadastro. */
   readonly categorias: ReadonlyMap<string, string>;
   /** A action chega por prop: a tabela não conhece infraestrutura nenhuma. */
   readonly alternarPagamento: typeof alternarPagamentoAction;
+  readonly confirmarValor: typeof confirmarValorAction;
 }) {
   if (lancamentos.length === 0) {
     return (
@@ -80,6 +86,7 @@ export function TabelaLancamentos({
           titulo={bloco.titulo}
           categorias={categorias}
           alternarPagamento={alternarPagamento}
+          confirmarValor={confirmarValor}
           /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
           comParcela={bloco.origem === "PARCELA"}
           itens={despesas.filter((item) => item.lancamento.origem === bloco.origem)}
@@ -91,6 +98,7 @@ export function TabelaLancamentos({
           titulo="Entradas e investimentos"
           categorias={categorias}
           alternarPagamento={alternarPagamento}
+          confirmarValor={confirmarValor}
           comParcela={false}
           itens={outros}
         />
@@ -106,6 +114,7 @@ function BlocoDeLancamentos({
   categorias,
   comParcela,
   alternarPagamento,
+  confirmarValor,
 }: {
   /** Identificador sem espaço: `aria-labelledby` é uma lista de ids. */
   readonly id: string;
@@ -114,6 +123,7 @@ function BlocoDeLancamentos({
   readonly categorias: ReadonlyMap<string, string>;
   readonly comParcela: boolean;
   readonly alternarPagamento: typeof alternarPagamentoAction;
+  readonly confirmarValor: typeof confirmarValorAction;
 }) {
   return (
     <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
@@ -207,16 +217,53 @@ function BlocoDeLancamentos({
                   className={`${CELULA} tabular whitespace-nowrap md:text-right ${corDaNatureza(lancamento.natureza)}`}
                 >
                   {/*
-                    O sinal repete em forma o que a cor diz, para a linha não
-                    depender de matiz. O rótulo completo continua indo só para
-                    leitor de tela: na coluna ele seria ruído, e o sinal já
-                    carrega a distinção visual.
+                    Ocorrência de gasto fixo tem valor confirmável; parcela e
+                    avulso não. `resolverValorEfetivo` ganha aqui o chamador que
+                    faltava desde a fase 3 do MVP — este é o caminho de leitura,
+                    que é onde ela pertence: decidir o que exibir e dizer se
+                    houve sobrescrita. A adaptação `valor !== previsto` existe
+                    porque a materialização grava os dois iguais; é o mesmo
+                    critério que `ocorrenciaProtegida` usa.
                   */}
-                  {lancamento.natureza === "INVESTIMENTO" ? null : (
-                    <span aria-hidden="true">{lancamento.natureza === "RECEITA" ? "+" : "−"}</span>
+                  {lancamento.origem === "RECORRENCIA" && lancamento.valorPrevisto !== null ? (
+                    <ValorConfirmavel
+                      /* O sinal vem junto, e não some por a célula ter virado
+                         controle: sem ele a linha de fixo seria a única da
+                         tabela a depender só da cor para dizer o que é. */
+                      sinal={lancamento.natureza === "RECEITA" ? "+" : "−"}
+                      lancamentoId={lancamento.id}
+                      descricao={lancamento.descricao}
+                      valorFormatado={formatarBRL(
+                        resolverValorEfetivo(
+                          lancamento.valorPrevisto,
+                          lancamento.valor === lancamento.valorPrevisto ? null : lancamento.valor,
+                        ).valorEfetivo,
+                      )}
+                      previstoFormatado={formatarBRL(lancamento.valorPrevisto)}
+                      confirmado={
+                        resolverValorEfetivo(
+                          lancamento.valorPrevisto,
+                          lancamento.valor === lancamento.valorPrevisto ? null : lancamento.valor,
+                        ).sobrescritaManualmente
+                      }
+                      confirmar={confirmarValor}
+                    />
+                  ) : (
+                    <>
+                      {/*
+                        O sinal repete em forma o que a cor diz, para a linha não
+                        depender de matiz. O rótulo completo vai só para leitor
+                        de tela: na coluna ele seria ruído.
+                      */}
+                      {lancamento.natureza === "INVESTIMENTO" ? null : (
+                        <span aria-hidden="true">
+                          {lancamento.natureza === "RECEITA" ? "+" : "−"}
+                        </span>
+                      )}
+                      {formatarBRL(lancamento.valor)}
+                      <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
+                    </>
                   )}
-                  {formatarBRL(lancamento.valor)}
-                  <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
                 </td>
               </tr>
             ))}

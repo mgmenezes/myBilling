@@ -12,6 +12,11 @@ const alternarOk = vi.fn(async (lancamentoId: string, pago: boolean) => ({
   data: { lancamentoId, pagoEm: pago ? "2026-03-15" : null },
 }));
 
+const confirmarOk = vi.fn(async (_id: string, valorCentavos: number) => ({
+  ok: true as const,
+  data: { valorCentavos },
+}));
+
 /**
  * Testes derivados do Done-when de T52 e dos ACs UI-01 (AC 5), UI-02 (AC 6) e
  * PARC-08 (AC 7). Os valores são arbitrários e redondos (AD-009).
@@ -53,6 +58,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item(
@@ -81,6 +87,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item({ id: "3", origem: "AVULSO", descricao: "Lançamento avulso A" }),
@@ -101,6 +108,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
         lancamentos={[item({ id: "3", origem: "AVULSO" })]}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
       />,
     );
 
@@ -113,6 +121,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item({ id: "r", natureza: "RECEITA", descricao: "Entrada A", valor: 500000 as Cents }),
         ]}
@@ -130,6 +139,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item(
             {
@@ -156,6 +166,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item(
             {
@@ -183,6 +194,7 @@ describe("valores e situação", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", descricao: "Previsto A", valor: 33334 as Cents }),
           item({
@@ -206,7 +218,12 @@ describe("valores e situação", () => {
 describe("estado vazio (UI-02, AC 6)", () => {
   it("explica o que fazer em vez de mostrar tabela em branco", () => {
     render(
-      <TabelaLancamentos lancamentos={[]} categorias={CATEGORIAS} alternarPagamento={alternarOk} />,
+      <TabelaLancamentos
+        lancamentos={[]}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+      />,
     );
 
     expect(screen.queryByRole("table")).toBeNull();
@@ -225,6 +242,7 @@ describe("categoria na lista", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[
           item(
             { id: "1", origem: "PARCELA", categoriaId: "cat-1" },
@@ -245,6 +263,7 @@ describe("categoria na lista", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[item({ id: "2", origem: "AVULSO", categoriaId: "cat-1" })]}
       />,
     );
@@ -260,6 +279,7 @@ describe("categoria na lista", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[item({ id: "3", origem: "AVULSO", categoriaId: null })]}
       />,
     );
@@ -272,6 +292,7 @@ describe("categoria na lista", () => {
       <TabelaLancamentos
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
         lancamentos={[item({ id: "4", origem: "AVULSO", categoriaId: "cat-sumida" })]}
       />,
     );

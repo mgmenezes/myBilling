@@ -388,7 +388,7 @@ T21 -> T22
 
 ### Phase 4 — Interface
 
-#### T17: Área "Fixos" na navegação
+#### T17: Área "Fixos" na navegação ✅ CONCLUÍDA
 **What**: Rota `/[competencia]/fixos`, entrada na navegação principal e listagem das recorrências com o valor vigente na competência aberta. Encerrada aparece marcada, não oculta.
 **Where**: `src/app/(app)/[competencia]/fixos/page.tsx`, `src/components/navegacao-principal.tsx`
 **Depends on**: T15
@@ -396,14 +396,14 @@ T21 -> T22
 **Requirement**: FIXO-01, FIXO-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] A área aparece na navegação nas duas larguras, seguindo NAV-03
-- [ ] A lista mostra o valor **vigente naquela competência**, não o mais recente
-- [ ] Recorrência encerrada é exibida como encerrada (FIXO-06, AC 3)
-- [ ] Em 400 pixels nada rola na horizontal
+- [x] A área aparece na navegação nas duas larguras, seguindo NAV-03
+- [x] A lista mostra o valor **vigente naquela competência**, não o mais recente
+- [x] Recorrência encerrada é exibida como encerrada (FIXO-06, AC 3)
+- [x] Em 400 pixels nada rola na horizontal
 **Tests**: none
 **Gate**: build
 
-#### T18: Formulário de nova recorrência
+#### T18: Formulário de nova recorrência ✅ CONCLUÍDA
 **What**: Formulário na área Fixos, com natureza, descrição, valor, dia de vencimento, competências de início e fim, categoria, meio e pessoa. Reusa `CadastroInline` para criar categoria e meio sem sair dali.
 **Where**: `src/components/form-recorrencia.tsx`
 **Depends on**: T17
@@ -411,13 +411,13 @@ T21 -> T22
 **Requirement**: FIXO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Natureza receita e despesa são ambas oferecidas
-- [ ] Erro do servidor aparece endereçado ao campo, e o formulário não se perde
-- [ ] Criar limpa o formulário e a recorrência nova aparece na lista
+- [x] Natureza receita e despesa são ambas oferecidas
+- [x] Erro do servidor aparece endereçado ao campo, e o formulário não se perde
+- [x] Criar limpa o formulário e a recorrência nova aparece na lista
 **Tests**: componentes
 **Gate**: quick
 
-#### T19: Mudar valor e encerrar, na área Fixos
+#### T19: Mudar valor e encerrar, na área Fixos ✅ CONCLUÍDA
 **What**: Dois controles por recorrência: registrar novo valor a partir de uma competência, e encerrar a partir de uma competência. Ambos pedem a competência, porque é ela que dá sentido à operação.
 **Where**: `src/components/form-recorrencia.tsx`, `src/app/(app)/[competencia]/fixos/page.tsx`
 **Depends on**: T18
@@ -425,13 +425,13 @@ T21 -> T22
 **Requirement**: FIXO-03, FIXO-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] Mudar valor exige a competência de vigência e a pré-preenche com a competência aberta
-- [ ] Encerrar pede confirmação, porque remove ocorrências futuras
-- [ ] A lista reflete o valor novo sem recarregar a página
+- [x] Mudar valor exige a competência de vigência e a pré-preenche com a competência aberta
+- [x] Encerrar pede confirmação, porque remove ocorrências futuras
+- [x] A lista reflete o valor novo sem recarregar a página
 **Tests**: componentes
 **Gate**: quick
 
-#### T20: Confirmar o valor real na linha da lista
+#### T20: Confirmar o valor real na linha da lista ✅ CONCLUÍDA
 **What**: No bloco Fixos da lista, o valor vira um controle que abre um campo para escrever o valor real. Fica ao lado do selo-botão de pago, porque confirmar e marcar pago são o mesmo gesto.
 **Where**: `src/components/valor-confirmavel.tsx`, `src/components/tabela-lancamentos.tsx`, `src/app/actions/pagamentos.ts`
 **Depends on**: T12, T16

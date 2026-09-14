@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartPieSliceIcon, ListBulletsIcon } from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon, ChartPieSliceIcon, ListBulletsIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -27,6 +27,9 @@ interface Area {
 const AREAS: ReadonlyArray<Area> = [
   { slug: "", rotulo: "Visão geral", Icone: ChartPieSliceIcon },
   { slug: "lancamentos", rotulo: "Lançamentos", Icone: ListBulletsIcon },
+  /* "Fixos" tem o mesmo nome do bloco da lista que ele administra. Dois nomes
+     para a mesma coisa obrigariam a pessoa a aprender a tradução. */
+  { slug: "fixos", rotulo: "Fixos", Icone: ArrowsClockwiseIcon },
 ];
 
 export function NavegacaoPrincipal({ competencia }: { readonly competencia: string }) {
