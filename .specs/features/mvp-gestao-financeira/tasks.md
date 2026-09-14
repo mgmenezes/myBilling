@@ -302,7 +302,7 @@ T52 -> T53
 **Tests**: unit
 **Gate**: quick
 
-#### T11: Conversão de data para competência com fuso explícito
+#### T11: Conversão de data para competência com fuso explícito ✅ CONCLUÍDA
 **What**: `dataParaCompetencia(dataISO, tz)` recebendo o fuso como parâmetro obrigatório. Sem leitura de fuso do ambiente e sem `Date.now()`.
 **Where**: `src/domain/shared/competencia.test.ts`
 **Depends on**: T10
@@ -310,9 +310,9 @@ T52 -> T53
 **Requirement**: COMP-03
 **Tools**: `Intl.DateTimeFormat` com `timeZone` explícito
 **Done when**:
-- [ ] `dataParaCompetencia('2026-03-31T23:30:00Z', 'America/Sao_Paulo')` resulta em `'2026-03'` (COMP-03)
-- [ ] `dataParaCompetencia('2026-04-01T02:30:00Z', 'America/Sao_Paulo')` resulta em `'2026-03'`
-- [ ] Chamar sem `tz` é erro de tipo, não default silencioso
+- [x] `dataParaCompetencia('2026-03-31T23:30:00Z', 'America/Sao_Paulo')` resulta em `'2026-03'` (COMP-03)
+- [x] `dataParaCompetencia('2026-04-01T02:30:00Z', 'America/Sao_Paulo')` resulta em `'2026-03'`
+- [x] Chamar sem `tz` é erro de tipo, não default silencioso
 **Tests**: unit
 **Gate**: quick
 

@@ -6,6 +6,7 @@ import {
   type Competencia,
   compararCompetencias,
   criarCompetencia,
+  dataParaCompetencia,
   diffMeses,
   rangeCompetencias,
 } from "./competencia";
@@ -97,5 +98,68 @@ describe("pureza do módulo (AD-002)", () => {
     for (const proibido of ["setMonth", "getMonth", "setFullYear", "getFullYear", "getTime"]) {
       expect(fonte).not.toContain(proibido);
     }
+  });
+});
+
+describe("dataParaCompetencia (COMP-03)", () => {
+  it("mantém 31/03 23h30 UTC na competência 2026-03 no fuso de São Paulo", () => {
+    expect(dataParaCompetencia("2026-03-31T23:30:00Z", "America/Sao_Paulo")).toEqual({
+      ok: true,
+      value: "2026-03",
+    });
+  });
+
+  it("traz 01/04 02h30 UTC de volta para a competência 2026-03 no fuso de São Paulo", () => {
+    expect(dataParaCompetencia("2026-04-01T02:30:00Z", "America/Sao_Paulo")).toEqual({
+      ok: true,
+      value: "2026-03",
+    });
+  });
+
+  it("retrocede a virada de ano quando o fuso puxa o instante para dezembro", () => {
+    expect(dataParaCompetencia("2026-01-01T02:30:00Z", "America/Sao_Paulo")).toEqual({
+      ok: true,
+      value: "2025-12",
+    });
+  });
+
+  it("usa o fuso recebido, e não um fuso fixo: o mesmo instante muda de competência", () => {
+    const instante = "2026-04-01T02:30:00Z";
+
+    expect(dataParaCompetencia(instante, "America/Sao_Paulo")).toEqual({
+      ok: true,
+      value: "2026-03",
+    });
+    expect(dataParaCompetencia(instante, "UTC")).toEqual({ ok: true, value: "2026-04" });
+  });
+
+  it("exige o fuso: chamar sem tz é erro de tipo, não default silencioso", () => {
+    // @ts-expect-error tz é parâmetro obrigatório de dataParaCompetencia (COMP-03).
+    // Sem a marca, esta chamada compilaria e o Intl cairia no fuso da máquina.
+    dataParaCompetencia("2026-03-31T23:30:00Z");
+    // Se `tz` fosse opcional, `length` seria `1 | 2`, o tipo abaixo seria
+    // `false` e o typecheck rejeitaria o valor `true`.
+    const tzEhObrigatorio: Parameters<typeof dataParaCompetencia>["length"] extends 2
+      ? true
+      : false = true;
+
+    expect(tzEhObrigatorio).toBe(true);
+  });
+
+  it.each(["2026-03-31", "2026-13-01T00:00:00Z", "abc", "2026-03-31T23:30:00-03:00"])(
+    "rejeita o instante malformado %p com COMPETENCIA_INVALIDA",
+    (dataISO) => {
+      const resultado = dataParaCompetencia(dataISO, "America/Sao_Paulo");
+
+      expect(isErr(resultado)).toBe(true);
+      expect(isErr(resultado) && resultado.error.code).toBe("COMPETENCIA_INVALIDA");
+    },
+  );
+
+  it("devolve erro em vez de lançar quando o fuso não existe (AD-006)", () => {
+    const resultado = dataParaCompetencia("2026-03-31T23:30:00Z", "Nao/Existe");
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("COMPETENCIA_INVALIDA");
   });
 });
