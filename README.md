@@ -40,14 +40,24 @@ A aplicação **derruba o processo na inicialização** se faltar qualquer uma d
 
 ### 3. Google OAuth
 
-Em [console.cloud.google.com](https://console.cloud.google.com):
+Em [console.cloud.google.com](https://console.cloud.google.com), na **Google Auth Platform**:
 
-1. Crie um projeto
-2. *APIs e Serviços* → *Tela de permissão OAuth* → tipo **Externo**
-3. Em *Usuários de teste*, adicione os e-mails que vão usar o app
-4. *Credenciais* → *Criar credenciais* → **ID do cliente OAuth** → **Aplicativo da Web**
-5. Em *URIs de redirecionamento autorizados*, adicione `http://localhost:3000/api/auth/callback/google`
-6. Copie o Client ID e o Client Secret para o `.env.local`
+1. Crie um projeto e abra *Google Auth Platform* (a busca do topo acha por esse nome)
+2. **Branding** — nome do app e e-mail de suporte
+3. **Público-alvo** — tipo **Externo**, e em *Usuários de teste* adicione os e-mails que vão usar o app.
+   Enquanto o app estiver em modo de teste, **só esses e-mails conseguem entrar**. É uma camada além
+   da `EMAILS_PERMITIDOS`; as duas precisam conter os mesmos endereços.
+4. **Clientes** → *Criar cliente* → tipo **Aplicativo da Web**
+5. Em *URIs de redirecionamento autorizados*, adicione:
+   ```
+   http://localhost:3000/api/auth/callback/google
+   ```
+   Em produção, acrescente o mesmo caminho no domínio real.
+6. Copie o **Client ID** e o **Client Secret** para o `.env.local`
+
+> A interface antiga (*APIs e Serviços* → *Credenciais* → *Tela de permissão OAuth*) foi substituída
+> pela Google Auth Platform. Se encontrar um tutorial falando em "Tela de permissão OAuth", ela virou
+> três itens: **Branding**, **Público-alvo** e **Acesso a dados**.
 
 ### 4. Rodar
 
