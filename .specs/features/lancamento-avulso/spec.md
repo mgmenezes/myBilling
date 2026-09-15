@@ -247,7 +247,7 @@ de ausência.
 | --- | --- | --- | --- |
 | AVUL-01 | P1: Registrar um gasto avulso | Design | Pending |
 | AVUL-02 | P1: Registrar dinheiro que entra | Design | Pending |
-| AVUL-03 | P2: Excluir um lançamento avulso | Design | Pending |
+| AVUL-03 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
 | AVUL-04 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
 | BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |

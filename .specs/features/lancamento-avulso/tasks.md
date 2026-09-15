@@ -365,7 +365,291 @@ T22 -> T23 -> T24
 **Tests**: integration
 **Gate**: full
 
-#### T7: Cancelar, com concordância entre domínio e SQL
+### Phase 2 — Aplicação
+
+```
+T3 -> T8
+T6 -> T10
+T9 -> T10
+T7 -> T11
+```
+
+### Phase 3 — Server Actions
+
+```
+T10 -> T12
+T11 -> T13
+```
+
+### Phase 4 — Interface
+
+```
+T8 -> T14
+T9 -> T15
+T12 -> T16
+T15 -> T16
+T13 -> T17
+T14 -> T17
+```
+
+### Phase 5 — Provas de ponta a ponta e fechamento
+
+```
+T16 -> T19
+T16 -> T20
+T14 -> T20
+T17 -> T21
+T19 -> T22
+T20 -> T22
+T21 -> T22
+T22 -> T23 -> T24
+```
+
+---
+
+## Task Breakdown
+
+> **Sobre os avisos de granularidade do validador.** Algumas tasks tocam mais de um arquivo porque os
+> arquivos **mudam juntos por necessidade**: um método novo numa port não compila sem o Drizzle e o
+> fake que o implementam, e uma função de domínio nova não é exportável sem `src/domain/index.ts`.
+> Dividir produziria commits que não compilam, o que é pior que granularidade grossa. Onde a divisão
+> era real — criar separado de cancelar, tabela separada de formulário — ela foi feita.
+
+### Phase 0 — Núcleo puro
+
+#### T1: Cascata de classificação em blocos ✅ CONCLUÍDA
+**What**: Função pura `blocoDoLancamento(lancamento, cartoes)` que devolve `"FIXOS"`, `"CARTAO"` ou `"AVULSOS"` pela cascata: recorrência primeiro, cartão depois, resto por último.
+**Where**: `src/domain/mes/bloco-do-lancamento.ts`
+**Depends on**: nenhuma
+**Reuses**: tipos `Lancamento` e `Origem` de `src/domain/tipos.ts`
+**Requirement**: BLOCO-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Despesa com `origem = 'RECORRENCIA'` cujo meio **é** cartão devolve `FIXOS` (AC 2: precedência)
+- [x] Despesa avulsa cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio **não** é cartão devolve `AVULSOS` (AC 4: carnê)
+- [x] Despesa avulsa cujo meio não é cartão devolve `AVULSOS`
+- [x] Conjunto de cartões vazio nunca devolve `CARTAO`
+- [x] 100% de branches, verificado pelo relatório de cobertura
+**Tests**: unit
+**Gate**: quick
+
+#### T2: Quem pode ser cancelado ✅ CONCLUÍDA
+**What**: Função pura `cancelamentoPermitido(lancamento)` que devolve `ok` apenas para `origem = 'AVULSO'` e `LANCAMENTO_NAO_CANCELAVEL` para parcela e ocorrência de recorrência.
+**Where**: `src/domain/mes/cancelamento-permitido.ts`
+**Depends on**: nenhuma
+**Reuses**: `Result` e `DomainError` de `src/domain/shared/result.ts`
+**Requirement**: AVUL-04
+**Tools**: nenhuma
+**Done when**:
+- [x] `origem = 'AVULSO'` devolve `ok`
+- [x] `origem = 'PARCELA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] `origem = 'RECORRENCIA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Código de erro novo declarado na union fechada e com mensagem pt-BR em `src/lib/erros.ts`
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+### Phase 1 — Banco e ports
+
+```
+T4 -> T6 -> T7
+T2 -> T7
+```
+
+### Phase 2 — Aplicação
+
+```
+T1 -> T8
+T3 -> T8
+T5 -> T8
+T6 -> T10
+T9 -> T10
+T7 -> T11
+```
+
+### Phase 3 — Server Actions
+
+```
+T10 -> T12
+T11 -> T13
+```
+
+### Phase 4 — Interface
+
+```
+T8 -> T14
+T9 -> T15
+T12 -> T16
+T15 -> T16
+T13 -> T17
+T14 -> T17
+```
+
+### Phase 5 — Provas de ponta a ponta e fechamento
+
+```
+T16 -> T19
+T16 -> T20
+T14 -> T20
+T17 -> T21
+T19 -> T22
+T20 -> T22
+T21 -> T22
+T22 -> T23 -> T24
+```
+
+---
+
+## Task Breakdown
+
+> **Sobre os avisos de granularidade do validador.** Algumas tasks tocam mais de um arquivo porque os
+> arquivos **mudam juntos por necessidade**: um método novo numa port não compila sem o Drizzle e o
+> fake que o implementam, e uma função de domínio nova não é exportável sem `src/domain/index.ts`.
+> Dividir produziria commits que não compilam, o que é pior que granularidade grossa. Onde a divisão
+> era real — criar separado de cancelar, tabela separada de formulário — ela foi feita.
+
+### Phase 0 — Núcleo puro
+
+#### T1: Cascata de classificação em blocos ✅ CONCLUÍDA
+**What**: Função pura `blocoDoLancamento(lancamento, cartoes)` que devolve `"FIXOS"`, `"CARTAO"` ou `"AVULSOS"` pela cascata: recorrência primeiro, cartão depois, resto por último.
+**Where**: `src/domain/mes/bloco-do-lancamento.ts`
+**Depends on**: nenhuma
+**Reuses**: tipos `Lancamento` e `Origem` de `src/domain/tipos.ts`
+**Requirement**: BLOCO-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Despesa com `origem = 'RECORRENCIA'` cujo meio **é** cartão devolve `FIXOS` (AC 2: precedência)
+- [x] Despesa avulsa cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio **não** é cartão devolve `AVULSOS` (AC 4: carnê)
+- [x] Despesa avulsa cujo meio não é cartão devolve `AVULSOS`
+- [x] Conjunto de cartões vazio nunca devolve `CARTAO`
+- [x] 100% de branches, verificado pelo relatório de cobertura
+**Tests**: unit
+**Gate**: quick
+
+#### T2: Quem pode ser cancelado ✅ CONCLUÍDA
+**What**: Função pura `cancelamentoPermitido(lancamento)` que devolve `ok` apenas para `origem = 'AVULSO'` e `LANCAMENTO_NAO_CANCELAVEL` para parcela e ocorrência de recorrência.
+**Where**: `src/domain/mes/cancelamento-permitido.ts`
+**Depends on**: nenhuma
+**Reuses**: `Result` e `DomainError` de `src/domain/shared/result.ts`
+**Requirement**: AVUL-04
+**Tools**: nenhuma
+**Done when**:
+- [x] `origem = 'AVULSO'` devolve `ok`
+- [x] `origem = 'PARCELA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] `origem = 'RECORRENCIA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Código de erro novo declarado na union fechada e com mensagem pt-BR em `src/lib/erros.ts`
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+#### T3: `resumoMensal` soma pelos blocos da cascata ✅ CONCLUÍDA
+**What**: Substituir `somarPorOrigem` pela cascata: `resumoMensal` passa a receber o conjunto de cartões e a calcular `fixos`, `cartao` e `avulsos` por `blocoDoLancamento`.
+**Where**: `src/domain/mes/resumo-mensal.ts`
+**Depends on**: T1
+**Reuses**: `blocoDoLancamento` de T1
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [x] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
+- [x] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
+- [x] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
+- [x] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
+- [x] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+### Phase 1 — Banco e ports
+
+#### T4: `CHECK` de positividade no razão ✅ CONCLUÍDA
+**What**: Migration que acrescenta `movimento_valor_positivo` (`valor_centavos > 0`), com a restrição declarada também no schema Drizzle.
+**Where**: `drizzle/0002_movimento_valor_positivo.sql`
+**Depends on**: nenhuma
+**Reuses**: o padrão de `drizzle/0001_valor_previsto_positivo.sql`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [x] `INSERT` com `valor_centavos = 0` é recusado pelo banco
+- [x] `INSERT` com `valor_centavos` negativo é recusado pelo banco
+- [x] A migration aplica num banco limpo por `recriarBancoDeTeste`
+- [x] `pnpm db:seed` continua passando, provando que nenhum dado semeado a viola
+- [x] Snapshot e journal do drizzle-kit regenerados, não editados à mão
+**Tests**: integration
+**Gate**: full
+
+#### T3: `resumoMensal` soma pelos blocos da cascata ✅ CONCLUÍDA
+**What**: Substituir `somarPorOrigem` pela cascata: `resumoMensal` passa a receber o conjunto de cartões e a calcular `fixos`, `cartao` e `avulsos` por `blocoDoLancamento`.
+**Where**: `src/domain/mes/resumo-mensal.ts`
+**Depends on**: T1
+**Reuses**: `blocoDoLancamento` de T1
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [x] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
+- [x] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
+- [x] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
+- [x] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
+- [x] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+### Phase 1 — Banco e ports
+
+#### T4: `CHECK` de positividade no razão ✅ CONCLUÍDA
+**What**: Migration que acrescenta `movimento_valor_positivo` (`valor_centavos > 0`), com a restrição declarada também no schema Drizzle.
+**Where**: `drizzle/0002_movimento_valor_positivo.sql`
+**Depends on**: nenhuma
+**Reuses**: o padrão de `drizzle/0001_valor_previsto_positivo.sql`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [x] `INSERT` com `valor_centavos = 0` é recusado pelo banco
+- [x] `INSERT` com `valor_centavos` negativo é recusado pelo banco
+- [x] A migration aplica num banco limpo por `recriarBancoDeTeste`
+- [x] `pnpm db:seed` continua passando, provando que nenhum dado semeado a viola
+- [x] Snapshot e journal do drizzle-kit regenerados, não editados à mão
+**Tests**: integration
+**Gate**: full
+
+#### T5: Conjunto de meios que geram fatura ✅ CONCLUÍDA
+**What**: Método `idsDeMeiosComFatura()` na `CadastroRepository`, implementado no Drizzle e no fake, devolvendo os ids de todo meio com `gera_fatura = true` **inclusive arquivados**.
+**Where**: `src/infrastructure/db/repositories/cadastro.repository.ts`
+**Depends on**: nenhuma
+**Reuses**: `CadastroRepository` de `src/application/ports/repositories.ts`
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [x] Devolve o id de um cartão ativo
+- [x] Devolve o id de um cartão **arquivado** (AC 6: arquivar não reclassifica o passado)
+- [x] Não devolve conta corrente nem rótulo
+- [x] Devolve conjunto vazio quando não há cartão nenhum
+- [x] O fake em `src/application/ports/fakes.ts` implementa o mesmo contrato
+**Tests**: integration
+**Gate**: full
+
+#### T6: Gravar um lançamento avulso ✅ CONCLUÍDA
+**What**: Método `criarAvulso(entrada)` na `MovimentoRepository`, com `INSERT` único de `origem = 'AVULSO'`, sem vínculo de compra nem de recorrência.
+**Where**: `src/infrastructure/db/repositories/movimento.repository.ts`
+**Depends on**: T4
+**Reuses**: `mapeadores.ts` para linha do banco → `Lancamento`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Grava exatamente uma linha com `origem = 'AVULSO'`, `compra_id`, `numero_parcela` e `recorrencia_id` nulos (AC 1)
+- [x] O `Lancamento` devolvido tem o id gerado pelo banco
+- [x] Grava `pago_em` quando informado e `null` quando não
+- [x] Grava `categoria_id` nulo quando a categoria não é informada
+- [x] Valor não positivo é recusado pela restrição de T4, não silenciosamente aceito
+- [x] O fake implementa o mesmo contrato
+**Tests**: integration
+**Gate**: full
+
+#### T7: Cancelar, com concordância entre domínio e SQL ✅ CONCLUÍDA
 **What**: Método `cancelar(id, canceladoEm)` com `UPDATE ... WHERE id = $1 AND origem = 'AVULSO' AND cancelado_em IS NULL`, mais o teste de concordância que confronta o `WHERE` contra `cancelamentoPermitido`.
 **Where**: `src/infrastructure/db/repositories/movimento.repository.ts`
 **Depends on**: T2, T6

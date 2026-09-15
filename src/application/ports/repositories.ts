@@ -137,6 +137,20 @@ export interface MovimentoRepository {
    * para prevenir um clique duplo que o estado do botão já evita.
    */
   criarAvulso(entrada: EntradaLancamentoAvulso): Promise<Lancamento>;
+  /**
+   * Cancela um lançamento preenchendo `cancelado_em`. A linha **fica**: toda
+   * soma já ignora cancelado (`vigente()` em `resumo-mensal.ts`), e `DELETE`
+   * físico perderia auditoria e abriria a porta para apagar parcela por engano.
+   *
+   * O `WHERE` repete a regra de `cancelamentoPermitido` — só `AVULSO`, e só se
+   * ainda não cancelado — e há teste de concordância entre os dois. Sem ele a
+   * função de domínio vira dívida e o SQL vira a única verdade.
+   *
+   * Devolve `true` se alguma linha mudou. `false` cobre três casos que o
+   * chamador distingue consultando antes: id inexistente, origem não cancelável
+   * e já cancelado (AVUL-03, AC 4).
+   */
+  cancelar(id: string, canceladoEm: string): Promise<boolean>;
   buscarPorId(id: string): Promise<Lancamento | null>;
   /** `pagoEm` em `'YYYY-MM-DD'`; `null` desfaz a marcação (MOV-06, AC 1). */
   marcarPagamento(id: string, pagoEm: string | null): Promise<void>;

@@ -252,6 +252,59 @@ describe("FakeMovimentoRepository (T32)", () => {
     expect(primeiro.id).not.toBe(segundo.id);
     expect(await movimentos.listarPorCompetencia(competencia("2026-03"))).toHaveLength(2);
   });
+
+  it("cancela o avulso e o tira da listagem — AVUL-03, AC 1 e 2", async () => {
+    const { movimentos } = criarFakes();
+    const gravado = await movimentos.criarAvulso({
+      natureza: "DESPESA",
+      descricao: "Erro de digitação",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 999999 as Cents,
+      pagoEm: null,
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    });
+
+    expect(await movimentos.cancelar(gravado.id, "2026-03-20T00:00:00Z")).toBe(true);
+
+    expect(await movimentos.listarPorCompetencia(competencia("2026-03"))).toHaveLength(0);
+    expect((await movimentos.buscarPorId(gravado.id))?.canceladoEm).toBe("2026-03-20T00:00:00Z");
+  });
+
+  it("recusa cancelar parcela, igual ao WHERE do Drizzle — AVUL-03, AC 3", async () => {
+    const { compras, movimentos } = criarFakes();
+    await compras.salvarComParcelas(entrada("chave-1"));
+
+    expect(await movimentos.cancelar("compra-1#1", "2026-03-20T00:00:00Z")).toBe(false);
+    expect((await movimentos.buscarPorId("compra-1#1"))?.canceladoEm).toBeNull();
+  });
+
+  it("a segunda exclusão devolve false e preserva o primeiro instante — AVUL-03, AC 4", async () => {
+    const { movimentos } = criarFakes();
+    const gravado = await movimentos.criarAvulso({
+      natureza: "DESPESA",
+      descricao: "Café",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 800 as Cents,
+      pagoEm: null,
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    });
+    await movimentos.cancelar(gravado.id, "2026-03-20T00:00:00Z");
+
+    expect(await movimentos.cancelar(gravado.id, "2026-03-25T00:00:00Z")).toBe(false);
+    expect((await movimentos.buscarPorId(gravado.id))?.canceladoEm).toBe("2026-03-20T00:00:00Z");
+  });
+
+  it("id inexistente devolve false", async () => {
+    const { movimentos } = criarFakes();
+
+    expect(await movimentos.cancelar("nao-existe", "2026-03-20T00:00:00Z")).toBe(false);
+  });
 });
 
 describe("FakeCadastroRepository (T32)", () => {

@@ -1,7 +1,13 @@
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { MovimentoRepository } from "@/application/ports/repositories";
-import { type Cents, type Competencia, criarCompetencia } from "@/domain";
+import {
+  type Cents,
+  type Competencia,
+  cancelamentoPermitido,
+  criarCompetencia,
+  type Origem,
+} from "@/domain";
 import { type BancoDeDados, criarCliente, criarPool } from "../client";
 import { movimento } from "../schema";
 import {
@@ -249,5 +255,168 @@ describe("MovimentoRepository: gravar lançamento avulso (AVUL-01)", () => {
     await repo.criarAvulso(entrada());
 
     expect(await repo.listarPorCompetencia(competencia("2026-03"))).toHaveLength(2);
+  });
+});
+
+describe("MovimentoRepository: cancelar (AVUL-03)", () => {
+  const INSTANTE = "2026-03-20T12:00:00.000Z";
+
+  /** Insere um movimento de cada origem, respeitando os CHECK bicondicionais. */
+  async function inserirPorOrigem(origem: Origem): Promise<string> {
+    if (origem === "AVULSO") {
+      return inserirAvulso({ descricao: "Avulso", competencia: "2026-03-01", valorCentavos: 1000 });
+    }
+    if (origem === "PARCELA") {
+      const compraId = await inserirCompraParaParcela();
+      const [linha] = await db
+        .insert(movimento)
+        .values({
+          natureza: "DESPESA",
+          origem: "PARCELA",
+          descricao: "Parcela",
+          competencia: "2026-03-01",
+          dataEvento: "2026-03-10",
+          valorCentavos: 1000,
+          usuarioId: base.usuarioId,
+          meioPagamentoId: base.cartaoId,
+          compraId,
+          numeroParcela: 1,
+        })
+        .returning({ id: movimento.id });
+      if (!linha) {
+        throw new Error("insert de parcela não retornou id");
+      }
+      return linha.id;
+    }
+    const recorrenciaId = await inserirRecorrenciaParaOcorrencia();
+    const [linha] = await db
+      .insert(movimento)
+      .values({
+        natureza: "DESPESA",
+        origem: "RECORRENCIA",
+        descricao: "Ocorrência",
+        competencia: "2026-03-01",
+        dataEvento: "2026-03-10",
+        valorCentavos: 1000,
+        usuarioId: base.usuarioId,
+        meioPagamentoId: base.contaId,
+        recorrenciaId,
+      })
+      .returning({ id: movimento.id });
+    if (!linha) {
+      throw new Error("insert de ocorrência não retornou id");
+    }
+    return linha.id;
+  }
+
+  async function inserirCompraParaParcela(): Promise<string> {
+    const { rows } = await pool.query<{ id: string }>(
+      `INSERT INTO compra_parcelada
+         (descricao, modo_entrada, valor_total_centavos, qtd_parcelas, parcela_inicial,
+          competencia_compra, politica_residuo, valor_amortizado_anterior_centavos,
+          usuario_id, meio_pagamento_id, idempotency_key)
+       VALUES ('Compra', 'TOTAL', 1000, 1, 1, '2026-03-01', 'PRIMEIRAS', 0, $1, $2, $3)
+       RETURNING id`,
+      [base.usuarioId, base.cartaoId, `chave-${crypto.randomUUID()}`],
+    );
+    const linha = rows[0];
+    if (!linha) {
+      throw new Error("compra não retornou id");
+    }
+    return linha.id;
+  }
+
+  async function inserirRecorrenciaParaOcorrencia(): Promise<string> {
+    const { rows } = await pool.query<{ id: string }>(
+      `INSERT INTO recorrencia
+         (descricao, natureza, usuario_id, meio_pagamento_id, competencia_inicio, dia_vencimento)
+       VALUES ('Serviço fixo', 'DESPESA', $1, $2, '2026-01-01', 10)
+       RETURNING id`,
+      [base.usuarioId, base.contaId],
+    );
+    const linha = rows[0];
+    if (!linha) {
+      throw new Error("recorrência não retornou id");
+    }
+    return linha.id;
+  }
+
+  it("preenche cancelado_em e mantém a linha no banco — AC 1", async () => {
+    const id = await inserirPorOrigem("AVULSO");
+
+    expect(await repo.cancelar(id, INSTANTE)).toBe(true);
+
+    const { rows } = await pool.query<{ cancelado_em: Date | null }>(
+      "SELECT cancelado_em FROM movimento WHERE id = $1",
+      [id],
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.cancelado_em).toEqual(new Date(INSTANTE));
+  });
+
+  it("o cancelado sai da listagem da competência — AC 2", async () => {
+    const id = await inserirPorOrigem("AVULSO");
+    await repo.cancelar(id, INSTANTE);
+
+    expect(await repo.listarPorCompetencia(competencia("2026-03"))).toHaveLength(0);
+  });
+
+  it("não altera nada ao cancelar parcela — AC 3", async () => {
+    const id = await inserirPorOrigem("PARCELA");
+
+    expect(await repo.cancelar(id, INSTANTE)).toBe(false);
+    expect((await repo.buscarPorId(id))?.canceladoEm).toBeNull();
+  });
+
+  it("não altera nada ao cancelar ocorrência de recorrência — AC 3", async () => {
+    const id = await inserirPorOrigem("RECORRENCIA");
+
+    expect(await repo.cancelar(id, INSTANTE)).toBe(false);
+    expect((await repo.buscarPorId(id))?.canceladoEm).toBeNull();
+  });
+
+  it("a segunda exclusão preserva o instante da primeira — AC 4", async () => {
+    const id = await inserirPorOrigem("AVULSO");
+    await repo.cancelar(id, INSTANTE);
+
+    const segunda = await repo.cancelar(id, "2026-03-25T12:00:00.000Z");
+
+    expect(segunda).toBe(false);
+    const { rows } = await pool.query<{ cancelado_em: Date }>(
+      "SELECT cancelado_em FROM movimento WHERE id = $1",
+      [id],
+    );
+    expect(rows[0]?.cancelado_em).toEqual(new Date(INSTANTE));
+  });
+
+  it("id inexistente devolve false, sem lançar", async () => {
+    expect(await repo.cancelar("00000000-0000-0000-0000-000000000000", INSTANTE)).toBe(false);
+  });
+
+  /**
+   * **Teste de concordância.** A regra de quem pode ser cancelado vive em dois
+   * lugares: `cancelamentoPermitido`, no domínio, e o `WHERE` do `UPDATE`. Este
+   * teste confronta os dois sobre as três origens reais gravadas no banco.
+   *
+   * Sem ele, a função pura vira dívida: o SQL passaria a ser a única verdade e
+   * ninguém notaria os dois divergindo.
+   */
+  it("o WHERE do UPDATE concorda com cancelamentoPermitido em toda origem", async () => {
+    const origens: ReadonlyArray<Origem> = ["AVULSO", "PARCELA", "RECORRENCIA"];
+
+    for (const origem of origens) {
+      const id = await inserirPorOrigem(origem);
+      const lancamento = await repo.buscarPorId(id);
+      if (!lancamento) {
+        throw new Error(`fixture de ${origem} não foi gravada`);
+      }
+
+      const dominio = cancelamentoPermitido(lancamento).ok;
+      const sql = await repo.cancelar(id, INSTANTE);
+
+      expect(sql).toBe(dominio);
+      await limparDados(pool);
+      base = await semearCadastroBase(pool);
+    }
   });
 });

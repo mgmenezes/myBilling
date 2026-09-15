@@ -66,6 +66,25 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
     return paraLancamento(linha);
   }
 
+  /**
+   * O `WHERE` é a segunda metade de `cancelamentoPermitido`, e os dois são
+   * confrontados por teste de concordância. Três condições, cada uma com razão
+   * própria: `id` identifica, `origem = 'AVULSO'` recusa o que quebraria a
+   * conservação da compra ou renasceria na materialização, e
+   * `cancelado_em IS NULL` preserva o instante do primeiro cancelamento em vez
+   * de sobrescrevê-lo num segundo clique.
+   */
+  async cancelar(id: string, canceladoEm: string): Promise<boolean> {
+    const alteradas = await this.db
+      .update(movimento)
+      .set({ canceladoEm: new Date(canceladoEm) })
+      .where(
+        and(eq(movimento.id, id), eq(movimento.origem, "AVULSO"), isNull(movimento.canceladoEm)),
+      )
+      .returning({ id: movimento.id });
+    return alteradas.length > 0;
+  }
+
   async marcarPagamento(id: string, pagoEm: string | null): Promise<void> {
     await this.db.update(movimento).set({ pagoEm }).where(eq(movimento.id, id));
   }
