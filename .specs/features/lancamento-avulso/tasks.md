@@ -68,8 +68,104 @@ Seis fases sequenciais. A regra de classificação é provada antes de existir q
 ### Phase 0 — Núcleo puro: cascata e permissão de cancelar
 
 ```
-T1 -> T3
+T1
+T2
 ```
+
+### Phase 1 — Banco e ports
+
+```
+T1 -> T3
+T5 -> T3
+T4 -> T6 -> T7
+T2 -> T7
+```
+
+### Phase 2 — Aplicação
+
+```
+T3 -> T8
+T6 -> T10
+T9 -> T10
+T7 -> T11
+```
+
+### Phase 3 — Server Actions
+
+```
+T10 -> T12
+T11 -> T13
+```
+
+### Phase 4 — Interface
+
+```
+T8 -> T14
+T9 -> T15
+T12 -> T16
+T15 -> T16
+T13 -> T17
+T14 -> T17
+```
+
+### Phase 5 — Provas de ponta a ponta e fechamento
+
+```
+T16 -> T19
+T16 -> T20
+T14 -> T20
+T17 -> T21
+T19 -> T22
+T20 -> T22
+T21 -> T22
+T22 -> T23 -> T24
+```
+
+---
+
+## Task Breakdown
+
+> **Sobre os avisos de granularidade do validador.** Algumas tasks tocam mais de um arquivo porque os
+> arquivos **mudam juntos por necessidade**: um método novo numa port não compila sem o Drizzle e o
+> fake que o implementam, e uma função de domínio nova não é exportável sem `src/domain/index.ts`.
+> Dividir produziria commits que não compilam, o que é pior que granularidade grossa. Onde a divisão
+> era real — criar separado de cancelar, tabela separada de formulário — ela foi feita.
+
+### Phase 0 — Núcleo puro
+
+#### T1: Cascata de classificação em blocos ✅ CONCLUÍDA
+**What**: Função pura `blocoDoLancamento(lancamento, cartoes)` que devolve `"FIXOS"`, `"CARTAO"` ou `"AVULSOS"` pela cascata: recorrência primeiro, cartão depois, resto por último.
+**Where**: `src/domain/mes/bloco-do-lancamento.ts`
+**Depends on**: nenhuma
+**Reuses**: tipos `Lancamento` e `Origem` de `src/domain/tipos.ts`
+**Requirement**: BLOCO-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Despesa com `origem = 'RECORRENCIA'` cujo meio **é** cartão devolve `FIXOS` (AC 2: precedência)
+- [x] Despesa avulsa cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio **não** é cartão devolve `AVULSOS` (AC 4: carnê)
+- [x] Despesa avulsa cujo meio não é cartão devolve `AVULSOS`
+- [x] Conjunto de cartões vazio nunca devolve `CARTAO`
+- [x] 100% de branches, verificado pelo relatório de cobertura
+**Tests**: unit
+**Gate**: quick
+
+#### T2: Quem pode ser cancelado ✅ CONCLUÍDA
+**What**: Função pura `cancelamentoPermitido(lancamento)` que devolve `ok` apenas para `origem = 'AVULSO'` e `LANCAMENTO_NAO_CANCELAVEL` para parcela e ocorrência de recorrência.
+**Where**: `src/domain/mes/cancelamento-permitido.ts`
+**Depends on**: nenhuma
+**Reuses**: `Result` e `DomainError` de `src/domain/shared/result.ts`
+**Requirement**: AVUL-04
+**Tools**: nenhuma
+**Done when**:
+- [x] `origem = 'AVULSO'` devolve `ok`
+- [x] `origem = 'PARCELA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] `origem = 'RECORRENCIA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Código de erro novo declarado na union fechada e com mensagem pt-BR em `src/lib/erros.ts`
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
 
 ### Phase 1 — Banco e ports
 
@@ -256,8 +352,8 @@ T22 -> T23 -> T24
 #### T8: A visão do mês carimba o bloco de cada lançamento
 **What**: `obterVisaoMensal` lê o conjunto de cartões, passa-o a `resumoMensal` e preenche `LancamentoDoMes.bloco`, de modo que a tabela nunca receba o conjunto nem reclassifique nada.
 **Where**: `src/application/mes/obter-visao-mensal/handler.ts`
-**Depends on**: T1, T3, T5
-**Reuses**: `blocoDoLancamento` de T1, `idsDeMeiosComFatura` de T5
+**Depends on**: T3
+**Reuses**: `blocoDoLancamento` de T1, o conjunto de cartões que T3 já faz a visão do mês ler
 **Requirement**: BLOCO-02
 **Tools**: nenhuma
 **Done when**:
