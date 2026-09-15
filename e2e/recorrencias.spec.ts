@@ -79,6 +79,35 @@ async function valorNaLista(page: Page, competencia: string, descricao: string):
   return (await linha.innerText()).replace(/\s+/g, " ");
 }
 
+/*
+ * A medição de posição existia só para a área de Lançamentos, e o AC 8 fala em
+ * "nenhuma das duas áreas". A verificação independente provou a lacuna: mover o
+ * diálogo de volta para o rodapé desta página deixava as 40 provas verdes.
+ */
+test("o botão de cadastrar fica no topo de Todo mês, antes da lista (AVUL-05, AC 8)", async ({
+  page,
+}) => {
+  await cadastrarFixo(page, {
+    descricao: "Conta de água",
+    valor: "180,00",
+    dia: "20",
+    inicio: "2026-03",
+  });
+  await page.goto("/2026-03/fixos");
+
+  const posicaoDoBotao = await page
+    .getByRole("button", { name: "+ Novo fixo" })
+    .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+  /* O item da lista de fixos, e não o primeiro `listitem` da página — a
+     navegação também é uma lista, e ela fica acima de tudo. */
+  const posicaoDaLista = await page
+    .getByRole("listitem")
+    .filter({ hasText: "Conta de água" })
+    .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+
+  expect(posicaoDoBotao).toBeLessThan(posicaoDaLista);
+});
+
 test("cadastrar uma vez faz o gasto fixo aparecer em todo mês (FIXO-01)", async ({ page }) => {
   await cadastrarFixo(page, {
     descricao: "Conta de água",

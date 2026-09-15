@@ -88,7 +88,7 @@ sujeitas à revisão desta spec.
 | Ciclo de vida do dado | AVUL-03 AC 1-2. Exclusão lógica; nenhuma linha é removida fisicamente |
 | Observabilidade | AVUL-01 AC 8: identificador de correlação no servidor, sem stack trace no navegador |
 | Falha de dependência externa | N/A porque esta fatia não chama nenhum serviço externo |
-| Integridade de transição de estado | AVUL-04. Cancelado não se cancela de novo nem se marca como pago |
+| Integridade de transição de estado | AVUL-04 ACs 3, 4 e 5. Cancelado não se cancela de novo nem se marca como pago |
 
 ---
 
@@ -201,10 +201,12 @@ carregar um número falso para sempre.
    código `LANCAMENTO_NAO_CANCELAVEL` e SHALL não alterar linha alguma
 4. IF o lançamento já estiver cancelado THEN o sistema SHALL não alterar `cancelado_em` e SHALL
    devolver sucesso, de modo que uma segunda exclusão não seja erro
-5. The system SHALL exibir o controle de excluir apenas nas linhas de lançamento avulso
-6. WHEN o controle de excluir é acionado pela primeira vez THEN o sistema SHALL pedir confirmação na
+5. IF o lançamento já estiver cancelado THEN o sistema SHALL recusar marcá-lo como pago, deixando
+   `pago_em` inalterado
+6. The system SHALL exibir o controle de excluir apenas nas linhas de lançamento avulso
+7. WHEN o controle de excluir é acionado pela primeira vez THEN o sistema SHALL pedir confirmação na
    própria linha, e SHALL só excluir no segundo acionamento
-7. WHEN a exclusão é concluída THEN o sistema SHALL revalidar `/[competencia]` e
+8. WHEN a exclusão é concluída THEN o sistema SHALL revalidar `/[competencia]` e
    `/[competencia]/lancamentos`
 
 **Independent Test**: criar um avulso, conferir o total, excluí-lo e conferir que o total voltou ao
@@ -338,8 +340,8 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | --- | --- | --- | --- |
 | AVUL-01 | P1: Registrar um gasto avulso | Implementing | Implementing |
 | AVUL-02 | P1: Registrar dinheiro que entra | Implementing | Implementing |
-| AVUL-03 | P2: Excluir um lançamento avulso — ACs 1, 2, 5, 6 e 7 (exclusão lógica e o gesto) | Implementing | Implementing |
-| AVUL-04 | P2: Excluir um lançamento avulso — ACs 3 e 4 (integridade de transição: nem recancela, nem marca pago) | Implementing | Implementing |
+| AVUL-03 | P2: Excluir um lançamento avulso — ACs 1, 2, 6, 7 e 8 (exclusão lógica e o gesto) | Implementing | Implementing |
+| AVUL-04 | P2: Excluir um lançamento avulso — ACs 3, 4 e 5 (integridade de transição: nem recancela, nem marca pago) | Implementing | Implementing |
 | BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 1 a 4 e 7 (a cascata e a coluna Parcela) | Implementing | Implementing |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 5 e 6 (concordância painel↔lista, e arquivados) | Implementing | Implementing |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
