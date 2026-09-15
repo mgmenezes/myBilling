@@ -3,17 +3,29 @@ import type {
   confirmarValorDaOcorrencia as confirmarValorAction,
 } from "@/app/actions/pagamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
-import { type Natureza, type Origem, resolverValorEfetivo } from "@/domain";
+import { type BlocoDoMes, type Natureza, resolverValorEfetivo } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
 import { BotaoPago } from "./botao-pago";
 import { Chip } from "./ui";
 import { ValorConfirmavel } from "./valor-confirmavel";
 
 /**
- * Os lançamentos do mês, segmentados nos três blocos da planilha: Fixos,
- * Cartão de Crédito e Gastos do Mês (UI-01, AC 5). Os três aparecem sempre,
+ * Os lançamentos do mês, segmentados em quatro blocos: Entradas, Fixos, Cartão
+ * de Crédito e Gastos do Mês (UI-01 AC 5, ENTR-02). Os quatro aparecem sempre,
  * mesmo vazios, porque é assim que a aba do mês se parece e é o que permite
  * ler a ausência de um bloco como ausência, não como esquecimento.
+ *
+ * **Entradas vem primeiro, e passou a aparecer sempre.** Antes ela só existia
+ * quando tinha conteúdo, enquanto os três blocos de despesa apareciam vazios —
+ * então o dinheiro que entra era o único que sumia da tela quando faltava, e
+ * num mês sem receita nem o convite para cadastrar aparecia. O nome perdeu "e
+ * investimentos" porque investimento não tem porta de entrada em formulário
+ * nenhum do app.
+ *
+ * **A tabela não decide o bloco.** Ela lê `item.bloco`, carimbado por
+ * `obterVisaoMensal` com a mesma função que o painel usa para somar. Ela nunca
+ * recebe o conjunto de cartões, então classificar diferente do painel não é
+ * apenas improvável: é impossível de escrever.
  *
  * **Uma única árvore de DOM para as duas larguras.** A tabela vira cartões
  * empilhados por CSS (`block` abaixo de `md`, `table-*` a partir dele), em vez
@@ -36,17 +48,25 @@ import { ValorConfirmavel } from "./valor-confirmavel";
  * dado que faltava para saber o que foi cada gasto sem abrir nada.
  */
 
-interface Bloco {
+interface BlocoDeDespesa {
   readonly id: string;
   readonly titulo: string;
-  readonly origem: Origem;
+  readonly bloco: BlocoDoMes;
 }
 
-/** A ordem é a da planilha, e o usuário lê de cima para baixo esperando-a. */
-const BLOCOS: ReadonlyArray<Bloco> = [
-  { id: "fixos", titulo: "Fixos", origem: "RECORRENCIA" },
-  { id: "cartao", titulo: "Cartão de Crédito", origem: "PARCELA" },
-  { id: "avulsos", titulo: "Gastos do Mês", origem: "AVULSO" },
+/**
+ * A ordem da planilha, com Entradas antes de tudo: dinheiro entra antes de
+ * sair, e é o primeiro número que a pessoa procura ao abrir o mês.
+ *
+ * "Fixos" continua sendo o nome do bloco de despesa recorrente, ainda que a
+ * área que o administra tenha passado a se chamar "Todo mês". Os dois já eram
+ * coisas diferentes: aquela área administra também a receita recorrente, cuja
+ * ocorrência aparece em Entradas e nunca aqui.
+ */
+const BLOCOS_DE_DESPESA: ReadonlyArray<BlocoDeDespesa> = [
+  { id: "fixos", titulo: "Fixos", bloco: "FIXOS" },
+  { id: "cartao", titulo: "Cartão de Crédito", bloco: "CARTAO" },
+  { id: "avulsos", titulo: "Gastos do Mês", bloco: "AVULSOS" },
 ];
 
 const CELULA = "block md:table-cell md:px-4 md:py-3.5 md:align-top";
@@ -68,41 +88,39 @@ export function TabelaLancamentos({
   if (lancamentos.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
-        Nenhum lançamento neste mês ainda. Cadastre uma compra parcelada abaixo: as parcelas dos
-        meses seguintes aparecem sozinhas, sem você precisar criar nada.
+        Nenhum lançamento neste mês ainda. Cadastre um abaixo: um gasto avulso, uma entrada, ou uma
+        compra parcelada cujas parcelas dos meses seguintes aparecem sozinhas.
       </p>
     );
   }
 
   const despesas = lancamentos.filter((item) => item.lancamento.natureza === "DESPESA");
-  const outros = lancamentos.filter((item) => item.lancamento.natureza !== "DESPESA");
+  const entradas = lancamentos.filter((item) => item.lancamento.natureza !== "DESPESA");
 
   return (
     <div className="flex flex-col gap-7">
-      {BLOCOS.map((bloco) => (
+      <BlocoDeLancamentos
+        id="entradas"
+        titulo="Entradas"
+        categorias={categorias}
+        alternarPagamento={alternarPagamento}
+        confirmarValor={confirmarValor}
+        comParcela={false}
+        itens={entradas}
+      />
+      {BLOCOS_DE_DESPESA.map((bloco) => (
         <BlocoDeLancamentos
-          key={bloco.origem}
+          key={bloco.bloco}
           id={bloco.id}
           titulo={bloco.titulo}
           categorias={categorias}
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValor}
           /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
-          comParcela={bloco.origem === "PARCELA"}
-          itens={despesas.filter((item) => item.lancamento.origem === bloco.origem)}
+          comParcela={bloco.bloco === "CARTAO"}
+          itens={despesas.filter((item) => item.bloco === bloco.bloco)}
         />
       ))}
-      {outros.length === 0 ? null : (
-        <BlocoDeLancamentos
-          id="outros"
-          titulo="Entradas e investimentos"
-          categorias={categorias}
-          alternarPagamento={alternarPagamento}
-          confirmarValor={confirmarValor}
-          comParcela={false}
-          itens={outros}
-        />
-      )}
     </div>
   );
 }

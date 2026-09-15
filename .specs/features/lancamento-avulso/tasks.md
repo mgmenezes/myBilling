@@ -359,7 +359,7 @@ T22 -> T23 -> T24
 
 ### Phase 4 — Interface
 
-#### T14: Blocos pela cascata, com Entradas no topo
+#### T14: Blocos pela cascata, com Entradas no topo ✅ CONCLUÍDA
 **What**: `TabelaLancamentos` passa a agrupar por `item.bloco` em vez de por `origem`, e o bloco de entradas sobe para o topo, aparece sempre e perde "e investimentos" do nome.
 **Where**: `src/components/tabela-lancamentos.tsx`
 **Depends on**: T8
@@ -367,13 +367,13 @@ T22 -> T23 -> T24
 **Requirement**: ENTR-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Avulso no cartão aparece sob "Cartão de Crédito" (BLOCO-01 AC 3)
-- [ ] Recorrência no cartão aparece sob "Fixos" (BLOCO-01 AC 2)
-- [ ] Parcela em meio sem fatura aparece sob "Gastos do Mês" (BLOCO-01 AC 4)
-- [ ] "Entradas" é o primeiro bloco da árvore (AC 3)
-- [ ] "Entradas" aparece com texto de ausência quando vazio, sem tabela vazia (AC 2 e 4)
-- [ ] A coluna "Parcela" aparece só em linha que tem parcela (BLOCO-01 AC 7)
-- [ ] O bloco de despesa recorrente continua rotulado "Fixos" (AC 5)
+- [x] Avulso no cartão aparece sob "Cartão de Crédito" (BLOCO-01 AC 3)
+- [x] Recorrência no cartão aparece sob "Fixos" (BLOCO-01 AC 2)
+- [x] Parcela em meio sem fatura aparece sob "Gastos do Mês" (BLOCO-01 AC 4)
+- [x] "Entradas" é o primeiro bloco da árvore (AC 3)
+- [x] "Entradas" aparece com texto de ausência quando vazio, sem tabela vazia (AC 2 e 4)
+- [x] A coluna "Parcela" aparece só em linha que tem parcela (BLOCO-01 AC 7)
+- [x] O bloco de despesa recorrente continua rotulado "Fixos" (AC 5)
 **Tests**: componentes
 **Gate**: quick
 

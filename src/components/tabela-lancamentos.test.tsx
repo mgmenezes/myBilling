@@ -67,8 +67,8 @@ function item(
   return { lancamento: l, parcela, bloco: bloco ?? blocoPadrao(l.origem) };
 }
 
-describe("os três blocos de origem (UI-01, AC 5)", () => {
-  it("exibe Fixos, Cartão de Crédito e Gastos do Mês separadamente", () => {
+describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
+  it("exibe Entradas, Fixos, Cartão de Crédito e Gastos do Mês separadamente", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
@@ -92,12 +92,27 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
       />,
     );
 
+    expect(screen.getByRole("heading", { name: "Entradas" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Fixos" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Cartão de Crédito" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "Gastos do Mês" })).toBeDefined();
   });
 
-  it("põe cada lançamento no bloco da sua origem, e não em outro", () => {
+  it("põe Entradas antes de todos os blocos de despesa — ENTR-02, AC 3", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
+      />,
+    );
+
+    const titulos = screen.getAllByRole("heading").map((h) => h.textContent);
+    expect(titulos).toEqual(["Entradas", "Fixos", "Cartão de Crédito", "Gastos do Mês"]);
+  });
+
+  it("põe cada lançamento no bloco que a visão do mês carimbou, e não em outro", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
@@ -117,7 +132,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
     expect(within(fixos).queryByText("Lançamento avulso A")).toBeNull();
   });
 
-  it("mantém os três blocos visíveis mesmo quando um deles está vazio", () => {
+  it("mantém os blocos de despesa visíveis mesmo quando um deles está vazio", () => {
     render(
       <TabelaLancamentos
         lancamentos={[item({ id: "3", origem: "AVULSO" })]}
@@ -131,7 +146,7 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
     expect(within(cartao).getByText("Nenhum lançamento neste bloco.")).toBeDefined();
   });
 
-  it("não esconde entrada nem investimento: eles ganham o próprio bloco", () => {
+  it("põe a receita no bloco Entradas, e não em bloco de despesa nenhum", () => {
     render(
       <TabelaLancamentos
         categorias={CATEGORIAS}
@@ -143,8 +158,62 @@ describe("os três blocos de origem (UI-01, AC 5)", () => {
       />,
     );
 
-    const bloco = screen.getByRole("region", { name: "Entradas e investimentos" });
-    expect(within(bloco).getByText("Entrada A")).toBeDefined();
+    const entradas = screen.getByRole("region", { name: "Entradas" });
+    expect(within(entradas).getByText("Entrada A")).toBeDefined();
+    for (const nome of ["Fixos", "Cartão de Crédito", "Gastos do Mês"]) {
+      expect(
+        within(screen.getByRole("region", { name: nome })).queryByText("Entrada A"),
+      ).toBeNull();
+    }
+  });
+
+  /*
+   * O bloco de entradas aparecia só quando tinha conteúdo, enquanto os três de
+   * despesa apareciam vazios. Num mês sem receita, o dinheiro que entra era o
+   * único que sumia da tela — e com ele o convite para cadastrar.
+   */
+  it("mantém Entradas visível num mês sem nenhuma receita — ENTR-02, AC 2 e 4", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
+      />,
+    );
+
+    const entradas = screen.getByRole("region", { name: "Entradas" });
+    expect(within(entradas).getByText("Nenhum lançamento neste bloco.")).toBeDefined();
+    expect(within(entradas).queryByRole("table")).toBeNull();
+  });
+
+  it("classifica pelo bloco recebido, e não pela origem: avulso no cartão vai para Cartão", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        lancamentos={[
+          item({ id: "1", origem: "AVULSO", descricao: "Farmácia no cartão" }, null, "CARTAO"),
+          item(
+            {
+              id: "2",
+              origem: "PARCELA",
+              descricao: "Parcela no carnê",
+              compraId: "c1",
+              numeroParcela: 1,
+            },
+            null,
+            "AVULSOS",
+          ),
+        ]}
+      />,
+    );
+
+    const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
+    const gastos = screen.getByRole("region", { name: "Gastos do Mês" });
+    expect(within(cartao).getByText("Farmácia no cartão")).toBeDefined();
+    expect(within(gastos).getByText("Parcela no carnê")).toBeDefined();
   });
 });
 

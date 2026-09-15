@@ -252,7 +252,7 @@ de ausência.
 | BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Design | Pending |
-| ENTR-02 | P2: Achar onde mora o dinheiro que entra | Design | Pending |
+| ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
 
 **Coverage:** 8 total, 0 mapeados para tasks, 8 não mapeados ⚠️
 
