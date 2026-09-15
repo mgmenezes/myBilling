@@ -207,6 +207,61 @@ describe("movimento: restrições que impedem dado inválido (MOV-01, MOV-05)", 
   });
 });
 
+/**
+ * **Paridade entre o schema declarado e o SQL que roda.**
+ *
+ * O mutante que sobreviveu à verificação foi remover o `CHECK` de `schema.ts`:
+ * nada ficou vermelho, porque o banco de teste nasce de `drizzle/*.sql` e o
+ * schema TypeScript só é lido pelo `drizzle-kit generate`. Os dois podem
+ * divergir em silêncio, e a divergência só apareceria no dia de gerar a
+ * migration seguinte — com o diff errado.
+ *
+ * Este teste confronta o que o Postgres tem contra o que o schema declara. Não
+ * cobre toda forma de drift; cobre a que já aconteceu.
+ */
+describe("schema declarado e SQL aplicado não divergem", () => {
+  /** Os nomes de `check(...)` escritos em `schema.ts`. */
+  function checksDeclarados(): string[] {
+    const fonte = readFileSync(
+      join(process.cwd(), "src", "infrastructure", "db", "schema.ts"),
+      "utf-8",
+    );
+    return [...fonte.matchAll(/check\(\s*"([a-z0-9_]+)"/g)]
+      .map((m) => m[1])
+      .filter((nome): nome is string => nome !== undefined)
+      .sort();
+  }
+
+  /** Os `CHECK` que o Postgres de fato tem, vindos de `drizzle/*.sql`. */
+  async function checksNoBanco(): Promise<string[]> {
+    const { rows } = await pool.query<{ conname: string }>(
+      "SELECT conname FROM pg_constraint WHERE contype = 'c' AND connamespace = 'public'::regnamespace",
+    );
+    return rows.map((r) => r.conname).sort();
+  }
+
+  it("toda restrição CHECK declarada em schema.ts existe no banco", async () => {
+    const declaradas = checksDeclarados();
+    const noBanco = new Set(await checksNoBanco());
+
+    expect(declaradas.length).toBeGreaterThan(10);
+    expect(declaradas.filter((nome) => !noBanco.has(nome))).toEqual([]);
+  });
+
+  /*
+   * **A direção que pega a remoção.** Sem ela, apagar um `check(...)` do
+   * `schema.ts` não quebra nada: a lista declarada encolhe e o que resta
+   * continua existindo no banco. Foi exatamente o mutante que sobreviveu à
+   * verificação independente.
+   */
+  it("toda restrição CHECK do banco está declarada em schema.ts", async () => {
+    const declaradas = new Set(checksDeclarados());
+    const noBanco = await checksNoBanco();
+
+    expect(noBanco.filter((nome) => !declaradas.has(nome))).toEqual([]);
+  });
+});
+
 describe("movimento: o razão não aceita valor não positivo (AVUL-01)", () => {
   async function inserirAvulso(valorCentavos: number): Promise<void> {
     await pool.query(

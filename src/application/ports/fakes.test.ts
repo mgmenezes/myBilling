@@ -305,6 +305,26 @@ describe("FakeMovimentoRepository (T32)", () => {
 
     expect(await movimentos.cancelar("nao-existe", "2026-03-20T00:00:00Z")).toBe(false);
   });
+
+  it("não marca como pago um cancelado, igual ao WHERE do Drizzle — AVUL-04", async () => {
+    const { movimentos } = criarFakes();
+    const gravado = await movimentos.criarAvulso({
+      natureza: "DESPESA",
+      descricao: "Café",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 800 as Cents,
+      pagoEm: null,
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    });
+    await movimentos.cancelar(gravado.id, "2026-03-20T00:00:00Z");
+
+    await movimentos.marcarPagamento(gravado.id, "2026-03-25");
+
+    expect((await movimentos.buscarPorId(gravado.id))?.pagoEm).toBeNull();
+  });
 });
 
 describe("FakeCadastroRepository (T32)", () => {

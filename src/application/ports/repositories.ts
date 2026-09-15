@@ -152,7 +152,13 @@ export interface MovimentoRepository {
    */
   cancelar(id: string, canceladoEm: string): Promise<boolean>;
   buscarPorId(id: string): Promise<Lancamento | null>;
-  /** `pagoEm` em `'YYYY-MM-DD'`; `null` desfaz a marcação (MOV-06, AC 1). */
+  /**
+   * `pagoEm` em `'YYYY-MM-DD'`; `null` desfaz a marcação (MOV-06, AC 1).
+   *
+   * **Não alcança lançamento cancelado** (AVUL-04): ele não aparece em lista
+   * nenhuma, e uma linha invisível com data de pagamento é estado pior que
+   * inútil.
+   */
   marcarPagamento(id: string, pagoEm: string | null): Promise<void>;
   /**
    * Cria as ocorrências que ainda não existem, **ignorando as que já existem**.

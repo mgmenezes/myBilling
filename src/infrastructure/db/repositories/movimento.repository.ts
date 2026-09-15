@@ -85,8 +85,23 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
     return alteradas.length > 0;
   }
 
+  /**
+   * `cancelado_em IS NULL` no `WHERE`, e não só o id.
+   *
+   * Um lançamento cancelado não aparece em lista nenhuma, então marcá-lo como
+   * pago exigiria uma requisição fora da tela — duas abas, ou um clique que
+   * viajou junto com a exclusão feita na outra. O estado resultante seria pior
+   * que inútil: uma linha invisível com data de pagamento, que ressurgiria
+   * errada se o cancelamento fosse um dia revertido.
+   *
+   * É a segunda metade de AVUL-04: cancelado não se cancela de novo **nem se
+   * marca como pago**.
+   */
   async marcarPagamento(id: string, pagoEm: string | null): Promise<void> {
-    await this.db.update(movimento).set({ pagoEm }).where(eq(movimento.id, id));
+    await this.db
+      .update(movimento)
+      .set({ pagoEm })
+      .where(and(eq(movimento.id, id), isNull(movimento.canceladoEm)));
   }
 
   /**

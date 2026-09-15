@@ -204,6 +204,22 @@ test("encerrar remove o futuro não pago e preserva o passado (FIXO-06)", async 
     page.getByRole("region", { name: "Fixos" }).getByRole("row", { name: /Internet/ }),
   ).toHaveCount(0);
 
+  /*
+   * **A lista de "Todo mês" também para de mostrá-la em maio** (FIXO-07).
+   * Faltava esta asserção: o percurso visitava `/2026-05/lancamentos` e
+   * `/2026-03/fixos`, nunca `/2026-05/fixos`, e o Verifier provou que apagar o
+   * filtro da página deixava as 1.022 provas verdes.
+   */
+  await page.goto("/2026-05/fixos");
+  await expect(page.getByRole("listitem").filter({ hasText: "Internet" })).toHaveCount(0);
+
+  /* Em abril ela continua lá, com o selo de encerrada: abril é um mês em que
+     ela valeu, e escondê-la ali seria mentir sobre aquele mês. */
+  await page.goto("/2026-04/fixos");
+  const emAbril = page.getByRole("listitem").filter({ hasText: "Internet" });
+  await expect(emAbril).toBeVisible();
+  await expect(emAbril).toContainText("Encerrado");
+
   // E abrir maio de novo não recria: a materialização respeita o encerramento.
   await page.goto("/2026-05/lancamentos");
   await expect(

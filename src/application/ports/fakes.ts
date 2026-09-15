@@ -208,9 +208,10 @@ export class FakeMovimentoRepository implements MovimentoRepository {
     return true;
   }
 
+  /** Cancelado não se marca como pago, igual ao `WHERE` do Drizzle (AVUL-04). */
   async marcarPagamento(id: string, pagoEm: string | null): Promise<void> {
     const atual = this.estado.movimentos.get(id);
-    if (!atual) {
+    if (!atual || atual.canceladoEm !== null) {
       return;
     }
     this.estado.movimentos.set(id, { ...atual, pagoEm });

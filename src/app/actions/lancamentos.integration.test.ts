@@ -388,3 +388,69 @@ describe("cancelarLancamento: recusas (AVUL-03, AC 3)", () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 });
+
+describe("erro inesperado nas duas actions (AVUL-01, AC 8)", () => {
+  /*
+   * A prova existia só para `compras.ts` e nunca tinha sido replicada aqui. Um
+   * envelope que vaza stack trace não falha nenhum teste: ele só aparece no
+   * navegador de quem usa, num dia ruim.
+   */
+  it("criar devolve ERRO_INESPERADO com identificador e sem stack trace", async () => {
+    const silencio = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    // Categoria que não existe: a chave estrangeira estoura no insert, que é
+    // falha não prevista pela aplicação.
+    const resultado = await criarLancamentoAvulso(
+      entrada({ categoriaId: "99999999-9999-4999-8999-999999999999" }),
+    );
+
+    silencio.mockRestore();
+
+    expect(resultado.ok).toBe(false);
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    expect(resultado.erro.code).toBe("ERRO_INESPERADO");
+    expect(resultado.erro.mensagem).toMatch(/informe o código [0-9a-f]{8}\.$/);
+    expect(resultado.erro.mensagem).not.toMatch(/at |\.ts:|node_modules|insert|violates/i);
+    expect(await contarMovimentos()).toBe(0);
+  });
+
+  it("o identificador vai para o log do servidor, e só para lá", async () => {
+    const logado: unknown[] = [];
+    const silencio = vi.spyOn(console, "error").mockImplementation((...args) => {
+      logado.push(...args);
+    });
+
+    const resultado = await criarLancamentoAvulso(
+      entrada({ categoriaId: "99999999-9999-4999-8999-999999999999" }),
+    );
+
+    silencio.mockRestore();
+
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    const correlacao = resultado.erro.mensagem.match(/código ([0-9a-f]{8})\./)?.[1];
+    expect(correlacao).toBeDefined();
+    /* O mesmo identificador nos dois lados é o que permite achar o detalhe no
+       log a partir do que a pessoa leu na tela. */
+    expect(String(logado[0])).toContain(correlacao);
+  });
+
+  it("excluir devolve ERRO_INESPERADO com identificador e sem stack trace", async () => {
+    const silencio = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    // Id que não é UUID: o Postgres recusa a comparação, e a falha não é prevista.
+    const resultado = await cancelarLancamento("nao-e-um-uuid");
+
+    silencio.mockRestore();
+
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    expect(resultado.erro.code).toBe("ERRO_INESPERADO");
+    expect(resultado.erro.mensagem).toMatch(/informe o código [0-9a-f]{8}\.$/);
+    expect(resultado.erro.mensagem).not.toMatch(/at |\.ts:|node_modules|invalid input syntax/i);
+  });
+});

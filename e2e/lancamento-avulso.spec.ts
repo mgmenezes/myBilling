@@ -291,3 +291,100 @@ test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 5)", asy
   /* O selo de pago continua lá: só a exclusão é que não se aplica. */
   await expect(linha.getByRole("button", { name: /Previsto/ })).toBeVisible();
 });
+
+/**
+ * O que **só o navegador** prova, e por isso o teste de componente do diálogo
+ * declara em comentário que a cobertura vive aqui: `showModal()` confina o
+ * foco, torna o resto da página inerte e devolve o foco à origem ao fechar. O
+ * jsdom não implementa nada disso, e testar lá seria testar o dublê.
+ *
+ * A dívida foi apontada pelo Verifier: o comentário existia e o percurso não.
+ */
+test("o diálogo confina o foco e torna o resto da página inerte (AVUL-05, AC 3)", async ({
+  page,
+}) => {
+  await page.goto(`/${MARCO}/lancamentos`);
+  await page.getByRole("button", { name: "+ Novo lançamento" }).click();
+
+  const dialogo = page.getByRole("dialog");
+  await expect(dialogo).toBeVisible();
+
+  /*
+   * A propriedade que importa: tabular muitas vezes **nunca** leva o foco a um
+   * controle de fundo. Afirmar "o ativo está dentro do diálogo" seria frágil —
+   * o foco pode passar pela barra do navegador e voltar como `body`, que não
+   * está no diálogo e também não é um controle da página.
+   */
+  const visitouOFundo = await page.evaluate(async () => {
+    const dialogo = document.querySelector("dialog");
+    const fundo = [...document.querySelectorAll("button, a[href], select, input")].filter(
+      (el) => dialogo?.contains(el) !== true,
+    );
+    return fundo.some((el) => el === document.activeElement);
+  });
+  expect(visitouOFundo).toBe(false);
+
+  for (let i = 0; i < 20; i += 1) {
+    await page.keyboard.press("Tab");
+    const noFundo = await page.evaluate(() => {
+      const dialogo = document.querySelector("dialog");
+      const ativo = document.activeElement;
+      if (ativo === null || ativo === document.body) {
+        return false;
+      }
+      return dialogo?.contains(ativo) !== true;
+    });
+    expect(noFundo).toBe(false);
+  }
+
+  /* E o controle que abriu, logo atrás, segue inalcançável enquanto está aberto. */
+  await expect(page.getByRole("button", { name: "+ Novo lançamento" })).not.toBeFocused();
+});
+
+test("Escape fecha o diálogo e devolve o foco ao botão que abriu (AVUL-05, AC 4)", async ({
+  page,
+}) => {
+  await page.goto(`/${MARCO}/lancamentos`);
+  const abrir = page.getByRole("button", { name: "+ Novo lançamento" });
+  await abrir.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+
+  await page.keyboard.press("Escape");
+
+  await expect(page.getByRole("dialog")).toBeHidden();
+  /* Devolver o foco à origem é o que o `<dialog>` nativo dá de graça, e o que
+     um painel feito à mão esqueceria: sem isso o teclado volta para o topo. */
+  await expect(abrir).toBeFocused();
+  await expect(abrir).toHaveAttribute("aria-expanded", "false");
+});
+
+test("o botão de cadastrar fica no topo, antes da lista (AVUL-05, AC 1)", async ({ page }) => {
+  await page.goto(`/${MARCO}/lancamentos`);
+  await cadastrarAvulso(page, { descricao: "Almoço", valor: "32,50" });
+  await page.keyboard.press("Escape");
+
+  /* Posição, e não só existência: mover o cadastro de volta para o rodapé é
+     exatamente a regressão que esta fatia veio corrigir. */
+  const posicaoDoBotao = await page
+    .getByRole("button", { name: "+ Novo lançamento" })
+    .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+  const posicaoDaLista = await page
+    .getByRole("region", { name: "Entradas" })
+    .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+
+  expect(posicaoDoBotao).toBeLessThan(posicaoDaLista);
+});
+
+test("em 400 pixels o diálogo ocupa a tela inteira (AVUL-05, AC 6)", async ({ page }) => {
+  await page.setViewportSize({ width: 400, height: 720 });
+  await page.goto(`/${MARCO}/lancamentos`);
+  await page.getByRole("button", { name: "+ Novo lançamento" }).click();
+
+  const caixa = await page.getByRole("dialog").boundingBox();
+  expect(caixa?.width).toBe(400);
+  expect(caixa?.height).toBeGreaterThanOrEqual(700);
+
+  /* E a página continua sem rolar na horizontal, com o diálogo aberto. */
+  const larguraDoDocumento = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(larguraDoDocumento).toBeLessThanOrEqual(400);
+});

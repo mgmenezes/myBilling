@@ -57,6 +57,7 @@ e já é ignorado por toda soma. Falta a metade de cima.
 | Naturezas aceitas no avulso | Despesa e receita | Espelha `recorrencia.schema.ts`, que também exclui investimento. Divergir criaria duas regras para a mesma pergunta | n |
 | Se o lançamento já nasce pago | Marcado por padrão quando o meio **não** gera fatura; desmarcado quando gera | Dinheiro em conta corrente se move no ato do gesto; compra no cartão só sai na fatura. O padrão acerta o caso comum dos dois lados e continua sendo uma caixa que a pessoa pode desmarcar | n |
 | Data de pagamento quando nasce pago | A própria data do evento | Registrar o Pix é registrar que ele caiu. Pedir uma segunda data para o mesmo instante seria campo que só existe para ser repetido | n |
+| Cancelado e marcar pago | `marcarPagamento` tem `cancelado_em IS NULL` no `WHERE` | Corrigido depois da verificação independente, que apontou a metade não implementada do AVUL-04. Um cancelado não aparece em lista nenhuma, então marcá-lo como pago exigiria requisição fora da tela — duas abas, ou um clique que viajou junto com a exclusão feita na outra. O estado resultante seria pior que inútil: linha invisível com data de pagamento, que ressurgiria errada se o cancelamento fosse revertido | y |
 | Como a exclusão é persistida | Lógica: `cancelado_em` recebe o instante; a linha permanece | `cancelado_em` já existe e toda soma já o ignora (`vigente()` em `resumo-mensal.ts`). `DELETE` físico perderia auditoria e abriria a porta para apagar parcela por engano | n |
 | O que pode ser excluído | Apenas `origem = 'AVULSO'` e ainda não cancelado | Parcela quebra a conservação da soma da compra; ocorrência de recorrência renasce na materialização seguinte. A regra é função pura, confrontada com o `WHERE` do `UPDATE` por teste de concordância, como `ocorrenciaProtegida` | n |
 | Confirmação antes de excluir | Dois toques na própria linha, sem modal | Mesmo padrão de ilha cliente do `BotaoPago` e do `ValorConfirmavel`. Modal exigiria foco gerenciado e devolveria menos que custa | n |
@@ -258,7 +259,7 @@ rolar por dez gastos fixos cada vez que preciso lançar algo.
 7. WHILE o diálogo está aberto o sistema SHALL preservar o que foi digitado na aba que não está
    visível
 
-7. The system SHALL abrir também o cadastro da área "Todo mês" por controle no topo, no mesmo
+8. The system SHALL abrir também o cadastro da área "Todo mês" por controle no topo, no mesmo
    diálogo, e SHALL não deixar formulário no rodapé de nenhuma das duas áreas
 
 **Independent Test**: abrir o cadastro pelo botão do topo num mês com vários lançamentos, sem
@@ -337,14 +338,14 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | --- | --- | --- | --- |
 | AVUL-01 | P1: Registrar um gasto avulso | Implementing | Implementing |
 | AVUL-02 | P1: Registrar dinheiro que entra | Implementing | Implementing |
-| AVUL-03 | P2: Excluir um lançamento avulso | Implementing | Implementing |
-| AVUL-04 | P2: Excluir um lançamento avulso | Implementing | Implementing |
-| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | Implementing |
-| BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | Implementing |
+| AVUL-03 | P2: Excluir um lançamento avulso — ACs 1, 2, 5, 6 e 7 (exclusão lógica e o gesto) | Implementing | Implementing |
+| AVUL-04 | P2: Excluir um lançamento avulso — ACs 3 e 4 (integridade de transição: nem recancela, nem marca pago) | Implementing | Implementing |
+| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 1 a 4 e 7 (a cascata e a coluna Parcela) | Implementing | Implementing |
+| BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 5 e 6 (concordância painel↔lista, e arquivados) | Implementing | Implementing |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
 | ENTR-03 | P2: O formulário fala a língua da receita | Implementing | Implementing |
-| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Design | Pending |
+| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Implementing | Implementing |
 | AVUL-05 | P2: Cadastrar sem rolar a página | Implementing | Implementing |
 
 **Coverage:** 11 total, 11 mapeados para tasks

@@ -389,6 +389,32 @@ describe("MovimentoRepository: cancelar (AVUL-03)", () => {
     expect(rows[0]?.cancelado_em).toEqual(new Date(INSTANTE));
   });
 
+  /*
+   * A segunda metade de AVUL-04, que faltava: cancelado não se cancela de novo
+   * **nem se marca como pago**. O caminho real é duas abas, ou um clique que
+   * viajou junto com a exclusão feita na outra.
+   */
+  it("não marca como pago um lançamento já cancelado — AVUL-04", async () => {
+    const id = await inserirPorOrigem("AVULSO");
+    await repo.cancelar(id, INSTANTE);
+
+    await repo.marcarPagamento(id, "2026-03-15");
+
+    const { rows } = await pool.query<{ pago_em: string | null }>(
+      "SELECT pago_em::text AS pago_em FROM movimento WHERE id = $1",
+      [id],
+    );
+    expect(rows[0]?.pago_em).toBeNull();
+  });
+
+  it("continua marcando como pago o lançamento vigente", async () => {
+    const id = await inserirPorOrigem("AVULSO");
+
+    await repo.marcarPagamento(id, "2026-03-15");
+
+    expect((await repo.buscarPorId(id))?.pagoEm).toBe("2026-03-15");
+  });
+
   it("id inexistente devolve false, sem lançar", async () => {
     expect(await repo.cancelar("00000000-0000-0000-0000-000000000000", INSTANTE)).toBe(false);
   });
