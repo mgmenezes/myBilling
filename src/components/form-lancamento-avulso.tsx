@@ -17,7 +17,6 @@ import {
 import { parseBRL } from "@/domain";
 import { formatarBRL } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
-import { useFecharDialogo } from "./dialogo-de-cadastro";
 
 /**
  * Cadastro de lançamento avulso: o gasto que não é parcelado nem fixo, e o
@@ -93,7 +92,6 @@ export function FormLancamentoAvulso({
   const router = useRouter();
   const id = useId();
   const [pendente, iniciarEnvio] = useTransition();
-  const fecharDialogo = useFecharDialogo();
 
   const [descricao, setDescricao] = useState("");
   const [natureza, setNatureza] = useState<"DESPESA" | "RECEITA">("DESPESA");
@@ -236,8 +234,6 @@ export function FormLancamentoAvulso({
       setDescricao("");
       setValor("");
       router.refresh();
-      /* Fecha o diálogo, se houver um em volta. Fora dele é no-op. */
-      fecharDialogo();
     });
   }
 

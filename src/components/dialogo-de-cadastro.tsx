@@ -1,7 +1,7 @@
 "use client";
 
 import { XIcon } from "@phosphor-icons/react";
-import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 /**
  * O cadastro num diálogo modal, aberto por um botão no topo da área.
@@ -20,18 +20,14 @@ import { createContext, useContext, useEffect, useId, useRef, useState } from "r
  * na tela, e manter os filhos montados preserva o que foi digitado quando a
  * pessoa fecha sem querer e reabre. Desmontar apagaria o formulário inteiro.
  *
- * O `fechar` chega aos formulários por contexto, e não por prop: eles são
- * filhos vindos de um componente de servidor, e função não atravessa essa
- * fronteira. `useFecharDialogo` devolve um no-op fora de um diálogo, então o
- * mesmo formulário continua servindo numa página comum.
+ * **Gravar não fecha o diálogo.** A primeira versão fechava, e a consequência
+ * apareceu no e2e: a confirmação do que foi gravado vive dentro do formulário,
+ * então ela ia embora junto e a pessoa não ficava sabendo que deu certo — nem
+ * que a compra virou três parcelas. Mantê-lo aberto preserva a confirmação e
+ * serve o padrão real de lançar várias coisas seguidas quando se senta para
+ * atualizar o mês; o formulário já limpa descrição e valor sozinho. O custo é
+ * um clique para fechar, que o `Escape` também resolve.
  */
-
-const ContextoDoDialogo = createContext<(() => void) | null>(null);
-
-/** Fecha o diálogo que envolve este componente. No-op fora de um. */
-export function useFecharDialogo(): () => void {
-  return useContext(ContextoDoDialogo) ?? (() => undefined);
-}
 
 export function DialogoDeCadastro({
   rotuloDoBotao,
@@ -111,7 +107,7 @@ export function DialogoDeCadastro({
             </button>
           </div>
 
-          <ContextoDoDialogo value={fechar}>{children}</ContextoDoDialogo>
+          {children}
         </div>
       </dialog>
     </>

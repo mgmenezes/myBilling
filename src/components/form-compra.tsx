@@ -18,7 +18,6 @@ import {
 import { parseBRL } from "@/domain";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
-import { useFecharDialogo } from "./dialogo-de-cadastro";
 
 /**
  * Cadastro de compra: o formulário que resolve a dor central.
@@ -99,7 +98,6 @@ export function FormCompra({
   const router = useRouter();
   const id = useId();
   const [pendente, iniciarEnvio] = useTransition();
-  const fecharDialogo = useFecharDialogo();
   const reduzir = useReducedMotion();
 
   // Gerada **ao abrir**, não ao submeter (PARC-05, AC 9).
@@ -240,8 +238,6 @@ export function FormCompra({
       // Compra gravada, chave queimada: a próxima compra precisa da sua.
       setIdempotencyKey(crypto.randomUUID());
       router.refresh();
-      /* Fecha o diálogo, se houver um em volta. Fora dele é no-op. */
-      fecharDialogo();
     });
   }
 

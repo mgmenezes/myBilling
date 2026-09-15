@@ -1,7 +1,7 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import { DialogoDeCadastro, useFecharDialogo } from "./dialogo-de-cadastro";
+import { DialogoDeCadastro } from "./dialogo-de-cadastro";
 
 /** Testes derivados de AVUL-05 (AC 2 a 5 e 7). */
 
@@ -23,15 +23,6 @@ beforeAll(() => {
 });
 
 afterEach(cleanup);
-
-function ConteudoQueFecha() {
-  const fechar = useFecharDialogo();
-  return (
-    <button type="button" onClick={fechar}>
-      Gravar
-    </button>
-  );
-}
 
 function montar(conteudo: React.ReactNode = <input aria-label="Descrição" />) {
   render(
@@ -110,14 +101,29 @@ describe("DialogoDeCadastro — fechar", () => {
 
     expect(botao.getAttribute("aria-expanded")).toBe("false");
   });
+});
 
-  it("o conteúdo pode se fechar pelo contexto, que é como gravar fecha — AC 5", async () => {
-    montar(<ConteudoQueFecha />);
+describe("DialogoDeCadastro — gravar não fecha (AVUL-05, AC 5)", () => {
+  /*
+   * A primeira versão fechava ao gravar, e o e2e mostrou a consequência: a
+   * confirmação do que foi gravado vive dentro do formulário e ia embora junto.
+   * O diálogo só fecha por gesto explícito — botão, backdrop ou `Escape`.
+   */
+  it("não fecha por submissão de formulário que aconteceu lá dentro", async () => {
+    render(
+      <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
+        <form aria-label="Formulário" onSubmit={(evento) => evento.preventDefault()}>
+          <button type="submit">Cadastrar</button>
+          <p role="status">Gravado.</p>
+        </form>
+      </DialogoDeCadastro>,
+    );
     await userEvent.click(screen.getByRole("button", { name: "+ Novo lançamento" }));
 
-    await userEvent.click(screen.getByRole("button", { name: "Gravar" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cadastrar" }));
 
-    expect(elementoDoDialogo().open).toBe(false);
+    expect(elementoDoDialogo().open).toBe(true);
+    expect(screen.getByRole("status").textContent).toBe("Gravado.");
   });
 });
 
@@ -143,15 +149,5 @@ describe("DialogoDeCadastro — nome acessível", () => {
 
     const titulo = screen.getByRole("heading", { name: "Novo lançamento" });
     expect(elementoDoDialogo().getAttribute("aria-labelledby")).toBe(titulo.id);
-  });
-});
-
-describe("useFecharDialogo — fora de um diálogo", () => {
-  it("devolve um no-op, para o mesmo formulário servir numa página comum", async () => {
-    render(<ConteudoQueFecha />);
-
-    await userEvent.click(screen.getByRole("button", { name: "Gravar" }));
-
-    expect(screen.getByRole("button", { name: "Gravar" })).toBeDefined();
   });
 });

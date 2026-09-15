@@ -115,7 +115,9 @@ test("mudar o valor a partir de um mês não reescreve os anteriores (FIXO-03)",
   expect(await valorNaLista(page, "2026-05", "Conta de luz")).toContain("R$ 240,00");
 });
 
-test("a área Todo mês mostra o valor vigente no mês aberto, não o mais recente", async ({ page }) => {
+test("a área Todo mês mostra o valor vigente no mês aberto, não o mais recente", async ({
+  page,
+}) => {
   await cadastrarFixo(page, {
     descricao: "Conta de luz",
     valor: "180,00",
@@ -199,18 +201,31 @@ test("encerrar remove o futuro não pago e preserva o passado (FIXO-06)", async 
   await expect(page.getByText("Encerrado")).toBeVisible();
 });
 
-test("receita recorrente entra em Entradas, não em Fixos (FIXO-01, AC 6)", async ({ page }) => {
+test("receita recorrente entra em Entradas, não em Fixos (FIXO-01 AC 6, ENTR-03)", async ({
+  page,
+}) => {
   await page.goto("/2026-03/fixos");
   await page.getByLabel("Descrição").fill("Salário");
   await page.getByLabel("Um dinheiro que entra").check();
+
+  /*
+   * Os rótulos mudam com a natureza (ENTR-03): com receita marcada não há "Dia
+   * de vencimento" nem "Meio de pagamento", porque salário não vence e não cai
+   * em cartão de crédito. Este percurso é o que prova a troca na tela real.
+   */
+  await expect(page.getByRole("heading", { name: "Nova entrada fixa" })).toBeVisible();
   await page.getByLabel(/De quanto costuma ser/).fill("4.200,00");
-  await page.getByLabel("Dia de vencimento").fill("5");
-  await page.getByRole("button", { name: "Cadastrar gasto fixo" }).click();
+  await page.getByLabel("Dia que costuma cair").fill("5");
+  await expect(page.getByLabel("Onde o dinheiro cai")).toBeVisible();
+  await expect(page.getByLabel("Onde o dinheiro cai").getByRole("option")).not.toContainText([
+    "Cartão",
+  ]);
+  await page.getByRole("button", { name: "Cadastrar entrada" }).click();
   await expect(page.getByRole("status")).toContainText("Salário");
 
   await page.goto("/2026-03/lancamentos");
   await expect(
-    page.getByRole("region", { name: "Entradas e investimentos" }).getByRole("row", {
+    page.getByRole("region", { name: "Entradas" }).getByRole("row", {
       name: /Salário/,
     }),
   ).toBeVisible();

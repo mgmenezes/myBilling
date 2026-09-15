@@ -308,6 +308,7 @@ test("criar uma categoria no formulário a torna disponível nos meses seguintes
   page,
 }) => {
   await page.goto("/2026-03/lancamentos");
+  await abrirCadastro(page, "Parcelado");
 
   // Ela não existe antes: o seletor não a oferece.
   await expect(seletorDeCategoria(page)).not.toContainText("Mercado");
@@ -331,10 +332,13 @@ test("criar uma categoria no formulário a torna disponível nos meses seguintes
   // sem ninguém ter cadastrado nada de novo.
   await page.goto("/2026-04/lancamentos");
   await expect(linhaDaParcela(page, "Compra com categoria nova")).toBeVisible();
+  /* O diálogo fecha a cada navegação: reabrir é o que a pessoa faria. */
+  await abrirCadastro(page, "Parcelado");
   await expect(seletorDeCategoria(page)).toContainText("Mercado");
 
   // E um mês que ainda não tem lançamento nenhum também a oferece.
   await page.goto("/2026-11/lancamentos");
+  await abrirCadastro(page, "Parcelado");
   await expect(seletorDeCategoria(page)).toContainText("Mercado");
 });
 
@@ -368,6 +372,7 @@ test("criar uma categoria com nome já existente não duplica a lista", async ({
  */
 test("criar um cartão no formulário e cadastrar uma compra nele (CART-02)", async ({ page }) => {
   await page.goto("/2026-03/lancamentos");
+  await abrirCadastro(page, "Parcelado");
 
   await expect(seletorDeMeio(page)).not.toContainText("Cartão Novo");
 
@@ -391,6 +396,7 @@ test("criar um cartão no formulário e cadastrar uma compra nele (CART-02)", as
   // A parcela do mês seguinte existe, e o cartão continua oferecido lá.
   await page.goto("/2026-04/lancamentos");
   await expect(linhaDaParcela(page, "Compra no cartão novo")).toBeVisible();
+  await abrirCadastro(page, "Parcelado");
   await expect(seletorDeMeio(page)).toContainText("Cartão Novo");
 });
 

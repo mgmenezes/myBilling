@@ -63,6 +63,7 @@ e já é ignorado por toda soma. Falta a metade de cima.
 | `CHECK` de positividade em `movimento.valor_centavos` | Acrescentado na migration `0002` | `recorrencia_versao`, `orcamento_categoria` e `pagamento_fatura` têm o deles; o razão — a única tabela somável — não tem. Sem ele a transação do avulso é infalsificável, que foi exatamente a razão da migration `0001` | n |
 | Meios arquivados na cascata | O conjunto de meios com fatura inclui arquivados | Lançamento antigo continua apontando para cartão encerrado. Ler só os disponíveis reclassificaria o passado ao arquivar um cartão | n |
 | Onde o cadastro é aberto | Botão no topo da área, abrindo um `<dialog>` nativo | Escolhido pelo usuário durante a execução. Com 8 ou 10 gastos fixos, o formulário no rodapé exige rolar a lista inteira para cadastrar algo. O elemento nativo entrega confinamento de foco, `Escape`, backdrop e inércia do resto da página sem código, o que o torna a prática correta e não um contorno. Substitui o alternador empilhado do T16 | y |
+| Gravar fecha o diálogo | **Não.** Ele só fecha por gesto explícito: botão, backdrop ou `Escape` | Corrigido durante a execução, e foi o e2e que pegou. A confirmação do que foi gravado vive dentro do formulário, então fechar a levava embora — a pessoa clicava e tudo desaparecia, sem saber que deu certo nem que a compra virou três parcelas. Manter aberto também serve o padrão real de lançar várias coisas seguidas ao atualizar o mês, e o formulário já limpa descrição e valor sozinho | y |
 | Diálogo em tela pequena | Tela cheia abaixo de 640px | Os formulários são longos, e o de compra tem a prévia de parcelas. Painel centralizado num celular com teclado aberto deixaria ~200px úteis | n |
 | Meio de pagamento em receita | O campo fica, com rótulo e opções próprios: "Onde o dinheiro cai", listando só meios sem fatura | Escolhido pelo usuário durante a execução. O campo não é sem sentido — o dinheiro cai em alguma conta, e saber em qual é informação real. O que era errado é chamá-lo de meio de pagamento e oferecer cartão de crédito como destino de salário. Remover o campo exigiria migration: `movimento.meio_pagamento_id` é `NOT NULL` | y |
 | Título e botão em receita | Falam de entrada, não de gasto | O formulário dizia "Novo gasto fixo" e "Cadastrar gasto fixo" com receita marcada, contradizendo a própria escolha da pessoa | y |
@@ -247,7 +248,8 @@ rolar por dez gastos fixos cada vez que preciso lançar algo.
    página inerte
 4. WHEN `Escape` é pressionado THEN o sistema SHALL fechar o diálogo e devolver o foco ao controle
    que o abriu
-5. WHEN o lançamento é gravado com sucesso THEN o sistema SHALL fechar o diálogo
+5. WHEN o lançamento é gravado com sucesso THEN o sistema SHALL manter o diálogo aberto, com a
+   confirmação visível e o formulário pronto para o próximo lançamento
 6. WHILE a largura da janela é menor que 640px o sistema SHALL exibir o diálogo em tela cheia
 7. WHILE o diálogo está aberto o sistema SHALL preservar o que foi digitado na aba que não está
    visível
