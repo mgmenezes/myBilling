@@ -119,6 +119,24 @@
   --grafico-trilho: light-dark(#eef0f3, rgb(255 255 255 / 0.08));
 
   /*
+   * A escala da barra de composição: **três passos de uma neutra só**, do mais
+   * comprometido ao mais discricionário. Ela não é categórica — os três blocos
+   * têm ordem natural, então a pergunta é de grau e não de identidade, e três
+   * matizes seriam o arco-íris que esta folha recusa dez linhas acima.
+   *
+   * `--grafico-trilho` **não serve aqui**, e a primeira versão usou: ele é cor
+   * de trilho, existe para ser recessivo, e mede 1,1:1 contra o branco. A maior
+   * fatia da barra lia como vazio.
+   *
+   * Os seis tons foram medidos, não escolhidos no olho. Cada par vizinho passa
+   * de ΔE 15 em visão normal — abaixo disso duas faixas viram uma — e cada tom
+   * passa de 3:1 contra a própria superfície. A tabela está em `docs/design.md`.
+   */
+  --grafico-passo-1: light-dark(#0a0b0d, #ffffff);
+  --grafico-passo-2: light-dark(#4e535c, #a8acb3);
+  --grafico-passo-3: light-dark(#8d939c, #646b78);
+
+  /*
    * Escala de raios do documento. Pílula para tudo que é interativo, 24px para
    * contêiner, círculo para placa de ícone. Canto vivo é ausente do sistema.
    */
@@ -166,6 +184,9 @@
   --color-line-strong: var(--line-strong);
   --color-grafico-barra: var(--grafico-barra);
   --color-grafico-trilho: var(--grafico-trilho);
+  --color-grafico-passo-1: var(--grafico-passo-1);
+  --color-grafico-passo-2: var(--grafico-passo-2);
+  --color-grafico-passo-3: var(--grafico-passo-3);
 
   /*
    * A largura do conteúdo, num token só. Ela precisa valer para o cabeçalho e

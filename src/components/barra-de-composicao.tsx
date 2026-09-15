@@ -34,9 +34,9 @@ const NOME: Record<BlocoDoMes, string> = {
 
 /** Do mais comprometido ao mais discricionário. A ordem vem do domínio. */
 const TOM: Record<BlocoDoMes, string> = {
-  FIXOS: "bg-ink",
-  CARTAO: "bg-grafico-barra",
-  AVULSOS: "bg-grafico-trilho",
+  FIXOS: "bg-grafico-passo-1",
+  CARTAO: "bg-grafico-passo-2",
+  AVULSOS: "bg-grafico-passo-3",
 };
 
 export function BarraDeComposicao({

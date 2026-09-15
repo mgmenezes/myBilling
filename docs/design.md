@@ -131,6 +131,31 @@ vertical — é essa varredura horizontal.
 explicação de Planejamento × Movimentações) continua limitada em `62ch` por conta própria, então a
 largura do contêiner não decide leitura de texto corrido em lugar nenhum.
 
+## Escala do gráfico de composição
+
+A barra empilhada de Fixos, Cartão e Avulsos usa **três passos de uma neutra só**, e não três
+matizes. Os blocos têm ordem natural — fixo foi decidido meses atrás, cartão já foi gasto e vai
+cair na fatura, avulso foi escolha deste mês — então a pergunta é de grau, não de identidade. Cor
+categórica aqui seria o arco-íris que o resto deste documento recusa, e o azul gastaria a única
+cor de ação em três faixas decorativas.
+
+`--grafico-trilho` foi usado na primeira versão e estava errado: ele é cor de **trilho**, existe
+para ser recessivo, e mede 1,1:1 contra o branco. A maior fatia da barra lia como vazio.
+
+| Passo | Bloco | Claro | Escuro |
+| --- | --- | --- | --- |
+| 1 | Fixos (mais comprometido) | `#0a0b0d` | `#ffffff` |
+| 2 | Cartão | `#4e535c` | `#a8acb3` |
+| 3 | Avulsos (mais discricionário) | `#8d939c` | `#646b78` |
+
+**Medidos, não escolhidos no olho.** Cada par vizinho passa de ΔE 15 em visão normal (claro: 22,0;
+escuro: 21,7) — abaixo disso duas faixas viram uma mancha para quem enxerga cor. Cada tom passa de
+3:1 contra a própria superfície nos dois temas, então nenhum segmento depende do rótulo para ser
+visto. E como a escala é de luminosidade, quem não separa matiz continua lendo a ordem.
+
+Mesmo assim **nada depende de distinguir os três tons**: nome, valor e percentual de cada fatia
+ficam impressos embaixo da barra, sempre. A cor ordena; o texto identifica.
+
 ## Escala de raios
 
 Pílula para tudo que é interativo, 24px para contêiner, círculo para placa de ícone. Canto vivo é
