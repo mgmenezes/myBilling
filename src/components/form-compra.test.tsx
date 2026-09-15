@@ -38,7 +38,11 @@ const criarCategoriaOk: typeof criarCategoria = vi.fn(async (payload: unknown) =
 
 const criarMeioOk: typeof criarMeioDePagamento = vi.fn(async (payload: unknown) => ({
   ok: true as const,
-  data: { id: "55555555-5555-4555-8555-555555555555", nome: (payload as { nome: string }).nome },
+  data: {
+    id: "55555555-5555-4555-8555-555555555555",
+    nome: (payload as { nome: string }).nome,
+    geraFatura: true,
+  },
 }));
 
 function montar(

@@ -377,7 +377,7 @@ T22 -> T23 -> T24
 **Tests**: componentes
 **Gate**: quick
 
-#### T15: Formulário de lançamento avulso
+#### T15: Formulário de lançamento avulso ✅ CONCLUÍDA
 **What**: `FormLancamentoAvulso` com natureza, valor, descrição, data, pessoa, meio, categoria e a caixa de já pago com o padrão vindo do meio, usando `CadastroInline` para categoria e meio.
 **Where**: `src/components/form-lancamento-avulso.tsx`
 **Depends on**: T9
@@ -385,12 +385,12 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Oferece exatamente despesa e receita (AC 2)
-- [ ] Escolher meio sem fatura marca a caixa de já pago; escolher meio com fatura a desmarca (AC 4 e 5)
-- [ ] A caixa continua editável depois do padrão ser aplicado (AC 6)
-- [ ] Erro por campo devolvido pela action é exibido junto do campo
-- [ ] Criar categoria e criar meio funcionam sem sair do formulário
-- [ ] Todo campo tem rótulo acessível associado
+- [x] Oferece exatamente despesa e receita (AC 2)
+- [x] Escolher meio sem fatura marca a caixa de já pago; escolher meio com fatura a desmarca (AC 4 e 5)
+- [x] A caixa continua editável depois do padrão ser aplicado (AC 6)
+- [x] Erro por campo devolvido pela action é exibido junto do campo
+- [x] Criar categoria e criar meio funcionam sem sair do formulário
+- [x] Todo campo tem rótulo acessível associado
 **Tests**: componentes
 **Gate**: quick
 

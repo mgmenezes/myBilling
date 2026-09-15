@@ -22,6 +22,12 @@ import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros"
 export interface MeioPagamentoGravado {
   readonly id: string;
   readonly nome: string;
+  /**
+   * Se ele vai gerar fatura. O formulário de lançamento avulso usa isto para
+   * propor a marca de "já saiu da conta" no meio recém-criado, sem esperar o
+   * `revalidatePath` trazer a lista nova do servidor.
+   */
+  readonly geraFatura: boolean;
 }
 
 export async function criarMeioDePagamento(
@@ -78,7 +84,10 @@ export async function criarMeioDePagamento(
     );
 
     revalidatePath("/[competencia]/lancamentos", "page");
-    return { ok: true, data: { id: criado.id, nome: criado.nome } };
+    return {
+      ok: true,
+      data: { id: criado.id, nome: criado.nome, geraFatura: criado.tipo === "CARTAO_CREDITO" },
+    };
   } catch (erro) {
     const correlationId = crypto.randomUUID();
     console.error(`[${correlationId}] falha ao criar meio de pagamento`, erro);

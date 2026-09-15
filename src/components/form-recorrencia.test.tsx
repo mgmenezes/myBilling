@@ -31,7 +31,7 @@ const categoriaOk: typeof criarCategoria = vi.fn(async () => ({
 }));
 const meioOk: typeof criarMeioDePagamento = vi.fn(async () => ({
   ok: true as const,
-  data: { id: "m2", nome: "Conta Nova" },
+  data: { id: "m2", nome: "Conta Nova", geraFatura: false },
 }));
 
 afterEach(() => {
