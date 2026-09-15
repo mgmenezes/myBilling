@@ -341,7 +341,7 @@ T22 -> T23 -> T24
 **Tests**: integration
 **Gate**: full
 
-#### T13: Action de excluir
+#### T13: Action de excluir ✅ CONCLUÍDA
 **What**: `cancelarLancamento` no mesmo envelope, revalidando as duas rotas.
 **Where**: `src/app/actions/lancamentos.ts`
 **Depends on**: T11
@@ -349,11 +349,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Sem sessão devolve erro de sessão antes do banco
-- [ ] Excluir avulso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 7)
-- [ ] Excluir parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
-- [ ] Id inexistente devolve erro, sem lançar
-- [ ] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação
+- [x] Sem sessão devolve erro de sessão antes do banco
+- [x] Excluir avulso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 7)
+- [x] Excluir parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Id inexistente devolve erro, sem lançar
+- [x] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação
 **Tests**: integration
 **Gate**: full
 

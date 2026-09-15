@@ -33,7 +33,7 @@ vi.mock("@/infrastructure/auth/auth", async (original) => ({
   auth: async () => sessaoAtual,
 }));
 
-const { criarLancamentoAvulso } = await import("./lancamentos");
+const { cancelarLancamento, criarLancamentoAvulso } = await import("./lancamentos");
 const { criarPool } = await import("@/infrastructure/db/client");
 
 const EMAIL_PERMITIDO = "pessoa-a@example.com";
@@ -59,6 +59,41 @@ function entrada(mudancas: Record<string, unknown> = {}): Record<string, unknown
 async function contarMovimentos(): Promise<number> {
   const { rows } = await pool.query<{ total: string }>("SELECT COUNT(*) AS total FROM movimento");
   return Number(rows[0]?.total ?? "-1");
+}
+
+/** Só os que ainda contam para o mês. A diferença para o total acima é o que
+ *  prova que a exclusão é lógica e não física. */
+async function contarVigentes(): Promise<number> {
+  const { rows } = await pool.query<{ total: string }>(
+    "SELECT COUNT(*) AS total FROM movimento WHERE cancelado_em IS NULL",
+  );
+  return Number(rows[0]?.total ?? "-1");
+}
+
+/** Uma parcela de compra real, para provar a recusa contra o banco. */
+async function inserirParcela(): Promise<string> {
+  const compra = await pool.query<{ id: string }>(
+    `INSERT INTO compra_parcelada
+       (descricao, modo_entrada, valor_total_centavos, qtd_parcelas, parcela_inicial,
+        competencia_compra, politica_residuo, valor_amortizado_anterior_centavos,
+        usuario_id, meio_pagamento_id, idempotency_key)
+     VALUES ('Compra', 'TOTAL', 1000, 1, 1, '2026-03-01', 'PRIMEIRAS', 0, $1, $2, $3)
+     RETURNING id`,
+    [base.usuarioId, base.cartaoId, `chave-${crypto.randomUUID()}`],
+  );
+  const { rows } = await pool.query<{ id: string }>(
+    `INSERT INTO movimento
+       (natureza, origem, descricao, competencia, data_evento, valor_centavos,
+        usuario_id, meio_pagamento_id, compra_id, numero_parcela)
+     VALUES ('DESPESA', 'PARCELA', 'Parcela', '2026-03-01', '2026-03-10', 1000, $1, $2, $3, 1)
+     RETURNING id`,
+    [base.usuarioId, base.cartaoId, compra.rows[0]?.id],
+  );
+  const linha = rows[0];
+  if (!linha) {
+    throw new Error("parcela não retornou id");
+  }
+  return linha.id;
 }
 
 beforeAll(async () => {
@@ -227,5 +262,129 @@ describe("criarLancamentoAvulso: validação no servidor (AVUL-01, AC 2 a 5)", (
     expect(resultado.erro.code).toBe("MEIO_PAGAMENTO_NAO_ENCONTRADO");
     expect(resultado.erro.mensagem).not.toBe("");
     expect(await contarMovimentos()).toBe(0);
+  });
+});
+
+describe("cancelarLancamento: sessão e validação (AVUL-03)", () => {
+  it("`requireSession` é a primeira instrução da action", () => {
+    const fonte = readFileSync(new URL("./lancamentos.ts", import.meta.url), "utf8");
+    const corpo = fonte.slice(fonte.indexOf("export async function cancelarLancamento"));
+    const primeiraInstrucao =
+      corpo
+        .slice(corpo.indexOf("{") + 1)
+        .trim()
+        .split("\n")[0] ?? "";
+
+    expect(primeiraInstrucao).toContain("requireSession()");
+  });
+
+  it("sem sessão devolve NAO_AUTENTICADO antes de tocar no banco", async () => {
+    const criado = await criarLancamentoAvulso(entrada());
+    if (!criado.ok) {
+      throw new Error("fixture não gravou");
+    }
+    sessaoAtual = null;
+
+    const resultado = await cancelarLancamento(criado.data.id);
+
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    expect(resultado.erro.code).toBe("NAO_AUTENTICADO");
+    expect(await contarVigentes()).toBe(1);
+  });
+
+  it("recusa id que não é string, sem lançar", async () => {
+    const resultado = await cancelarLancamento(42);
+
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    expect(resultado.erro.code).toBe("VALIDACAO");
+  });
+});
+
+describe("cancelarLancamento: exclusão lógica (AVUL-03, AC 1, 2 e 7)", () => {
+  it("cancela o avulso, tira da soma do mês e mantém a linha no banco", async () => {
+    const criado = await criarLancamentoAvulso(entrada());
+    if (!criado.ok) {
+      throw new Error("fixture não gravou");
+    }
+    revalidatePath.mockClear();
+
+    const resultado = await cancelarLancamento(criado.data.id);
+
+    expect(resultado.ok).toBe(true);
+    if (!resultado.ok) {
+      throw new Error("esperava sucesso");
+    }
+    expect(resultado.data.alterou).toBe(true);
+    expect(await contarVigentes()).toBe(0);
+    /* A linha continua no banco: exclusão é lógica, não física. */
+    expect(await contarMovimentos()).toBe(1);
+    expect(revalidatePath.mock.calls.flat()).toEqual(["/2026-03", "/2026-03/lancamentos"]);
+  });
+
+  it("revalida a competência do lançamento, não a que estava aberta", async () => {
+    const criado = await criarLancamentoAvulso(
+      entrada({ competencia: "2026-04", dataEvento: "2026-04-02" }),
+    );
+    if (!criado.ok) {
+      throw new Error("fixture não gravou");
+    }
+    revalidatePath.mockClear();
+
+    await cancelarLancamento(criado.data.id);
+
+    expect(revalidatePath.mock.calls.flat()).toEqual(["/2026-04", "/2026-04/lancamentos"]);
+  });
+
+  it("a segunda exclusão devolve sucesso com alterou falso — AC 4", async () => {
+    const criado = await criarLancamentoAvulso(entrada());
+    if (!criado.ok) {
+      throw new Error("fixture não gravou");
+    }
+    await cancelarLancamento(criado.data.id);
+
+    const segunda = await cancelarLancamento(criado.data.id);
+
+    expect(segunda.ok).toBe(true);
+    if (!segunda.ok) {
+      throw new Error("esperava sucesso");
+    }
+    expect(segunda.data.alterou).toBe(false);
+  });
+});
+
+describe("cancelarLancamento: recusas (AVUL-03, AC 3)", () => {
+  it("recusa parcela com LANCAMENTO_NAO_CANCELAVEL, e a linha fica vigente", async () => {
+    const parcelaId = await inserirParcela();
+
+    const resultado = await cancelarLancamento(parcelaId);
+
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    expect(resultado.erro.code).toBe("LANCAMENTO_NAO_CANCELAVEL");
+    expect(resultado.erro.mensagem).toContain("avulso");
+    expect(await contarVigentes()).toBe(1);
+  });
+
+  it("recusa id inexistente com LANCAMENTO_NAO_ENCONTRADO", async () => {
+    const resultado = await cancelarLancamento("00000000-0000-0000-0000-000000000000");
+
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    expect(resultado.erro.code).toBe("LANCAMENTO_NAO_ENCONTRADO");
+  });
+
+  it("não revalida nada quando a exclusão é recusada", async () => {
+    await inserirParcela();
+    revalidatePath.mockClear();
+
+    await cancelarLancamento("00000000-0000-0000-0000-000000000000");
+
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });

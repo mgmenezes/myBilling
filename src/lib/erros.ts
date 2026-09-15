@@ -1,4 +1,5 @@
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
+import type { CodigoErroCancelamento } from "@/application/mes/cancelar-lancamento/handler";
 import type { CodigoErroConfirmacao } from "@/application/mes/confirmar-valor/handler";
 import type { CodigoErroAvulso } from "@/application/mes/criar-lancamento-avulso/handler";
 import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
@@ -28,6 +29,7 @@ export type CodigoErroDeBorda =
 export type CodigoErroExibivel =
   | CodigoErroAplicacao
   | CodigoErroAvulso
+  | CodigoErroCancelamento
   | CodigoErroPagamento
   | CodigoErroConfirmacao
   | CodigoErroRecorrencia
