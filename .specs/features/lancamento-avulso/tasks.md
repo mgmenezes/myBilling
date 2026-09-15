@@ -586,7 +586,7 @@ T22 -> T23 -> T24
 **Tests**: none
 **Gate**: build
 
-#### T23: Ambiente de QA local, em modo produção
+#### T23: Ambiente de QA local, em modo produção ✅ CONCLUÍDA
 **What**: Documentar e roteirizar o estágio 1 do QA — banco `mybilling_qa` limpo, migrations do zero, build de produção — registrando que o estágio 2 depende das credenciais do Google.
 **Where**: `docs/qa.md`
 **Depends on**: T22
@@ -594,11 +594,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O roteiro cria `mybilling_qa` vazio e aplica as três migrations do zero
-- [ ] O roteiro sobe o build de produção apontando para esse banco
-- [ ] Registra que o login em modo produção exige `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` reais, e por quê
-- [ ] Registra que `AUTH_PROVIDER_DE_TESTE` lança no boot em modo produção, por desenho
-- [ ] Nenhuma credencial real aparece no arquivo
+- [x] O roteiro cria `mybilling_qa` vazio e aplica as três migrations do zero
+- [x] O roteiro sobe o build de produção apontando para esse banco
+- [x] Registra que o login em modo produção exige `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` reais, e por quê
+- [x] Registra que `AUTH_PROVIDER_DE_TESTE` lança no boot em modo produção, por desenho
+- [x] Nenhuma credencial real aparece no arquivo
 **Tests**: none
 **Gate**: build
 
