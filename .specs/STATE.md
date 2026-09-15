@@ -139,7 +139,7 @@
   - **Cadastro em `<dialog>` nativo** aberto pelo topo (AD-014), com abas Avulso ┊ Parcelado.
   - **Receita com vocabulário e opções próprios** (AD-015): não oferece mais cartão como destino. `ENTR-03`.
   - Migration `0002_movimento_valor_positivo`: o `CHECK` que faltava no único razão somável.
-  - CI passa a rodar integração e e2e, igualando o gate do GitHub ao do terminal.
+  - CI consertado. Ele **não rodava**: o `setup-node` com `cache: pnpm` vinha antes do `corepack enable` e falhava no terceiro passo, deixando todos os seguintes pulados. O gate do GitHub não era mais fraco que o do terminal — não chegava a existir. Agora instala o pnpm primeiro e roda integração e e2e.
   - `docs/qa.md`: roteiro de QA em modo produção, com o estágio 1 executado e medido.
 - **Corrigido no caminho**: o project `domain` do Vitest capturava `*.integration.test.ts` pelos globs e os rodava em paralelo, com dois arquivos chamando `recriarBancoDeTeste` ao mesmo tempo — corrida que passava por sorte e virou falha determinística ao acrescentar um arquivo de teste.
 - **Pendências conhecidas**: ver `.specs/HANDOFF.md`. A mais estrutural segue sendo a ausência de caminho de deploy, agora com o estágio 1 do QA resolvido e o estágio 2 bloqueado nas credenciais do Google.

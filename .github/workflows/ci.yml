@@ -36,14 +36,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # **Antes do `setup-node`, e não depois.** O `cache: pnpm` do `setup-node`
+      # roda `pnpm store path` para descobrir o que cachear, e falha com
+      # "Unable to locate executable file: pnpm" se o pnpm ainda não estiver no
+      # PATH. Era o que derrubava este workflow no terceiro passo, deixando
+      # todos os seguintes pulados — o gate do GitHub não era mais fraco que o
+      # do terminal, ele não chegava a existir.
+      #
+      # A versão não é declarada aqui de propósito: a action lê o campo
+      # `packageManager` do `package.json`, que é a única fonte da verdade.
+      # Declarar nos dois lugares é convite a divergirem.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node 24
         uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
-
-      - name: Enable corepack (pnpm)
-        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
