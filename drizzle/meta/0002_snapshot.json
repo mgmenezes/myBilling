@@ -1,0 +1,1172 @@
+{
+  "id": "47894bac-a50b-4427-af44-b73c9f0b18ff",
+  "prevId": "1ec9f845-058a-4a60-93c1-3e97f122a838",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.categoria": {
+      "name": "categoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "arquivada_em": {
+          "name": "arquivada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "categoria_nome_unique": {
+          "name": "categoria_nome_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nome"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.compra_parcelada": {
+      "name": "compra_parcelada",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "modo_entrada": {
+          "name": "modo_entrada",
+          "type": "modo_entrada",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_total_centavos": {
+          "name": "valor_total_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "qtd_parcelas": {
+          "name": "qtd_parcelas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parcela_inicial": {
+          "name": "parcela_inicial",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competencia_compra": {
+          "name": "competencia_compra",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "politica_residuo": {
+          "name": "politica_residuo",
+          "type": "politica_residuo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_amortizado_anterior_centavos": {
+          "name": "valor_amortizado_anterior_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoria_id": {
+          "name": "categoria_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meio_pagamento_id": {
+          "name": "meio_pagamento_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "compra_parcelada_categoria_id_categoria_id_fk": {
+          "name": "compra_parcelada_categoria_id_categoria_id_fk",
+          "tableFrom": "compra_parcelada",
+          "tableTo": "categoria",
+          "columnsFrom": [
+            "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "compra_parcelada_usuario_id_usuario_id_fk": {
+          "name": "compra_parcelada_usuario_id_usuario_id_fk",
+          "tableFrom": "compra_parcelada",
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "compra_parcelada_meio_pagamento_id_meio_pagamento_id_fk": {
+          "name": "compra_parcelada_meio_pagamento_id_meio_pagamento_id_fk",
+          "tableFrom": "compra_parcelada",
+          "tableTo": "meio_pagamento",
+          "columnsFrom": [
+            "meio_pagamento_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "compra_parcelada_idempotency_key_unique": {
+          "name": "compra_parcelada_idempotency_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "idempotency_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "compra_parcelada_competencia_dia_1": {
+          "name": "compra_parcelada_competencia_dia_1",
+          "value": "EXTRACT(DAY FROM \"compra_parcelada\".\"competencia_compra\") = 1"
+        },
+        "compra_parcelada_qtd_parcelas_1_120": {
+          "name": "compra_parcelada_qtd_parcelas_1_120",
+          "value": "\"compra_parcelada\".\"qtd_parcelas\" BETWEEN 1 AND 120"
+        },
+        "compra_parcelada_parcela_inicial_valida": {
+          "name": "compra_parcelada_parcela_inicial_valida",
+          "value": "\"compra_parcelada\".\"parcela_inicial\" BETWEEN 1 AND \"compra_parcelada\".\"qtd_parcelas\""
+        },
+        "compra_parcelada_parcela_min_um_centavo": {
+          "name": "compra_parcelada_parcela_min_um_centavo",
+          "value": "\"compra_parcelada\".\"qtd_parcelas\" <= \"compra_parcelada\".\"valor_total_centavos\""
+        },
+        "compra_parcelada_amortizado_nao_negativo": {
+          "name": "compra_parcelada_amortizado_nao_negativo",
+          "value": "\"compra_parcelada\".\"valor_amortizado_anterior_centavos\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fatura": {
+      "name": "fatura",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "cartao_id": {
+          "name": "cartao_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competencia_fatura": {
+          "name": "competencia_fatura",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ciclo_inicio": {
+          "name": "ciclo_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ciclo_fim": {
+          "name": "ciclo_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_vencimento": {
+          "name": "data_vencimento",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fechada_em": {
+          "name": "fechada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "fatura_cartao_competencia_uq": {
+          "name": "fatura_cartao_competencia_uq",
+          "columns": [
+            {
+              "expression": "cartao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "competencia_fatura",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fatura_cartao_id_meio_pagamento_id_fk": {
+          "name": "fatura_cartao_id_meio_pagamento_id_fk",
+          "tableFrom": "fatura",
+          "tableTo": "meio_pagamento",
+          "columnsFrom": [
+            "cartao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "fatura_competencia_dia_1": {
+          "name": "fatura_competencia_dia_1",
+          "value": "EXTRACT(DAY FROM \"fatura\".\"competencia_fatura\") = 1"
+        },
+        "fatura_ciclo_ordenado": {
+          "name": "fatura_ciclo_ordenado",
+          "value": "\"fatura\".\"ciclo_inicio\" <= \"fatura\".\"ciclo_fim\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.meio_pagamento": {
+      "name": "meio_pagamento",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "tipo_meio",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gera_fatura": {
+          "name": "gera_fatura",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dia_fechamento": {
+          "name": "dia_fechamento",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dia_vencimento": {
+          "name": "dia_vencimento",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fechamento_vai_para_fatura_seguinte": {
+          "name": "fechamento_vai_para_fatura_seguinte",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "arquivado_em": {
+          "name": "arquivado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "meio_pagamento_gera_fatura_sse_cartao": {
+          "name": "meio_pagamento_gera_fatura_sse_cartao",
+          "value": "\"meio_pagamento\".\"gera_fatura\" = (\"meio_pagamento\".\"tipo\" = 'CARTAO_CREDITO')"
+        },
+        "meio_pagamento_cartao_tem_ciclo": {
+          "name": "meio_pagamento_cartao_tem_ciclo",
+          "value": "\"meio_pagamento\".\"gera_fatura\" = (\"meio_pagamento\".\"dia_fechamento\" IS NOT NULL AND \"meio_pagamento\".\"dia_vencimento\" IS NOT NULL)"
+        },
+        "meio_pagamento_dias_validos": {
+          "name": "meio_pagamento_dias_validos",
+          "value": "(\"meio_pagamento\".\"dia_fechamento\" IS NULL OR \"meio_pagamento\".\"dia_fechamento\" BETWEEN 1 AND 31)\n        AND (\"meio_pagamento\".\"dia_vencimento\" IS NULL OR \"meio_pagamento\".\"dia_vencimento\" BETWEEN 1 AND 31)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.movimento": {
+      "name": "movimento",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "natureza": {
+          "name": "natureza",
+          "type": "natureza",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origem": {
+          "name": "origem",
+          "type": "origem",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competencia": {
+          "name": "competencia",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_evento": {
+          "name": "data_evento",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_centavos": {
+          "name": "valor_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_previsto_centavos": {
+          "name": "valor_previsto_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pago_em": {
+          "name": "pago_em",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categoria_id": {
+          "name": "categoria_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meio_pagamento_id": {
+          "name": "meio_pagamento_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "compra_id": {
+          "name": "compra_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero_parcela": {
+          "name": "numero_parcela",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recorrencia_id": {
+          "name": "recorrencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fatura_id": {
+          "name": "fatura_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sobrescrito_em": {
+          "name": "sobrescrito_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "origem_dado": {
+          "name": "origem_dado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "origem_hash": {
+          "name": "origem_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelado_em": {
+          "name": "cancelado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "movimento_compra_parcela_uq": {
+          "name": "movimento_compra_parcela_uq",
+          "columns": [
+            {
+              "expression": "compra_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "numero_parcela",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "movimento_recorrencia_competencia_uq": {
+          "name": "movimento_recorrencia_competencia_uq",
+          "columns": [
+            {
+              "expression": "recorrencia_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "competencia",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "movimento_origem_dado_hash_uq": {
+          "name": "movimento_origem_dado_hash_uq",
+          "columns": [
+            {
+              "expression": "origem_dado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "origem_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"movimento\".\"origem_dado\" <> 'MANUAL'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "movimento_competencia_idx": {
+          "name": "movimento_competencia_idx",
+          "columns": [
+            {
+              "expression": "competencia",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "movimento_categoria_id_categoria_id_fk": {
+          "name": "movimento_categoria_id_categoria_id_fk",
+          "tableFrom": "movimento",
+          "tableTo": "categoria",
+          "columnsFrom": [
+            "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "movimento_usuario_id_usuario_id_fk": {
+          "name": "movimento_usuario_id_usuario_id_fk",
+          "tableFrom": "movimento",
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "movimento_meio_pagamento_id_meio_pagamento_id_fk": {
+          "name": "movimento_meio_pagamento_id_meio_pagamento_id_fk",
+          "tableFrom": "movimento",
+          "tableTo": "meio_pagamento",
+          "columnsFrom": [
+            "meio_pagamento_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "movimento_compra_id_compra_parcelada_id_fk": {
+          "name": "movimento_compra_id_compra_parcelada_id_fk",
+          "tableFrom": "movimento",
+          "tableTo": "compra_parcelada",
+          "columnsFrom": [
+            "compra_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "movimento_recorrencia_id_recorrencia_id_fk": {
+          "name": "movimento_recorrencia_id_recorrencia_id_fk",
+          "tableFrom": "movimento",
+          "tableTo": "recorrencia",
+          "columnsFrom": [
+            "recorrencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "movimento_fatura_id_fatura_id_fk": {
+          "name": "movimento_fatura_id_fatura_id_fk",
+          "tableFrom": "movimento",
+          "tableTo": "fatura",
+          "columnsFrom": [
+            "fatura_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "movimento_competencia_dia_1": {
+          "name": "movimento_competencia_dia_1",
+          "value": "EXTRACT(DAY FROM \"movimento\".\"competencia\") = 1"
+        },
+        "movimento_valor_positivo": {
+          "name": "movimento_valor_positivo",
+          "value": "\"movimento\".\"valor_centavos\" > 0"
+        },
+        "movimento_parcela_sse_compra": {
+          "name": "movimento_parcela_sse_compra",
+          "value": "(\"movimento\".\"origem\" = 'PARCELA') = (\"movimento\".\"compra_id\" IS NOT NULL AND \"movimento\".\"numero_parcela\" IS NOT NULL)"
+        },
+        "movimento_recorrencia_sse_vinculo": {
+          "name": "movimento_recorrencia_sse_vinculo",
+          "value": "(\"movimento\".\"origem\" = 'RECORRENCIA') = (\"movimento\".\"recorrencia_id\" IS NOT NULL)"
+        },
+        "movimento_numero_parcela_positivo": {
+          "name": "movimento_numero_parcela_positivo",
+          "value": "\"movimento\".\"numero_parcela\" IS NULL OR \"movimento\".\"numero_parcela\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.orcamento_categoria": {
+      "name": "orcamento_categoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "categoria_id": {
+          "name": "categoria_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competencia": {
+          "name": "competencia",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "limite_centavos": {
+          "name": "limite_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "orcamento_categoria_categoria_competencia_uq": {
+          "name": "orcamento_categoria_categoria_competencia_uq",
+          "columns": [
+            {
+              "expression": "categoria_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "competencia",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "orcamento_categoria_categoria_id_categoria_id_fk": {
+          "name": "orcamento_categoria_categoria_id_categoria_id_fk",
+          "tableFrom": "orcamento_categoria",
+          "tableTo": "categoria",
+          "columnsFrom": [
+            "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "orcamento_categoria_competencia_dia_1": {
+          "name": "orcamento_categoria_competencia_dia_1",
+          "value": "EXTRACT(DAY FROM \"orcamento_categoria\".\"competencia\") = 1"
+        },
+        "orcamento_categoria_limite_nao_negativo": {
+          "name": "orcamento_categoria_limite_nao_negativo",
+          "value": "\"orcamento_categoria\".\"limite_centavos\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.pagamento_fatura": {
+      "name": "pagamento_fatura",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "fatura_id": {
+          "name": "fatura_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_pagamento": {
+          "name": "data_pagamento",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_pago_centavos": {
+          "name": "valor_pago_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "pagamento_fatura_fatura_id_fatura_id_fk": {
+          "name": "pagamento_fatura_fatura_id_fatura_id_fk",
+          "tableFrom": "pagamento_fatura",
+          "tableTo": "fatura",
+          "columnsFrom": [
+            "fatura_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "pagamento_fatura_valor_positivo": {
+          "name": "pagamento_fatura_valor_positivo",
+          "value": "\"pagamento_fatura\".\"valor_pago_centavos\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.recorrencia": {
+      "name": "recorrencia",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "natureza": {
+          "name": "natureza",
+          "type": "natureza",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoria_id": {
+          "name": "categoria_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "meio_pagamento_id": {
+          "name": "meio_pagamento_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competencia_inicio": {
+          "name": "competencia_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "competencia_fim": {
+          "name": "competencia_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dia_vencimento": {
+          "name": "dia_vencimento",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "encerrada_em": {
+          "name": "encerrada_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recorrencia_categoria_id_categoria_id_fk": {
+          "name": "recorrencia_categoria_id_categoria_id_fk",
+          "tableFrom": "recorrencia",
+          "tableTo": "categoria",
+          "columnsFrom": [
+            "categoria_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "recorrencia_usuario_id_usuario_id_fk": {
+          "name": "recorrencia_usuario_id_usuario_id_fk",
+          "tableFrom": "recorrencia",
+          "tableTo": "usuario",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "recorrencia_meio_pagamento_id_meio_pagamento_id_fk": {
+          "name": "recorrencia_meio_pagamento_id_meio_pagamento_id_fk",
+          "tableFrom": "recorrencia",
+          "tableTo": "meio_pagamento",
+          "columnsFrom": [
+            "meio_pagamento_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "recorrencia_competencia_inicio_dia_1": {
+          "name": "recorrencia_competencia_inicio_dia_1",
+          "value": "EXTRACT(DAY FROM \"recorrencia\".\"competencia_inicio\") = 1"
+        },
+        "recorrencia_competencia_fim_dia_1": {
+          "name": "recorrencia_competencia_fim_dia_1",
+          "value": "\"recorrencia\".\"competencia_fim\" IS NULL OR EXTRACT(DAY FROM \"recorrencia\".\"competencia_fim\") = 1"
+        },
+        "recorrencia_dia_vencimento_valido": {
+          "name": "recorrencia_dia_vencimento_valido",
+          "value": "\"recorrencia\".\"dia_vencimento\" BETWEEN 1 AND 31"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.recorrencia_versao": {
+      "name": "recorrencia_versao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "recorrencia_id": {
+          "name": "recorrencia_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vigente_desde": {
+          "name": "vigente_desde",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_previsto_centavos": {
+          "name": "valor_previsto_centavos",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "recorrencia_versao_recorrencia_vigencia_uq": {
+          "name": "recorrencia_versao_recorrencia_vigencia_uq",
+          "columns": [
+            {
+              "expression": "recorrencia_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "vigente_desde",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "recorrencia_versao_recorrencia_id_recorrencia_id_fk": {
+          "name": "recorrencia_versao_recorrencia_id_recorrencia_id_fk",
+          "tableFrom": "recorrencia_versao",
+          "tableTo": "recorrencia",
+          "columnsFrom": [
+            "recorrencia_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "recorrencia_versao_vigencia_dia_1": {
+          "name": "recorrencia_versao_vigencia_dia_1",
+          "value": "EXTRACT(DAY FROM \"recorrencia_versao\".\"vigente_desde\") = 1"
+        },
+        "recorrencia_versao_valor_positivo": {
+          "name": "recorrencia_versao_valor_positivo",
+          "value": "\"recorrencia_versao\".\"valor_previsto_centavos\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.usuario": {
+      "name": "usuario",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "usuario_email_unique": {
+          "name": "usuario_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.modo_entrada": {
+      "name": "modo_entrada",
+      "schema": "public",
+      "values": [
+        "TOTAL",
+        "VALOR_PARCELA"
+      ]
+    },
+    "public.natureza": {
+      "name": "natureza",
+      "schema": "public",
+      "values": [
+        "RECEITA",
+        "DESPESA",
+        "INVESTIMENTO"
+      ]
+    },
+    "public.origem": {
+      "name": "origem",
+      "schema": "public",
+      "values": [
+        "AVULSO",
+        "PARCELA",
+        "RECORRENCIA"
+      ]
+    },
+    "public.politica_residuo": {
+      "name": "politica_residuo",
+      "schema": "public",
+      "values": [
+        "PRIMEIRAS",
+        "ULTIMAS"
+      ]
+    },
+    "public.tipo_meio": {
+      "name": "tipo_meio",
+      "schema": "public",
+      "values": [
+        "CONTA_CORRENTE",
+        "CARTAO_CREDITO",
+        "ROTULO"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

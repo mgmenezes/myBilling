@@ -1,0 +1,1 @@
+ALTER TABLE "movimento" ADD CONSTRAINT "movimento_valor_positivo" CHECK ("movimento"."valor_centavos" > 0);

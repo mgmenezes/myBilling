@@ -281,7 +281,7 @@ T22 -> T23 -> T24
 
 ### Phase 1 — Banco e ports
 
-#### T4: `CHECK` de positividade no razão
+#### T4: `CHECK` de positividade no razão ✅ CONCLUÍDA
 **What**: Migration que acrescenta `movimento_valor_positivo` (`valor_centavos > 0`), com a restrição declarada também no schema Drizzle.
 **Where**: `drizzle/0002_movimento_valor_positivo.sql`
 **Depends on**: nenhuma
@@ -289,11 +289,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] `INSERT` com `valor_centavos = 0` é recusado pelo banco
-- [ ] `INSERT` com `valor_centavos` negativo é recusado pelo banco
-- [ ] A migration aplica num banco limpo por `recriarBancoDeTeste`
-- [ ] `pnpm db:seed` continua passando, provando que nenhum dado semeado a viola
-- [ ] Snapshot e journal do drizzle-kit regenerados, não editados à mão
+- [x] `INSERT` com `valor_centavos = 0` é recusado pelo banco
+- [x] `INSERT` com `valor_centavos` negativo é recusado pelo banco
+- [x] A migration aplica num banco limpo por `recriarBancoDeTeste`
+- [x] `pnpm db:seed` continua passando, provando que nenhum dado semeado a viola
+- [x] Snapshot e journal do drizzle-kit regenerados, não editados à mão
 **Tests**: integration
 **Gate**: full
 

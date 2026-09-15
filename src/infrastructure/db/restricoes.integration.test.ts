@@ -207,6 +207,41 @@ describe("movimento: restrições que impedem dado inválido (MOV-01, MOV-05)", 
   });
 });
 
+describe("movimento: o razão não aceita valor não positivo (AVUL-01)", () => {
+  async function inserirAvulso(valorCentavos: number): Promise<void> {
+    await pool.query(
+      `INSERT INTO movimento
+         (natureza, origem, descricao, competencia, data_evento, valor_centavos,
+          usuario_id, meio_pagamento_id)
+       VALUES ('DESPESA', 'AVULSO', $1, '2026-03-01', '2026-03-10', $2, $3, $4)`,
+      ["Avulso de teste", valorCentavos, base.usuarioId, base.contaId],
+    );
+  }
+
+  it("rejeita valor zero", async () => {
+    const erro = await capturarErro(() => inserirAvulso(0));
+
+    expect(erro.code).toBe("23514");
+    expect(erro.constraint).toBe("movimento_valor_positivo");
+  });
+
+  it("rejeita valor negativo", async () => {
+    const erro = await capturarErro(() => inserirAvulso(-1));
+
+    expect(erro.code).toBe("23514");
+    expect(erro.constraint).toBe("movimento_valor_positivo");
+  });
+
+  it("aceita um centavo, que é o menor valor válido", async () => {
+    await inserirAvulso(1);
+
+    const { rows } = await pool.query<{ total: string }>(
+      "SELECT count(*)::text AS total FROM movimento WHERE valor_centavos = 1",
+    );
+    expect(rows[0]?.total).toBe("1");
+  });
+});
+
 describe("restrições dos demais agregados", () => {
   it("rejeita conta corrente marcada como geradora de fatura — CART-02, AC 5", async () => {
     const erro = await capturarErro(() =>

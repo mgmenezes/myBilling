@@ -281,6 +281,14 @@ export const movimento = pgTable(
       .where(sql`${t.origemDado} <> 'MANUAL'`),
     index("movimento_competencia_idx").on(t.competencia),
     check("movimento_competencia_dia_1", competenciaNoDiaUm(t.competencia)),
+    /*
+     * O razão é a única tabela somável, e era a única com coluna monetária sem
+     * piso. `recorrencia_versao`, `orcamento_categoria` e `pagamento_fatura` já
+     * tinham o deles. A ausência era descuido, não decisão: enquanto o banco
+     * aceitar valor não positivo aqui, o teste de que a aplicação o recusa é
+     * infalsificável — ele passa igual com a validação removida.
+     */
+    check("movimento_valor_positivo", sql`${t.valorCentavos} > 0`),
     check(
       "movimento_parcela_sse_compra",
       sql`(${t.origem} = 'PARCELA') = (${t.compraId} IS NOT NULL AND ${t.numeroParcela} IS NOT NULL)`,
