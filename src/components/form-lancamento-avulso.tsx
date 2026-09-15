@@ -17,6 +17,7 @@ import {
 import { parseBRL } from "@/domain";
 import { formatarBRL } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
+import { useFecharDialogo } from "./dialogo-de-cadastro";
 
 /**
  * Cadastro de lançamento avulso: o gasto que não é parcelado nem fixo, e o
@@ -92,6 +93,7 @@ export function FormLancamentoAvulso({
   const router = useRouter();
   const id = useId();
   const [pendente, iniciarEnvio] = useTransition();
+  const fecharDialogo = useFecharDialogo();
 
   const [descricao, setDescricao] = useState("");
   const [natureza, setNatureza] = useState<"DESPESA" | "RECEITA">("DESPESA");
@@ -206,6 +208,8 @@ export function FormLancamentoAvulso({
       setDescricao("");
       setValor("");
       router.refresh();
+      /* Fecha o diálogo, se houver um em volta. Fora dele é no-op. */
+      fecharDialogo();
     });
   }
 
@@ -239,13 +243,13 @@ export function FormLancamentoAvulso({
   return (
     <form
       onSubmit={enviarFormulario}
-      aria-labelledby={`${id}-titulo`}
-      className="flex w-full flex-col gap-5 rounded-xl border border-line bg-surface p-6 sm:p-8"
+      /* Sem `<h2>` próprio: o diálogo que o envolve já carrega o título, e a
+         aba já diz qual dos dois formulários é. Três níveis dizendo quase a
+         mesma coisa é o leitor de tela anunciando redundância. O nome acessível
+         fica, porque é o que distingue este formulário do outro na mesma tela. */
+      aria-label="Lançamento avulso"
+      className="flex w-full flex-col gap-5"
     >
-      <h2 id={`${id}-titulo`} className="text-[22px]">
-        Novo lançamento
-      </h2>
-
       <fieldset className="flex flex-col gap-2">
         <legend className={ROTULO_CLASSE}>O que é</legend>
         <div className="flex flex-wrap gap-4">

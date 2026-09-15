@@ -476,7 +476,7 @@ T22 -> T23 -> T24
 **Tests**: componentes
 **Gate**: quick
 
-#### T26: A página abre o cadastro pelo topo
+#### T26: A página abre o cadastro pelo topo ✅ CONCLUÍDA
 **What**: Substituir o alternador empilhado pelo botão no topo que abre o diálogo, com as abas Avulso ┊ Parcelado dentro dele.
 **Where**: `src/app/(app)/[competencia]/lancamentos/page.tsx`
 **Depends on**: T16, T25
@@ -484,10 +484,10 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-05
 **Tools**: nenhuma
 **Done when**:
-- [ ] O botão de abrir aparece no topo, antes da lista (AC 1)
-- [ ] Nenhum formulário fica no rodapé da página
-- [ ] Gravar fecha o diálogo (AC 5)
-- [ ] `pnpm build` passa
+- [x] O botão de abrir aparece no topo, antes da lista (AC 1)
+- [x] Nenhum formulário fica no rodapé da página
+- [x] Gravar fecha o diálogo (AC 5)
+- [x] `pnpm build` passa
 **Tests**: none
 **Gate**: build
 

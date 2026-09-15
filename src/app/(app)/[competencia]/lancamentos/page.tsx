@@ -15,6 +15,7 @@ import {
   MESES_DE_PROJECAO,
   materializarRecorrencias,
 } from "@/application/recorrencias/materializar/handler";
+import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
 import { FormCompra } from "@/components/form-compra";
 import { FormLancamentoAvulso } from "@/components/form-lancamento-avulso";
@@ -38,9 +39,14 @@ import { sessaoDaUI } from "../../sessao";
  * o mês, não preencher formulário. Quem abre Lançamentos está no modo de
  * manutenção.
  *
- * Os dois formulários ficam sob um **alternador**, e não empilhados. Empilhar
- * obrigaria a pessoa a rolar por um formulário inteiro que ela não quer para
- * alcançar o que quer, e o avulso é o gesto mais frequente dos dois.
+ * **O cadastro abre num diálogo, a partir de um botão no topo.** Ele ficava no
+ * rodapé, e com oito ou dez gastos fixos na lista cadastrar algo exigia rolar
+ * tudo. O `<dialog>` nativo resolve sem inverter a ordem da página, que é o
+ * outro caminho possível — e que trocaria um incômodo raro, cadastrar, por um
+ * frequente, ler o mês.
+ *
+ * Dentro do diálogo, um alternador entre os dois formulários. Empilhá-los
+ * obrigaria a rolar por um que a pessoa não quer para alcançar o que quer.
  */
 
 export const dynamic = "force-dynamic";
@@ -113,7 +119,51 @@ export default async function PaginaDeLancamentos({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
+        <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
+          <SeletorDeFormulario
+            rotuloDoGrupo="Tipo de lançamento a cadastrar"
+            abas={[
+              {
+                id: "avulso",
+                rotulo: "Avulso",
+                conteudo: (
+                  <FormLancamentoAvulso
+                    competencia={resultado.value}
+                    /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
+                    meios={meios.map((meio) => ({
+                      id: meio.id,
+                      nome: meio.nome,
+                      geraFatura: meio.tipo === "CARTAO_CREDITO",
+                    }))}
+                    categorias={opcoesDeCategoria}
+                    usuarios={opcoesDeUsuario}
+                    enviar={criarLancamentoAvulso}
+                    criarCategoria={criarCategoria}
+                    criarMeioDePagamento={criarMeioDePagamento}
+                  />
+                ),
+              },
+              {
+                id: "parcelado",
+                rotulo: "Parcelado",
+                conteudo: (
+                  <FormCompra
+                    competencia={resultado.value}
+                    meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
+                    categorias={opcoesDeCategoria}
+                    usuarios={opcoesDeUsuario}
+                    enviar={criarCompra}
+                    criarCategoria={criarCategoria}
+                    criarMeioDePagamento={criarMeioDePagamento}
+                  />
+                ),
+              },
+            ]}
+          />
+        </DialogoDeCadastro>
+      </div>
 
       <FiltrosDeLancamentos
         categorias={categorias.map((c) => ({ id: c.id, nome: c.nome }))}
@@ -142,47 +192,6 @@ export default async function PaginaDeLancamentos({
           excluir={cancelarLancamento}
         />
       )}
-
-      <SeletorDeFormulario
-        rotuloDoGrupo="Tipo de lançamento a cadastrar"
-        abas={[
-          {
-            id: "avulso",
-            rotulo: "Avulso",
-            conteudo: (
-              <FormLancamentoAvulso
-                competencia={resultado.value}
-                /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
-                meios={meios.map((meio) => ({
-                  id: meio.id,
-                  nome: meio.nome,
-                  geraFatura: meio.tipo === "CARTAO_CREDITO",
-                }))}
-                categorias={opcoesDeCategoria}
-                usuarios={opcoesDeUsuario}
-                enviar={criarLancamentoAvulso}
-                criarCategoria={criarCategoria}
-                criarMeioDePagamento={criarMeioDePagamento}
-              />
-            ),
-          },
-          {
-            id: "parcelado",
-            rotulo: "Parcelado",
-            conteudo: (
-              <FormCompra
-                competencia={resultado.value}
-                meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
-                categorias={opcoesDeCategoria}
-                usuarios={opcoesDeUsuario}
-                enviar={criarCompra}
-                criarCategoria={criarCategoria}
-                criarMeioDePagamento={criarMeioDePagamento}
-              />
-            ),
-          },
-        ]}
-      />
     </div>
   );
 }
