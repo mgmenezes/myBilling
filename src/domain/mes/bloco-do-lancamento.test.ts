@@ -109,7 +109,12 @@ describe("blocoDoLancamento — o resto cai em AVULSOS (BLOCO-01, AC 4)", () => 
     expect(blocoDoLancamento(lancamento({ meioPagamentoId: CARTAO }), vazio)).toBe("AVULSOS");
     expect(
       blocoDoLancamento(
-        lancamento({ origem: "PARCELA", compraId: "c-1", numeroParcela: 1, meioPagamentoId: CARTAO }),
+        lancamento({
+          origem: "PARCELA",
+          compraId: "c-1",
+          numeroParcela: 1,
+          meioPagamentoId: CARTAO,
+        }),
         vazio,
       ),
     ).toBe("AVULSOS");

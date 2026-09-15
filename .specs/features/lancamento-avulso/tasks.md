@@ -150,19 +150,19 @@ T22 -> T23 -> T24
 **Tests**: unit
 **Gate**: quick
 
-#### T2: Quem pode ser cancelado
-**What**: Função pura `cancelamentoPermitido(lancamento)` que devolve `ok` apenas para `origem = 'AVULSO'` e `OPERACAO_NAO_PERMITIDA` para parcela e ocorrência de recorrência.
+#### T2: Quem pode ser cancelado ✅ CONCLUÍDA
+**What**: Função pura `cancelamentoPermitido(lancamento)` que devolve `ok` apenas para `origem = 'AVULSO'` e `LANCAMENTO_NAO_CANCELAVEL` para parcela e ocorrência de recorrência.
 **Where**: `src/domain/mes/cancelamento-permitido.ts`
 **Depends on**: nenhuma
 **Reuses**: `Result` e `DomainError` de `src/domain/shared/result.ts`
 **Requirement**: AVUL-04
 **Tools**: nenhuma
 **Done when**:
-- [ ] `origem = 'AVULSO'` devolve `ok`
-- [ ] `origem = 'PARCELA'` devolve erro `OPERACAO_NAO_PERMITIDA` (AC 3)
-- [ ] `origem = 'RECORRENCIA'` devolve erro `OPERACAO_NAO_PERMITIDA` (AC 3)
-- [ ] Código de erro novo declarado na union fechada e com mensagem pt-BR em `src/lib/erros.ts`
-- [ ] 100% de branches
+- [x] `origem = 'AVULSO'` devolve `ok`
+- [x] `origem = 'PARCELA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] `origem = 'RECORRENCIA'` devolve erro `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Código de erro novo declarado na union fechada e com mensagem pt-BR em `src/lib/erros.ts`
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 
@@ -312,8 +312,8 @@ T22 -> T23 -> T24
 **Tools**: nenhuma
 **Done when**:
 - [ ] Avulso é cancelado e a competência afetada é devolvida, para a action saber o que revalidar
-- [ ] Parcela devolve `OPERACAO_NAO_PERMITIDA` (AC 3)
-- [ ] Ocorrência de recorrência devolve `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] Parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [ ] Ocorrência de recorrência devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
 - [ ] Lançamento inexistente devolve erro, sem lançar exceção
 - [ ] Segunda chamada para o mesmo id devolve sucesso (AC 4)
 **Tests**: unit
@@ -347,7 +347,7 @@ T22 -> T23 -> T24
 **Done when**:
 - [ ] Sem sessão devolve erro de sessão antes do banco
 - [ ] Excluir avulso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 7)
-- [ ] Excluir parcela devolve `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] Excluir parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
 - [ ] Id inexistente devolve erro, sem lançar
 - [ ] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação
 **Tests**: integration

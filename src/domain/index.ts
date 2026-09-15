@@ -12,6 +12,7 @@ export { diaEfetivo, resolverCicloFatura } from "./cartao/ciclo-fatura";
 export { geraFatura, podeReceberNovaCompra } from "./cartao/regras-cartao";
 export type { BlocoDoMes } from "./mes/bloco-do-lancamento";
 export { blocoDoLancamento } from "./mes/bloco-do-lancamento";
+export { cancelamentoPermitido } from "./mes/cancelamento-permitido";
 export type { ComprometimentoFuturo } from "./mes/projecao";
 export { projetarProximosMeses } from "./mes/projecao";
 export type { ResumoDoMes } from "./mes/resumo-mensal";

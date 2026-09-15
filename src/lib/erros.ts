@@ -53,6 +53,8 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "Escolha um meio de pagamento válido.",
   CONSERVACAO_VIOLADA: "A soma das parcelas não fechou com o total. Nada foi gravado.",
   COMPETENCIA_INVALIDA: "Informe a competência no formato AAAA-MM.",
+  LANCAMENTO_NAO_CANCELAVEL:
+    "Só lançamento avulso pode ser excluído. Parcela faz parte de uma compra, e gasto fixo se encerra na área Todo mês.",
   /* Sem "recarregue a página": a mensagem diz o que aconteceu, e a própria
      revalidação da action já traz a lista nova. */
   LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",

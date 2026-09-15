@@ -188,7 +188,7 @@ carregar um número falso para sempre.
 2. WHEN um lançamento está cancelado THEN o sistema SHALL excluí-lo de toda soma do mês e de toda
    lista da interface
 3. IF o lançamento não tiver `origem = 'AVULSO'` THEN o sistema SHALL recusar a exclusão com o
-   código `OPERACAO_NAO_PERMITIDA` e SHALL não alterar linha alguma
+   código `LANCAMENTO_NAO_CANCELAVEL` e SHALL não alterar linha alguma
 4. IF o lançamento já estiver cancelado THEN o sistema SHALL não alterar `cancelado_em` e SHALL
    devolver sucesso, de modo que uma segunda exclusão não seja erro
 5. The system SHALL exibir o controle de excluir apenas nas linhas de lançamento avulso
@@ -248,7 +248,7 @@ de ausência.
 | AVUL-01 | P1: Registrar um gasto avulso | Design | Pending |
 | AVUL-02 | P1: Registrar dinheiro que entra | Design | Pending |
 | AVUL-03 | P2: Excluir um lançamento avulso | Design | Pending |
-| AVUL-04 | P2: Excluir um lançamento avulso | Design | Pending |
+| AVUL-04 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
 | BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Design | Pending |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Design | Pending |
