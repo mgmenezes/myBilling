@@ -307,7 +307,7 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | AVUL-04 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
 | BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
-| ENTR-01 | P2: Achar onde mora o dinheiro que entra | Design | Pending |
+| ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
 | ENTR-03 | P2: O formulário fala a língua da receita | Design | Pending |
 | AVUL-05 | P2: Cadastrar sem rolar a página | Design | Pending |

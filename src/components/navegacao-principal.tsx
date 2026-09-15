@@ -27,9 +27,17 @@ interface Area {
 const AREAS: ReadonlyArray<Area> = [
   { slug: "", rotulo: "Visão geral", Icone: ChartPieSliceIcon },
   { slug: "lancamentos", rotulo: "Lançamentos", Icone: ListBulletsIcon },
-  /* "Fixos" tem o mesmo nome do bloco da lista que ele administra. Dois nomes
-     para a mesma coisa obrigariam a pessoa a aprender a tradução. */
-  { slug: "fixos", rotulo: "Fixos", Icone: ArrowsClockwiseIcon },
+  /*
+   * "Todo mês", e não "Fixos". O nome antigo copiava o do bloco da lista, para
+   * a pessoa não ter que aprender uma tradução — mas os dois já eram coisas
+   * diferentes, em silêncio: esta área administra também a **receita
+   * recorrente**, e a ocorrência de um salário nunca aparece no bloco "Fixos",
+   * que filtra por despesa. Ela aparece em "Entradas".
+   *
+   * Era o que fazia o salário parecer não ter casa: quem procura onde cadastrar
+   * o que entra não clica numa palavra que promete conta a pagar.
+   */
+  { slug: "fixos", rotulo: "Todo mês", Icone: ArrowsClockwiseIcon },
 ];
 
 export function NavegacaoPrincipal({ competencia }: { readonly competencia: string }) {

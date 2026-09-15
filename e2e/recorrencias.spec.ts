@@ -42,7 +42,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-/** Cadastra um gasto fixo pela interface, a partir da área Fixos. */
+/** Cadastra um gasto fixo pela interface, a partir da área "Todo mês". */
 async function cadastrarFixo(
   page: Page,
   dados: { descricao: string; valor: string; dia: string; inicio: string },
@@ -115,7 +115,7 @@ test("mudar o valor a partir de um mês não reescreve os anteriores (FIXO-03)",
   expect(await valorNaLista(page, "2026-05", "Conta de luz")).toContain("R$ 240,00");
 });
 
-test("a área Fixos mostra o valor vigente no mês aberto, não o mais recente", async ({ page }) => {
+test("a área Todo mês mostra o valor vigente no mês aberto, não o mais recente", async ({ page }) => {
   await cadastrarFixo(page, {
     descricao: "Conta de luz",
     valor: "180,00",

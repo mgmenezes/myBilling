@@ -16,7 +16,12 @@ import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { sessaoDaUI } from "../../sessao";
 
 /**
- * Os gastos fixos e as receitas recorrentes.
+ * O que se repete todo mês: gastos fixos e receitas recorrentes.
+ *
+ * **A área se chama "Todo mês", e o bloco da lista continua se chamando
+ * "Fixos".** Não é inconsistência: o bloco reúne despesa recorrente, e esta
+ * área administra também a receita recorrente, cuja ocorrência aparece em
+ * "Entradas". Os dois nomes descrevem conjuntos diferentes.
  *
  * A área existe separada de Lançamentos porque recorrência tem ciclo de vida:
  * criar, reajustar, encerrar. Isso não cabe dentro do formulário de compra como
@@ -77,7 +82,7 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Fixos</h1>
+        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Todo mês</h1>
         <p className="max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
           Água, luz, internet, salário. Cadastre uma vez e eles aparecem em todo mês, inclusive nos
           que ainda não chegaram. Quando o valor mudar, registre a partir de qual mês vale — os

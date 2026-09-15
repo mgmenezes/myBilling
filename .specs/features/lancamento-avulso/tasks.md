@@ -434,7 +434,7 @@ T22 -> T23 -> T24
 **Tests**: componentes
 **Gate**: quick
 
-#### T18: A área passa a se chamar "Todo mês"
+#### T18: A área passa a se chamar "Todo mês" ✅ CONCLUÍDA
 **What**: Renomear a área de recorrências na navegação e no título da página, substituindo o comentário do invariante antigo pela razão nova.
 **Where**: `src/components/navegacao-principal.tsx`
 **Depends on**: nenhuma
@@ -442,11 +442,11 @@ T22 -> T23 -> T24
 **Requirement**: ENTR-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] A navegação exibe "Todo mês" (AC 1)
-- [ ] O título da página de recorrências exibe "Todo mês" (AC 1)
-- [ ] O rótulo cabe na barra inferior a 400px sem transbordo
-- [ ] O comentário registra por que área e bloco divergem
-- [ ] O e2e de recorrências, que navega por esse rótulo, é atualizado e passa
+- [x] A navegação exibe "Todo mês" (AC 1)
+- [x] O título da página de recorrências exibe "Todo mês" (AC 1)
+- [x] O rótulo cabe na barra inferior a 400px sem transbordo
+- [x] O comentário registra por que área e bloco divergem
+- [x] O e2e de recorrências, que navega por esse rótulo, é atualizado e passa
 **Tests**: componentes
 **Gate**: quick
 
