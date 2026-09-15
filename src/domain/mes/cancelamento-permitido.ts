@@ -1,5 +1,16 @@
-import { type DomainError, err, ok, type Result } from "../shared/result";
+import { err, ok, type Result } from "../shared/result";
 import type { Lancamento } from "../tipos";
+
+/**
+ * O erro é estreito de propósito, e não o `DomainError` largo. O único motivo
+ * possível de recusa é a origem, então o chamador não precisa de cast nem de
+ * `default` inalcançável — e se um motivo novo aparecer, o typecheck obriga a
+ * decidir o que fazer com ele em vez de deixá-lo virar a mensagem errada.
+ */
+export interface ErroCancelamentoProibido {
+  readonly code: "LANCAMENTO_NAO_CANCELAVEL";
+  readonly detalhes: { readonly origem: Lancamento["origem"] };
+}
 
 /**
  * Quem pode ser cancelado.
@@ -25,7 +36,9 @@ import type { Lancamento } from "../tipos";
  * torna permanente, e digitar valor errado num gasto já pago é justamente
  * quando corrigir importa.
  */
-export function cancelamentoPermitido(lancamento: Lancamento): Result<void, DomainError> {
+export function cancelamentoPermitido(
+  lancamento: Lancamento,
+): Result<void, ErroCancelamentoProibido> {
   if (lancamento.origem !== "AVULSO") {
     return err({
       code: "LANCAMENTO_NAO_CANCELAVEL",

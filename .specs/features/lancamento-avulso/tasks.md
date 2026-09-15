@@ -307,7 +307,7 @@ T22 -> T23 -> T24
 **Tests**: unit
 **Gate**: quick
 
-#### T11: Caso de uso de cancelamento
+#### T11: Caso de uso de cancelamento ✅ CONCLUÍDA
 **What**: `cancelarLancamento` que consulta o lançamento, aplica `cancelamentoPermitido` e delega ao repositório.
 **Where**: `src/application/mes/cancelar-lancamento/handler.ts`
 **Depends on**: T7
@@ -315,11 +315,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Avulso é cancelado e a competência afetada é devolvida, para a action saber o que revalidar
-- [ ] Parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
-- [ ] Ocorrência de recorrência devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
-- [ ] Lançamento inexistente devolve erro, sem lançar exceção
-- [ ] Segunda chamada para o mesmo id devolve sucesso (AC 4)
+- [x] Avulso é cancelado e a competência afetada é devolvida, para a action saber o que revalidar
+- [x] Parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Ocorrência de recorrência devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
+- [x] Lançamento inexistente devolve erro, sem lançar exceção
+- [x] Segunda chamada para o mesmo id devolve sucesso (AC 4)
 **Tests**: unit
 **Gate**: quick
 
