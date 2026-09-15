@@ -284,6 +284,13 @@ export class FakeCadastroRepository implements CadastroRepository {
   async buscarCategoria(id: string): Promise<Categoria | null> {
     return this.estado.categorias.find((c) => c.id === id) ?? null;
   }
+
+  /** Sem filtro de arquivado, igual ao Drizzle (BLOCO-01, AC 6). */
+  async idsDeMeiosComFatura(): Promise<ReadonlySet<string>> {
+    return new Set(
+      this.estado.meiosDePagamento.filter((m) => m.tipo === "CARTAO_CREDITO").map((m) => m.id),
+    );
+  }
 }
 
 export interface Fakes {

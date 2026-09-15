@@ -121,3 +121,68 @@ describe("CadastroRepository: usuários (T35, DADO-02)", () => {
     expect(Object.keys(usuarios[0] ?? {}).sort()).toEqual(["email", "id", "nome"]);
   });
 });
+
+describe("CadastroRepository: quais meios geram fatura (BLOCO-01, AC 6)", () => {
+  const CARTAO = {
+    tipo: "CARTAO_CREDITO",
+    diaFechamento: 25,
+    diaVencimento: 5,
+    fechamentoVaiParaFaturaSeguinte: true,
+  } as const;
+
+  it("devolve o id de um cartão ativo", async () => {
+    const cartao = await repo.criarMeioDePagamento({
+      nome: "Cartão Roxo",
+      arquivadoEm: null,
+      ...CARTAO,
+    });
+
+    expect(await repo.idsDeMeiosComFatura()).toEqual(new Set([cartao.id]));
+  });
+
+  it("devolve também o cartão arquivado, para não reclassificar o passado", async () => {
+    const ativo = await repo.criarMeioDePagamento({
+      nome: "Cartão Roxo",
+      arquivadoEm: null,
+      ...CARTAO,
+    });
+    const encerrado = await repo.criarMeioDePagamento({
+      nome: "Cartão Azul",
+      arquivadoEm: ARQUIVADO_EM,
+      ...CARTAO,
+    });
+
+    const ids = await repo.idsDeMeiosComFatura();
+
+    expect(ids).toEqual(new Set([ativo.id, encerrado.id]));
+    /* O contraste é a prova: a listagem dos formulários exclui o arquivado,
+       e esta consulta não. As duas leem a mesma tabela. */
+    expect((await repo.listarMeiosDePagamentoDisponiveis()).map((m) => m.id)).toEqual([ativo.id]);
+  });
+
+  it("não devolve conta corrente nem rótulo", async () => {
+    const cartao = await repo.criarMeioDePagamento({
+      nome: "Cartão Roxo",
+      arquivadoEm: null,
+      ...CARTAO,
+    });
+    await repo.criarMeioDePagamento({
+      nome: "Conta Corrente",
+      tipo: "CONTA_CORRENTE",
+      arquivadoEm: null,
+    });
+    await repo.criarMeioDePagamento({ nome: "Dinheiro", tipo: "ROTULO", arquivadoEm: null });
+
+    expect(await repo.idsDeMeiosComFatura()).toEqual(new Set([cartao.id]));
+  });
+
+  it("devolve conjunto vazio quando não há nenhum cartão", async () => {
+    await repo.criarMeioDePagamento({
+      nome: "Conta Corrente",
+      tipo: "CONTA_CORRENTE",
+      arquivadoEm: null,
+    });
+
+    expect(await repo.idsDeMeiosComFatura()).toEqual(new Set());
+  });
+});

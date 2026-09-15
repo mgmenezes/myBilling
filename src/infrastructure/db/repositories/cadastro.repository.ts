@@ -112,6 +112,19 @@ export class CadastroRepositoryDrizzle implements CadastroRepository {
     return linhas.map(paraCategoria);
   }
 
+  /**
+   * Sem filtro de `arquivado_em`, e isso é a regra (BLOCO-01, AC 6). O bloco
+   * "Cartão de Crédito" precisa continuar reunindo o que foi pago num cartão
+   * que desde então foi encerrado; filtrar aqui reclassificaria meses fechados.
+   */
+  async idsDeMeiosComFatura(): Promise<ReadonlySet<string>> {
+    const linhas = await this.db
+      .select({ id: meioPagamento.id })
+      .from(meioPagamento)
+      .where(eq(meioPagamento.geraFatura, true));
+    return new Set(linhas.map((linha) => linha.id));
+  }
+
   async buscarCategoria(id: string): Promise<Categoria | null> {
     const linhas = await this.db.select().from(categoria).where(eq(categoria.id, id)).limit(1);
     const linha = linhas[0];

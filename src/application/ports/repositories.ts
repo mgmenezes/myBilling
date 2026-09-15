@@ -205,4 +205,17 @@ export interface CadastroRepository {
   listarCategoriasDisponiveis(): Promise<ReadonlyArray<Categoria>>;
   /** Resolve por id mesmo arquivada, para os relatórios continuarem íntegros. */
   buscarCategoria(id: string): Promise<Categoria | null>;
+  /**
+   * Ids de todo meio que gera fatura, **inclusive arquivados** (BLOCO-01, AC 6).
+   *
+   * É o conjunto que `blocoDoLancamento` consulta para decidir o que aparece
+   * sob "Cartão de Crédito". Incluir arquivados não é detalhe: com só os
+   * disponíveis, arquivar um cartão **reclassificaria o passado** — parcelas
+   * antigas sairiam do bloco e dois indicadores de meses já fechados mudariam
+   * de valor sem ninguém ter tocado num lançamento.
+   *
+   * Devolve `Set` e não lista porque a única pergunta é de pertinência, feita
+   * uma vez por lançamento da tela.
+   */
+  idsDeMeiosComFatura(): Promise<ReadonlySet<string>>;
 }

@@ -224,6 +224,50 @@ describe("FakeCadastroRepository (T32)", () => {
     expect(disponiveis.map((c) => c.id)).toEqual(["ativa"]);
     expect((await cadastros.buscarCategoria("arquivada"))?.nome).toBe("Categoria Dois");
   });
+
+  /* O fake e o Drizzle precisam concordar aqui, ou o caso de uso passa no
+     unitário e classifica errado em produção. O teste espelha o de integração
+     em `cadastro.repository.integration.test.ts`. */
+  it("inclui o cartão arquivado entre os meios que geram fatura — BLOCO-01, AC 6", async () => {
+    const { cadastros, estado } = criarFakes();
+    estado.meiosDePagamento.push(
+      { id: "conta", nome: "Conta Corrente", tipo: "CONTA_CORRENTE", arquivadoEm: null },
+      {
+        id: "cartao-ativo",
+        nome: "Cartão Roxo",
+        tipo: "CARTAO_CREDITO",
+        arquivadoEm: null,
+        diaFechamento: 25,
+        diaVencimento: 5,
+        fechamentoVaiParaFaturaSeguinte: true,
+      },
+      {
+        id: "cartao-antigo",
+        nome: "Cartão Antigo",
+        tipo: "CARTAO_CREDITO",
+        arquivadoEm: "2026-01-01T00:00:00Z",
+        diaFechamento: 25,
+        diaVencimento: 5,
+        fechamentoVaiParaFaturaSeguinte: true,
+      },
+    );
+
+    expect(await cadastros.idsDeMeiosComFatura()).toEqual(
+      new Set(["cartao-ativo", "cartao-antigo"]),
+    );
+  });
+
+  it("devolve conjunto vazio quando não há cartão nenhum — BLOCO-01, AC 6", async () => {
+    const { cadastros, estado } = criarFakes();
+    estado.meiosDePagamento.push({
+      id: "conta",
+      nome: "Conta Corrente",
+      tipo: "CONTA_CORRENTE",
+      arquivadoEm: null,
+    });
+
+    expect(await cadastros.idsDeMeiosComFatura()).toEqual(new Set());
+  });
 });
 
 describe("fronteira dos fakes (DADO-01)", () => {

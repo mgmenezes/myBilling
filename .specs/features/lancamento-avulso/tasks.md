@@ -297,7 +297,42 @@ T22 -> T23 -> T24
 **Tests**: integration
 **Gate**: full
 
-#### T5: Conjunto de meios que geram fatura
+#### T3: `resumoMensal` soma pelos blocos da cascata
+**What**: Substituir `somarPorOrigem` pela cascata: `resumoMensal` passa a receber o conjunto de cartões e a calcular `fixos`, `cartao` e `avulsos` por `blocoDoLancamento`.
+**Where**: `src/domain/mes/resumo-mensal.ts`
+**Depends on**: T1
+**Reuses**: `blocoDoLancamento` de T1
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
+- [ ] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
+- [ ] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
+- [ ] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
+- [ ] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
+- [ ] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+### Phase 1 — Banco e ports
+
+#### T4: `CHECK` de positividade no razão ✅ CONCLUÍDA
+**What**: Migration que acrescenta `movimento_valor_positivo` (`valor_centavos > 0`), com a restrição declarada também no schema Drizzle.
+**Where**: `drizzle/0002_movimento_valor_positivo.sql`
+**Depends on**: nenhuma
+**Reuses**: o padrão de `drizzle/0001_valor_previsto_positivo.sql`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [x] `INSERT` com `valor_centavos = 0` é recusado pelo banco
+- [x] `INSERT` com `valor_centavos` negativo é recusado pelo banco
+- [x] A migration aplica num banco limpo por `recriarBancoDeTeste`
+- [x] `pnpm db:seed` continua passando, provando que nenhum dado semeado a viola
+- [x] Snapshot e journal do drizzle-kit regenerados, não editados à mão
+**Tests**: integration
+**Gate**: full
+
+#### T5: Conjunto de meios que geram fatura ✅ CONCLUÍDA
 **What**: Método `idsDeMeiosComFatura()` na `CadastroRepository`, implementado no Drizzle e no fake, devolvendo os ids de todo meio com `gera_fatura = true` **inclusive arquivados**.
 **Where**: `src/infrastructure/db/repositories/cadastro.repository.ts`
 **Depends on**: nenhuma
