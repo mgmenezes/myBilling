@@ -273,7 +273,7 @@ T22 -> T23 -> T24
 **Tests**: unit
 **Gate**: quick
 
-#### T9: Schema Zod do lançamento avulso
+#### T9: Schema Zod do lançamento avulso ✅ CONCLUÍDA
 **What**: Schema compartilhado cliente/servidor com descrição, natureza, valor, competência, data, categoria, pessoa, meio e a marca de já pago.
 **Where**: `src/application/schemas/lancamento-avulso.schema.ts`
 **Depends on**: nenhuma
@@ -281,13 +281,13 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Descrição vazia e descrição com 121 caracteres são recusadas (AC 2)
-- [ ] Valor zero, negativo e não inteiro são recusados (AC 3)
-- [ ] Competência fora de `AAAA-MM` é recusada (AC 4)
-- [ ] Data fora de `AAAA-MM-DD` é recusada (AC 5)
-- [ ] Natureza aceita exatamente despesa e receita (AVUL-02 AC 2)
-- [ ] Valor acima do inteiro seguro é recusado (edge case)
-- [ ] O teste de fronteira existente confirma que o arquivo não importa infraestrutura
+- [x] Descrição vazia e descrição com 121 caracteres são recusadas (AC 2)
+- [x] Valor zero, negativo e não inteiro são recusados (AC 3)
+- [x] Competência fora de `AAAA-MM` é recusada (AC 4)
+- [x] Data fora de `AAAA-MM-DD` é recusada (AC 5)
+- [x] Natureza aceita exatamente despesa e receita (AVUL-02 AC 2)
+- [x] Valor acima do inteiro seguro é recusado (edge case)
+- [x] O teste de fronteira existente confirma que o arquivo não importa infraestrutura
 **Tests**: unit
 **Gate**: quick
 
