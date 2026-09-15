@@ -249,7 +249,7 @@ de ausência.
 | AVUL-02 | P1: Registrar dinheiro que entra | Design | Pending |
 | AVUL-03 | P2: Excluir um lançamento avulso | Design | Pending |
 | AVUL-04 | P2: Excluir um lançamento avulso | Design | Pending |
-| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Design | Pending |
+| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Design | Pending |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Design | Pending |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Design | Pending |

@@ -132,7 +132,7 @@ T22 -> T23 -> T24
 
 ### Phase 0 — Núcleo puro
 
-#### T1: Cascata de classificação em blocos
+#### T1: Cascata de classificação em blocos ✅ CONCLUÍDA
 **What**: Função pura `blocoDoLancamento(lancamento, cartoes)` que devolve `"FIXOS"`, `"CARTAO"` ou `"AVULSOS"` pela cascata: recorrência primeiro, cartão depois, resto por último.
 **Where**: `src/domain/mes/bloco-do-lancamento.ts`
 **Depends on**: nenhuma
@@ -140,13 +140,13 @@ T22 -> T23 -> T24
 **Requirement**: BLOCO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Despesa com `origem = 'RECORRENCIA'` cujo meio **é** cartão devolve `FIXOS` (AC 2: precedência)
-- [ ] Despesa avulsa cujo meio é cartão devolve `CARTAO` (AC 3)
-- [ ] Parcela cujo meio é cartão devolve `CARTAO` (AC 3)
-- [ ] Parcela cujo meio **não** é cartão devolve `AVULSOS` (AC 4: carnê)
-- [ ] Despesa avulsa cujo meio não é cartão devolve `AVULSOS`
-- [ ] Conjunto de cartões vazio nunca devolve `CARTAO`
-- [ ] 100% de branches, verificado pelo relatório de cobertura
+- [x] Despesa com `origem = 'RECORRENCIA'` cujo meio **é** cartão devolve `FIXOS` (AC 2: precedência)
+- [x] Despesa avulsa cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio é cartão devolve `CARTAO` (AC 3)
+- [x] Parcela cujo meio **não** é cartão devolve `AVULSOS` (AC 4: carnê)
+- [x] Despesa avulsa cujo meio não é cartão devolve `AVULSOS`
+- [x] Conjunto de cartões vazio nunca devolve `CARTAO`
+- [x] 100% de branches, verificado pelo relatório de cobertura
 **Tests**: unit
 **Gate**: quick
 
