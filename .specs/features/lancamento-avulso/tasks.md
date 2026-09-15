@@ -325,7 +325,7 @@ T22 -> T23 -> T24
 
 ### Phase 3 — Server Actions
 
-#### T12: Action de criar
+#### T12: Action de criar ✅ CONCLUÍDA
 **What**: `criarLancamentoAvulso` com `requireSession()` na primeira instrução, revalidação pelo mesmo schema de T9 e revalidação das duas rotas.
 **Where**: `src/app/actions/lancamentos.ts`
 **Depends on**: T10
@@ -333,11 +333,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Sem sessão devolve o código de erro de sessão antes de qualquer acesso ao banco (AC 7)
-- [ ] Payload inválido devolve erro por campo, sem gravar (AC 2 a 5)
-- [ ] Sucesso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 6)
-- [ ] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação, sem stack trace (AC 8)
-- [ ] Competência informada diferente da aberta revalida as duas (edge case)
+- [x] Sem sessão devolve o código de erro de sessão antes de qualquer acesso ao banco (AC 7)
+- [x] Payload inválido devolve erro por campo, sem gravar (AC 2 a 5)
+- [x] Sucesso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 6)
+- [x] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação, sem stack trace (AC 8)
+- [x] Competência informada diferente da aberta revalida as duas (edge case)
 **Tests**: integration
 **Gate**: full
 
