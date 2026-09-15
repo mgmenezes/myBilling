@@ -4,10 +4,15 @@
 > Última atualização: 2026-09-14, branch `main`.
 
 > [!IMPORTANT]
-> **`main` está 32 commits à frente de `origin/main`, sem push.** O histórico é linear e o
-> `pnpm verify` sai 0 neste ponto. `git push` continua exigindo autorização explícita e separada,
-> como toda operação remota. A branch `ajustes-visuais-e-cadastros` aponta para o mesmo commit e
-> pode ser apagada.
+> **`main` está ~70 commits à frente de `origin/main`, sem push.** O histórico é linear, o
+> `pnpm verify` sai 0 e os **36 e2e passam**. `git push` continua exigindo autorização explícita e
+> separada, como toda operação remota.
+>
+> **Duas fatias foram integradas em paralelo nesta sessão:** `lancamento-avulso` (esta) e
+> `home-do-ano`, conduzida por outra sessão no mesmo repositório. A segunda consome o
+> `BlocoDoMes` que a primeira criou. Se duas sessões voltarem a trabalhar aqui ao mesmo tempo,
+> vale lembrar que o gate de cobertura é global: código não commitado de uma derruba o gate da
+> outra.
 
 ## O projeto
 
@@ -94,28 +99,39 @@ virou especificação executável, com teste de concordância que confronta a fu
 ## Onde está o trabalho
 
 ```
-.specs/STATE.md                                  decisões AD-001..AD-011 + handoff curto
+.specs/STATE.md                                  decisões AD-001..AD-015 + handoff curto
 .specs/HANDOFF.md                                este arquivo
 .specs/features/mvp-gestao-financeira/           54 tasks, todas concluídas, Verifier PASS
 .specs/features/painel-e-lancamentos/spec.md     20 requisitos EARS (fatia 1)
 .specs/features/recorrencias/                    spec (FIXO-01..06) + 22 tasks, todas concluídas
+.specs/features/lancamento-avulso/               spec (AVUL-01..05, BLOCO-01..02, ENTR-01..03)
+                                                 + 28 tasks, todas concluídas
+.specs/features/home-do-ano/                     fatia integrada em paralelo por outra sessão
+docs/qa.md                                       roteiro de QA em modo produção; estágio 1 executado
 DESIGN.md                                        referência de linguagem visual (Coinbase), não rastreado
 docs/design.md                                   identidade visual normativa, derivada dela, com contraste medido
 docs/referencias/LEIA-ME.md                      o que da referência entra e o que nunca entra
-docs/roadmap.md                                  o que ficou para depois, em 3 fatias
+docs/roadmap.md                                  o que ficou para depois, em 2 fatias
 AGENTS.md                                        as 5 regras acima
 
 src/app/actions/                                 compras · categorias · meios-de-pagamento ·
-                                                 pagamentos · recorrencias
+                                                 pagamentos · recorrencias · lancamentos
 src/application/recorrencias/                    materializar · criar · registrar-versao · encerrar
 src/application/schemas/nome.ts                  normalização de nome compartilhada pelos cadastros
 src/components/cadastro-inline.tsx               o padrão "criar sem sair do formulário"
 src/components/botao-pago.tsx                    o selo de situação que é botão
+src/components/botao-excluir.tsx                 excluir em dois toques, sem modal
+src/components/dialogo-de-cadastro.tsx           o <dialog> nativo que abre o cadastro
+src/components/seletor-de-formulario.tsx         as abas Avulso ┊ Parcelado, montadas juntas
+src/domain/mes/bloco-do-lancamento.ts            a cascata: Fixos → Cartão → Gastos do Mês
+src/domain/mes/cancelamento-permitido.ts         só o avulso é cancelável
 src/components/valor-confirmavel.tsx             o valor de gasto fixo que abre campo
 src/components/alternador-de-tema.tsx            o seletor e o SCRIPT_TEMA do <head>
 src/infrastructure/db/limpar.ts                  TRUNCATE compartilhado entre o seed e os testes
 drizzle/0001_valor_previsto_positivo.sql         CHECK que faltava; sem ele a transação de criar
                                                  recorrência era infalsificável
+drizzle/0002_movimento_valor_positivo.sql        o mesmo no único razão somável; sem ele a
+                                                 transação do avulso era infalsificável
 ```
 
 **Toda Server Action segue a mesma forma** (`compras.ts` é a referência): `requireSession()`
@@ -124,15 +140,24 @@ schema Zod que o formulário usou, e nada lança para o cliente — todo caminho
 `ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
 correlação. Stack trace não chega ao navegador.
 
-`pnpm verify` sai 0: **582 testes unitários, 144/144 branches no domínio, 187 de integração** e
-**23 e2e**. Os dois e2e que mais importam provam as duas re-digitações que a planilha impunha:
-cadastrar 1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; e
-cadastrar um gasto fixo uma vez e vê-lo em março, abril e maio.
+`pnpm verify` sai 0: **741 testes unitários, 164/164 branches no domínio, 230 de integração** e
+**36 e2e**. Os e2e que mais importam provam as re-digitações que a planilha impunha: cadastrar
+1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; cadastrar um
+gasto fixo uma vez e vê-lo em três meses; e agora o avulso no cartão caindo no bloco da fatura em
+vez de "Gastos do Mês".
+
+**Duas armadilhas de teste desta fatia, para não serem reintroduzidas.** O project `domain` do
+Vitest capturava `*.integration.test.ts` pelos globs `**/*.test.ts` e os rodava em paralelo — dois
+arquivos chamando `recriarBancoDeTeste` ao mesmo tempo, corrida que passava por sorte. E com as duas
+abas do cadastro montadas juntas, **campo homônimo existe na árvore**: toda busca de interface
+precisa ser escopada ao formulário, ou casa dois nós.
 
 ## Estado da UI
 
-- Navegação por áreas: **Visão geral**, **Lançamentos** e **Fixos** (lateral no desktop, barra
-  fixa no mobile). Área sem implementação não entra na lista (NAV-03, AC 5)
+- Navegação por áreas: **Visão geral**, **Lançamentos** e **Todo mês** (lateral no desktop, barra
+  fixa no mobile). Área sem implementação não entra na lista (NAV-03, AC 5). A área se chama
+  "Todo mês" e o bloco da lista continua "Fixos" — os dois descrevem conjuntos diferentes, porque
+  a área administra também receita recorrente (AD-013)
 - Painel com **alternador Planejamento ┊ Movimentações**, estado na URL
   (`?visao=movimentacoes`), 4 indicadores que trocam de rótulo junto
 - Cada indicador é link para a lista já filtrada; painel e lista usam **o mesmo
@@ -142,12 +167,24 @@ cadastrar um gasto fixo uma vez e vê-lo em março, abril e maio.
   é sinalizado por ícone mais texto, nunca por preenchimento colorido
 - Lançamentos com busca (debounce de 250ms) e filtros por categoria, meio, pessoa e
   situação — tudo na URL
+- **Cadastro num `<dialog>` nativo**, aberto por "+ Novo lançamento" no topo da área, com abas
+  Avulso ┊ Parcelado. Ele **não fecha ao gravar** (AD-014): a confirmação vive dentro do formulário
+  e ia embora junto. As duas abas ficam montadas para não perder o que foi digitado na outra
 - Cadastro de compra (1 parcela é a compra avulsa no cartão, n é o parcelamento) com preview
   ao vivo das parcelas
+- **Lançamento avulso e receita à vista**, com exclusão lógica em dois toques na própria linha —
+  só no avulso, porque parcela quebraria a conservação da soma da compra e ocorrência de
+  recorrência renasceria na materialização seguinte
+- **Blocos da lista por meio de pagamento** (AD-012): "Cartão de Crédito" quer dizer "vai cair na
+  fatura". Consequência assumida: parcela em carnê caiu para "Gastos do Mês"
+- **"Entradas" no topo e sempre visível.** Antes ela só existia com conteúdo, enquanto os blocos de
+  despesa apareciam vazios — o dinheiro que entra era o único que sumia quando faltava
+- **Receita tem vocabulário e opções próprios** (AD-015): "Onde o dinheiro cai", só contas. Antes o
+  formulário oferecia cartão de crédito como destino de salário e dizia "Cadastrar gasto fixo"
 - Lista com **pílula de categoria** em todo bloco; a coluna "Parcela" existe **só** no bloco de
   compra parcelada, onde carrega informação. Fora dele ela era coluna permanentemente vazia,
   empurrando descrição e valor para pontas opostas da tela
-- **Gastos fixos e receita recorrente**, na área "Fixos". Cadastrar uma vez e aparecer em todo mês;
+- **Gastos fixos e receita recorrente**, na área "Todo mês". Cadastrar uma vez e aparecer em todo mês;
   reajustar a partir de um mês **sem reescrever o passado** (versionamento por vigência); confirmar o
   valor real quando a conta chega, com a previsão ainda visível ao lado; encerrar preservando o que
   foi pago. As ocorrências são materializadas **na abertura do mês**, para a competência visível mais
@@ -189,28 +226,28 @@ cadastrar um gasto fixo uma vez e vê-lo em março, abril e maio.
 
 1. **Eixo Movimentações parcial**: soma só lançamentos da própria competência já pagos,
    sem `pagamento_fatura`.
-2. **Falta lançamento avulso e receita à vista**, que é a fatia 1 do roadmap: sem eles o mês não
-   fecha, porque só compra parcelada e recorrência entram no app. Orçamento, faturas e edição com
-   escopo vêm depois. Renomear e arquivar cadastro seguem sem tela.
-3. **Os blocos da lista agrupam por `origem`, não por meio de pagamento.** "Cartão de Crédito"
-   quer dizer "veio de compra parcelada" e "Gastos do Mês" quer dizer "é avulso" — um lançamento
-   avulso num cartão cai no segundo. É decisão de modelo a resolver junto com o formulário de
-   avulso, não depois dele.
-4. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,
+2. **Renomear e arquivar cadastro seguem sem tela.** Orçamento, faturas e edição de compra com
+   escopo são a fatia 1 do roadmap agora.
+3. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,
    `resolverCicloFatura` e `confirmarValorReal`. Duas tabelas ainda sem repositório:
    `orcamento_categoria` e `pagamento_fatura`. `resolverValorEfetivo` saiu desta lista com a fatia
    de recorrências — ela decide o que exibir na linha de um gasto fixo.
-5. **Credenciais do Google OAuth não configuradas** — bloqueia login real, não o desenvolvimento.
-6. **Não existe caminho de deploy, e o roadmap não o cobre.** Ele foi escrito como roadmap de
+4. **Credenciais do Google OAuth não configuradas.** Passou de inconveniente a **bloqueio
+   medido**: o estágio 2 do QA — inserir à mão em modo produção — não roda sem elas, porque em
+   build de produção o único provider registrado é o Google e `AUTH_PROVIDER_DE_TESTE` **derruba o
+   boot** por desenho. Roteiro e os quatro passos do console do Google em `docs/qa.md`. O estágio 1
+   já foi executado: banco `mybilling_qa` limpo, três migrations do zero, build de produção subindo
+   e redirecionando para `/login`.
+5. **Não existe caminho de deploy, e o roadmap não o cobre.** Ele foi escrito como roadmap de
    produto e nunca teve linha de infraestrutura. O que falta decidir e fazer: onde o app roda,
    como as variáveis de ambiente chegam lá, e como `pnpm db:migrate` é executado contra o banco
    gerenciado. As duas migrations aplicam num banco limpo — `recriarBancoDeTeste` prova isso a
    cada execução da suíte de integração —, então o risco não é a migration: é não haver processo.
-7. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
+6. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
    (`DESIGN-mastercard.md`) foi mantida fora do repositório de propósito, por descrever identidade
    de marca de terceiros. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra.
    Registrado em `docs/referencias/LEIA-ME.md`.
-8. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
+7. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
    pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão, mas a correção real é
    deixar a descrição absorver a folga e as demais colunas ocuparem só o que precisam.
 

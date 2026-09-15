@@ -90,22 +90,55 @@
 - **Date**: 2026-09-13
 - **Status**: active
 
+### AD-012
+- **Decision**: O bloco de despesa em que um lançamento aparece é decidido por cascata de três ramos, numa única função pura (`blocoDoLancamento`): origem recorrente vira Fixos; meio de pagamento do tipo cartão vira Cartão de Crédito; o resto vira Gastos do Mês. O conjunto de cartões inclui os **arquivados**.
+- **Reason**: Os blocos agrupavam por `origem`, então "Cartão de Crédito" significava "veio de compra parcelada" e uma despesa avulsa no cartão caía em "Gastos do Mês" — fora da fatura, que é o oposto do que a pessoa espera e do que a fatia de Faturas vai consumir. O critério correto é o meio, porque a pergunta que o bloco responde é "vai cair na fatura". A precedência de Fixos preserva o bloco que administra ciclo de vida. Incluir arquivados evita que arquivar um cartão **reclassifique o passado** e mude indicadores de meses fechados.
+- **Trade-off**: Parcela paga em carnê sai do bloco do cartão e vai para Gastos do Mês. É correto — ela não vai em fatura nenhuma — mas é mudança visível para quem já usava. O indicador do painel e a lista passam a depender da mesma função, com teste de concordância obrigatório: se um dia ele sumir, os dois voltam a poder divergir.
+- **Scope**: `src/domain/mes/bloco-do-lancamento.ts`, `resumoMensal`, `obterVisaoMensal`, `TabelaLancamentos`, e a barra de composição da home.
+- **Date**: 2026-09-14
+- **Status**: active
+
+### AD-013
+- **Decision**: O invariante "a área de navegação tem o mesmo nome do bloco da lista que ela administra" é abandonado. A área passa a se chamar "Todo mês"; o bloco continua "Fixos".
+- **Reason**: O invariante já estava quebrado, em silêncio, desde a fatia de recorrências: aquela área administra também **receita recorrente**, e a ocorrência de um salário nunca aparece no bloco "Fixos", que filtra por despesa — ela aparece em "Entradas". Os dois nomes descrevem conjuntos diferentes, e insistir na igualdade era o que fazia o salário parecer não ter casa. Quem procura onde cadastrar o que entra não clica numa palavra que promete conta a pagar.
+- **Trade-off**: Há dois nomes na interface para coisas relacionadas, e quem já usava aprendeu o antigo. A rota continua `/fixos`, para não quebrar link salvo nem histórico.
+- **Scope**: `NavegacaoPrincipal`, página de recorrências.
+- **Date**: 2026-09-14
+- **Status**: active
+
+### AD-014
+- **Decision**: O cadastro de lançamento abre num `<dialog>` nativo, por botão no topo da área, e **não fecha ao gravar**. As abas ficam montadas ao mesmo tempo lá dentro.
+- **Reason**: O formulário no rodapé exigia rolar a lista inteira para cadastrar, e a lista só cresce. O elemento nativo entrega confinamento de foco, `Escape`, backdrop e inércia da página sem código — um painel feito à mão seria a mesma coisa pior implementada. Fechar ao gravar levava embora a confirmação, que vive dentro do formulário: a pessoa clicava e tudo desaparecia sem dizer que deu certo. Manter aberto também serve o padrão real de lançar várias coisas seguidas ao atualizar o mês. Abas montadas preservam o que foi digitado na outra.
+- **Trade-off**: Um clique para fechar. Duas abas montadas significam campos homônimos na árvore, então todo teste de interface precisa ser escopado ao formulário — foi o que quebrou seis e2e na transição.
+- **Scope**: `DialogoDeCadastro`, `SeletorDeFormulario`, página de Lançamentos, e a suíte e2e de cadastro.
+- **Date**: 2026-09-14
+- **Status**: active
+
+### AD-015
+- **Decision**: Com natureza receita, os formulários trocam o vocabulário e restringem as opções: "Onde o dinheiro cai" em vez de "Meio de pagamento", listando apenas meios que **não** geram fatura, mais título, botão e rótulo do dia próprios. O campo de meio **não** é removido.
+- **Reason**: O formulário dizia "Cadastrar gasto fixo" com "Um dinheiro que entra" marcado, e oferecia cartão de crédito como destino de salário. Contradizia a escolha de quem o preenchia e permitia um estado sem sentido. O campo em si é legítimo: o dinheiro cai em alguma conta, e saber em qual é o que permitirá conciliar depois. Removê-lo exigiria migration, porque `movimento.meio_pagamento_id` é `NOT NULL`.
+- **Trade-off**: O vocabulário vive num objeto derivado da natureza, e cada rótulo novo precisa nascer nos dois lados. Filtrar a exibição não basta: a seleção precisa ser reposicionada quando a natureza muda, ou o formulário envia o que a lista não oferece mais.
+- **Scope**: `FormRecorrencia`, `FormLancamentoAvulso`.
+- **Date**: 2026-09-14
+- **Status**: active
+
 ---
 
 ## Handoff
 
-- **Feature**: painel-e-lancamentos (fatia 1) — **entregue**. `mvp-gestao-financeira` concluída e com Verifier PASS. Em cima dela veio uma sessão de ajustes conduzida por conversa, sem spec própria: identidade visual, seed, tema e cadastros.
-- **Commit**: branch `ajustes-visuais-e-cadastros`, cinco commits a partir de `699cc64`. **Sem push, e `main` ainda não integrou.** Ver o aviso no topo de `.specs/HANDOFF.md`.
-- **Gates**: `pnpm verify` exit 0 — 429 unit, 128/128 branches em `src/domain`, 138 integração, 15/15 e2e. Medidos **com as mudanças não commitadas aplicadas**.
-- **Next step**: integrar a branch em `main` e seguir para a fatia 1 do roadmap — lançamento avulso e receita à vista. **Há uma decisão de modelo a resolver junto com ela**, não depois: os blocos da lista agrupam por `origem`, então uma despesa avulsa no cartão cai em "Gastos do Mês" e não em "Cartão de Crédito".
-- **Contexto completo de retomada**: `.specs/HANDOFF.md` — stack, regras invioláveis, decisões, estado da UI, pendências e comandos.
-- **Entregue na sessão de ajustes**:
-  - **Recorrências (fatia completa, spec + 22 tasks)**: gasto fixo e receita recorrente, com versionamento por vigência, materialização idempotente na abertura do mês, confirmação de valor real e encerramento. `FIXO-01` a `FIXO-06` em Verified.
-  - Marcar pago e desfazer pela lista, com o indicador do painel acompanhando.
-  - Identidade visual trocada de Mastercard para Coinbase (`DESIGN.md`), com três cores do documento derivadas por reprovarem em contraste no uso deste app. Paleta declarada uma vez só, com `light-dark()`.
-  - Tema claro, escuro ou do sistema, aplicado antes da primeira pintura por script inline.
-  - Seed ancorado numa competência-base derivada do relógio pela CLI, cobrindo de dois meses atrás a três à frente, e idempotente (limpa antes de popular).
-  - Cadastro de categoria e de meio de pagamento dentro do formulário, pelo `CadastroInline`.
-  - Pílula de categoria na lista; coluna "Parcela" só onde ela carrega informação.
-- **Corrigido**: o `HorizonteFuturo` ficava invisível por duas causas somadas — estava dentro da árvore do Motion (violando restrição já documentada) e dependia de rolagem que a página não tem. O `UI-03, AC 9` estava **vermelho no HEAD**, por transbordo transitório da animação de entrada.
-- **Pendências conhecidas**: ver `.specs/HANDOFF.md`, seção "Pendências reais". As duas mais estruturais: os blocos da lista agrupam por `origem` e não por meio de pagamento (a resolver **junto** com o formulário de lançamento avulso, não depois), e `DESIGN.md` está sem commit por decisão aberta.
+- **Feature**: `lancamento-avulso` — **28 de 28 tasks concluídas**, aguardando o Verifier independente. A fatia 1 do roadmap fechou: o mês agora fecha pela interface.
+- **Commit**: `main` local, sem push. **Sem push desde sempre:** `main` está ~70 commits à frente de `origin/main`.
+- **Gates**: `pnpm verify` exit 0 — 741 unitários, 164/164 branches em `src/domain`, 230 de integração, build compila. **36 e2e passam**, incluindo a fatia "Home do ano" que outra sessão integrou em paralelo.
+- **Next step**: rodar o Verifier independente sobre a fatia (author ≠ verifier, com sensor de discriminação), e depois resolver as credenciais OAuth do Google — elas destravam o estágio 2 do QA e são pré-requisito do deploy. Roteiro completo em `docs/qa.md`.
+- **Contexto completo de retomada**: `.specs/HANDOFF.md`.
+- **Entregue nesta fatia**:
+  - **Despesa avulsa e receita à vista**, com exclusão lógica em dois toques. `AVUL-01` a `AVUL-05`.
+  - **Blocos da lista por meio de pagamento** (AD-012), com teste de concordância entre o indicador do painel e a soma do bloco. `BLOCO-01` e `BLOCO-02`.
+  - **Bloco "Entradas" no topo e sempre visível**, e área renomeada para "Todo mês" (AD-013). `ENTR-01` e `ENTR-02`.
+  - **Cadastro em `<dialog>` nativo** aberto pelo topo (AD-014), com abas Avulso ┊ Parcelado.
+  - **Receita com vocabulário e opções próprios** (AD-015): não oferece mais cartão como destino. `ENTR-03`.
+  - Migration `0002_movimento_valor_positivo`: o `CHECK` que faltava no único razão somável.
+  - CI passa a rodar integração e e2e, igualando o gate do GitHub ao do terminal.
+  - `docs/qa.md`: roteiro de QA em modo produção, com o estágio 1 executado e medido.
+- **Corrigido no caminho**: o project `domain` do Vitest capturava `*.integration.test.ts` pelos globs e os rodava em paralelo, com dois arquivos chamando `recriarBancoDeTeste` ao mesmo tempo — corrida que passava por sorte e virou falha determinística ao acrescentar um arquivo de teste.
+- **Pendências conhecidas**: ver `.specs/HANDOFF.md`. A mais estrutural segue sendo a ausência de caminho de deploy, agora com o estágio 1 do QA resolvido e o estágio 2 bloqueado nas credenciais do Google.

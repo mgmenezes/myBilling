@@ -602,7 +602,7 @@ T22 -> T23 -> T24
 **Tests**: none
 **Gate**: build
 
-#### T24: Roadmap, handoff e decisões atualizados
+#### T24: Roadmap, handoff e decisões atualizados ✅ CONCLUÍDA
 **What**: Mover a fatia 1 para "Pronto" no roadmap, registrar as decisões novas em `STATE.md` e atualizar o handoff com o estado real.
 **Where**: `.specs/STATE.md`
 **Depends on**: T23
@@ -610,10 +610,10 @@ T22 -> T23 -> T24
 **Requirement**: ENTR-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] `docs/roadmap.md` move lançamento avulso e exclusão para "Pronto"
-- [ ] A cascata de blocos é registrada como decisão `AD-NNN`
-- [ ] O abandono do invariante "área tem o nome do bloco" é registrado com a razão
-- [ ] `.specs/HANDOFF.md` reflete a contagem de testes e as pendências que restam
-- [ ] `validate_state.py` passa
+- [x] `docs/roadmap.md` move lançamento avulso e exclusão para "Pronto"
+- [x] A cascata de blocos é registrada como decisão `AD-NNN`
+- [x] O abandono do invariante "área tem o nome do bloco" é registrado com a razão
+- [x] `.specs/HANDOFF.md` reflete a contagem de testes e as pendências que restam
+- [x] `validate_state.py` passa
 **Tests**: none
 **Gate**: build

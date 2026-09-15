@@ -305,16 +305,16 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| AVUL-01 | P1: Registrar um gasto avulso | Implementing | In Tasks |
-| AVUL-02 | P1: Registrar dinheiro que entra | Implementing | In Tasks |
-| AVUL-03 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
-| AVUL-04 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
-| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
-| BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
-| ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
-| ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
-| ENTR-03 | P2: O formulário fala a língua da receita | Implementing | In Tasks |
-| AVUL-05 | P2: Cadastrar sem rolar a página | Implementing | In Tasks |
+| AVUL-01 | P1: Registrar um gasto avulso | Implementing | Implementing |
+| AVUL-02 | P1: Registrar dinheiro que entra | Implementing | Implementing |
+| AVUL-03 | P2: Excluir um lançamento avulso | Implementing | Implementing |
+| AVUL-04 | P2: Excluir um lançamento avulso | Implementing | Implementing |
+| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | Implementing |
+| BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | Implementing |
+| ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
+| ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
+| ENTR-03 | P2: O formulário fala a língua da receita | Implementing | Implementing |
+| AVUL-05 | P2: Cadastrar sem rolar a página | Implementing | Implementing |
 
 **Coverage:** 10 total, 10 mapeados para tasks
 
