@@ -175,7 +175,9 @@ um formulário que produz dado confuso.
    SHALL exibir a coluna "Parcela"; nos demais blocos SHALL omiti-la
 
 **Independent Test**: cadastrar um avulso num cartão e conferir que ele aparece sob "Cartão de
-Crédito" e que o indicador "Cartão" cresceu no mesmo valor.
+Crédito" e não em "Gastos do Mês". O painel do mês não tem indicador por bloco — os quatro são
+Receitas, Despesas, Ainda não pago e Saldo —, então a concordância do AC 5 é afirmada na camada de
+aplicação, onde o total e o carimbo do bloco saem da mesma função.
 
 ---
 

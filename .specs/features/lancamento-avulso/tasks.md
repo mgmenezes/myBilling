@@ -526,7 +526,7 @@ T22 -> T23 -> T24
 
 ### Phase 5 — Provas de ponta a ponta e fechamento
 
-#### T19: e2e — despesa avulsa no cartão
+#### T19: e2e — despesa avulsa no cartão ✅ CONCLUÍDA
 **What**: Percurso que cadastra uma despesa avulsa num cartão e prova que ela cai no bloco do cartão e move o indicador.
 **Where**: `e2e/lancamento-avulso.spec.ts`
 **Depends on**: T26
@@ -534,14 +534,14 @@ T22 -> T23 -> T24
 **Requirement**: BLOCO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Cadastra pela tela e encontra a linha sob "Cartão de Crédito" (AC 3)
-- [ ] O indicador "Cartão" do painel cresceu no mesmo valor (AC 5)
-- [ ] A mesma despesa numa conta corrente cai sob "Gastos do Mês"
-- [ ] Nenhum dado financeiro real é usado (AD-009)
+- [x] Cadastra pela tela e encontra a linha sob "Cartão de Crédito" (AC 3)
+- [x] O indicador "Cartão" do painel cresceu no mesmo valor (AC 5)
+- [x] A mesma despesa numa conta corrente cai sob "Gastos do Mês"
+- [x] Nenhum dado financeiro real é usado (AD-009)
 **Tests**: e2e
 **Gate**: build
 
-#### T20: e2e — Pix recebido
+#### T20: e2e — Pix recebido ✅ CONCLUÍDA
 **What**: Percurso que cadastra uma receita avulsa e prova que ela aparece em "Entradas" e move "Receitas do mês".
 **Where**: `e2e/entradas.spec.ts`
 **Depends on**: T14, T26
@@ -549,14 +549,14 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] A receita aparece no bloco "Entradas" (AC 3)
-- [ ] Ela não aparece em nenhum bloco de despesa (AC 3)
-- [ ] O indicador "Receitas do mês" cresceu no mesmo valor (AC 1)
-- [ ] Num mês sem receita, "Entradas" aparece no topo com texto de ausência (ENTR-02 AC 2 e 3)
+- [x] A receita aparece no bloco "Entradas" (AC 3)
+- [x] Ela não aparece em nenhum bloco de despesa (AC 3)
+- [x] O indicador "Receitas do mês" cresceu no mesmo valor (AC 1)
+- [x] Num mês sem receita, "Entradas" aparece no topo com texto de ausência (ENTR-02 AC 2 e 3)
 **Tests**: e2e
 **Gate**: build
 
-#### T21: e2e — excluir devolve o total
+#### T21: e2e — excluir devolve o total ✅ CONCLUÍDA
 **What**: Percurso que cria um avulso, confere o total, exclui e confere que o total voltou ao valor anterior.
 **Where**: `e2e/excluir-lancamento.spec.ts`
 **Depends on**: T17
@@ -564,10 +564,10 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] O total do mês antes e depois do ciclo criar-excluir é idêntico (AC 2)
-- [ ] O primeiro toque não exclui (AC 6)
-- [ ] A linha some da lista depois do segundo toque (AC 2)
-- [ ] Linha de parcela não oferece o controle (AC 5)
+- [x] O total do mês antes e depois do ciclo criar-excluir é idêntico (AC 2)
+- [x] O primeiro toque não exclui (AC 6)
+- [x] A linha some da lista depois do segundo toque (AC 2)
+- [x] Linha de parcela não oferece o controle (AC 5)
 **Tests**: e2e
 **Gate**: build
 
