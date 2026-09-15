@@ -262,7 +262,7 @@ T22 -> T23 -> T24
 **Tests**: unit
 **Gate**: quick
 
-#### T3: `resumoMensal` soma pelos blocos da cascata
+#### T3: `resumoMensal` soma pelos blocos da cascata ✅ CONCLUÍDA
 **What**: Substituir `somarPorOrigem` pela cascata: `resumoMensal` passa a receber o conjunto de cartões e a calcular `fixos`, `cartao` e `avulsos` por `blocoDoLancamento`.
 **Where**: `src/domain/mes/resumo-mensal.ts`
 **Depends on**: T1
@@ -270,12 +270,12 @@ T22 -> T23 -> T24
 **Requirement**: BLOCO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
-- [ ] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
-- [ ] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
-- [ ] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
-- [ ] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
-- [ ] 100% de branches
+- [x] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
+- [x] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
+- [x] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
+- [x] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
+- [x] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 
@@ -297,7 +297,7 @@ T22 -> T23 -> T24
 **Tests**: integration
 **Gate**: full
 
-#### T3: `resumoMensal` soma pelos blocos da cascata
+#### T3: `resumoMensal` soma pelos blocos da cascata ✅ CONCLUÍDA
 **What**: Substituir `somarPorOrigem` pela cascata: `resumoMensal` passa a receber o conjunto de cartões e a calcular `fixos`, `cartao` e `avulsos` por `blocoDoLancamento`.
 **Where**: `src/domain/mes/resumo-mensal.ts`
 **Depends on**: T1
@@ -305,12 +305,12 @@ T22 -> T23 -> T24
 **Requirement**: BLOCO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
-- [ ] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
-- [ ] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
-- [ ] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
-- [ ] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
-- [ ] 100% de branches
+- [x] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
+- [x] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
+- [x] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
+- [x] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
+- [x] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 
@@ -340,11 +340,11 @@ T22 -> T23 -> T24
 **Requirement**: BLOCO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Devolve o id de um cartão ativo
-- [ ] Devolve o id de um cartão **arquivado** (AC 6: arquivar não reclassifica o passado)
-- [ ] Não devolve conta corrente nem rótulo
-- [ ] Devolve conjunto vazio quando não há cartão nenhum
-- [ ] O fake em `src/application/ports/fakes.ts` implementa o mesmo contrato
+- [x] Devolve o id de um cartão ativo
+- [x] Devolve o id de um cartão **arquivado** (AC 6: arquivar não reclassifica o passado)
+- [x] Não devolve conta corrente nem rótulo
+- [x] Devolve conjunto vazio quando não há cartão nenhum
+- [x] O fake em `src/application/ports/fakes.ts` implementa o mesmo contrato
 **Tests**: integration
 **Gate**: full
 

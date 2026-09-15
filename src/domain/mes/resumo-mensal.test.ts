@@ -9,6 +9,16 @@ const ABRIL = "2026-04" as Competencia;
 const FEVEREIRO = "2026-02" as Competencia;
 
 /**
+ * Os três segmentos de despesa deixaram de ser recortes de `origem` e passaram
+ * a ser os blocos de `blocoDoLancamento`. "Cartão" agora quer dizer "vai cair
+ * na fatura", que é propriedade do meio de pagamento — por isso as fixtures
+ * precisam de dois meios distintos, e não mais de um só.
+ */
+const CARTAO = "meio-cartao";
+const CONTA = "meio-conta";
+const CARTOES: ReadonlySet<string> = new Set([CARTAO]);
+
+/**
  * Fixtures escolhidas por valor matemático, nunca por realismo (AD-009).
  * Os três segmentos de despesa somam 500000 e o saldo fecha em 440000.
  */
@@ -25,7 +35,7 @@ function lancamento(sobrescrever: Partial<Lancamento> = {}): Lancamento {
     pagoEm: null,
     categoriaId: "cat-a",
     usuarioId: "pessoa-a",
-    meioPagamentoId: "meio-a",
+    meioPagamentoId: CONTA,
     compraId: null,
     numeroParcela: null,
     recorrenciaId: null,
@@ -39,19 +49,20 @@ describe("resumoMensal — Total de Gastos do eixo competência (MOV-01)", () =>
     const resumo = resumoMensal(
       [
         lancamento({ id: "a", valor: 250000 as Cents, origem: "RECORRENCIA" }),
-        lancamento({ id: "b", valor: 150000 as Cents, origem: "PARCELA" }),
+        lancamento({ id: "b", valor: 150000 as Cents, origem: "PARCELA", meioPagamentoId: CARTAO }),
         lancamento({ id: "c", valor: 100000 as Cents, origem: "AVULSO" }),
         lancamento({ id: "d", valor: 900000 as Cents, competencia: ABRIL }),
         lancamento({ id: "e", valor: 700000 as Cents, canceladoEm: "2026-03-20" }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.competenciaView.totalGastos).toBe(500000);
   });
 
   it("mês sem nenhum lançamento produz todos os totais zerados", () => {
-    const resumo = resumoMensal([], MARCO);
+    const resumo = resumoMensal([], MARCO, CARTOES);
 
     expect(resumo.competenciaView).toEqual({
       totalGastos: 0,
@@ -74,6 +85,7 @@ describe("resumoMensal — investimento fora do Total de Gastos (MOV-04, AC 4)",
         lancamento({ id: "b", natureza: "INVESTIMENTO", valor: 60000 as Cents }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.competenciaView.totalGastos).toBe(100000);
@@ -84,6 +96,7 @@ describe("resumoMensal — investimento fora do Total de Gastos (MOV-04, AC 4)",
     const resumo = resumoMensal(
       [lancamento({ natureza: "INVESTIMENTO", origem: "AVULSO", valor: 60000 as Cents })],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.competenciaView.avulsos).toBe(0);
@@ -98,11 +111,12 @@ describe("resumoMensal — saldo do eixo competência (MOV-05, AC 5)", () => {
       [
         lancamento({ id: "a", natureza: "RECEITA", valor: 1000000 as Cents }),
         lancamento({ id: "b", valor: 250000 as Cents, origem: "RECORRENCIA" }),
-        lancamento({ id: "c", valor: 150000 as Cents, origem: "PARCELA" }),
+        lancamento({ id: "c", valor: 150000 as Cents, origem: "PARCELA", meioPagamentoId: CARTAO }),
         lancamento({ id: "d", valor: 100000 as Cents, origem: "AVULSO" }),
         lancamento({ id: "e", natureza: "INVESTIMENTO", valor: 60000 as Cents }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.competenciaView.entradas).toBe(1000000);
@@ -131,6 +145,7 @@ describe("resumoMensal — lançamento cancelado", () => {
         }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.competenciaView.totalGastos).toBe(0);
@@ -140,21 +155,87 @@ describe("resumoMensal — lançamento cancelado", () => {
   });
 });
 
-describe("resumoMensal — segmentação por origem", () => {
+describe("resumoMensal — segmentação pelos blocos da cascata (BLOCO-02)", () => {
   it("Fixos, Cartão e Avulsos somam exatamente o Total de Gastos", () => {
     const resumo = resumoMensal(
       [
         lancamento({ id: "a", valor: 250000 as Cents, origem: "RECORRENCIA" }),
-        lancamento({ id: "b", valor: 150000 as Cents, origem: "PARCELA" }),
+        lancamento({ id: "b", valor: 150000 as Cents, origem: "PARCELA", meioPagamentoId: CARTAO }),
         lancamento({ id: "c", valor: 100000 as Cents, origem: "AVULSO" }),
       ],
       MARCO,
+      CARTOES,
     );
 
     const { fixos, cartao, avulsos, totalGastos } = resumo.competenciaView;
     expect(fixos).toBe(250000);
     expect(cartao).toBe(150000);
     expect(avulsos).toBe(100000);
+    expect(fixos + cartao + avulsos).toBe(totalGastos);
+  });
+
+  it("despesa avulsa no cartão soma em Cartão, e não em Avulsos — BLOCO-01, AC 3", () => {
+    const resumo = resumoMensal(
+      [lancamento({ id: "a", origem: "AVULSO", meioPagamentoId: CARTAO, valor: 80000 as Cents })],
+      MARCO,
+      CARTOES,
+    );
+
+    expect(resumo.competenciaView.cartao).toBe(80000);
+    expect(resumo.competenciaView.avulsos).toBe(0);
+  });
+
+  it("parcela em meio sem fatura soma em Avulsos, e não em Cartão — BLOCO-01, AC 4", () => {
+    const resumo = resumoMensal(
+      [lancamento({ id: "a", origem: "PARCELA", meioPagamentoId: CONTA, valor: 70000 as Cents })],
+      MARCO,
+      CARTOES,
+    );
+
+    expect(resumo.competenciaView.avulsos).toBe(70000);
+    expect(resumo.competenciaView.cartao).toBe(0);
+  });
+
+  it("recorrência no cartão soma em Fixos: a precedência vence o meio — BLOCO-01, AC 2", () => {
+    const resumo = resumoMensal(
+      [
+        lancamento({
+          id: "a",
+          origem: "RECORRENCIA",
+          recorrenciaId: "r-1",
+          meioPagamentoId: CARTAO,
+          valor: 60000 as Cents,
+        }),
+      ],
+      MARCO,
+      CARTOES,
+    );
+
+    expect(resumo.competenciaView.fixos).toBe(60000);
+    expect(resumo.competenciaView.cartao).toBe(0);
+  });
+
+  it("os três blocos continuam fechando com o Total de Gastos quando o meio decide", () => {
+    const resumo = resumoMensal(
+      [
+        lancamento({ id: "a", origem: "AVULSO", meioPagamentoId: CARTAO, valor: 80000 as Cents }),
+        lancamento({ id: "b", origem: "PARCELA", meioPagamentoId: CONTA, valor: 70000 as Cents }),
+        lancamento({
+          id: "c",
+          origem: "RECORRENCIA",
+          recorrenciaId: "r-1",
+          meioPagamentoId: CARTAO,
+          valor: 60000 as Cents,
+        }),
+      ],
+      MARCO,
+      CARTOES,
+    );
+
+    const { fixos, cartao, avulsos, totalGastos } = resumo.competenciaView;
+    expect(fixos).toBe(60000);
+    expect(cartao).toBe(80000);
+    expect(avulsos).toBe(70000);
     expect(fixos + cartao + avulsos).toBe(totalGastos);
   });
 });
@@ -167,6 +248,7 @@ describe("resumoMensal — previsto versus realizado (MOV-06, AC 1)", () => {
         lancamento({ id: "previsto", valor: 70000 as Cents, pagoEm: null }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.caixaView.saidas).toBe(30000);
@@ -192,6 +274,7 @@ describe("resumoMensal — previsto versus realizado (MOV-06, AC 1)", () => {
         lancamento({ id: "c", valor: 100000 as Cents, pagoEm: "2026-03-07" }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.caixaView.entradasRecebidas).toBe(1000000);
@@ -218,6 +301,7 @@ describe("resumoMensal — total pendente (MOV-06, AC 2)", () => {
         }),
       ],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.competenciaView.pendente).toBe(70000);
@@ -226,7 +310,7 @@ describe("resumoMensal — total pendente (MOV-06, AC 2)", () => {
 
 describe("resumoMensal — os dois eixos em objetos distintos (MOV-03, AC 3)", () => {
   it("entrega competenciaView e caixaView sem nenhum campo comum entre eles", () => {
-    const resumo = resumoMensal([lancamento()], MARCO);
+    const resumo = resumoMensal([lancamento()], MARCO, CARTOES);
 
     expect(Object.keys(resumo).sort()).toEqual(["caixaView", "competenciaView"]);
     expect(Object.keys(resumo.competenciaView).sort()).toEqual([
@@ -265,7 +349,7 @@ describe("resumoMensal — os dois eixos em objetos distintos (MOV-03, AC 3)", (
       pagoEm: null,
     });
 
-    const resumo = resumoMensal([parcelaDeFevereiro, avulsoDeMarco], MARCO);
+    const resumo = resumoMensal([parcelaDeFevereiro, avulsoDeMarco], MARCO, CARTOES);
 
     expect(resumo.competenciaView.totalGastos).toBe(100000);
     expect(resumo.caixaView.saidas).toBe(120000);
@@ -276,6 +360,7 @@ describe("resumoMensal — os dois eixos em objetos distintos (MOV-03, AC 3)", (
     const resumo = resumoMensal(
       [lancamento({ id: "a", valor: 100000 as Cents, pagoEm: "2026-04-02" })],
       MARCO,
+      CARTOES,
     );
 
     expect(resumo.caixaView.saidas).toBe(0);

@@ -1,6 +1,7 @@
 import type { Competencia } from "../shared/competencia";
 import { type Cents, somar, subtrair, ZERO_CENTS } from "../shared/money";
-import type { Lancamento, Origem, ResumoMensal } from "../tipos";
+import type { Lancamento, ResumoMensal } from "../tipos";
+import { type BlocoDoMes, blocoDoLancamento } from "./bloco-do-lancamento";
 
 /**
  * As duas visões do mês, em objetos aninhados distintos (MOV-03). `futuro`
@@ -46,8 +47,18 @@ export function despesasDaCompetencia(
   );
 }
 
-function somarPorOrigem(despesas: readonly Lancamento[], origem: Origem): Cents {
-  return total(despesas.filter((l) => l.origem === origem));
+/**
+ * Os três segmentos de despesa saem de `blocoDoLancamento`, a **mesma** função
+ * que a tela usa para decidir em qual bloco cada linha aparece. Somar por
+ * `origem` aqui e agrupar por meio de pagamento lá faria o indicador "Cartão"
+ * prometer um total que a lista não confirma (BLOCO-01, AC 5).
+ */
+function somarPorBloco(
+  despesas: readonly Lancamento[],
+  cartoes: ReadonlySet<string>,
+  bloco: BlocoDoMes,
+): Cents {
+  return total(despesas.filter((l) => blocoDoLancamento(l, cartoes) === bloco));
 }
 
 /**
@@ -62,10 +73,17 @@ function somarPorOrigem(despesas: readonly Lancamento[], origem: Origem): Cents 
  * O investimento é somado à parte: fica fora do Total de Gastos e fora das
  * Saídas, e é subtraído dos dois saldos (MOV-04, AC 4). Cada saldo subtrai
  * a saída **do próprio eixo** (MOV-05, AC 5).
+ *
+ * `cartoes` são os meios que geram fatura, **inclusive arquivados**. Eles
+ * entram porque os três segmentos de despesa deixaram de ser recortes de
+ * `origem` e passaram a ser os blocos de `blocoDoLancamento`: "Cartão" quer
+ * dizer "vai cair na fatura", e isso é uma propriedade do meio de pagamento,
+ * não de onde o lançamento veio.
  */
 export function resumoMensal(
   lancamentos: readonly Lancamento[],
   competencia: Competencia,
+  cartoes: ReadonlySet<string>,
 ): ResumoDoMes {
   const vigentes = lancamentos.filter(vigente);
   const doMes = vigentes.filter((l) => l.competencia === competencia);
@@ -83,9 +101,9 @@ export function resumoMensal(
   return {
     competenciaView: {
       totalGastos,
-      fixos: somarPorOrigem(despesas, "RECORRENCIA"),
-      cartao: somarPorOrigem(despesas, "PARCELA"),
-      avulsos: somarPorOrigem(despesas, "AVULSO"),
+      fixos: somarPorBloco(despesas, cartoes, "FIXOS"),
+      cartao: somarPorBloco(despesas, cartoes, "CARTAO"),
+      avulsos: somarPorBloco(despesas, cartoes, "AVULSOS"),
       entradas,
       investimentos,
       pendente: total(despesas.filter((l) => l.pagoEm === null)),

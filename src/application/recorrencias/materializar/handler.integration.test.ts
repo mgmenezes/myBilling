@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
 import type { Cents, Competencia } from "@/domain";
 import { type BancoDeDados, criarCliente, criarPool } from "@/infrastructure/db/client";
+import { CadastroRepositoryDrizzle } from "@/infrastructure/db/repositories/cadastro.repository";
 import { CompraRepositoryDrizzle } from "@/infrastructure/db/repositories/compra.repository";
 import { MovimentoRepositoryDrizzle } from "@/infrastructure/db/repositories/movimento.repository";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
@@ -131,7 +132,11 @@ describe("materializar contra o banco (FIXO-02)", () => {
     await criarFixo(9900);
 
     const antes = await obterVisaoMensal(
-      { movimentos: new MovimentoRepositoryDrizzle(db), compras: new CompraRepositoryDrizzle(db) },
+      {
+        movimentos: new MovimentoRepositoryDrizzle(db),
+        compras: new CompraRepositoryDrizzle(db),
+        cadastros: new CadastroRepositoryDrizzle(db),
+      },
       c("2026-03"),
     );
     expect(antes.futuro.map((f) => f.comprometido)).toEqual([0, 0, 0]);
@@ -139,7 +144,11 @@ describe("materializar contra o banco (FIXO-02)", () => {
     await materializarRecorrencias(deps(), c("2026-03"), 3);
 
     const depois = await obterVisaoMensal(
-      { movimentos: new MovimentoRepositoryDrizzle(db), compras: new CompraRepositoryDrizzle(db) },
+      {
+        movimentos: new MovimentoRepositoryDrizzle(db),
+        compras: new CompraRepositoryDrizzle(db),
+        cadastros: new CadastroRepositoryDrizzle(db),
+      },
       c("2026-03"),
     );
     expect(depois.futuro.map((f) => f.comprometido)).toEqual([9900, 9900, 9900]);

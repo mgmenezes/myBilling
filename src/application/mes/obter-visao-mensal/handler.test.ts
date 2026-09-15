@@ -12,6 +12,7 @@ import { MESES_DE_PROJECAO, obterVisaoMensal } from "./handler";
  */
 
 const CARTAO = "22222222-2222-4222-8222-222222222222";
+const CONTA = "33333333-3333-4333-8333-333333333333";
 const USUARIO = "11111111-1111-4111-8111-111111111111";
 const MARCO = "2026-03" as Competencia;
 
@@ -46,15 +47,18 @@ function semear(...lancamentos: Lancamento[]): void {
 
 beforeEach(() => {
   fakes = criarFakes();
-  fakes.estado.meiosDePagamento.push({
-    id: CARTAO,
-    nome: "Cartão Roxo",
-    tipo: "CARTAO_CREDITO",
-    arquivadoEm: null,
-    diaFechamento: 25,
-    diaVencimento: 5,
-    fechamentoVaiParaFaturaSeguinte: true,
-  });
+  fakes.estado.meiosDePagamento.push(
+    {
+      id: CARTAO,
+      nome: "Cartão Roxo",
+      tipo: "CARTAO_CREDITO",
+      arquivadoEm: null,
+      diaFechamento: 25,
+      diaVencimento: 5,
+      fechamentoVaiParaFaturaSeguinte: true,
+    },
+    { id: CONTA, nome: "Conta Corrente", tipo: "CONTA_CORRENTE", arquivadoEm: null },
+  );
 });
 
 describe("os dois eixos ficam em objetos distintos (MOV-03, AC 3)", () => {
@@ -143,8 +147,16 @@ describe("saldo do mês (MOV-05, AC 5 e MOV-04, AC 4)", () => {
   });
 });
 
-describe("segmentação por origem (UI-01, AC 5)", () => {
-  it("separa fixos, cartão e avulsos no eixo competência", async () => {
+describe("segmentação pelos blocos da cascata (UI-01 AC 5, BLOCO-01)", () => {
+  /*
+   * Este bloco afirmava a regra antiga: cartão era `origem = 'PARCELA'`. A
+   * cascata trocou o critério para o meio de pagamento, então o avulso pago no
+   * cartão deixa de somar em Avulsos e passa a somar em Cartão. Os valores
+   * esperados mudaram porque a regra mudou, e não porque a assertion afrouxou:
+   * as fixtures agora usam dois meios distintos, e cada bloco é afirmado
+   * separadamente.
+   */
+  it("separa fixos, cartão e avulsos pelo meio de pagamento", async () => {
     semear(
       lancamento({ id: "fixo", origem: "RECORRENCIA", valor: 30000 as Cents }),
       lancamento({
@@ -155,7 +167,12 @@ describe("segmentação por origem (UI-01, AC 5)", () => {
         numeroParcela: 1,
         recorrenciaId: null,
       }),
-      lancamento({ id: "avulso", origem: "AVULSO", valor: 10000 as Cents }),
+      lancamento({
+        id: "avulso",
+        origem: "AVULSO",
+        meioPagamentoId: CONTA,
+        valor: 10000 as Cents,
+      }),
     );
 
     const visao = await obterVisaoMensal(fakes, MARCO);
@@ -164,6 +181,39 @@ describe("segmentação por origem (UI-01, AC 5)", () => {
     expect(visao.competenciaView.cartao).toBe(20000);
     expect(visao.competenciaView.avulsos).toBe(10000);
     expect(visao.competenciaView.totalGastos).toBe(60000);
+  });
+
+  it("leva o gasto avulso no cartão para o bloco do cartão — BLOCO-01, AC 3", async () => {
+    semear(
+      lancamento({ id: "avulso-cartao", origem: "AVULSO", valor: 10000 as Cents }),
+      lancamento({
+        id: "avulso-conta",
+        origem: "AVULSO",
+        meioPagamentoId: CONTA,
+        valor: 7000 as Cents,
+      }),
+    );
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    expect(visao.competenciaView.cartao).toBe(10000);
+    expect(visao.competenciaView.avulsos).toBe(7000);
+  });
+
+  it("mantém o fixo pago no cartão em Fixos — BLOCO-01, AC 2", async () => {
+    semear(
+      lancamento({
+        id: "fixo-cartao",
+        origem: "RECORRENCIA",
+        recorrenciaId: "r-1",
+        valor: 30000 as Cents,
+      }),
+    );
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    expect(visao.competenciaView.fixos).toBe(30000);
+    expect(visao.competenciaView.cartao).toBe(0);
   });
 });
 

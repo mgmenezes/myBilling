@@ -1,4 +1,8 @@
-import type { CompraRepository, MovimentoRepository } from "@/application/ports/repositories";
+import type {
+  CadastroRepository,
+  CompraRepository,
+  MovimentoRepository,
+} from "@/application/ports/repositories";
 import {
   addMeses,
   type Competencia,
@@ -35,6 +39,9 @@ export const MESES_DE_PROJECAO = 3;
 export interface DependenciasVisaoMensal {
   readonly movimentos: MovimentoRepository;
   readonly compras: CompraRepository;
+  /** Só para saber quais meios geram fatura: é o que separa o bloco do cartão
+   *  dos gastos do mês, e o painel e a lista precisam da mesma resposta. */
+  readonly cadastros: CadastroRepository;
 }
 
 /** `8/10` e quantas ainda faltam depois desta (PARC-08, AC 7). */
@@ -72,7 +79,11 @@ export async function obterVisaoMensal(
     seguintes.push(...(await deps.movimentos.listarPorCompetencia(addMeses(competencia, k))));
   }
 
-  const resumo = resumoMensal(doMes, competencia);
+  /* Uma consulta por carregamento de página, não uma por lançamento: a
+     pergunta é de pertinência e o conjunto inteiro cabe na memória. */
+  const cartoes = await deps.cadastros.idsDeMeiosComFatura();
+
+  const resumo = resumoMensal(doMes, competencia, cartoes);
   const futuro = projetarProximosMeses([...doMes, ...seguintes], competencia, MESES_DE_PROJECAO);
 
   const compraIds = [
