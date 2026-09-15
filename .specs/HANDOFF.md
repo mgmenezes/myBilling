@@ -4,8 +4,9 @@
 > Última atualização: 2026-09-14, branch `main`.
 
 > [!IMPORTANT]
-> **`main` está ~70 commits à frente de `origin/main`, sem push.** O histórico é linear, o
-> `pnpm verify` sai 0 e os **36 e2e passam**. `git push` continua exigindo autorização explícita e
+> **`main` está integrada em `origin/main`, e o CI passa.** O run #17 é o primeiro em que o gate
+> completo do GitHub roda de verdade: typecheck, lint, unitários, integração, build e e2e — as
+> mesmas **1.035 provas** do terminal. `git push` continua exigindo autorização explícita e
 > separada, como toda operação remota.
 >
 > **Duas fatias foram integradas em paralelo nesta sessão:** `lancamento-avulso` (esta) e
