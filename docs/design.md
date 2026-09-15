@@ -115,20 +115,21 @@ padrão de 80% das superfícies é chapado; o cartão sobre canvas branco é sep
 
 ## Largura do conteúdo
 
-`--container-conteudo`, **1440px**. Ele vale para o cabeçalho e para o miolo ao mesmo tempo, num
+`--container-conteudo`, **1024px**. Ele vale para o cabeçalho e para o miolo ao mesmo tempo, num
 token só: se os dois escolherem a sua largura, a pílula de navegação deixa de alinhar com o conteúdo
 embaixo dela — desalinhamento de poucos pixels é do tipo que ninguém consegue nomear mas todo mundo
 sente.
 
-**Divergência deliberada do `DESIGN.md`**, que diz "Max content width: ~1200px centered". A razão é
-a diferença de gênero entre os dois: aquele documento descreve páginas de marketing, onde a largura
-serve a parágrafo e a foto, e onde 1200px já é generoso. Aqui o conteúdo é tabela de lançamento lida
-todo dia — largura vira coluna legível, não linha comprida de texto. A única prosa da interface (a
-explicação de Planejamento × Movimentações) continua limitada em `62ch` por conta própria, então
-esticar o contêiner não alonga linha de texto em lugar nenhum.
+**Já foram 1440px, e foi erro.** A aposta era que tabela de lançamento lida todo dia quer largura, e
+que os "~1200px centered" do `DESIGN.md` valiam só para página de marketing. Na tela real a aposta
+não se sustentou: com 1440px a descrição fica numa ponta da linha e o valor na outra, e a cada
+lançamento o olho atravessa um vão sem informação. O que cansa quem lê a tabela não é densidade
+vertical — é essa varredura horizontal.
 
-O limite disso é a varredura horizontal da tabela: quanto mais larga, mais longe o olho viaja da
-descrição até o valor. 1440px é onde as duas pontas ainda cabem num movimento de olho.
+1024px encurta o percurso sem apertar nenhuma das seis colunas: descontando a navegação lateral
+(208px) e o vão entre as duas (32px), sobram ~784px de tabela. A única prosa da interface (a
+explicação de Planejamento × Movimentações) continua limitada em `62ch` por conta própria, então a
+largura do contêiner não decide leitura de texto corrido em lugar nenhum.
 
 ## Escala de raios
 
