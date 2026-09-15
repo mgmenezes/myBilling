@@ -1,7 +1,7 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
-import type { Cents, Competencia, Lancamento } from "@/domain";
+import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
 import { TabelaLancamentos } from "./tabela-lancamentos";
 
 const CATEGORIAS = new Map([["cat-1", "Categoria Um"]]);
@@ -45,11 +45,26 @@ function lancamento(campos: Partial<Lancamento> & { id: string }): Lancamento {
   };
 }
 
+/**
+ * O bloco é decidido por `obterVisaoMensal`, não pela tabela. Aqui ele é
+ * derivado da origem para reproduzir o comportamento que estes testes já
+ * afirmavam; o parâmetro permite escrever os casos em que meio e origem
+ * discordam, que é o que a cascata trouxe.
+ */
+function blocoPadrao(origem: Lancamento["origem"]): BlocoDoMes {
+  if (origem === "RECORRENCIA") {
+    return "FIXOS";
+  }
+  return origem === "PARCELA" ? "CARTAO" : "AVULSOS";
+}
+
 function item(
   campos: Partial<Lancamento> & { id: string },
   parcela: LancamentoDoMes["parcela"] = null,
+  bloco?: BlocoDoMes,
 ): LancamentoDoMes {
-  return { lancamento: lancamento(campos), parcela };
+  const l = lancamento(campos);
+  return { lancamento: l, parcela, bloco: bloco ?? blocoPadrao(l.origem) };
 }
 
 describe("os três blocos de origem (UI-01, AC 5)", () => {

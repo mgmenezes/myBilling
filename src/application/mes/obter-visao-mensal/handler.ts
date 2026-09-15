@@ -5,6 +5,8 @@ import type {
 } from "@/application/ports/repositories";
 import {
   addMeses,
+  type BlocoDoMes,
+  blocoDoLancamento,
   type Competencia,
   type ComprometimentoFuturo,
   type Lancamento,
@@ -55,6 +57,16 @@ export interface LancamentoDoMes {
   readonly lancamento: Lancamento;
   /** `null` em tudo que não é parcela de compra parcelada. */
   readonly parcela: IdentificacaoDeParcela | null;
+  /**
+   * Em qual bloco da lista a linha aparece. Decidido **aqui**, pela mesma
+   * função que `resumoMensal` usa, e não na tela.
+   *
+   * É o que torna a divergência entre painel e lista impossível de escrever, em
+   * vez de apenas improvável: a tabela nunca recebe o conjunto de cartões, logo
+   * não tem como classificar diferente. Receita e investimento também recebem
+   * bloco, mas nenhum total de despesa os soma.
+   */
+  readonly bloco: BlocoDoMes;
 }
 
 export interface VisaoMensal {
@@ -99,6 +111,7 @@ export async function obterVisaoMensal(
     lancamentos: doMes.map((lancamento) => ({
       lancamento,
       parcela: identificarParcela(lancamento, totais),
+      bloco: blocoDoLancamento(lancamento, cartoes),
     })),
   };
 }

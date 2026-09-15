@@ -201,7 +201,7 @@ export class FakeMovimentoRepository implements MovimentoRepository {
   /** Mesmas três condições do `WHERE` do Drizzle. */
   async cancelar(id: string, canceladoEm: string): Promise<boolean> {
     const atual = this.estado.movimentos.get(id);
-    if (!atual || atual.origem !== "AVULSO" || atual.canceladoEm !== null) {
+    if (atual?.origem !== "AVULSO" || atual.canceladoEm !== null) {
       return false;
     }
     this.estado.movimentos.set(id, { ...atual, canceladoEm });

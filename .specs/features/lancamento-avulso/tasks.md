@@ -257,7 +257,7 @@ T22 -> T23 -> T24
 
 ### Phase 2 — Aplicação
 
-#### T8: A visão do mês carimba o bloco de cada lançamento
+#### T8: A visão do mês carimba o bloco de cada lançamento ✅ CONCLUÍDA
 **What**: `obterVisaoMensal` lê o conjunto de cartões, passa-o a `resumoMensal` e preenche `LancamentoDoMes.bloco`, de modo que a tabela nunca receba o conjunto nem reclassifique nada.
 **Where**: `src/application/mes/obter-visao-mensal/handler.ts`
 **Depends on**: T3
@@ -265,11 +265,11 @@ T22 -> T23 -> T24
 **Requirement**: BLOCO-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Todo `LancamentoDoMes` sai com `bloco` preenchido
-- [ ] **Teste de concordância**: `competenciaView.cartao` é igual à soma dos itens com `bloco = 'CARTAO'` (AC 5)
-- [ ] O mesmo vale para `fixos` e para `avulsos`
-- [ ] O conjunto de cartões é lido **uma vez** por chamada, não por lançamento
-- [ ] Receita e investimento recebem bloco, mas não entram em nenhum total de despesa
+- [x] Todo `LancamentoDoMes` sai com `bloco` preenchido
+- [x] **Teste de concordância**: `competenciaView.cartao` é igual à soma dos itens com `bloco = 'CARTAO'` (AC 5)
+- [x] O mesmo vale para `fixos` e para `avulsos`
+- [x] O conjunto de cartões é lido **uma vez** por chamada, não por lançamento
+- [x] Receita e investimento recebem bloco, mas não entram em nenhum total de despesa
 **Tests**: unit
 **Gate**: quick
 

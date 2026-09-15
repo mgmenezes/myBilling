@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { criarCompraParcelada } from "@/application/compras/criar-compra-parcelada/handler";
 import { criarFakes, type Fakes } from "@/application/ports/fakes";
 import type { EntradaCompraValidada } from "@/application/schemas/compra.schema";
-import type { Cents, Competencia, Lancamento } from "@/domain";
+import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
 import { MESES_DE_PROJECAO, obterVisaoMensal } from "./handler";
 
 /**
@@ -198,6 +198,86 @@ describe("segmentação pelos blocos da cascata (UI-01 AC 5, BLOCO-01)", () => {
 
     expect(visao.competenciaView.cartao).toBe(10000);
     expect(visao.competenciaView.avulsos).toBe(7000);
+  });
+
+  /**
+   * **Teste de concordância.** O indicador do painel leva para a lista
+   * filtrada, então a soma do bloco tem de ser igual ao número que foi clicado.
+   * Este teste soma os itens pelo `bloco` que `obterVisaoMensal` carimbou e
+   * confronta com os três campos do `competenciaView` — se a tela e o painel
+   * puderem divergir, ele falha (BLOCO-01, AC 5).
+   */
+  it("o total de cada indicador é igual à soma dos itens com aquele bloco", async () => {
+    semear(
+      lancamento({
+        id: "fixo",
+        origem: "RECORRENCIA",
+        recorrenciaId: "r-1",
+        valor: 30000 as Cents,
+      }),
+      lancamento({
+        id: "parcela-cartao",
+        origem: "PARCELA",
+        valor: 20000 as Cents,
+        compraId: "c1",
+        numeroParcela: 1,
+        recorrenciaId: null,
+      }),
+      lancamento({
+        id: "parcela-carne",
+        origem: "PARCELA",
+        meioPagamentoId: CONTA,
+        valor: 15000 as Cents,
+        compraId: "c2",
+        numeroParcela: 1,
+        recorrenciaId: null,
+      }),
+      lancamento({ id: "avulso-cartao", origem: "AVULSO", valor: 10000 as Cents }),
+      lancamento({
+        id: "avulso-conta",
+        origem: "AVULSO",
+        meioPagamentoId: CONTA,
+        valor: 7000 as Cents,
+      }),
+      lancamento({ id: "receita", natureza: "RECEITA", valor: 500000 as Cents }),
+    );
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    const somaDoBloco = (bloco: BlocoDoMes) =>
+      visao.lancamentos
+        .filter((i) => i.bloco === bloco && i.lancamento.natureza === "DESPESA")
+        .reduce((acc, i) => acc + i.lancamento.valor, 0);
+
+    expect(visao.competenciaView.fixos).toBe(somaDoBloco("FIXOS"));
+    expect(visao.competenciaView.cartao).toBe(somaDoBloco("CARTAO"));
+    expect(visao.competenciaView.avulsos).toBe(somaDoBloco("AVULSOS"));
+    /* E os números não são todos zero, ou a igualdade acima não provaria nada. */
+    expect(visao.competenciaView.cartao).toBe(30000);
+    expect(visao.competenciaView.avulsos).toBe(22000);
+    expect(visao.competenciaView.fixos).toBe(30000);
+  });
+
+  it("carimba bloco em todo lançamento, inclusive receita", async () => {
+    semear(
+      lancamento({
+        id: "receita",
+        natureza: "RECEITA",
+        meioPagamentoId: CONTA,
+        valor: 5000 as Cents,
+      }),
+      lancamento({ id: "avulso", origem: "AVULSO", valor: 1000 as Cents }),
+    );
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    expect(visao.lancamentos.map((i) => [i.lancamento.id, i.bloco]).sort()).toEqual([
+      ["avulso", "CARTAO"],
+      ["receita", "AVULSOS"],
+    ]);
+    /* A receita recebeu bloco e não entrou em nenhum total de despesa. */
+    expect(visao.competenciaView.avulsos).toBe(0);
+    expect(visao.competenciaView.entradas).toBe(5000);
   });
 
   it("mantém o fixo pago no cartão em Fixos — BLOCO-01, AC 2", async () => {
