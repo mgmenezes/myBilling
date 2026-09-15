@@ -348,7 +348,7 @@ T22 -> T23 -> T24
 **Tests**: integration
 **Gate**: full
 
-#### T6: Gravar um lançamento avulso
+#### T6: Gravar um lançamento avulso ✅ CONCLUÍDA
 **What**: Método `criarAvulso(entrada)` na `MovimentoRepository`, com `INSERT` único de `origem = 'AVULSO'`, sem vínculo de compra nem de recorrência.
 **Where**: `src/infrastructure/db/repositories/movimento.repository.ts`
 **Depends on**: T4
@@ -356,12 +356,12 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Grava exatamente uma linha com `origem = 'AVULSO'`, `compra_id`, `numero_parcela` e `recorrencia_id` nulos (AC 1)
-- [ ] O `Lancamento` devolvido tem o id gerado pelo banco
-- [ ] Grava `pago_em` quando informado e `null` quando não
-- [ ] Grava `categoria_id` nulo quando a categoria não é informada
-- [ ] Valor não positivo é recusado pela restrição de T4, não silenciosamente aceito
-- [ ] O fake implementa o mesmo contrato
+- [x] Grava exatamente uma linha com `origem = 'AVULSO'`, `compra_id`, `numero_parcela` e `recorrencia_id` nulos (AC 1)
+- [x] O `Lancamento` devolvido tem o id gerado pelo banco
+- [x] Grava `pago_em` quando informado e `null` quando não
+- [x] Grava `categoria_id` nulo quando a categoria não é informada
+- [x] Valor não positivo é recusado pela restrição de T4, não silenciosamente aceito
+- [x] O fake implementa o mesmo contrato
 **Tests**: integration
 **Gate**: full
 

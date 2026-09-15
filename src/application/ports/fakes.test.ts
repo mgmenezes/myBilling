@@ -188,6 +188,70 @@ describe("FakeMovimentoRepository (T32)", () => {
     expect(lancamento?.pagoEm).toBe("2026-03-18");
     expect(lancamento?.valor).toBe(33334);
   });
+
+  /* Espelha `movimento.repository.integration.test.ts`: fake e Drizzle
+     discordarem aqui faria o caso de uso passar no unitário e gravar errado. */
+  it("grava o avulso sem nenhum vínculo de parcela ou recorrência — AVUL-01, AC 1", async () => {
+    const { movimentos } = criarFakes();
+
+    const gravado = await movimentos.criarAvulso({
+      natureza: "DESPESA",
+      descricao: "Gasto avulso",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 3250 as Cents,
+      pagoEm: null,
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    });
+
+    expect(gravado.origem).toBe("AVULSO");
+    expect(gravado.compraId).toBeNull();
+    expect(gravado.numeroParcela).toBeNull();
+    expect(gravado.recorrenciaId).toBeNull();
+    expect(await movimentos.buscarPorId(gravado.id)).toEqual(gravado);
+  });
+
+  it("aparece na listagem da competência logo após ser gravado", async () => {
+    const { movimentos } = criarFakes();
+    await movimentos.criarAvulso({
+      natureza: "RECEITA",
+      descricao: "Pix recebido",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 5000 as Cents,
+      pagoEm: "2026-03-10",
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    });
+
+    const doMes = await movimentos.listarPorCompetencia(competencia("2026-03"));
+
+    expect(doMes.map((l) => [l.natureza, l.descricao])).toEqual([["RECEITA", "Pix recebido"]]);
+  });
+
+  it("duas chamadas idênticas produzem dois lançamentos distintos", async () => {
+    const { movimentos } = criarFakes();
+    const base = {
+      natureza: "DESPESA" as const,
+      descricao: "Café",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 800 as Cents,
+      pagoEm: null,
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    };
+
+    const primeiro = await movimentos.criarAvulso(base);
+    const segundo = await movimentos.criarAvulso(base);
+
+    expect(primeiro.id).not.toBe(segundo.id);
+    expect(await movimentos.listarPorCompetencia(competencia("2026-03"))).toHaveLength(2);
+  });
 });
 
 describe("FakeCadastroRepository (T32)", () => {

@@ -19,6 +19,7 @@ import type {
   CompraPersistida,
   CompraRepository,
   EntradaCriarRecorrencia,
+  EntradaLancamentoAvulso,
   EntradaSalvarCompra,
   MovimentoRepository,
   OcorrenciaParaMaterializar,
@@ -159,6 +160,33 @@ export class FakeCompraRepository implements CompraRepository {
 
 export class FakeMovimentoRepository implements MovimentoRepository {
   constructor(private readonly estado: EstadoEmMemoria) {}
+
+  private proximoAvulso = 1;
+
+  /** Id sequencial e legível: o teste que falha aponta para `avulso-2`, não
+   *  para um uuid que não diz nada. */
+  async criarAvulso(entrada: EntradaLancamentoAvulso): Promise<Lancamento> {
+    const lancamento: Lancamento = {
+      id: `avulso-${this.proximoAvulso++}`,
+      natureza: entrada.natureza,
+      origem: "AVULSO",
+      descricao: entrada.descricao,
+      competencia: entrada.competencia,
+      dataEvento: entrada.dataEvento,
+      valor: entrada.valor,
+      valorPrevisto: null,
+      pagoEm: entrada.pagoEm,
+      categoriaId: entrada.categoriaId,
+      usuarioId: entrada.usuarioId,
+      meioPagamentoId: entrada.meioPagamentoId,
+      compraId: null,
+      numeroParcela: null,
+      recorrenciaId: null,
+      canceladoEm: null,
+    };
+    this.estado.movimentos.set(lancamento.id, lancamento);
+    return lancamento;
+  }
 
   async listarPorCompetencia(competencia: Competencia): Promise<ReadonlyArray<Lancamento>> {
     return [...this.estado.movimentos.values()].filter(

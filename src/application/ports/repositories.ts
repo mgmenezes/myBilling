@@ -105,9 +105,38 @@ export interface OcorrenciaParaMaterializar {
   readonly meioPagamentoId: string;
 }
 
+/**
+ * Um lançamento avulso pronto para virar linha de `movimento`.
+ *
+ * Não carrega `origem`, `compraId`, `numeroParcela` nem `recorrenciaId`: o
+ * repositório fixa `origem = 'AVULSO'` e deixa os vínculos nulos, que é o que
+ * os `CHECK` bicondicionais exigem. Deixá-los na entrada abriria a porta para
+ * um avulso com vínculo de parcela, que é exatamente o que o banco proíbe.
+ */
+export interface EntradaLancamentoAvulso {
+  readonly natureza: Natureza;
+  readonly descricao: string;
+  readonly competencia: Competencia;
+  readonly dataEvento: string;
+  readonly valor: Cents;
+  /** `'YYYY-MM-DD'` quando o dinheiro já se moveu; `null` enquanto é previsto. */
+  readonly pagoEm: string | null;
+  readonly categoriaId: string | null;
+  readonly usuarioId: string;
+  readonly meioPagamentoId: string;
+}
+
 export interface MovimentoRepository {
   /** Apenas lançamentos daquela competência que não foram cancelados. */
   listarPorCompetencia(competencia: Competencia): Promise<ReadonlyArray<Lancamento>>;
+  /**
+   * Grava um lançamento avulso: **um `INSERT`, sem transação** (AVUL-01, AC 1).
+   *
+   * Não há chave de idempotência, ao contrário da compra parcelada. Dois Pix de
+   * R$ 50 no mesmo dia são dois Pix, e deduplicar aqui impediria o caso legítimo
+   * para prevenir um clique duplo que o estado do botão já evita.
+   */
+  criarAvulso(entrada: EntradaLancamentoAvulso): Promise<Lancamento>;
   buscarPorId(id: string): Promise<Lancamento | null>;
   /** `pagoEm` em `'YYYY-MM-DD'`; `null` desfaz a marcação (MOV-06, AC 1). */
   marcarPagamento(id: string, pagoEm: string | null): Promise<void>;

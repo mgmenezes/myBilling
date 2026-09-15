@@ -1,5 +1,6 @@
 import { and, asc, eq, gte, isNull, sql } from "drizzle-orm";
 import type {
+  EntradaLancamentoAvulso,
   MovimentoRepository,
   OcorrenciaParaMaterializar,
 } from "@/application/ports/repositories";
@@ -32,6 +33,37 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
     const linhas = await this.db.select().from(movimento).where(eq(movimento.id, id)).limit(1);
     const linha = linhas[0];
     return linha ? paraLancamento(linha) : null;
+  }
+
+  /**
+   * Um `INSERT` e nada mais. Não há transação porque não há segunda escrita: a
+   * compra parcelada precisa de uma porque grava o plano e as N parcelas juntos,
+   * e o avulso não tem plano.
+   *
+   * `origem` é fixado aqui, e os três campos de vínculo ficam de fora da
+   * entrada. É o que os `CHECK` bicondicionais exigem, e deixá-los preenchíveis
+   * abriria a porta para um avulso carregando vínculo de parcela.
+   */
+  async criarAvulso(entrada: EntradaLancamentoAvulso): Promise<Lancamento> {
+    const [linha] = await this.db
+      .insert(movimento)
+      .values({
+        natureza: entrada.natureza,
+        origem: "AVULSO",
+        descricao: entrada.descricao,
+        competencia: deCompetencia(entrada.competencia),
+        dataEvento: entrada.dataEvento,
+        valorCentavos: entrada.valor,
+        pagoEm: entrada.pagoEm,
+        categoriaId: entrada.categoriaId,
+        usuarioId: entrada.usuarioId,
+        meioPagamentoId: entrada.meioPagamentoId,
+      })
+      .returning();
+    if (!linha) {
+      throw new Error("insert de movimento avulso não retornou linha");
+    }
+    return paraLancamento(linha);
   }
 
   async marcarPagamento(id: string, pagoEm: string | null): Promise<void> {

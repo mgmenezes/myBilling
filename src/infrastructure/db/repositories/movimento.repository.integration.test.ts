@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { MovimentoRepository } from "@/application/ports/repositories";
-import { type Competencia, criarCompetencia } from "@/domain";
+import { type Cents, type Competencia, criarCompetencia } from "@/domain";
 import { type BancoDeDados, criarCliente, criarPool } from "../client";
 import { movimento } from "../schema";
 import {
@@ -180,5 +180,74 @@ describe("MovimentoRepository: marcação de pagamento (T33, MOV-06)", () => {
     const lancamento = await repo.buscarPorId("00000000-0000-0000-0000-000000000000");
 
     expect(lancamento).toBeNull();
+  });
+});
+
+describe("MovimentoRepository: gravar lançamento avulso (AVUL-01)", () => {
+  function entrada(sobrescrever: Partial<Parameters<typeof repo.criarAvulso>[0]> = {}) {
+    return {
+      natureza: "DESPESA" as const,
+      descricao: "Gasto avulso",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 3250 as Cents,
+      pagoEm: null,
+      categoriaId: base.categoriaId,
+      usuarioId: base.usuarioId,
+      meioPagamentoId: base.contaId,
+      ...sobrescrever,
+    };
+  }
+
+  it("grava uma linha com origem AVULSO e nenhum vínculo — AC 1", async () => {
+    const gravado = await repo.criarAvulso(entrada());
+
+    expect(gravado.origem).toBe("AVULSO");
+    expect(gravado.compraId).toBeNull();
+    expect(gravado.numeroParcela).toBeNull();
+    expect(gravado.recorrenciaId).toBeNull();
+    expect(gravado.valor).toBe(3250);
+  });
+
+  it("devolve o id gerado pelo banco, e a linha é encontrável por ele", async () => {
+    const gravado = await repo.criarAvulso(entrada());
+
+    expect(gravado.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect((await repo.buscarPorId(gravado.id))?.descricao).toBe("Gasto avulso");
+  });
+
+  it("grava pagoEm quando informado e null quando não", async () => {
+    const pago = await repo.criarAvulso(entrada({ pagoEm: "2026-03-10" }));
+    const previsto = await repo.criarAvulso(entrada({ pagoEm: null }));
+
+    expect(pago.pagoEm).toBe("2026-03-10");
+    expect(previsto.pagoEm).toBeNull();
+  });
+
+  it("aceita categoria nula", async () => {
+    const gravado = await repo.criarAvulso(entrada({ categoriaId: null }));
+
+    expect(gravado.categoriaId).toBeNull();
+  });
+
+  it("grava receita como receita, e ela aparece na listagem do mês", async () => {
+    await repo.criarAvulso(entrada({ natureza: "RECEITA", descricao: "Pix recebido" }));
+
+    const doMes = await repo.listarPorCompetencia(competencia("2026-03"));
+
+    expect(doMes.map((l) => [l.natureza, l.descricao])).toEqual([["RECEITA", "Pix recebido"]]);
+  });
+
+  it("é recusado pelo banco quando o valor não é positivo, e não silenciosamente aceito", async () => {
+    await expect(repo.criarAvulso(entrada({ valor: 0 as Cents }))).rejects.toThrow();
+
+    expect(await repo.listarPorCompetencia(competencia("2026-03"))).toHaveLength(0);
+  });
+
+  it("duas chamadas idênticas gravam duas linhas: duplicata é caso legítimo", async () => {
+    await repo.criarAvulso(entrada());
+    await repo.criarAvulso(entrada());
+
+    expect(await repo.listarPorCompetencia(competencia("2026-03"))).toHaveLength(2);
   });
 });
