@@ -491,7 +491,7 @@ T22 -> T23 -> T24
 **Tests**: none
 **Gate**: build
 
-#### T27: O cadastro de gasto fixo fala a língua da receita
+#### T27: O cadastro de gasto fixo fala a língua da receita ✅ CONCLUÍDA
 **What**: Com receita marcada, título, botão, rótulo do campo de destino e rótulo do dia mudam, e a lista passa a oferecer só meios sem fatura.
 **Where**: `src/components/form-recorrencia.tsx`
 **Depends on**: T15
@@ -499,12 +499,12 @@ T22 -> T23 -> T24
 **Requirement**: ENTR-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Com receita, o título e o botão falam de entrada (AC 3)
-- [ ] Com receita, o campo se chama "Onde o dinheiro cai" (AC 1)
-- [ ] Com receita, a lista não oferece nenhum cartão de crédito (AC 2)
-- [ ] Com receita, o dia se chama o dia em que o dinheiro costuma cair (AC 4)
-- [ ] Trocar para receita com um cartão selecionado troca a seleção para a primeira conta (AC 5)
-- [ ] Com despesa, tudo continua como está hoje (AC 6)
+- [x] Com receita, o título e o botão falam de entrada (AC 3)
+- [x] Com receita, o campo se chama "Onde o dinheiro cai" (AC 1)
+- [x] Com receita, a lista não oferece nenhum cartão de crédito (AC 2)
+- [x] Com receita, o dia se chama o dia em que o dinheiro costuma cair (AC 4)
+- [x] Trocar para receita com um cartão selecionado troca a seleção para a primeira conta (AC 5)
+- [x] Com despesa, tudo continua como está hoje (AC 6)
 **Tests**: componentes
 **Gate**: quick
 

@@ -34,6 +34,15 @@ interface Opcao {
   readonly nome: string;
 }
 
+/**
+ * O meio precisa dizer se gera fatura, porque **receita não cai em cartão de
+ * crédito**. Sem esse dado a lista ofereceria "Cartão Azul" como destino de
+ * salário, que foi o estado sem sentido que a tela permitia (ENTR-03, AC 2).
+ */
+interface OpcaoDeMeio extends Opcao {
+  readonly geraFatura: boolean;
+}
+
 const ROTULO = "text-[14px] font-medium text-ink";
 const CAMPO =
   "w-full rounded-md border border-line bg-surface px-4 py-2.5 text-[15px] text-ink " +
@@ -51,7 +60,7 @@ export function FormRecorrencia({
   criarMeioDePagamento,
 }: {
   readonly competencia: string;
-  readonly meios: ReadonlyArray<Opcao>;
+  readonly meios: ReadonlyArray<OpcaoDeMeio>;
   readonly categorias: ReadonlyArray<Opcao>;
   readonly usuarios: ReadonlyArray<Opcao>;
   readonly criar: typeof criarRecorrenciaAction;
@@ -64,6 +73,31 @@ export function FormRecorrencia({
 
   const [descricao, setDescricao] = useState("");
   const [natureza, setNatureza] = useState<"DESPESA" | "RECEITA">("DESPESA");
+  const ehReceita = natureza === "RECEITA";
+
+  /*
+   * O vocabulário do formulário sai daqui, e não de ternários espalhados.
+   * Um formulário que diz "Cadastrar gasto fixo" com "Um dinheiro que entra"
+   * marcado contradiz a escolha de quem o preenche (ENTR-03, AC 3).
+   */
+
+  const palavras = ehReceita
+    ? {
+        titulo: "Nova entrada fixa",
+        botao: "Cadastrar entrada",
+        valor: "De quanto costuma ser (R$)",
+        dia: "Dia que costuma cair",
+        meio: "Onde o dinheiro cai",
+        ajudaDoMeio: "Só contas: dinheiro não entra em cartão de crédito.",
+      }
+    : {
+        titulo: "Novo gasto fixo",
+        botao: "Cadastrar gasto fixo",
+        valor: "De quanto costuma ser (R$)",
+        dia: "Dia de vencimento",
+        meio: "Meio de pagamento",
+        ajudaDoMeio: "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram.",
+      };
   const [valor, setValor] = useState("");
   const [diaVencimento, setDiaVencimento] = useState("10");
   const [inicio, setInicio] = useState(competencia);
@@ -75,7 +109,27 @@ export function FormRecorrencia({
   /* As listas crescem localmente quando um cadastro nasce aqui dentro, para o
      item novo já vir selecionado sem esperar o round-trip. */
   const [listaCategorias, setListaCategorias] = useState(categorias);
-  const [listaMeios, setListaMeios] = useState(meios);
+  const [listaMeios, setListaMeios] = useState<ReadonlyArray<OpcaoDeMeio>>(meios);
+
+  /*
+   * Receita só aceita meio sem fatura. Filtrar na exibição não basta: se a
+   * pessoa já tinha um cartão escolhido e depois marcou receita, a seleção
+   * continuaria apontando para ele. `trocarNatureza` reposiciona (AC 5).
+   */
+  const meiosDisponiveis = ehReceita ? listaMeios.filter((m) => !m.geraFatura) : listaMeios;
+
+  function trocarNatureza(nova: "DESPESA" | "RECEITA"): void {
+    setNatureza(nova);
+    if (nova !== "RECEITA") {
+      return;
+    }
+    const atual = listaMeios.find((m) => m.id === meioPagamentoId);
+    if (atual?.geraFatura !== true) {
+      return;
+    }
+    /* O cartão escolhido deixou de ser oferecido: cai para a primeira conta. */
+    setMeioPagamentoId(listaMeios.find((m) => !m.geraFatura)?.id ?? "");
+  }
   const [nomeCategoria, setNomeCategoria] = useState("");
   const [nomeMeio, setNomeMeio] = useState("");
   const [tipoMeio, setTipoMeio] =
@@ -186,7 +240,7 @@ export function FormRecorrencia({
       className="flex w-full flex-col gap-5 rounded-xl border border-line bg-surface p-6 sm:p-8"
     >
       <h2 id={`${id}-titulo`} className="text-[22px]">
-        Novo gasto fixo
+        {palavras.titulo}
       </h2>
 
       <div className="flex flex-col gap-1">
@@ -218,7 +272,7 @@ export function FormRecorrencia({
                 type="radio"
                 name={`${id}-natureza`}
                 checked={natureza === valorOpcao}
-                onChange={() => setNatureza(valorOpcao)}
+                onChange={() => trocarNatureza(valorOpcao)}
               />
               {rotulo}
             </label>
@@ -229,7 +283,7 @@ export function FormRecorrencia({
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO} htmlFor={`${id}-valor`}>
-            De quanto costuma ser (R$)
+            {palavras.valor}
           </label>
           <input
             id={`${id}-valor`}
@@ -247,7 +301,7 @@ export function FormRecorrencia({
         </div>
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO} htmlFor={`${id}-dia`}>
-            Dia de vencimento
+            {palavras.dia}
           </label>
           <input
             id={`${id}-dia`}
@@ -296,7 +350,7 @@ export function FormRecorrencia({
           luz não deveria precisar ir para outra área e voltar. */}
       <div className="flex flex-col gap-4 sm:flex-row">
         <CadastroInline
-          rotulo="Meio de pagamento"
+          rotulo={palavras.meio}
           idDoControle={`${id}-meio`}
           rotuloDoAtalho="+ novo"
           descricaoDoGrupo="Novo meio de pagamento"
@@ -391,7 +445,7 @@ export function FormRecorrencia({
             value={meioPagamentoId}
             onChange={(e) => setMeioPagamentoId(e.target.value)}
           >
-            {listaMeios.map((meio) => (
+            {meiosDisponiveis.map((meio) => (
               <option key={meio.id} value={meio.id}>
                 {meio.nome}
               </option>
@@ -496,7 +550,7 @@ export function FormRecorrencia({
         aria-busy={pendente}
         className="inline-flex min-h-14 items-center justify-center rounded-pill bg-primary px-8 text-[16px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97] disabled:pointer-events-none disabled:bg-primary-inativo"
       >
-        {pendente ? "Gravando…" : "Cadastrar gasto fixo"}
+        {pendente ? "Gravando…" : palavras.botao}
       </button>
     </form>
   );

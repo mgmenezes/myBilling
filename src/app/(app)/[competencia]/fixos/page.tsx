@@ -100,7 +100,12 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
 
       <FormRecorrencia
         competencia={resultado.value}
-        meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
+        /* `geraFatura` restringe o destino quando a natureza é receita. */
+        meios={meios.map((m) => ({
+          id: m.id,
+          nome: m.nome,
+          geraFatura: m.tipo === "CARTAO_CREDITO",
+        }))}
         categorias={categorias.map((c) => ({ id: c.id, nome: c.nome }))}
         usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
         criar={criarRecorrencia}
