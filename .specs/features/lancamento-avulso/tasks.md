@@ -1,0 +1,532 @@
+# Lançamento avulso e entradas — Tasks
+
+**Spec**: `.specs/features/lancamento-avulso/spec.md`
+**Design**: `.specs/features/lancamento-avulso/design.md`
+**Status**: Draft
+**Total**: 24 tasks em 6 fases
+
+> **Por que a cascata vem antes de tudo.** O risco desta fatia não é gravar uma linha: é o painel e a
+> lista discordarem sobre o que é "cartão". Essa decisão é uma função pura, e ela é construída e
+> provada — com teste de concordância — antes de existir formulário, action ou repositório.
+
+---
+
+## Execution Protocol (MANDATORY -- do not skip)
+
+Implementar com a skill `tlc-spec-driven`, ativada pelo nome. Para cada task, nesta ordem:
+
+1. **Pré-implementação** — declarar premissas, arquivos a tocar e critério de sucesso.
+2. **Escrever os testes primeiro**, derivados dos acceptance criteria do `spec.md`. Os testes asseram o resultado definido no spec, nunca espelham a implementação.
+3. **Implementar** até os testes passarem.
+4. **Gate Check** — rodar o comando do nível declarado na task. O test runner decide, não auto-avaliação.
+5. **Test Adequacy Review** (A suficiente / B não-raso / C necessário / D conformidade). Cada critério coberto cita `file:line` **e** reproduz a expressão da assertion. Sem citação localizada, o critério conta como **não coberto**.
+6. **Marcar a task como concluída** neste arquivo e atualizar a traceability no `spec.md`, **antes** do commit e **dentro** do mesmo commit.
+7. **Um commit atômico** em Conventional Commits, validado por `check_commit.py`.
+
+Proibições absolutas: commitar antes do gate passar · enfraquecer, pular ou deletar teste para passar · agrupar tasks em um commit · "já que estou aqui" · marcar critério coberto sem citação `file:line`.
+
+**Blast radius:** a aprovação destas tasks autoriza implementação e commits **locais**. `git push`, deploy, provisionamento em nuvem e qualquer operação remota exigem autorização explícita e separada.
+
+---
+
+## Test Coverage Matrix
+
+> Gerada da matriz da fatia anterior, confirmada contra `AGENTS.md` (seção Testes) e `vitest.config.ts`. Guidelines encontradas: `AGENTS.md`, `vitest.config.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`.
+
+| Camada de código | Tipo de teste | Expectativa de cobertura | Padrão de localização | Comando |
+| --- | --- | --- | --- | --- |
+| `src/domain/**` | unit | **100% de branches**; 1:1 com os ACs do spec; todo edge case listado | `src/domain/**/*.test.ts` | `pnpm test:unit` |
+| `src/application/**` | unit | Todos os ramos, com fakes em memória; sem banco | `src/application/**/*.test.ts` | `pnpm test:unit` |
+| `src/infrastructure/db/repositories/**` | integration | Consultas, restrições do banco, e o que a escrita **não** toca | `src/infrastructure/**/*.integration.test.ts` | `pnpm test:integration` |
+| `src/app/actions/**` | integration | Happy path, cada ramo de validação e não-autenticado | `src/app/**/*.integration.test.ts` | `pnpm test:integration` |
+| `src/components/**` | componentes | Estados visíveis, rótulo acessível e o que a interface impede | `src/components/*.test.tsx` | `pnpm test:unit` |
+| Fluxos de usuário | e2e | Ciclo completo: cadastrar, ver no bloco certo, ver o indicador mexer, excluir | `e2e/*.spec.ts` | `pnpm test:e2e` |
+| Migration SQL | integration | Aplicada em banco limpo por `recriarBancoDeTeste`; a restrição nova recusa o valor inválido | `src/infrastructure/**/*.integration.test.ts` | `pnpm test:integration` |
+| Rota, navegação e composição de página | **none** | Cobertos pelo gate de build e, indiretamente, por e2e | — | — |
+| Configuração de CI e de ambiente | **none** | Cobertos pela própria execução do pipeline | — | — |
+
+> As tasks marcadas `Tests: none` são exatamente as das duas últimas linhas desta matriz. Nenhuma task de domínio, aplicação, repositório ou componente pode declarar `none`.
+
+---
+
+## Gate Check Commands
+
+| Gate | Quando | Comando |
+| --- | --- | --- |
+| `quick` | task só com teste unitário ou de componente | `pnpm test:unit` |
+| `full` | task com teste de integração | `pnpm test:unit && pnpm test:integration` |
+| `build` | última task da fase, task sem teste, ou task com e2e | `pnpm verify` |
+
+Pré-requisito dos gates `full` e `build`: `pnpm db:up` (Postgres em Docker, AD-010).
+
+---
+
+## Execution Plan
+
+Seis fases sequenciais. A regra de classificação é provada antes de existir qualquer tela.
+
+### Phase 0 — Núcleo puro: cascata e permissão de cancelar
+
+```
+T1 -> T3
+```
+
+### Phase 1 — Banco e ports
+
+```
+T4 -> T6 -> T7
+T2 -> T7
+```
+
+### Phase 2 — Aplicação
+
+```
+T1 -> T8
+T3 -> T8
+T5 -> T8
+T6 -> T10
+T9 -> T10
+T7 -> T11
+```
+
+### Phase 3 — Server Actions
+
+```
+T10 -> T12
+T11 -> T13
+```
+
+### Phase 4 — Interface
+
+```
+T8 -> T14
+T9 -> T15
+T12 -> T16
+T15 -> T16
+T13 -> T17
+T14 -> T17
+```
+
+### Phase 5 — Provas de ponta a ponta e fechamento
+
+```
+T16 -> T19
+T16 -> T20
+T14 -> T20
+T17 -> T21
+T19 -> T22
+T20 -> T22
+T21 -> T22
+T22 -> T23 -> T24
+```
+
+---
+
+## Task Breakdown
+
+> **Sobre os avisos de granularidade do validador.** Algumas tasks tocam mais de um arquivo porque os
+> arquivos **mudam juntos por necessidade**: um método novo numa port não compila sem o Drizzle e o
+> fake que o implementam, e uma função de domínio nova não é exportável sem `src/domain/index.ts`.
+> Dividir produziria commits que não compilam, o que é pior que granularidade grossa. Onde a divisão
+> era real — criar separado de cancelar, tabela separada de formulário — ela foi feita.
+
+### Phase 0 — Núcleo puro
+
+#### T1: Cascata de classificação em blocos
+**What**: Função pura `blocoDoLancamento(lancamento, cartoes)` que devolve `"FIXOS"`, `"CARTAO"` ou `"AVULSOS"` pela cascata: recorrência primeiro, cartão depois, resto por último.
+**Where**: `src/domain/mes/bloco-do-lancamento.ts`
+**Depends on**: nenhuma
+**Reuses**: tipos `Lancamento` e `Origem` de `src/domain/tipos.ts`
+**Requirement**: BLOCO-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Despesa com `origem = 'RECORRENCIA'` cujo meio **é** cartão devolve `FIXOS` (AC 2: precedência)
+- [ ] Despesa avulsa cujo meio é cartão devolve `CARTAO` (AC 3)
+- [ ] Parcela cujo meio é cartão devolve `CARTAO` (AC 3)
+- [ ] Parcela cujo meio **não** é cartão devolve `AVULSOS` (AC 4: carnê)
+- [ ] Despesa avulsa cujo meio não é cartão devolve `AVULSOS`
+- [ ] Conjunto de cartões vazio nunca devolve `CARTAO`
+- [ ] 100% de branches, verificado pelo relatório de cobertura
+**Tests**: unit
+**Gate**: quick
+
+#### T2: Quem pode ser cancelado
+**What**: Função pura `cancelamentoPermitido(lancamento)` que devolve `ok` apenas para `origem = 'AVULSO'` e `OPERACAO_NAO_PERMITIDA` para parcela e ocorrência de recorrência.
+**Where**: `src/domain/mes/cancelamento-permitido.ts`
+**Depends on**: nenhuma
+**Reuses**: `Result` e `DomainError` de `src/domain/shared/result.ts`
+**Requirement**: AVUL-04
+**Tools**: nenhuma
+**Done when**:
+- [ ] `origem = 'AVULSO'` devolve `ok`
+- [ ] `origem = 'PARCELA'` devolve erro `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] `origem = 'RECORRENCIA'` devolve erro `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] Código de erro novo declarado na union fechada e com mensagem pt-BR em `src/lib/erros.ts`
+- [ ] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+#### T3: `resumoMensal` soma pelos blocos da cascata
+**What**: Substituir `somarPorOrigem` pela cascata: `resumoMensal` passa a receber o conjunto de cartões e a calcular `fixos`, `cartao` e `avulsos` por `blocoDoLancamento`.
+**Where**: `src/domain/mes/resumo-mensal.ts`
+**Depends on**: T1
+**Reuses**: `blocoDoLancamento` de T1
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] `cartao` soma despesa avulsa no cartão, que antes caía em `avulsos` (AC 3)
+- [ ] `cartao` **não** soma parcela em meio sem fatura, que passa a cair em `avulsos` (AC 4)
+- [ ] `fixos` soma recorrência no cartão, que não vai para `cartao` (AC 2)
+- [ ] `fixos + cartao + avulsos` continua igual a `totalGastos` para qualquer entrada
+- [ ] `totalGastos`, `entradas`, `investimentos` e todo o `caixaView` permanecem inalterados
+- [ ] 100% de branches
+**Tests**: unit
+**Gate**: quick
+
+### Phase 1 — Banco e ports
+
+#### T4: `CHECK` de positividade no razão
+**What**: Migration que acrescenta `movimento_valor_positivo` (`valor_centavos > 0`), com a restrição declarada também no schema Drizzle.
+**Where**: `drizzle/0002_movimento_valor_positivo.sql`
+**Depends on**: nenhuma
+**Reuses**: o padrão de `drizzle/0001_valor_previsto_positivo.sql`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] `INSERT` com `valor_centavos = 0` é recusado pelo banco
+- [ ] `INSERT` com `valor_centavos` negativo é recusado pelo banco
+- [ ] A migration aplica num banco limpo por `recriarBancoDeTeste`
+- [ ] `pnpm db:seed` continua passando, provando que nenhum dado semeado a viola
+- [ ] Snapshot e journal do drizzle-kit regenerados, não editados à mão
+**Tests**: integration
+**Gate**: full
+
+#### T5: Conjunto de meios que geram fatura
+**What**: Método `idsDeMeiosComFatura()` na `CadastroRepository`, implementado no Drizzle e no fake, devolvendo os ids de todo meio com `gera_fatura = true` **inclusive arquivados**.
+**Where**: `src/infrastructure/db/repositories/cadastro.repository.ts`
+**Depends on**: nenhuma
+**Reuses**: `CadastroRepository` de `src/application/ports/repositories.ts`
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] Devolve o id de um cartão ativo
+- [ ] Devolve o id de um cartão **arquivado** (AC 6: arquivar não reclassifica o passado)
+- [ ] Não devolve conta corrente nem rótulo
+- [ ] Devolve conjunto vazio quando não há cartão nenhum
+- [ ] O fake em `src/application/ports/fakes.ts` implementa o mesmo contrato
+**Tests**: integration
+**Gate**: full
+
+#### T6: Gravar um lançamento avulso
+**What**: Método `criarAvulso(entrada)` na `MovimentoRepository`, com `INSERT` único de `origem = 'AVULSO'`, sem vínculo de compra nem de recorrência.
+**Where**: `src/infrastructure/db/repositories/movimento.repository.ts`
+**Depends on**: T4
+**Reuses**: `mapeadores.ts` para linha do banco → `Lancamento`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Grava exatamente uma linha com `origem = 'AVULSO'`, `compra_id`, `numero_parcela` e `recorrencia_id` nulos (AC 1)
+- [ ] O `Lancamento` devolvido tem o id gerado pelo banco
+- [ ] Grava `pago_em` quando informado e `null` quando não
+- [ ] Grava `categoria_id` nulo quando a categoria não é informada
+- [ ] Valor não positivo é recusado pela restrição de T4, não silenciosamente aceito
+- [ ] O fake implementa o mesmo contrato
+**Tests**: integration
+**Gate**: full
+
+#### T7: Cancelar, com concordância entre domínio e SQL
+**What**: Método `cancelar(id, canceladoEm)` com `UPDATE ... WHERE id = $1 AND origem = 'AVULSO' AND cancelado_em IS NULL`, mais o teste de concordância que confronta o `WHERE` contra `cancelamentoPermitido`.
+**Where**: `src/infrastructure/db/repositories/movimento.repository.ts`
+**Depends on**: T2, T6
+**Reuses**: `cancelamentoPermitido` de T2
+**Requirement**: AVUL-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] Cancelar um avulso preenche `cancelado_em` e mantém a linha no banco (AC 1)
+- [ ] Cancelar uma parcela não altera linha alguma (AC 3)
+- [ ] Cancelar uma ocorrência de recorrência não altera linha alguma (AC 3)
+- [ ] Cancelar duas vezes não altera `cancelado_em` na segunda (AC 4)
+- [ ] **Teste de concordância**: para cada origem, o resultado do `UPDATE` concorda com `cancelamentoPermitido`
+- [ ] O fake implementa o mesmo contrato
+**Tests**: integration
+**Gate**: full
+
+### Phase 2 — Aplicação
+
+#### T8: A visão do mês carimba o bloco de cada lançamento
+**What**: `obterVisaoMensal` lê o conjunto de cartões, passa-o a `resumoMensal` e preenche `LancamentoDoMes.bloco`, de modo que a tabela nunca receba o conjunto nem reclassifique nada.
+**Where**: `src/application/mes/obter-visao-mensal/handler.ts`
+**Depends on**: T1, T3, T5
+**Reuses**: `blocoDoLancamento` de T1, `idsDeMeiosComFatura` de T5
+**Requirement**: BLOCO-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] Todo `LancamentoDoMes` sai com `bloco` preenchido
+- [ ] **Teste de concordância**: `competenciaView.cartao` é igual à soma dos itens com `bloco = 'CARTAO'` (AC 5)
+- [ ] O mesmo vale para `fixos` e para `avulsos`
+- [ ] O conjunto de cartões é lido **uma vez** por chamada, não por lançamento
+- [ ] Receita e investimento recebem bloco, mas não entram em nenhum total de despesa
+**Tests**: unit
+**Gate**: quick
+
+#### T9: Schema Zod do lançamento avulso
+**What**: Schema compartilhado cliente/servidor com descrição, natureza, valor, competência, data, categoria, pessoa, meio e a marca de já pago.
+**Where**: `src/application/schemas/lancamento-avulso.schema.ts`
+**Depends on**: nenhuma
+**Reuses**: `criarCents` e `criarCompetencia` de `@/domain`, o padrão de `compra.schema.ts`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Descrição vazia e descrição com 121 caracteres são recusadas (AC 2)
+- [ ] Valor zero, negativo e não inteiro são recusados (AC 3)
+- [ ] Competência fora de `AAAA-MM` é recusada (AC 4)
+- [ ] Data fora de `AAAA-MM-DD` é recusada (AC 5)
+- [ ] Natureza aceita exatamente despesa e receita (AVUL-02 AC 2)
+- [ ] Valor acima do inteiro seguro é recusado (edge case)
+- [ ] O teste de fronteira existente confirma que o arquivo não importa infraestrutura
+**Tests**: unit
+**Gate**: quick
+
+#### T10: Caso de uso de criação
+**What**: `criarLancamentoAvulso` que resolve o padrão de já pago pelo meio escolhido, monta a entrada e delega ao repositório, no envelope `Result`.
+**Where**: `src/application/mes/criar-lancamento-avulso/handler.ts`
+**Depends on**: T6, T9
+**Reuses**: fakes de `src/application/ports/fakes.ts`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Meio sem fatura produz lançamento já pago, com `pagoEm` igual à data do evento (AVUL-02 AC 4)
+- [ ] Meio com fatura produz lançamento não pago (AVUL-02 AC 5)
+- [ ] A escolha explícita da pessoa sobrepõe o padrão nos dois sentidos (AVUL-02 AC 6)
+- [ ] Meio de pagamento inexistente ou arquivado devolve erro, sem gravar (edge case)
+- [ ] Natureza receita é gravada como receita (AVUL-02 AC 1)
+**Tests**: unit
+**Gate**: quick
+
+#### T11: Caso de uso de cancelamento
+**What**: `cancelarLancamento` que consulta o lançamento, aplica `cancelamentoPermitido` e delega ao repositório.
+**Where**: `src/application/mes/cancelar-lancamento/handler.ts`
+**Depends on**: T7
+**Reuses**: `cancelamentoPermitido` de T2
+**Requirement**: AVUL-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] Avulso é cancelado e a competência afetada é devolvida, para a action saber o que revalidar
+- [ ] Parcela devolve `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] Ocorrência de recorrência devolve `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] Lançamento inexistente devolve erro, sem lançar exceção
+- [ ] Segunda chamada para o mesmo id devolve sucesso (AC 4)
+**Tests**: unit
+**Gate**: quick
+
+### Phase 3 — Server Actions
+
+#### T12: Action de criar
+**What**: `criarLancamentoAvulso` com `requireSession()` na primeira instrução, revalidação pelo mesmo schema de T9 e revalidação das duas rotas.
+**Where**: `src/app/actions/lancamentos.ts`
+**Depends on**: T10
+**Reuses**: envelope `ResultadoAction` de `src/lib/erros.ts`, padrão de `compras.ts`
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Sem sessão devolve o código de erro de sessão antes de qualquer acesso ao banco (AC 7)
+- [ ] Payload inválido devolve erro por campo, sem gravar (AC 2 a 5)
+- [ ] Sucesso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 6)
+- [ ] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação, sem stack trace (AC 8)
+- [ ] Competência informada diferente da aberta revalida as duas (edge case)
+**Tests**: integration
+**Gate**: full
+
+#### T13: Action de excluir
+**What**: `cancelarLancamento` no mesmo envelope, revalidando as duas rotas.
+**Where**: `src/app/actions/lancamentos.ts`
+**Depends on**: T11
+**Reuses**: o mesmo envelope e o mesmo tratamento de erro de T12
+**Requirement**: AVUL-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] Sem sessão devolve erro de sessão antes do banco
+- [ ] Excluir avulso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 7)
+- [ ] Excluir parcela devolve `OPERACAO_NAO_PERMITIDA` (AC 3)
+- [ ] Id inexistente devolve erro, sem lançar
+- [ ] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação
+**Tests**: integration
+**Gate**: full
+
+### Phase 4 — Interface
+
+#### T14: Blocos pela cascata, com Entradas no topo
+**What**: `TabelaLancamentos` passa a agrupar por `item.bloco` em vez de por `origem`, e o bloco de entradas sobe para o topo, aparece sempre e perde "e investimentos" do nome.
+**Where**: `src/components/tabela-lancamentos.tsx`
+**Depends on**: T8
+**Reuses**: `BlocoDeLancamentos`, já existente no arquivo
+**Requirement**: ENTR-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] Avulso no cartão aparece sob "Cartão de Crédito" (BLOCO-01 AC 3)
+- [ ] Recorrência no cartão aparece sob "Fixos" (BLOCO-01 AC 2)
+- [ ] Parcela em meio sem fatura aparece sob "Gastos do Mês" (BLOCO-01 AC 4)
+- [ ] "Entradas" é o primeiro bloco da árvore (AC 3)
+- [ ] "Entradas" aparece com texto de ausência quando vazio, sem tabela vazia (AC 2 e 4)
+- [ ] A coluna "Parcela" aparece só em linha que tem parcela (BLOCO-01 AC 7)
+- [ ] O bloco de despesa recorrente continua rotulado "Fixos" (AC 5)
+**Tests**: componentes
+**Gate**: quick
+
+#### T15: Formulário de lançamento avulso
+**What**: `FormLancamentoAvulso` com natureza, valor, descrição, data, pessoa, meio, categoria e a caixa de já pago com o padrão vindo do meio, usando `CadastroInline` para categoria e meio.
+**Where**: `src/components/form-lancamento-avulso.tsx`
+**Depends on**: T9
+**Reuses**: `CadastroInline`, e o padrão de `form-compra.tsx`
+**Requirement**: AVUL-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] Oferece exatamente despesa e receita (AC 2)
+- [ ] Escolher meio sem fatura marca a caixa de já pago; escolher meio com fatura a desmarca (AC 4 e 5)
+- [ ] A caixa continua editável depois do padrão ser aplicado (AC 6)
+- [ ] Erro por campo devolvido pela action é exibido junto do campo
+- [ ] Criar categoria e criar meio funcionam sem sair do formulário
+- [ ] Todo campo tem rótulo acessível associado
+**Tests**: componentes
+**Gate**: quick
+
+#### T16: Alternador Avulso ┊ Parcelado na página
+**What**: A página de Lançamentos passa a oferecer os dois formulários sob um alternador, em vez de empilhá-los, e liga o de avulso à action de T12.
+**Where**: `src/app/(app)/[competencia]/lancamentos/page.tsx`
+**Depends on**: T12, T15
+**Reuses**: `FormCompra`, já montado nesta página
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] O alternador começa em "Avulso", que é o gesto mais frequente
+- [ ] Trocar de aba não perde o que já foi digitado na outra
+- [ ] O alternador é operável por teclado, com `aria-selected` correto
+- [ ] `pnpm build` passa
+**Tests**: none
+**Gate**: build
+
+#### T17: Excluir em dois toques na linha
+**What**: Ilha cliente `BotaoExcluir` com confirmação em dois toques, exibida apenas em linha de lançamento avulso.
+**Where**: `src/components/botao-excluir.tsx`
+**Depends on**: T13, T14
+**Reuses**: o padrão de ilha cliente de `botao-pago.tsx`
+**Requirement**: AVUL-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] O controle não aparece em linha de parcela nem de recorrência (AC 5)
+- [ ] O primeiro acionamento pede confirmação e não exclui (AC 6)
+- [ ] O segundo acionamento chama a action (AC 6)
+- [ ] `Escape` cancela a confirmação sem excluir
+- [ ] O estado de confirmação tem texto acessível, não só mudança de cor
+**Tests**: componentes
+**Gate**: quick
+
+#### T18: A área passa a se chamar "Todo mês"
+**What**: Renomear a área de recorrências na navegação e no título da página, substituindo o comentário do invariante antigo pela razão nova.
+**Where**: `src/components/navegacao-principal.tsx`
+**Depends on**: nenhuma
+**Reuses**: nada
+**Requirement**: ENTR-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] A navegação exibe "Todo mês" (AC 1)
+- [ ] O título da página de recorrências exibe "Todo mês" (AC 1)
+- [ ] O rótulo cabe na barra inferior a 400px sem transbordo
+- [ ] O comentário registra por que área e bloco divergem
+- [ ] O e2e de recorrências, que navega por esse rótulo, é atualizado e passa
+**Tests**: componentes
+**Gate**: quick
+
+### Phase 5 — Provas de ponta a ponta e fechamento
+
+#### T19: e2e — despesa avulsa no cartão
+**What**: Percurso que cadastra uma despesa avulsa num cartão e prova que ela cai no bloco do cartão e move o indicador.
+**Where**: `e2e/lancamento-avulso.spec.ts`
+**Depends on**: T16
+**Reuses**: helpers de sessão de `e2e/compra-parcelada.spec.ts`
+**Requirement**: BLOCO-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Cadastra pela tela e encontra a linha sob "Cartão de Crédito" (AC 3)
+- [ ] O indicador "Cartão" do painel cresceu no mesmo valor (AC 5)
+- [ ] A mesma despesa numa conta corrente cai sob "Gastos do Mês"
+- [ ] Nenhum dado financeiro real é usado (AD-009)
+**Tests**: e2e
+**Gate**: build
+
+#### T20: e2e — Pix recebido
+**What**: Percurso que cadastra uma receita avulsa e prova que ela aparece em "Entradas" e move "Receitas do mês".
+**Where**: `e2e/entradas.spec.ts`
+**Depends on**: T14, T16
+**Reuses**: os mesmos helpers de sessão
+**Requirement**: AVUL-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] A receita aparece no bloco "Entradas" (AC 3)
+- [ ] Ela não aparece em nenhum bloco de despesa (AC 3)
+- [ ] O indicador "Receitas do mês" cresceu no mesmo valor (AC 1)
+- [ ] Num mês sem receita, "Entradas" aparece no topo com texto de ausência (ENTR-02 AC 2 e 3)
+**Tests**: e2e
+**Gate**: build
+
+#### T21: e2e — excluir devolve o total
+**What**: Percurso que cria um avulso, confere o total, exclui e confere que o total voltou ao valor anterior.
+**Where**: `e2e/excluir-lancamento.spec.ts`
+**Depends on**: T17
+**Reuses**: os mesmos helpers de sessão
+**Requirement**: AVUL-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] O total do mês antes e depois do ciclo criar-excluir é idêntico (AC 2)
+- [ ] O primeiro toque não exclui (AC 6)
+- [ ] A linha some da lista depois do segundo toque (AC 2)
+- [ ] Linha de parcela não oferece o controle (AC 5)
+**Tests**: e2e
+**Gate**: build
+
+#### T22: O CI passa a rodar o que o terminal roda
+**What**: Acrescentar integração e e2e ao workflow, corrigindo o comentário que afirma não haver migration e ajustando a porta do serviço Postgres para a que os testes usam.
+**Where**: `.github/workflows/ci.yml`
+**Depends on**: T19, T20, T21
+**Reuses**: o serviço `postgres` já declarado no workflow
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] O job roda `pnpm test:integration` depois de aplicar as migrations
+- [ ] O job roda `pnpm test:e2e`
+- [ ] O comentário desatualizado sobre ausência de migration é removido
+- [ ] O gate do CI passa a ser equivalente ao `pnpm verify` local
+**Tests**: none
+**Gate**: build
+
+#### T23: Ambiente de QA local, em modo produção
+**What**: Documentar e roteirizar o estágio 1 do QA — banco `mybilling_qa` limpo, migrations do zero, build de produção — registrando que o estágio 2 depende das credenciais do Google.
+**Where**: `docs/qa.md`
+**Depends on**: T22
+**Reuses**: `docker-compose.yml` e os scripts de banco já existentes
+**Requirement**: AVUL-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] O roteiro cria `mybilling_qa` vazio e aplica as três migrations do zero
+- [ ] O roteiro sobe o build de produção apontando para esse banco
+- [ ] Registra que o login em modo produção exige `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` reais, e por quê
+- [ ] Registra que `AUTH_PROVIDER_DE_TESTE` lança no boot em modo produção, por desenho
+- [ ] Nenhuma credencial real aparece no arquivo
+**Tests**: none
+**Gate**: build
+
+#### T24: Roadmap, handoff e decisões atualizados
+**What**: Mover a fatia 1 para "Pronto" no roadmap, registrar as decisões novas em `STATE.md` e atualizar o handoff com o estado real.
+**Where**: `.specs/STATE.md`
+**Depends on**: T23
+**Reuses**: o formato `AD-NNN` já usado
+**Requirement**: ENTR-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] `docs/roadmap.md` move lançamento avulso e exclusão para "Pronto"
+- [ ] A cascata de blocos é registrada como decisão `AD-NNN`
+- [ ] O abandono do invariante "área tem o nome do bloco" é registrado com a razão
+- [ ] `.specs/HANDOFF.md` reflete a contagem de testes e as pendências que restam
+- [ ] `validate_state.py` passa
+**Tests**: none
+**Gate**: build
