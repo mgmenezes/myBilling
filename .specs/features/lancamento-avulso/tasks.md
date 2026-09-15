@@ -458,7 +458,7 @@ T22 -> T23 -> T24
 > botão dizia "Cadastrar gasto fixo". O alternador empilhado do T16 é substituído pelo diálogo; a
 > lógica de abas continua, agora dentro dele.
 
-#### T25: Diálogo de cadastro com `<dialog>` nativo
+#### T25: Diálogo de cadastro com `<dialog>` nativo ✅ CONCLUÍDA
 **What**: Ilha cliente que abre o cadastro num `<dialog>` modal a partir de um botão, em tela cheia abaixo de 640px.
 **Where**: `src/components/dialogo-de-cadastro.tsx`
 **Depends on**: nenhuma
@@ -466,13 +466,13 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-05
 **Tools**: nenhuma
 **Done when**:
-- [ ] O botão abre o diálogo por `showModal()`, e não por estado de visibilidade (AC 2)
-- [ ] `Escape` fecha e o foco volta ao botão que abriu (AC 4)
-- [ ] O foco fica confinado no diálogo enquanto ele está aberto (AC 3)
-- [ ] Clicar no backdrop fecha
-- [ ] Fechar e reabrir preserva o que foi digitado dentro (AC 7)
-- [ ] O conteúdo não é desmontado ao fechar, só escondido pelo próprio `<dialog>`
-- [ ] Tem rótulo acessível e `aria-labelledby` apontando para o título
+- [x] O botão abre o diálogo por `showModal()`, e não por estado de visibilidade (AC 2)
+- [x] `Escape` fecha e o foco volta ao botão que abriu (AC 4)
+- [x] O foco fica confinado no diálogo enquanto ele está aberto (AC 3)
+- [x] Clicar no backdrop fecha
+- [x] Fechar e reabrir preserva o que foi digitado dentro (AC 7)
+- [x] O conteúdo não é desmontado ao fechar, só escondido pelo próprio `<dialog>`
+- [x] Tem rótulo acessível e `aria-labelledby` apontando para o título
 **Tests**: componentes
 **Gate**: quick
 
