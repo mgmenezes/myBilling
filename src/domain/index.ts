@@ -14,6 +14,8 @@ export type { BlocoDoMes } from "./mes/bloco-do-lancamento";
 export { blocoDoLancamento } from "./mes/bloco-do-lancamento";
 export type { ErroCancelamentoProibido } from "./mes/cancelamento-permitido";
 export { cancelamentoPermitido } from "./mes/cancelamento-permitido";
+export type { FatiaDeComposicao, TotaisPorBloco } from "./mes/composicao-de-blocos";
+export { composicaoDeBlocos } from "./mes/composicao-de-blocos";
 export type { ComprometimentoFuturo } from "./mes/projecao";
 export { projetarProximosMeses } from "./mes/projecao";
 export type { ResumoDoMes } from "./mes/resumo-mensal";
