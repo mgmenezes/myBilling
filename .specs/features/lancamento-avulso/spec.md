@@ -62,6 +62,10 @@ e já é ignorado por toda soma. Falta a metade de cima.
 | Confirmação antes de excluir | Dois toques na própria linha, sem modal | Mesmo padrão de ilha cliente do `BotaoPago` e do `ValorConfirmavel`. Modal exigiria foco gerenciado e devolveria menos que custa | n |
 | `CHECK` de positividade em `movimento.valor_centavos` | Acrescentado na migration `0002` | `recorrencia_versao`, `orcamento_categoria` e `pagamento_fatura` têm o deles; o razão — a única tabela somável — não tem. Sem ele a transação do avulso é infalsificável, que foi exatamente a razão da migration `0001` | n |
 | Meios arquivados na cascata | O conjunto de meios com fatura inclui arquivados | Lançamento antigo continua apontando para cartão encerrado. Ler só os disponíveis reclassificaria o passado ao arquivar um cartão | n |
+| Onde o cadastro é aberto | Botão no topo da área, abrindo um `<dialog>` nativo | Escolhido pelo usuário durante a execução. Com 8 ou 10 gastos fixos, o formulário no rodapé exige rolar a lista inteira para cadastrar algo. O elemento nativo entrega confinamento de foco, `Escape`, backdrop e inércia do resto da página sem código, o que o torna a prática correta e não um contorno. Substitui o alternador empilhado do T16 | y |
+| Diálogo em tela pequena | Tela cheia abaixo de 640px | Os formulários são longos, e o de compra tem a prévia de parcelas. Painel centralizado num celular com teclado aberto deixaria ~200px úteis | n |
+| Meio de pagamento em receita | O campo fica, com rótulo e opções próprios: "Onde o dinheiro cai", listando só meios sem fatura | Escolhido pelo usuário durante a execução. O campo não é sem sentido — o dinheiro cai em alguma conta, e saber em qual é informação real. O que era errado é chamá-lo de meio de pagamento e oferecer cartão de crédito como destino de salário. Remover o campo exigiria migration: `movimento.meio_pagamento_id` é `NOT NULL` | y |
+| Título e botão em receita | Falam de entrada, não de gasto | O formulário dizia "Novo gasto fixo" e "Cadastrar gasto fixo" com receita marcada, contradizendo a própria escolha da pessoa | y |
 | Idempotência do avulso | Nenhuma | Ver Out of Scope. Duplicata é caso legítimo neste domínio | n |
 
 **Open questions:** none. As cinco decisões de produto foram resolvidas com o usuário e estão acima
@@ -226,6 +230,58 @@ de ausência.
 
 ---
 
+### P2: Cadastrar sem rolar a página
+
+**User Story**: Como morador da casa, quero abrir o cadastro a partir do topo da tela, para não
+rolar por dez gastos fixos cada vez que preciso lançar algo.
+
+**Why P2**: Não bloqueia o fechamento do mês, mas piora a cada mês que passa — a lista só cresce.
+
+**Acceptance Criteria**
+
+1. The system SHALL exibir o controle de abrir o cadastro no topo da área de Lançamentos, antes da
+   lista
+2. WHEN o controle é acionado THEN o sistema SHALL abrir o cadastro num diálogo modal, sem navegar
+   para outra rota
+3. WHILE o diálogo está aberto o sistema SHALL confinar o foco dentro dele e tornar o resto da
+   página inerte
+4. WHEN `Escape` é pressionado THEN o sistema SHALL fechar o diálogo e devolver o foco ao controle
+   que o abriu
+5. WHEN o lançamento é gravado com sucesso THEN o sistema SHALL fechar o diálogo
+6. WHILE a largura da janela é menor que 640px o sistema SHALL exibir o diálogo em tela cheia
+7. WHILE o diálogo está aberto o sistema SHALL preservar o que foi digitado na aba que não está
+   visível
+
+**Independent Test**: abrir o cadastro pelo botão do topo num mês com vários lançamentos, sem
+rolar a página, e fechar com `Escape`.
+
+---
+
+### P2: O formulário fala a língua da receita
+
+**User Story**: Como morador da casa, quero que o formulário pare de me oferecer cartão de crédito
+para receber salário e pare de me dizer "Cadastrar gasto fixo" quando escolhi uma entrada.
+
+**Why P2**: O formulário contradiz a escolha da pessoa e permite um estado sem sentido.
+
+**Acceptance Criteria**
+
+1. WHILE a natureza escolhida é receita o sistema SHALL rotular o campo de meio como destino do
+   dinheiro, e não como meio de pagamento
+2. WHILE a natureza escolhida é receita o sistema SHALL oferecer apenas meios que não geram fatura
+3. WHILE a natureza escolhida é receita o sistema SHALL rotular o título e o botão de envio como
+   entrada, e não como gasto
+4. WHILE a natureza escolhida é receita, no cadastro de recorrência, o sistema SHALL rotular o dia
+   como aquele em que o dinheiro costuma cair
+5. IF o meio já selecionado gerar fatura quando a natureza muda para receita THEN o sistema SHALL
+   trocar a seleção para o primeiro meio sem fatura
+6. WHILE a natureza escolhida é despesa o sistema SHALL manter os rótulos e as opções que já existem
+
+**Independent Test**: marcar "Um dinheiro que entra" no cadastro de gasto fixo e conferir que o
+título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
+
+---
+
 ## Edge Cases
 
 - IF o meio de pagamento escolhido estiver arquivado entre a abertura do formulário e o envio THEN o
@@ -253,8 +309,10 @@ de ausência.
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Design | Pending |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
+| ENTR-03 | P2: O formulário fala a língua da receita | Design | Pending |
+| AVUL-05 | P2: Cadastrar sem rolar a página | Design | Pending |
 
-**Coverage:** 8 total, 0 mapeados para tasks, 8 não mapeados ⚠️
+**Coverage:** 10 total, 10 mapeados para tasks
 
 ---
 
@@ -266,3 +324,5 @@ de ausência.
 - [ ] Trocar a ordem da cascata de blocos quebra a suíte
 - [ ] Um lançamento avulso errado pode ser desfeito pela tela, e o total do mês volta ao anterior
 - [ ] Abrir um mês vazio mostra os quatro blocos, "Entradas" primeiro
+- [ ] Cadastrar não exige rolar a lista, em nenhum tamanho de tela
+- [ ] Nenhum formulário oferece cartão de crédito como destino de receita

@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/lancamento-avulso/spec.md`
 **Design**: `.specs/features/lancamento-avulso/design.md`
 **Status**: Draft
-**Total**: 24 tasks em 6 fases
+**Total**: 28 tasks em 7 fases
 
 > **Por que a cascata vem antes de tudo.** O risco desta fatia não é gravar uma linha: é o painel e a
 > lista discordarem sobre o que é "cartão". Essa decisão é uma função pura, e ela é construída e
@@ -108,11 +108,20 @@ T13 -> T17
 T14 -> T17
 ```
 
+### Phase 4b — Cadastro em diálogo e a língua da receita
+
+```
+T25 -> T26
+T16 -> T26
+T15 -> T27
+T25 -> T28
+```
+
 ### Phase 5 — Provas de ponta a ponta e fechamento
 
 ```
-T16 -> T19
-T16 -> T20
+T26 -> T19
+T26 -> T20
 T14 -> T20
 T17 -> T21
 T19 -> T22
@@ -441,12 +450,86 @@ T22 -> T23 -> T24
 **Tests**: componentes
 **Gate**: quick
 
+### Phase 4b — Cadastro em diálogo e a língua da receita
+
+> **Acrescentada durante a execução**, a pedido do usuário, depois de ver a tela com vários gastos
+> fixos. Duas descobertas de uso: o formulário no rodapé exige rolar a lista inteira para cadastrar
+> algo, e o cadastro de gasto fixo oferecia cartão de crédito como destino de salário enquanto o
+> botão dizia "Cadastrar gasto fixo". O alternador empilhado do T16 é substituído pelo diálogo; a
+> lógica de abas continua, agora dentro dele.
+
+#### T25: Diálogo de cadastro com `<dialog>` nativo
+**What**: Ilha cliente que abre o cadastro num `<dialog>` modal a partir de um botão, em tela cheia abaixo de 640px.
+**Where**: `src/components/dialogo-de-cadastro.tsx`
+**Depends on**: nenhuma
+**Reuses**: o padrão de ilha cliente de `botao-pago.tsx`
+**Requirement**: AVUL-05
+**Tools**: nenhuma
+**Done when**:
+- [ ] O botão abre o diálogo por `showModal()`, e não por estado de visibilidade (AC 2)
+- [ ] `Escape` fecha e o foco volta ao botão que abriu (AC 4)
+- [ ] O foco fica confinado no diálogo enquanto ele está aberto (AC 3)
+- [ ] Clicar no backdrop fecha
+- [ ] Fechar e reabrir preserva o que foi digitado dentro (AC 7)
+- [ ] O conteúdo não é desmontado ao fechar, só escondido pelo próprio `<dialog>`
+- [ ] Tem rótulo acessível e `aria-labelledby` apontando para o título
+**Tests**: componentes
+**Gate**: quick
+
+#### T26: A página abre o cadastro pelo topo
+**What**: Substituir o alternador empilhado pelo botão no topo que abre o diálogo, com as abas Avulso ┊ Parcelado dentro dele.
+**Where**: `src/app/(app)/[competencia]/lancamentos/page.tsx`
+**Depends on**: T16, T25
+**Reuses**: `SeletorDeFormulario` do T16, que passa a viver dentro do diálogo
+**Requirement**: AVUL-05
+**Tools**: nenhuma
+**Done when**:
+- [ ] O botão de abrir aparece no topo, antes da lista (AC 1)
+- [ ] Nenhum formulário fica no rodapé da página
+- [ ] Gravar fecha o diálogo (AC 5)
+- [ ] `pnpm build` passa
+**Tests**: none
+**Gate**: build
+
+#### T27: O cadastro de gasto fixo fala a língua da receita
+**What**: Com receita marcada, título, botão, rótulo do campo de destino e rótulo do dia mudam, e a lista passa a oferecer só meios sem fatura.
+**Where**: `src/components/form-recorrencia.tsx`
+**Depends on**: T15
+**Reuses**: `geraFatura` já disponível no meio de pagamento
+**Requirement**: ENTR-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] Com receita, o título e o botão falam de entrada (AC 3)
+- [ ] Com receita, o campo se chama "Onde o dinheiro cai" (AC 1)
+- [ ] Com receita, a lista não oferece nenhum cartão de crédito (AC 2)
+- [ ] Com receita, o dia se chama o dia em que o dinheiro costuma cair (AC 4)
+- [ ] Trocar para receita com um cartão selecionado troca a seleção para a primeira conta (AC 5)
+- [ ] Com despesa, tudo continua como está hoje (AC 6)
+**Tests**: componentes
+**Gate**: quick
+
+#### T28: O cadastro avulso fala a língua da receita
+**What**: Mesma correção no formulário de avulso: rótulo do destino e lista restrita a meios sem fatura quando a natureza é receita.
+**Where**: `src/components/form-lancamento-avulso.tsx`
+**Depends on**: T25
+**Reuses**: a mesma regra do T27
+**Requirement**: ENTR-03
+**Tools**: nenhuma
+**Done when**:
+- [ ] Com receita, o campo se chama "Onde o dinheiro cai" (AC 1)
+- [ ] Com receita, a lista não oferece nenhum cartão (AC 2)
+- [ ] Trocar para receita com cartão selecionado troca a seleção para a primeira conta (AC 5)
+- [ ] O padrão da caixa de já pago continua correto depois da troca automática
+- [ ] Com despesa, tudo continua como está hoje (AC 6)
+**Tests**: componentes
+**Gate**: quick
+
 ### Phase 5 — Provas de ponta a ponta e fechamento
 
 #### T19: e2e — despesa avulsa no cartão
 **What**: Percurso que cadastra uma despesa avulsa num cartão e prova que ela cai no bloco do cartão e move o indicador.
 **Where**: `e2e/lancamento-avulso.spec.ts`
-**Depends on**: T16
+**Depends on**: T26
 **Reuses**: helpers de sessão de `e2e/compra-parcelada.spec.ts`
 **Requirement**: BLOCO-01
 **Tools**: nenhuma
@@ -461,7 +544,7 @@ T22 -> T23 -> T24
 #### T20: e2e — Pix recebido
 **What**: Percurso que cadastra uma receita avulsa e prova que ela aparece em "Entradas" e move "Receitas do mês".
 **Where**: `e2e/entradas.spec.ts`
-**Depends on**: T14, T16
+**Depends on**: T14, T26
 **Reuses**: os mesmos helpers de sessão
 **Requirement**: AVUL-02
 **Tools**: nenhuma
