@@ -508,7 +508,7 @@ T22 -> T23 -> T24
 **Tests**: componentes
 **Gate**: quick
 
-#### T28: O cadastro avulso fala a língua da receita
+#### T28: O cadastro avulso fala a língua da receita ✅ CONCLUÍDA
 **What**: Mesma correção no formulário de avulso: rótulo do destino e lista restrita a meios sem fatura quando a natureza é receita.
 **Where**: `src/components/form-lancamento-avulso.tsx`
 **Depends on**: T25
@@ -516,11 +516,11 @@ T22 -> T23 -> T24
 **Requirement**: ENTR-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Com receita, o campo se chama "Onde o dinheiro cai" (AC 1)
-- [ ] Com receita, a lista não oferece nenhum cartão (AC 2)
-- [ ] Trocar para receita com cartão selecionado troca a seleção para a primeira conta (AC 5)
-- [ ] O padrão da caixa de já pago continua correto depois da troca automática
-- [ ] Com despesa, tudo continua como está hoje (AC 6)
+- [x] Com receita, o campo se chama "Onde o dinheiro cai" (AC 1)
+- [x] Com receita, a lista não oferece nenhum cartão (AC 2)
+- [x] Trocar para receita com cartão selecionado troca a seleção para a primeira conta (AC 5)
+- [x] O padrão da caixa de já pago continua correto depois da troca automática
+- [x] Com despesa, tudo continua como está hoje (AC 6)
 **Tests**: componentes
 **Gate**: quick
 

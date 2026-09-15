@@ -126,6 +126,34 @@ export function FormLancamentoAvulso({
 
   const valorEmCentavos = parseBRL(valor);
   const meioEscolhido = listaMeios.find((m) => m.id === meioPagamentoId);
+  const ehReceita = natureza === "RECEITA";
+
+  /*
+   * Receita só aceita meio sem fatura: ninguém recebe dinheiro num cartão de
+   * crédito. Filtrar a exibição não basta — se a pessoa já tinha um cartão
+   * escolhido e depois marcou receita, a seleção continuaria nele e o
+   * formulário enviaria o que a lista não oferece mais (ENTR-03, AC 2 e 5).
+   */
+  const meiosDisponiveis = ehReceita ? listaMeios.filter((m) => !m.geraFatura) : listaMeios;
+  const rotuloDoMeio = ehReceita ? "Onde o dinheiro cai" : "Meio de pagamento";
+
+  function trocarNatureza(nova: "DESPESA" | "RECEITA"): void {
+    setNatureza(nova);
+    if (nova !== "RECEITA") {
+      return;
+    }
+    const atual = listaMeios.find((m) => m.id === meioPagamentoId);
+    if (atual?.geraFatura !== true) {
+      return;
+    }
+    /* Cai para a primeira conta — e o padrão da caixa acompanha, senão ele
+       ficaria descrevendo o cartão que já não está selecionado. */
+    const conta = listaMeios.find((m) => !m.geraFatura);
+    setMeioPagamentoId(conta?.id ?? "");
+    if (!jaPagoTocado) {
+      setJaPago(jaPagoPorPadrao(conta?.geraFatura ?? false));
+    }
+  }
 
   function trocarMeio(novoId: string): void {
     setMeioPagamentoId(novoId);
@@ -265,7 +293,7 @@ export function FormLancamentoAvulso({
                 name={`${id}-natureza`}
                 value={valorOpcao}
                 checked={natureza === valorOpcao}
-                onChange={() => setNatureza(valorOpcao)}
+                onChange={() => trocarNatureza(valorOpcao)}
               />
               {rotulo}
             </label>
@@ -305,7 +333,7 @@ export function FormLancamentoAvulso({
 
       <div className="flex flex-col gap-4 sm:flex-row">
         <CadastroInline
-          rotulo="Meio de pagamento"
+          rotulo={rotuloDoMeio}
           idDoControle={`${id}-meio`}
           rotuloDoAtalho="+ novo"
           descricaoDoGrupo="Novo meio de pagamento"
@@ -338,9 +366,11 @@ export function FormLancamentoAvulso({
             setDiaVencimento("");
           }}
           ajuda={
-            tipoMeio === "ROTULO"
-              ? "Rótulo não é meio de pagamento: é uma etiqueta para separar um gasto específico, sem ciclo e sem fatura."
-              : "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram."
+            ehReceita
+              ? "Só contas: dinheiro não entra em cartão de crédito."
+              : tipoMeio === "ROTULO"
+                ? "Rótulo não é meio de pagamento: é uma etiqueta para separar um gasto específico, sem ciclo e sem fatura."
+                : "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram."
           }
           campos={(idCadastro) => (
             <>
@@ -413,7 +443,7 @@ export function FormLancamentoAvulso({
             onChange={(e) => trocarMeio(e.target.value)}
             {...erroMeio.props}
           >
-            {listaMeios.map((meio) => (
+            {meiosDisponiveis.map((meio) => (
               <option key={meio.id} value={meio.id}>
                 {meio.nome}
               </option>

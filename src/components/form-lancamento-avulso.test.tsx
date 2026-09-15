@@ -276,3 +276,77 @@ describe("FormLancamentoAvulso — cadastro sem sair do formulário", () => {
     }
   });
 });
+
+describe("FormLancamentoAvulso — a língua da receita (ENTR-03)", () => {
+  async function marcarReceita() {
+    await userEvent.click(screen.getByRole("radio", { name: "Um dinheiro que entra" }));
+  }
+
+  it('chama o campo de "Onde o dinheiro cai" — AC 1', async () => {
+    montar();
+
+    expect(screen.getByLabelText("Meio de pagamento")).toBeDefined();
+
+    await marcarReceita();
+
+    expect(screen.getByLabelText("Onde o dinheiro cai")).toBeDefined();
+    expect(screen.queryByLabelText("Meio de pagamento")).toBeNull();
+  });
+
+  it("não oferece cartão de crédito como destino de receita — AC 2", async () => {
+    montar();
+
+    expect(screen.getByRole("option", { name: "Cartão Roxo" })).toBeDefined();
+
+    await marcarReceita();
+
+    expect(screen.queryByRole("option", { name: "Cartão Roxo" })).toBeNull();
+    expect(screen.getByRole("option", { name: "Conta Corrente" })).toBeDefined();
+  });
+
+  /* Filtrar a exibição não bastaria: a seleção continuaria no cartão, e o
+     formulário enviaria o que a lista não oferece mais. */
+  it("tira a seleção do cartão ao marcar receita — AC 5", async () => {
+    montar();
+    await userEvent.selectOptions(screen.getByLabelText("Meio de pagamento"), CARTAO);
+
+    await marcarReceita();
+
+    expect((screen.getByLabelText("Onde o dinheiro cai") as HTMLSelectElement).value).toBe(CONTA);
+  });
+
+  it("corrige o padrão da caixa junto com a troca automática de meio", async () => {
+    montar();
+    await userEvent.selectOptions(screen.getByLabelText("Meio de pagamento"), CARTAO);
+    expect(caixaDePago().checked).toBe(false);
+
+    await marcarReceita();
+
+    /* Caiu para a conta, que não gera fatura: o Pix já caiu. */
+    expect(caixaDePago().checked).toBe(true);
+  });
+
+  it("envia o meio corrigido, e não o cartão que estava escolhido", async () => {
+    const enviar = montar();
+    await userEvent.selectOptions(screen.getByLabelText("Meio de pagamento"), CARTAO);
+    await marcarReceita();
+    await userEvent.type(screen.getByLabelText("Descrição"), "Pix recebido");
+    await userEvent.type(screen.getByLabelText("Valor (R$)"), "50,00");
+
+    await userEvent.click(screen.getByRole("button", { name: "Cadastrar lançamento" }));
+
+    expect(enviar).toHaveBeenCalledWith(
+      expect.objectContaining({ natureza: "RECEITA", meioPagamentoId: CONTA }),
+    );
+  });
+
+  it("devolve tudo ao estado de despesa quando a pessoa volta atrás — AC 6", async () => {
+    montar();
+    await marcarReceita();
+
+    await userEvent.click(screen.getByRole("radio", { name: "Um dinheiro que sai" }));
+
+    expect(screen.getByLabelText("Meio de pagamento")).toBeDefined();
+    expect(screen.getByRole("option", { name: "Cartão Roxo" })).toBeDefined();
+  });
+});

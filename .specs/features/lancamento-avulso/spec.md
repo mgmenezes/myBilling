@@ -309,8 +309,8 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura | Implementing | In Tasks |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | In Tasks |
-| ENTR-03 | P2: O formulário fala a língua da receita | Design | Pending |
-| AVUL-05 | P2: Cadastrar sem rolar a página | Design | Pending |
+| ENTR-03 | P2: O formulário fala a língua da receita | Implementing | In Tasks |
+| AVUL-05 | P2: Cadastrar sem rolar a página | Implementing | In Tasks |
 
 **Coverage:** 10 total, 10 mapeados para tasks
 
