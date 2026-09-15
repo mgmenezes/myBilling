@@ -262,7 +262,7 @@ test("excluir um avulso devolve o total do mês ao valor anterior (AVUL-03, AC 2
   expect(await indicador(page, "Despesas do mês")).toBe(antes);
 });
 
-test("o primeiro toque em Excluir não exclui (AVUL-03, AC 6)", async ({ page }) => {
+test("o primeiro toque em Excluir não exclui (AVUL-03, AC 7)", async ({ page }) => {
   await page.goto(`/${MARCO}/lancamentos`);
   await cadastrarAvulso(page, { descricao: "Almoço", valor: "32,50" });
   await page.keyboard.press("Escape");
@@ -274,7 +274,7 @@ test("o primeiro toque em Excluir não exclui (AVUL-03, AC 6)", async ({ page })
   await expect(linha).toBeVisible();
 });
 
-test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 5)", async ({ page }) => {
+test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 6)", async ({ page }) => {
   await page.goto(`/${MARCO}/lancamentos`);
 
   const compra = await abrirCadastroParcelado(page);

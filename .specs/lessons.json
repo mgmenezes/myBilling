@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 5,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "surviving_mutant::regra de negocio aplicada num filter de pagina precisa de um percurso e2e que a exercite sem ele o filtro pode ser apagado com a suite inteira verde",
+      "text": "Regra de negócio aplicada num .filter() de página precisa de um percurso e2e que a exercite; sem ele o filtro pode ser apagado com a suíte inteira verde.",
+      "signal": "surviving_mutant",
+      "scope": "app-router,paginas",
+      "status": "candidate",
+      "features": ["lancamento-avulso"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutante M24 (ciclo 1) e N2 (ciclo 3) — src/app/(app)/[competencia]/fixos/page.tsx:66-72 (app-router,paginas)"
+      ],
+      "created": "2026-09-15T04:13:17Z",
+      "last_seen": "2026-09-15T04:13:17Z"
+    },
+    {
+      "id": "L-002",
+      "key": "surviving_mutant::teste de paridade entre duas fontes precisa afirmar as duas direcoes a unidirecional nao pega remocao",
+      "text": "Teste de paridade entre duas fontes precisa afirmar as duas direções; a unidirecional não pega remoção.",
+      "signal": "surviving_mutant",
+      "scope": "integridade,banco",
+      "status": "candidate",
+      "features": ["lancamento-avulso"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutante M28 (ciclo 1) — src/infrastructure/db/restricoes.integration.test.ts:222-262 (integridade,banco)"
+      ],
+      "created": "2026-09-15T04:13:17Z",
+      "last_seen": "2026-09-15T04:13:17Z"
+    },
+    {
+      "id": "L-003",
+      "key": "spec_precision_gap::comportamento que so aparece em tabela de dimensoes ou em decisao sem acceptance criterion numerado passa despercebido promova o a ac antes de mapear requisito para ele",
+      "text": "Comportamento que só aparece em tabela de dimensões ou em decisão, sem acceptance criterion numerado, passa despercebido: promova-o a AC antes de mapear requisito para ele.",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": ["lancamento-avulso"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": ["spec.md:91 (tabela de dimensões) e traceability de AVUL-04 — ciclo 2 (spec)"],
+      "created": "2026-09-15T04:13:17Z",
+      "last_seen": "2026-09-15T04:13:17Z"
+    },
+    {
+      "id": "L-004",
+      "key": "surviving_mutant::correcao de lacuna apontada por verificacao precisa ser confirmada pela mesma mutacao que revelou a lacuna antes de declara la fechada",
+      "text": "Correção de lacuna apontada por verificação precisa ser confirmada pela mesma mutação que revelou a lacuna, antes de declará-la fechada.",
+      "signal": "surviving_mutant",
+      "scope": "verificacao",
+      "status": "candidate",
+      "features": ["lancamento-avulso"],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": ["mutante N10 (ciclo 2) — e2e/recorrencias.spec.ts:87 (verificacao)"],
+      "created": "2026-09-15T04:13:17Z",
+      "last_seen": "2026-09-15T04:13:17Z"
+    }
+  ]
+}

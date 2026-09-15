@@ -304,7 +304,7 @@ describe("cancelarLancamento: sessão e validação (AVUL-03)", () => {
   });
 });
 
-describe("cancelarLancamento: exclusão lógica (AVUL-03, AC 1, 2 e 7)", () => {
+describe("cancelarLancamento: exclusão lógica (AVUL-03, AC 1, 2 e 8)", () => {
   it("cancela o avulso, tira da soma do mês e mantém a linha no banco", async () => {
     const criado = await criarLancamentoAvulso(entrada());
     if (!criado.ok) {

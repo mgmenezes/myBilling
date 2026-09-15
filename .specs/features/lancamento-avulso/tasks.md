@@ -369,7 +369,7 @@ T22 -> T23 -> T24
 **Tools**: nenhuma
 **Done when**:
 - [x] Sem sessão devolve erro de sessão antes do banco
-- [x] Excluir avulso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 7)
+- [x] Excluir avulso revalida `/[competencia]` e `/[competencia]/lancamentos` (AC 8)
 - [x] Excluir parcela devolve `LANCAMENTO_NAO_CANCELAVEL` (AC 3)
 - [x] Id inexistente devolve erro, sem lançar
 - [x] Falha não prevista vira `ERRO_INESPERADO` com identificador de correlação
@@ -436,9 +436,9 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-03
 **Tools**: nenhuma
 **Done when**:
-- [x] O controle não aparece em linha de parcela nem de recorrência (AC 5)
-- [x] O primeiro acionamento pede confirmação e não exclui (AC 6)
-- [x] O segundo acionamento chama a action (AC 6)
+- [x] O controle não aparece em linha de parcela nem de recorrência (AC 6)
+- [x] O primeiro acionamento pede confirmação e não exclui (AC 7)
+- [x] O segundo acionamento chama a action (AC 7)
 - [x] `Escape` cancela a confirmação sem excluir
 - [x] O estado de confirmação tem texto acessível, não só mudança de cor
 **Tests**: componentes
@@ -638,9 +638,9 @@ T22 -> T23 -> T24
 **Tools**: nenhuma
 **Done when**:
 - [x] O total do mês antes e depois do ciclo criar-excluir é idêntico (AC 2)
-- [x] O primeiro toque não exclui (AC 6)
+- [x] O primeiro toque não exclui (AC 7)
 - [x] A linha some da lista depois do segundo toque (AC 2)
-- [x] Linha de parcela não oferece o controle (AC 5)
+- [x] Linha de parcela não oferece o controle (AC 6)
 **Tests**: e2e
 **Gate**: build
 

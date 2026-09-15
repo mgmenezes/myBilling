@@ -406,7 +406,7 @@ describe("categoria na lista", () => {
   });
 });
 
-describe("excluir aparece só onde é permitido (AVUL-03, AC 5)", () => {
+describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
   it("oferece o controle na linha de lançamento avulso", () => {
     render(
       <TabelaLancamentos

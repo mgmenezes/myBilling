@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento } from "@/app/actions/lancamentos";
 import { BotaoExcluir } from "./botao-excluir";
 
-/** Testes derivados de AVUL-03 (AC 6) e do Done-when de T17. */
+/** Testes derivados de AVUL-03 (AC 7) e do Done-when de T17. */
 
 afterEach(cleanup);
 
@@ -30,7 +30,7 @@ function montar(excluir: typeof cancelarLancamento = excluirOk()) {
   return excluir;
 }
 
-describe("BotaoExcluir — dois toques (AVUL-03, AC 6)", () => {
+describe("BotaoExcluir — dois toques (AVUL-03, AC 7)", () => {
   it("o primeiro toque pede confirmação e não exclui", async () => {
     const excluir = montar();
 

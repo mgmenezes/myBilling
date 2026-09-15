@@ -126,10 +126,11 @@
 
 ## Handoff
 
-- **Feature**: `lancamento-avulso` — **28 de 28 tasks concluídas**, aguardando o Verifier independente. A fatia 1 do roadmap fechou: o mês agora fecha pela interface.
+- **Feature**: `lancamento-avulso` — **32 de 32 tasks concluídas, Verifier PASS** em três ciclos. A fatia 1 do roadmap fechou: o mês agora fecha pela interface.
 - **Commit**: `main` local, sem push. **Sem push desde sempre:** `main` está ~70 commits à frente de `origin/main`.
-- **Gates**: `pnpm verify` exit 0 — 741 unitários, 164/164 branches em `src/domain`, 230 de integração, build compila. **36 e2e passam**, incluindo a fatia "Home do ano" que outra sessão integrou em paralelo.
-- **Next step**: rodar o Verifier independente sobre a fatia (author ≠ verifier, com sensor de discriminação), e depois resolver as credenciais OAuth do Google — elas destravam o estágio 2 do QA e são pré-requisito do deploy. Roteiro completo em `docs/qa.md`.
+- **Gates**: `pnpm verify` exit 0 — **1.035 provas verdes**: 757 unitários, 166/166 branches em `src/domain`, 237 de integração, 41 e2e. Inclui a fatia "Home do ano", integrada em paralelo por outra sessão.
+- **Next step**: resolver as credenciais OAuth do Google. Elas destravam o estágio 2 do QA — inserir à mão em modo produção — e são pré-requisito do deploy. Roteiro e os quatro passos do console em `docs/qa.md`. Depois disso, `git push` (operação remota, exige autorização separada) para o CI corrigido finalmente rodar.
+- **O que a verificação independente custou, e pagou**: três ciclos. O primeiro achou um requisito cuja metade não estava implementada, um mutante sobrevivente na regra recém-pedida pelo usuário, e duas dívidas que os próprios comentários dos testes declaravam sem pagar. O segundo achou correção incompleta. **Três das minhas primeiras tentativas de conserto ficaram verdes sem provar nada** — paridade unidirecional, asserção de foco frágil, medição de posição em metade das áreas. A prática que fecha essa conta está em `.specs/LESSONS.md` como L-004: depois de corrigir, injetar o mutante e ver vermelho.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.
 - **Entregue nesta fatia**:
   - **Despesa avulsa e receita à vista**, com exclusão lógica em dois toques. `AVUL-01` a `AVUL-05`.

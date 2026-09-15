@@ -338,17 +338,17 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| AVUL-01 | P1: Registrar um gasto avulso | Implementing | Implementing |
-| AVUL-02 | P1: Registrar dinheiro que entra | Implementing | Implementing |
-| AVUL-03 | P2: Excluir um lançamento avulso — ACs 1, 2, 6, 7 e 8 (exclusão lógica e o gesto) | Implementing | Implementing |
-| AVUL-04 | P2: Excluir um lançamento avulso — ACs 3, 4 e 5 (integridade de transição: nem recancela, nem marca pago) | Implementing | Implementing |
-| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 1 a 4 e 7 (a cascata e a coluna Parcela) | Implementing | Implementing |
-| BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 5 e 6 (concordância painel↔lista, e arquivados) | Implementing | Implementing |
-| ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
-| ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
-| ENTR-03 | P2: O formulário fala a língua da receita | Implementing | Implementing |
-| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Implementing | Implementing |
-| AVUL-05 | P2: Cadastrar sem rolar a página | Implementing | Implementing |
+| AVUL-01 | P1: Registrar um gasto avulso | Verified | Verified |
+| AVUL-02 | P1: Registrar dinheiro que entra | Verified | Verified |
+| AVUL-03 | P2: Excluir um lançamento avulso — ACs 1, 2, 6, 7 e 8 (exclusão lógica e o gesto) | Verified | Verified |
+| AVUL-04 | P2: Excluir um lançamento avulso — ACs 3, 4 e 5 (integridade de transição: nem recancela, nem marca pago) | Verified | Verified |
+| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 1 a 4 e 7 (a cascata e a coluna Parcela) | Verified | Verified |
+| BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 5 e 6 (concordância painel↔lista, e arquivados) | Verified | Verified |
+| ENTR-01 | P2: Achar onde mora o dinheiro que entra | Verified | Verified |
+| ENTR-02 | P2: Achar onde mora o dinheiro que entra | Verified | Verified |
+| ENTR-03 | P2: O formulário fala a língua da receita | Verified | Verified |
+| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Verified | Verified |
+| AVUL-05 | P2: Cadastrar sem rolar a página | Verified | Verified |
 
 **Coverage:** 11 total, 11 mapeados para tasks
 
