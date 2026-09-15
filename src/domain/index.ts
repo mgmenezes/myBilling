@@ -41,6 +41,7 @@ export type { PeriodoRecorrencia } from "./recorrencia/janela-materializacao";
 export { janelaMaterializacao } from "./recorrencia/janela-materializacao";
 export type { OcorrenciaMaterializada } from "./recorrencia/ocorrencia-protegida";
 export { ocorrenciaProtegida } from "./recorrencia/ocorrencia-protegida";
+export { valeNaCompetencia } from "./recorrencia/vale-na-competencia";
 export type { OcorrenciaRecorrencia, ValorEfetivo } from "./recorrencia/valor-efetivo";
 export { confirmarValorReal, resolverValorEfetivo } from "./recorrencia/valor-efetivo";
 export type { VersaoRecorrencia } from "./recorrencia/versao-vigente";

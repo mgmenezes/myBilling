@@ -67,6 +67,8 @@ e já é ignorado por toda soma. Falta a metade de cima.
 | Diálogo em tela pequena | Tela cheia abaixo de 640px | Os formulários são longos, e o de compra tem a prévia de parcelas. Painel centralizado num celular com teclado aberto deixaria ~200px úteis | n |
 | Meio de pagamento em receita | O campo fica, com rótulo e opções próprios: "Onde o dinheiro cai", listando só meios sem fatura | Escolhido pelo usuário durante a execução. O campo não é sem sentido — o dinheiro cai em alguma conta, e saber em qual é informação real. O que era errado é chamá-lo de meio de pagamento e oferecer cartão de crédito como destino de salário. Remover o campo exigiria migration: `movimento.meio_pagamento_id` é `NOT NULL` | y |
 | Título e botão em receita | Falam de entrada, não de gasto | O formulário dizia "Novo gasto fixo" e "Cadastrar gasto fixo" com receita marcada, contradizendo a própria escolha da pessoa | y |
+| Recorrência encerrada na lista | Some do mês em que **já não vale**, e não para sempre | Pedido do usuário durante a execução, com refinamento. "Encerrada" é propriedade do ciclo de vida, e a lista é **por mês**: um fixo que valeu até agosto compôs agosto, e esconder ali seria mentir sobre aquele mês. A regra por competência atende o incômodo — ela desaparece de setembro em diante — sem apagar história. A spec de recorrências dizia que a encerrada "continua precisando aparecer"; isso era verdade sem a qualificação por mês, e passa a valer só nos meses em que ela vale | y |
+| Recorrência que ainda vai começar | **Continua** aparecendo | Assimétrico de propósito. Um fixo que começa em novembro, visto em setembro, é compromisso recém-assumido que a pessoa precisa ver confirmado; esconder pareceria falha na gravação. Um encerrado é história cujos meses se alcança navegando | n |
 | Idempotência do avulso | Nenhuma | Ver Out of Scope. Duplicata é caso legítimo neste domínio | n |
 
 **Open questions:** none. As cinco decisões de produto foram resolvidas com o usuário e estão acima
@@ -256,8 +258,36 @@ rolar por dez gastos fixos cada vez que preciso lançar algo.
 7. WHILE o diálogo está aberto o sistema SHALL preservar o que foi digitado na aba que não está
    visível
 
+7. The system SHALL abrir também o cadastro da área "Todo mês" por controle no topo, no mesmo
+   diálogo, e SHALL não deixar formulário no rodapé de nenhuma das duas áreas
+
 **Independent Test**: abrir o cadastro pelo botão do topo num mês com vários lançamentos, sem
-rolar a página, e fechar com `Escape`.
+rolar a página, e fechar com `Escape`. O mesmo na área "Todo mês".
+
+---
+
+### P2: A lista de Todo mês mostra só o que vale no mês aberto
+
+**User Story**: Como morador da casa, quero que um gasto fixo encerrado pare de aparecer nos meses
+em que ele já não vale, para a lista não crescer com o que não existe mais.
+
+**Why P2**: A lista só cresce, e cada item encerrado é uma linha que nunca mais muda.
+
+**Acceptance Criteria**
+
+1. WHILE o mês aberto é posterior à última competência em que a recorrência vale, o sistema SHALL
+   omiti-la da lista
+2. WHILE o mês aberto é igual ou anterior à última competência em que ela vale, o sistema SHALL
+   exibi-la, ainda que ela já tenha sido encerrada
+3. The system SHALL continuar exibindo a recorrência cuja competência de início é posterior ao mês
+   aberto, porque ela é um compromisso recém-assumido que a pessoa precisa confirmar
+4. The system SHALL usar para essa decisão a mesma regra que a materialização usa para não criar
+   ocorrência: nenhum mês sem ocorrência possível exibe a recorrência que a geraria
+5. WHILE a recorrência aparece e já foi encerrada, o sistema SHALL manter o selo que informa o
+   encerramento
+
+**Independent Test**: encerrar um gasto fixo a partir de setembro, conferir que ele desaparece de
+setembro e continua visível em agosto, com o selo de encerrado.
 
 ---
 
@@ -314,9 +344,10 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Implementing | Implementing |
 | ENTR-03 | P2: O formulário fala a língua da receita | Implementing | Implementing |
+| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Design | Pending |
 | AVUL-05 | P2: Cadastrar sem rolar a página | Implementing | Implementing |
 
-**Coverage:** 10 total, 10 mapeados para tasks
+**Coverage:** 11 total, 11 mapeados para tasks
 
 ---
 

@@ -65,7 +65,7 @@ export function ValorConfirmavel({
         <button
           type="button"
           onClick={() => setAberto(true)}
-          className="cursor-pointer rounded-xs underline decoration-line underline-offset-4 transition-colors duration-200 hover:decoration-ink"
+          className="rounded-xs underline decoration-line underline-offset-4 transition-colors duration-200 hover:decoration-ink"
         >
           <span aria-hidden="true">{sinal}</span>
           {valorFormatado}

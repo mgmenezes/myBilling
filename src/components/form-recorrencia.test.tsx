@@ -213,17 +213,28 @@ describe("FormRecorrencia — a língua da receita (ENTR-03)", () => {
     await usuario.click(screen.getByRole("radio", { name: "Um dinheiro que entra" }));
   }
 
-  it("troca o título e o botão para entrada — AC 3", async () => {
+  /*
+   * O título dinâmico saiu com o T29: o diálogo que envolve o formulário já
+   * titula, e dois títulos anunciariam duas vezes. O sinal de qual dos dois é
+   * ficou no rádio e no botão de envio.
+   */
+  it("troca o botão de envio para entrada — AC 3", async () => {
     const usuario = userEvent.setup();
     montar();
 
-    expect(screen.getByRole("heading", { name: "Novo gasto fixo" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Cadastrar gasto fixo" })).toBeTruthy();
 
     await marcarReceita(usuario);
 
-    expect(screen.getByRole("heading", { name: "Nova entrada fixa" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Cadastrar entrada" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Cadastrar gasto fixo" })).toBeNull();
+  });
+
+  it("não tem título próprio: quem titula é o diálogo que o envolve", () => {
+    montar();
+
+    expect(screen.queryByRole("heading")).toBeNull();
+    expect(screen.getByRole("form", { name: "Gasto fixo ou entrada" })).toBeTruthy();
   });
 
   it('chama o campo de "Onde o dinheiro cai" — AC 1', async () => {
@@ -279,7 +290,7 @@ describe("FormRecorrencia — a língua da receita (ENTR-03)", () => {
 
     await usuario.click(screen.getByRole("radio", { name: "Uma conta a pagar" }));
 
-    expect(screen.getByRole("heading", { name: "Novo gasto fixo" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Cadastrar gasto fixo" })).toBeTruthy();
     expect(screen.getByLabelText("Meio de pagamento")).toBeTruthy();
     expect(screen.getByLabelText("Dia de vencimento")).toBeTruthy();
     expect(screen.getByRole("option", { name: "Cartão Azul" })).toBeTruthy();

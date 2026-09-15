@@ -266,6 +266,40 @@ h3 {
 }
 
 /*
+ * **Mão em tudo que é clicável.**
+ *
+ * O Preflight do Tailwind v4 deixou de resetar `cursor` em `button`, e o padrão
+ * do navegador para botão é `default` — a seta. O sintoma era cinco componentes
+ * remendando `cursor-pointer` à mão, cada um tendo descoberto o problema por
+ * conta própria, e todos os outros botões do app mostrando seta.
+ *
+ * A regra vale para o elemento interativo, e **não** para o desabilitado: um
+ * botão que não responde não deve prometer que responde. `summary` entra porque
+ * ele é clicável e não é `button`.
+ *
+ * Vai em `@layer base`, e isso não é detalhe: CSS sem camada vence **todas** as
+ * utilities do Tailwind, então uma regra solta aqui engoliria o
+ * `disabled:cursor-progress` que o selo de pago usa enquanto grava. Na camada
+ * base, qualquer `cursor-*` escrito num componente continua ganhando.
+ */
+@layer base {
+  :where(
+    button,
+    summary,
+    [role="button"],
+    [role="tab"],
+    label:has(input[type="radio"]),
+    label:has(input[type="checkbox"])
+  ):not(:disabled) {
+    cursor: pointer;
+  }
+
+  :where(button, [role="button"], [role="tab"]):disabled {
+    cursor: not-allowed;
+  }
+}
+
+/*
  * Foco em azul e 2px, como o campo de formulário do documento faz no estado
  * de foco. É a única aparição do azul que não é ação — e é justificada: o anel
  * de foco precisa ser a coisa mais visível da tela quando existe.

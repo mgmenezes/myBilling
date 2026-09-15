@@ -1,4 +1,4 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import type { Pool } from "pg";
 import {
   criarPoolDeTeste,
@@ -42,17 +42,31 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+/**
+ * Abre o cadastro de "Todo mês", que vive num `<dialog>` desde o T29 — a lista
+ * só cresce e o formulário no rodapé ficava cada vez mais longe.
+ */
+async function abrirCadastroFixo(page: Page): Promise<Locator> {
+  const dialogo = page.getByRole("dialog");
+  if (!(await dialogo.isVisible())) {
+    await page.getByRole("button", { name: "+ Novo fixo" }).click();
+  }
+  return dialogo.getByRole("form", { name: "Gasto fixo ou entrada" });
+}
+
 /** Cadastra um gasto fixo pela interface, a partir da área "Todo mês". */
 async function cadastrarFixo(
   page: Page,
   dados: { descricao: string; valor: string; dia: string; inicio: string },
 ): Promise<void> {
   await page.goto(`/${dados.inicio}/fixos`);
-  await page.getByLabel("Descrição").fill(dados.descricao);
-  await page.getByLabel(/De quanto costuma ser/).fill(dados.valor);
-  await page.getByLabel("Dia de vencimento").fill(dados.dia);
-  await page.getByRole("button", { name: "Cadastrar gasto fixo" }).click();
+  const form = await abrirCadastroFixo(page);
+  await form.getByLabel("Descrição").fill(dados.descricao);
+  await form.getByLabel(/De quanto costuma ser/).fill(dados.valor);
+  await form.getByLabel("Dia de vencimento").fill(dados.dia);
+  await form.getByRole("button", { name: "Cadastrar gasto fixo" }).click();
   await expect(page.getByRole("status")).toContainText(dados.descricao);
+  await page.keyboard.press("Escape");
 }
 
 /** O valor exibido de um gasto fixo na lista de lançamentos daquele mês. */
@@ -205,23 +219,24 @@ test("receita recorrente entra em Entradas, não em Fixos (FIXO-01 AC 6, ENTR-03
   page,
 }) => {
   await page.goto("/2026-03/fixos");
-  await page.getByLabel("Descrição").fill("Salário");
-  await page.getByLabel("Um dinheiro que entra").check();
+  const form = await abrirCadastroFixo(page);
+  await form.getByLabel("Descrição").fill("Salário");
+  await form.getByLabel("Um dinheiro que entra").check();
 
   /*
    * Os rótulos mudam com a natureza (ENTR-03): com receita marcada não há "Dia
    * de vencimento" nem "Meio de pagamento", porque salário não vence e não cai
    * em cartão de crédito. Este percurso é o que prova a troca na tela real.
    */
-  await expect(page.getByRole("heading", { name: "Nova entrada fixa" })).toBeVisible();
-  await page.getByLabel(/De quanto costuma ser/).fill("4.200,00");
-  await page.getByLabel("Dia que costuma cair").fill("5");
-  await expect(page.getByLabel("Onde o dinheiro cai")).toBeVisible();
-  await expect(page.getByLabel("Onde o dinheiro cai").getByRole("option")).not.toContainText([
-    "Cartão",
+  await form.getByLabel(/De quanto costuma ser/).fill("4.200,00");
+  await form.getByLabel("Dia que costuma cair").fill("5");
+  await expect(form.getByLabel("Onde o dinheiro cai")).toBeVisible();
+  await expect(form.getByLabel("Onde o dinheiro cai").getByRole("option")).toHaveText([
+    "Conta Corrente",
   ]);
-  await page.getByRole("button", { name: "Cadastrar entrada" }).click();
+  await form.getByRole("button", { name: "Cadastrar entrada" }).click();
   await expect(page.getByRole("status")).toContainText("Salário");
+  await page.keyboard.press("Escape");
 
   await page.goto("/2026-03/lancamentos");
   await expect(

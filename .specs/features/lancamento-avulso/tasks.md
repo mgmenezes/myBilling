@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/lancamento-avulso/spec.md`
 **Design**: `.specs/features/lancamento-avulso/design.md`
 **Status**: Draft
-**Total**: 28 tasks em 7 fases
+**Total**: 32 tasks em 7 fases
 
 > **Por que a cascata vem antes de tudo.** O risco desta fatia não é gravar uma linha: é o painel e a
 > lista discordarem sobre o que é "cartão". Essa decisão é uma função pura, e ela é construída e
@@ -115,6 +115,16 @@ T25 -> T26
 T16 -> T26
 T15 -> T27
 T25 -> T28
+```
+
+### Phase 4b — continuação
+
+```
+T25 -> T29
+T27 -> T29
+T29 -> T30
+T31
+T32
 ```
 
 ### Phase 5 — Provas de ponta a ponta e fechamento
@@ -523,6 +533,69 @@ T22 -> T23 -> T24
 - [x] Com despesa, tudo continua como está hoje (AC 6)
 **Tests**: componentes
 **Gate**: quick
+
+#### T29: O cadastro de Todo mês também abre em diálogo ✅ CONCLUÍDA
+**What**: O `FormRecorrencia` passa a viver num `DialogoDeCadastro` aberto por botão no topo da área, como o de Lançamentos.
+**Where**: `src/app/(app)/[competencia]/fixos/page.tsx`
+**Depends on**: T25, T27
+**Reuses**: `DialogoDeCadastro` do T25
+**Requirement**: AVUL-05
+**Tools**: nenhuma
+**Done when**:
+- [x] O botão de abrir fica no topo, ao lado do título da área
+- [x] Nenhum formulário fica no rodapé da página
+- [x] O `<h2>` próprio do formulário sai: o diálogo já titula, e ter os dois anuncia duas vezes
+- [x] O título dinâmico deixa de existir sem perder o sinal — o rádio e o botão continuam dizendo qual dos dois é
+- [x] `palavras.titulo` é removido junto, para não sobrar configuração sem consumidor
+- [x] O e2e de recorrências é atualizado e passa
+**Tests**: componentes
+**Gate**: build
+
+#### T30: A lista de Todo mês esconde o que já não vale no mês aberto ✅ CONCLUÍDA
+**What**: Função pura que decide se uma recorrência vale no mês aberto, e a lista passa a filtrar por ela.
+**Where**: `src/domain/recorrencia/vale-na-competencia.ts`
+**Depends on**: T29
+**Reuses**: `compararCompetencias`, e o mesmo critério de `janelaMaterializacao`
+**Requirement**: FIXO-07
+**Tools**: nenhuma
+**Done when**:
+- [x] Mês posterior à última competência válida omite a recorrência (AC 1)
+- [x] Mês igual à última competência válida a exibe, mesmo encerrada (AC 2)
+- [x] Recorrência que começa depois do mês aberto continua aparecendo (AC 3)
+- [x] **Teste de concordância**: para toda competência em que a função devolve falso, `janelaMaterializacao` também não produz ocorrência (AC 4)
+- [x] O selo de encerrado permanece nos meses em que ela aparece (AC 5)
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: build
+
+#### T31: A marca leva para a home ✅ CONCLUÍDA
+**What**: O "myBilling" do cabeçalho vira link para `/`, que é a porta de entrada do app.
+**Where**: `src/app/(app)/layout.tsx`
+**Depends on**: nenhuma
+**Reuses**: `next/link`
+**Requirement**: AVUL-05
+**Tools**: nenhuma
+**Done when**:
+- [x] Clicar na marca leva para `/`
+- [x] Continua sendo um único alvo, com o ícone dentro
+- [x] `pnpm build` passa
+**Tests**: none
+**Gate**: build
+
+#### T32: Mão em tudo que é clicável ✅ CONCLUÍDA
+**What**: Regra em `@layer base` devolvendo `cursor: pointer` a botão, `summary` e rótulo de rádio, e `not-allowed` ao desabilitado.
+**Where**: `src/app/globals.css`
+**Depends on**: nenhuma
+**Reuses**: nada
+**Requirement**: AVUL-05
+**Tools**: nenhuma
+**Done when**:
+- [x] Todo `button` não desabilitado mostra a mão
+- [x] Os cinco remendos manuais de `cursor-pointer` são removidos, porque a regra os torna redundantes
+- [x] A regra fica em `@layer base`, para não engolir `cursor-*` escrito num componente
+- [x] `disabled:cursor-progress` do selo de pago continua valendo
+**Tests**: none
+**Gate**: build
 
 ### Phase 5 — Provas de ponta a ponta e fechamento
 

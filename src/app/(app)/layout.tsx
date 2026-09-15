@@ -1,4 +1,5 @@
 import { WalletIcon } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 import { AlternadorDeTema } from "@/components/alternador-de-tema";
 import { sessaoDaUI } from "./sessao";
 
@@ -22,10 +23,15 @@ export default async function LayoutDoApp({ children }: LayoutProps<"/">) {
     <div className="flex min-h-full flex-col">
       <header className="px-4 pt-6 sm:px-6">
         <div className="mx-auto flex w-full max-w-conteudo flex-wrap items-center justify-between gap-3 rounded-pill border border-line bg-surface px-5 py-3 sm:px-7">
-          <p className="flex items-center gap-2 text-[17px] font-medium tracking-[-0.02em]">
+          {/* A marca leva para a home do ano, que é a porta de entrada do app.
+              É o gesto que todo mundo já tenta; não atender era só frustração. */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-pill text-[17px] font-medium tracking-[-0.02em] transition-colors duration-200 hover:text-primary-texto"
+          >
             <WalletIcon size={22} weight="fill" aria-hidden="true" className="text-primary-texto" />
             myBilling
-          </p>
+          </Link>
           <div className="flex items-center gap-3">
             <AlternadorDeTema />
             <p className="text-[15px] text-ink-muted">{usuario.nome}</p>

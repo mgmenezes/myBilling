@@ -101,7 +101,7 @@ export function AlternadorDeTema() {
       {OPCOES.map(({ valor, rotulo, Icone }) => {
         const ativo = tema === valor;
         return (
-          <label key={valor} className="cursor-pointer">
+          <label key={valor}>
             <input
               type="radio"
               name="tema"

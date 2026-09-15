@@ -89,7 +89,7 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
               <AlternadorDeVisao competencia={resultado.value} visao={visao} />
 
               <details className="group">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-pill px-3 text-[14px] text-ink-muted hover:text-ink">
+                <summary className="flex min-h-11 list-none items-center gap-1.5 rounded-pill px-3 text-[14px] text-ink-muted hover:text-ink">
                   <InfoIcon size={16} weight="bold" aria-hidden="true" />
                   Qual é a diferença
                 </summary>

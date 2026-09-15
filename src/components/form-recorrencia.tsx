@@ -83,7 +83,6 @@ export function FormRecorrencia({
 
   const palavras = ehReceita
     ? {
-        titulo: "Nova entrada fixa",
         botao: "Cadastrar entrada",
         valor: "De quanto costuma ser (R$)",
         dia: "Dia que costuma cair",
@@ -91,7 +90,6 @@ export function FormRecorrencia({
         ajudaDoMeio: "Só contas: dinheiro não entra em cartão de crédito.",
       }
     : {
-        titulo: "Novo gasto fixo",
         botao: "Cadastrar gasto fixo",
         valor: "De quanto costuma ser (R$)",
         dia: "Dia de vencimento",
@@ -236,13 +234,13 @@ export function FormRecorrencia({
   return (
     <form
       onSubmit={enviar}
-      aria-labelledby={`${id}-titulo`}
-      className="flex w-full flex-col gap-5 rounded-xl border border-line bg-surface p-6 sm:p-8"
+      /* Sem `<h2>` próprio: o diálogo que o envolve já titula, e o título daqui
+         era dinâmico — ter os dois faria o leitor de tela anunciar duas vezes,
+         com textos diferentes. O sinal de qual dos dois é continua no rádio e
+         no botão de envio, que dizem "Cadastrar entrada". */
+      aria-label="Gasto fixo ou entrada"
+      className="flex w-full flex-col gap-5"
     >
-      <h2 id={`${id}-titulo`} className="text-[22px]">
-        {palavras.titulo}
-      </h2>
-
       <div className="flex flex-col gap-1">
         <label className={ROTULO} htmlFor={`${id}-descricao`}>
           Descrição
