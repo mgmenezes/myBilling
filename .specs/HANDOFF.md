@@ -239,7 +239,14 @@ precisa ser escopada ao formulário, ou casa dois nós.
    boot** por desenho. Roteiro e os quatro passos do console do Google em `docs/qa.md`. O estágio 1
    já foi executado: banco `mybilling_qa` limpo, três migrations do zero, build de produção subindo
    e redirecionando para `/login`.
-5. **Não existe caminho de deploy, e o roadmap não o cobre.** Ele foi escrito como roadmap de
+5. **O banco gerenciado existe e está migrado; falta onde o app roda.** O Neon foi provisionado
+   em São Paulo, Postgres 18, BetterAuth desligado, e as três migrations estão aplicadas no branch
+   `production` com o controle de migrations consistente — conferido. O que falta do deploy é o
+   resto: onde o app roda, como as variáveis chegam lá, e de onde `pnpm db:migrate` é executado.
+   **Atenção à rede:** a 5432 de saída é bloqueada da máquina de desenvolvimento, então o
+   `db:migrate` precisa rodar do pipeline, ou pelo contorno documentado em `docs/qa.md`
+   (`pnpm db:sql` + SQL Editor).
+6. **O roadmap não cobre infraestrutura.** Ele foi escrito como roadmap de
    produto e nunca teve linha de infraestrutura. O que falta decidir e fazer: onde o app roda,
    como as variáveis de ambiente chegam lá, e como `pnpm db:migrate` é executado contra o banco
    gerenciado. As duas migrations aplicam num banco limpo — `recriarBancoDeTeste` prova isso a

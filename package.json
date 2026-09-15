@@ -17,6 +17,7 @@
     "db:reset": "docker compose down -v && docker compose up -d --wait db",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:sql": "tsx src/infrastructure/db/migrations-sql.cli.ts",
     "db:seed": "tsx src/infrastructure/db/seed.cli.ts"
   },
   "dependencies": {

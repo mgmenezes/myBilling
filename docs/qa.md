@@ -138,6 +138,67 @@ tela inteira.
 
 ---
 
+## O banco gerenciado — Neon
+
+Projeto `mybilling` (`withered-sun-35456817`), branch `production`, banco `neondb`.
+
+Três coisas foram conferidas na criação, e as três importam:
+
+- **Região `sa-east-1` (São Paulo).** Não é latência: competência e data de pagamento são resolvidas
+  em `America/Sao_Paulo` explicitamente. Banco e fuso na mesma região evitam uma classe inteira de
+  confusão de virada de mês.
+- **BetterAuth desligado.** A autenticação é do app — Auth.js v5, Google, allowlist de dois e-mails
+  (AD-007). Ligar o serviço do Neon acrescentaria uma peça que nada no código usa.
+- **Postgres 18.** O Docker local e o CI foram subidos para 18 por causa disso: testar numa versão
+  e rodar noutra reintroduz, em escala menor, o problema que o AD-010 existe para evitar.
+
+`scale to zero` em 5 minutos, e o plano free não deixa mudar. É o custo que o handoff já registrava:
+**toda abertura de mês escreve no banco**, porque a materialização de recorrências roda durante a
+leitura da página. O primeiro acesso depois de 5 minutos parado paga o cold start em cima disso. Não
+quebra — a materialização é idempotente.
+
+### Quando a porta 5432 está bloqueada
+
+`pnpm db:migrate` não conecta de rede corporativa: 5432 de saída é comumente barrada. Na primeira
+aplicação, os dois endpoints do Neon resolviam DNS e **nenhum** aceitava TCP, enquanto a 443 do
+mesmo host conectava na hora.
+
+O contorno usa o SQL Editor do Neon, que fala HTTPS:
+
+```bash
+pnpm db:sql > /tmp/migrations.sql
+```
+
+Cole o conteúdo no SQL Editor, no branch certo, e rode de uma vez — é uma transação só. O bloco
+termina com uma consulta de conferência que devolve **uma linha com veredito**.
+
+Três coisas sobre esse caminho:
+
+**Não é um segundo mecanismo de migration.** Quem manda continua sendo o `drizzle-kit`. O `db:sql`
+não inventa SQL: lê `drizzle/meta/_journal.json` e concatena os arquivos na ordem registrada.
+
+**O resultado não se commita.** É gerado, e um bloco gravado no repositório ficaria obsoleto na
+quarta migration — alguém colaria o velho achando que está em dia.
+
+**A parte que importa são os `INSERT` em `drizzle.__drizzle_migrations`.** Sem eles o schema
+existiria e o próximo `db:migrate`, de qualquer lugar, tentaria criar tudo de novo e estouraria em
+"relation already exists". A coluna `hashes_certos` da conferência é o que prova que ficaram certos.
+
+Conferido em 2026-09-15 no branch `production`: **10 tabelas, 3 migrations, 23 restrições `CHECK`,
+0 movimentos, 3 hashes certos.**
+
+### Se a rede permitir 5432
+
+O caminho normal, e o preferido:
+
+```bash
+DATABASE_URL="<string do Neon, sem o -pooler>" pnpm db:migrate
+```
+
+**Sem o `-pooler` no host.** O endpoint com pooler serve a aplicação; para DDL, use o direto.
+
+---
+
 ## Limpar depois
 
 ```bash
