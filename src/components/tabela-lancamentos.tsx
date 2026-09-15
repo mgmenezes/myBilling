@@ -1,3 +1,4 @@
+import type { cancelarLancamento as cancelarAction } from "@/app/actions/lancamentos";
 import type {
   alternarPagamento as alternarPagamentoAction,
   confirmarValorDaOcorrencia as confirmarValorAction,
@@ -5,6 +6,7 @@ import type {
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import { type BlocoDoMes, type Natureza, resolverValorEfetivo } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
+import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
 import { Chip } from "./ui";
 import { ValorConfirmavel } from "./valor-confirmavel";
@@ -77,6 +79,7 @@ export function TabelaLancamentos({
   categorias,
   alternarPagamento,
   confirmarValor,
+  excluir,
 }: {
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
   /** Id para nome. O lançamento só carrega o id; o nome vive no cadastro. */
@@ -84,6 +87,8 @@ export function TabelaLancamentos({
   /** A action chega por prop: a tabela não conhece infraestrutura nenhuma. */
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
+  /** Só a linha avulsa a exibe; parcela e ocorrência não são canceláveis. */
+  readonly excluir: typeof cancelarAction;
 }) {
   if (lancamentos.length === 0) {
     return (
@@ -105,6 +110,7 @@ export function TabelaLancamentos({
         categorias={categorias}
         alternarPagamento={alternarPagamento}
         confirmarValor={confirmarValor}
+        excluir={excluir}
         comParcela={false}
         itens={entradas}
       />
@@ -116,6 +122,7 @@ export function TabelaLancamentos({
           categorias={categorias}
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValor}
+          excluir={excluir}
           /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
           comParcela={bloco.bloco === "CARTAO"}
           itens={despesas.filter((item) => item.bloco === bloco.bloco)}
@@ -133,6 +140,7 @@ function BlocoDeLancamentos({
   comParcela,
   alternarPagamento,
   confirmarValor,
+  excluir,
 }: {
   /** Identificador sem espaço: `aria-labelledby` é uma lista de ids. */
   readonly id: string;
@@ -142,6 +150,7 @@ function BlocoDeLancamentos({
   readonly comParcela: boolean;
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
+  readonly excluir: typeof cancelarAction;
 }) {
   return (
     <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
@@ -224,12 +233,31 @@ function BlocoDeLancamentos({
                   {formatarData(lancamento.dataEvento)}
                 </td>
                 <td className={CELULA}>
-                  <BotaoPago
-                    lancamentoId={lancamento.id}
-                    descricao={lancamento.descricao}
-                    pago={lancamento.pagoEm !== null}
-                    alternar={alternarPagamento}
-                  />
+                  {/*
+                    Excluir mora ao lado do selo, e não numa coluna própria.
+                    Coluna própria ficaria vazia em toda linha de parcela e de
+                    gasto fixo — que são a maioria —, e coluna permanentemente
+                    vazia empurra descrição e valor para as pontas da tela, que
+                    é a dívida de interface que a pílula de categoria veio
+                    reduzir.
+                  */}
+                  <span className="flex flex-wrap items-center gap-2">
+                    <BotaoPago
+                      lancamentoId={lancamento.id}
+                      descricao={lancamento.descricao}
+                      pago={lancamento.pagoEm !== null}
+                      alternar={alternarPagamento}
+                    />
+                    {/* Parcela quebraria a soma da compra; ocorrência renasce
+                        na materialização seguinte. Nem uma nem outra oferece. */}
+                    {lancamento.origem === "AVULSO" ? (
+                      <BotaoExcluir
+                        lancamentoId={lancamento.id}
+                        descricao={lancamento.descricao}
+                        excluir={excluir}
+                      />
+                    ) : null}
+                  </span>
                 </td>
                 <td
                   className={`${CELULA} tabular whitespace-nowrap md:text-right ${corDaNatureza(lancamento.natureza)}`}

@@ -1,5 +1,6 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { cancelarLancamento } from "@/app/actions/lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
 import { TabelaLancamentos } from "./tabela-lancamentos";
@@ -23,6 +24,11 @@ const confirmarOk = vi.fn(async (_id: string, valorCentavos: number) => ({
  */
 
 afterEach(cleanup);
+
+const excluirOk = vi.fn(async () => ({
+  ok: true as const,
+  data: { id: "l-1", competencia: "2026-03", alterou: true },
+})) as unknown as typeof cancelarLancamento;
 
 function lancamento(campos: Partial<Lancamento> & { id: string }): Lancamento {
   return {
@@ -74,6 +80,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item(
@@ -104,6 +111,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
       />,
     );
@@ -118,6 +126,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item({ id: "3", origem: "AVULSO", descricao: "Lançamento avulso A" }),
@@ -139,6 +148,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
       />,
     );
 
@@ -152,6 +162,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item({ id: "r", natureza: "RECEITA", descricao: "Entrada A", valor: 500000 as Cents }),
         ]}
@@ -178,6 +189,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
       />,
     );
@@ -193,6 +205,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", descricao: "Farmácia no cartão" }, null, "CARTAO"),
           item(
@@ -224,6 +237,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item(
             {
@@ -251,6 +265,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item(
             {
@@ -279,6 +294,7 @@ describe("valores e situação", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", descricao: "Previsto A", valor: 33334 as Cents }),
           item({
@@ -307,6 +323,7 @@ describe("estado vazio (UI-02, AC 6)", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
       />,
     );
 
@@ -327,6 +344,7 @@ describe("categoria na lista", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[
           item(
             { id: "1", origem: "PARCELA", categoriaId: "cat-1" },
@@ -348,6 +366,7 @@ describe("categoria na lista", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[item({ id: "2", origem: "AVULSO", categoriaId: "cat-1" })]}
       />,
     );
@@ -364,6 +383,7 @@ describe("categoria na lista", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[item({ id: "3", origem: "AVULSO", categoriaId: null })]}
       />,
     );
@@ -377,10 +397,84 @@ describe("categoria na lista", () => {
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
+        excluir={excluirOk}
         lancamentos={[item({ id: "4", origem: "AVULSO", categoriaId: "cat-sumida" })]}
       />,
     );
 
     expect(screen.getByText("Categoria removida")).toBeTruthy();
+  });
+});
+
+describe("excluir aparece só onde é permitido (AVUL-03, AC 5)", () => {
+  it("oferece o controle na linha de lançamento avulso", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Almoço" })]}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Excluir, Almoço" })).toBeDefined();
+  });
+
+  it("não oferece na linha de parcela: removê-la quebraria a soma da compra", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        lancamentos={[
+          item(
+            {
+              id: "1",
+              origem: "PARCELA",
+              descricao: "Compra parcelada A",
+              compraId: "c1",
+              numeroParcela: 1,
+            },
+            { numero: 1, total: 3, restantes: 2 },
+          ),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+  });
+
+  it("não oferece na linha de gasto fixo: a ocorrência renasce na materialização", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        lancamentos={[
+          item({ id: "1", origem: "RECORRENCIA", recorrenciaId: "r1", descricao: "Conta fixa A" }),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+  });
+
+  it("oferece na receita avulsa, que também é cancelável", () => {
+    render(
+      <TabelaLancamentos
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        lancamentos={[
+          item({ id: "1", origem: "AVULSO", natureza: "RECEITA", descricao: "Pix recebido" }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Excluir, Pix recebido" })).toBeDefined();
   });
 });

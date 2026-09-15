@@ -409,7 +409,7 @@ T22 -> T23 -> T24
 **Tests**: none
 **Gate**: build
 
-#### T17: Excluir em dois toques na linha
+#### T17: Excluir em dois toques na linha ✅ CONCLUÍDA
 **What**: Ilha cliente `BotaoExcluir` com confirmação em dois toques, exibida apenas em linha de lançamento avulso.
 **Where**: `src/components/botao-excluir.tsx`
 **Depends on**: T13, T14
@@ -417,11 +417,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] O controle não aparece em linha de parcela nem de recorrência (AC 5)
-- [ ] O primeiro acionamento pede confirmação e não exclui (AC 6)
-- [ ] O segundo acionamento chama a action (AC 6)
-- [ ] `Escape` cancela a confirmação sem excluir
-- [ ] O estado de confirmação tem texto acessível, não só mudança de cor
+- [x] O controle não aparece em linha de parcela nem de recorrência (AC 5)
+- [x] O primeiro acionamento pede confirmação e não exclui (AC 6)
+- [x] O segundo acionamento chama a action (AC 6)
+- [x] `Escape` cancela a confirmação sem excluir
+- [x] O estado de confirmação tem texto acessível, não só mudança de cor
 **Tests**: componentes
 **Gate**: quick
 

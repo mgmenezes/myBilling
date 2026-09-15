@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { criarCategoria } from "@/app/actions/categorias";
 import { criarCompra } from "@/app/actions/compras";
-import { criarLancamentoAvulso } from "@/app/actions/lancamentos";
+import { cancelarLancamento, criarLancamentoAvulso } from "@/app/actions/lancamentos";
 import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import { alternarPagamento, confirmarValorDaOcorrencia } from "@/app/actions/pagamentos";
 import {
@@ -139,6 +139,7 @@ export default async function PaginaDeLancamentos({
           categorias={nomePorCategoria}
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValorDaOcorrencia}
+          excluir={cancelarLancamento}
         />
       )}
 
