@@ -9,7 +9,11 @@ configs:
 
 services:
   db:
-    image: postgres:17-alpine
+    # **18, a mesma de produção.** O Neon roda 18, e o AD-010 existe porque
+    # divergência de dialeto faz a suíte passar exatamente onde a confiança
+    # importa. Testar numa versão e rodar noutra reintroduz o problema em
+    # escala menor.
+    image: postgres:18-alpine
     container_name: mybilling-db
     environment:
       POSTGRES_USER: mybilling
@@ -26,7 +30,11 @@ services:
       timeout: 3s
       retries: 30
     volumes:
-      - mybilling_pgdata:/var/lib/postgresql/data
+      # **`/var/lib/postgresql`, e não `/var/lib/postgresql/data`.** A imagem 18
+      # mudou a montagem recomendada: o dado passa a viver num subdiretório, o
+      # que permite `pg_upgrade --link` sem esbarrar na fronteira do mount.
+      # Com o caminho antigo o contêiner sobe e morre.
+      - mybilling_pgdata:/var/lib/postgresql
 
 volumes:
   mybilling_pgdata:

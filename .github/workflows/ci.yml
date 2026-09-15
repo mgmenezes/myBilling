@@ -19,7 +19,8 @@ jobs:
     # deixaria de ser o mesmo comando que roda no terminal.
     services:
       postgres:
-        image: postgres:17
+        # 18, a mesma de produção no Neon — ver docker-compose.yml.
+        image: postgres:18
         env:
           POSTGRES_USER: mybilling
           POSTGRES_PASSWORD: mybilling
