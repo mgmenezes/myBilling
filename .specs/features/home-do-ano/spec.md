@@ -85,6 +85,6 @@ fixo (decidido meses atrás), quanto vai cair na fatura, e quanto foi escolha do
 
 | Requirement | Implementação | Teste |
 | --- | --- | --- |
-| HOME-01 | | |
-| HOME-02 | | |
-| HOME-03 | `domain/mes/composicao-de-blocos.ts` (ACs 3, 4) | `composicao-de-blocos.test.ts` |
+| HOME-01 | `app/(app)/page.tsx`, `components/grade-de-meses.tsx` | `grade-de-meses.test.tsx`, `e2e/auth.spec.ts` |
+| HOME-02 | `app/(app)/page.tsx` (cartão invertido) | `e2e/auth.spec.ts` |
+| HOME-03 | `domain/mes/composicao-de-blocos.ts` (ACs 3, 4), `application/ano/obter-visao-anual/handler.ts` (AC 2), `components/barra-de-composicao.tsx` (ACs 5, 6) | `composicao-de-blocos.test.ts`, `obter-visao-anual/handler.test.ts`, `barra-de-composicao.test.tsx` |

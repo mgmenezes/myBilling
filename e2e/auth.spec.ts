@@ -69,14 +69,53 @@ test("não autenticado é redirecionado para /login (AUTH-01, AC 1)", async ({ p
   await expect(page.getByRole("button", { name: "Entrar com o Google" })).toBeVisible();
 });
 
-test("autenticado cai na competência corrente (UI-01, AC 1)", async ({ page }) => {
+/*
+ * Antes deste teste a raiz redirecionava para a competência corrente, e o AC
+ * dizia isso. A home substituiu o redirect (HOME-01, AC 1): o destino de
+ * sempre continua a um clique, no cartão de destaque, e agora os outros onze
+ * meses também têm porta. O teste foi reescrito para a intenção nova — não
+ * afrouxado para a antiga passar.
+ */
+test("autenticado cai na home do ano corrente (HOME-01, ACs 1 e 3)", async ({ page }) => {
   const resposta = await entrar(page, EMAIL_PERMITIDO);
   expect(resposta.status()).toBe(200);
 
   await page.goto("/");
+  await expect(page).toHaveURL(/\/$/);
+  const ano = competenciaCorrente().slice(0, 4);
+  await expect(page.getByRole("heading", { level: 1, name: ano })).toBeVisible();
+  expect(await contarUsuarios()).toBe(1);
+});
+
+test("o cartão de destaque leva à competência corrente (HOME-02, AC 2)", async ({ page }) => {
+  await entrar(page, EMAIL_PERMITIDO);
+  await page.goto("/");
+
+  await page.getByRole("link", { name: /continuar de onde você parou/i }).click();
+
   await expect(page).toHaveURL(new RegExp(`/${competenciaCorrente()}$`));
   await expect(page.getByRole("navigation", { name: "Navegação entre meses" })).toBeVisible();
-  expect(await contarUsuarios()).toBe(1);
+});
+
+test("a grade leva a qualquer mês do ano exibido (HOME-01, AC 2)", async ({ page }) => {
+  await entrar(page, EMAIL_PERMITIDO);
+  await page.goto("/?ano=2026");
+
+  await expect(page.getByRole("heading", { level: 1, name: "2026" })).toBeVisible();
+  await page.getByRole("link", { name: /^março/i }).click();
+
+  await expect(page).toHaveURL(/\/2026-03$/);
+});
+
+test("ano inválido na URL cai no ano corrente em vez de quebrar (HOME-01, AC 4)", async ({
+  page,
+}) => {
+  await entrar(page, EMAIL_PERMITIDO);
+  await page.goto("/?ano=banana");
+
+  const ano = competenciaCorrente().slice(0, 4);
+  await expect(page.getByRole("heading", { level: 1, name: ano })).toBeVisible();
+  await expect(page.locator("#__next_error__")).toHaveCount(0);
 });
 
 test("e-mail fora da allowlist recebe 403 e não cria usuário (AUTH-01, AC 2)", async ({ page }) => {
@@ -115,6 +154,12 @@ test("nenhuma rolagem horizontal em viewport de 400 pixels (UI-03, AC 9)", async
   expect(await transbordoHorizontal(page)).toBe(0);
 
   await entrar(page, EMAIL_PERMITIDO);
+
+  // A home é a nova porta de entrada: ela mede antes do mês.
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  expect(await transbordoHorizontal(page)).toBe(0);
+
   await page.goto(`/${competenciaCorrente()}`);
   await expect(page.getByRole("navigation", { name: "Navegação entre meses" })).toBeVisible();
   expect(await transbordoHorizontal(page)).toBe(0);
