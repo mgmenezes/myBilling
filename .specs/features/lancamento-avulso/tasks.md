@@ -291,7 +291,7 @@ T22 -> T23 -> T24
 **Tests**: unit
 **Gate**: quick
 
-#### T10: Caso de uso de criação
+#### T10: Caso de uso de criação ✅ CONCLUÍDA
 **What**: `criarLancamentoAvulso` que resolve o padrão de já pago pelo meio escolhido, monta a entrada e delega ao repositório, no envelope `Result`.
 **Where**: `src/application/mes/criar-lancamento-avulso/handler.ts`
 **Depends on**: T6, T9
@@ -299,11 +299,11 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Meio sem fatura produz lançamento já pago, com `pagoEm` igual à data do evento (AVUL-02 AC 4)
-- [ ] Meio com fatura produz lançamento não pago (AVUL-02 AC 5)
-- [ ] A escolha explícita da pessoa sobrepõe o padrão nos dois sentidos (AVUL-02 AC 6)
-- [ ] Meio de pagamento inexistente ou arquivado devolve erro, sem gravar (edge case)
-- [ ] Natureza receita é gravada como receita (AVUL-02 AC 1)
+- [x] Meio sem fatura produz lançamento já pago, com `pagoEm` igual à data do evento (AVUL-02 AC 4)
+- [x] Meio com fatura produz lançamento não pago (AVUL-02 AC 5)
+- [x] A escolha explícita da pessoa sobrepõe o padrão nos dois sentidos (AVUL-02 AC 6)
+- [x] Meio de pagamento inexistente ou arquivado devolve erro, sem gravar (edge case)
+- [x] Natureza receita é gravada como receita (AVUL-02 AC 1)
 **Tests**: unit
 **Gate**: quick
 
