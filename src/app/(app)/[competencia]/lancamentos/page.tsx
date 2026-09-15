@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { criarCategoria } from "@/app/actions/categorias";
 import { criarCompra } from "@/app/actions/compras";
+import { criarLancamentoAvulso } from "@/app/actions/lancamentos";
 import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import { alternarPagamento, confirmarValorDaOcorrencia } from "@/app/actions/pagamentos";
 import {
@@ -16,6 +17,8 @@ import {
 } from "@/application/recorrencias/materializar/handler";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
 import { FormCompra } from "@/components/form-compra";
+import { FormLancamentoAvulso } from "@/components/form-lancamento-avulso";
+import { SeletorDeFormulario } from "@/components/seletor-de-formulario";
 import { TabelaLancamentos } from "@/components/tabela-lancamentos";
 import { type Cents, criarCompetencia, type Natureza, somar, ZERO_CENTS } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
@@ -31,9 +34,13 @@ import { sessaoDaUI } from "../../sessao";
  * indicador do painel usa para montar o link. É isso que garante que a soma
  * dos lançamentos listados bata com o número que foi clicado lá.
  *
- * O cadastro de compra parcelada mora aqui, e não no painel: quem abre a visão
- * geral quer entender o mês, não preencher formulário. Quem abre Lançamentos
- * está no modo de manutenção.
+ * O cadastro mora aqui, e não no painel: quem abre a visão geral quer entender
+ * o mês, não preencher formulário. Quem abre Lançamentos está no modo de
+ * manutenção.
+ *
+ * Os dois formulários ficam sob um **alternador**, e não empilhados. Empilhar
+ * obrigaria a pessoa a rolar por um formulário inteiro que ela não quer para
+ * alcançar o que quer, e o avulso é o gesto mais frequente dos dois.
  */
 
 export const dynamic = "force-dynamic";
@@ -100,6 +107,9 @@ export default async function PaginaDeLancamentos({
   /* O lançamento carrega só o id da categoria; o nome vive no cadastro, e é
      aqui que os dois se encontram — uma vez, e não por linha da tabela. */
   const nomePorCategoria = new Map(categorias.map((c) => [c.id, c.nome]));
+  /* Montadas uma vez: os dois formulários do alternador recebem as mesmas. */
+  const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
+  const opcoesDeUsuario = usuarios.map((u) => ({ id: u.id, nome: u.nome }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -132,14 +142,45 @@ export default async function PaginaDeLancamentos({
         />
       )}
 
-      <FormCompra
-        competencia={resultado.value}
-        meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
-        categorias={categorias.map((categoria) => ({ id: categoria.id, nome: categoria.nome }))}
-        usuarios={usuarios.map((usuario) => ({ id: usuario.id, nome: usuario.nome }))}
-        enviar={criarCompra}
-        criarCategoria={criarCategoria}
-        criarMeioDePagamento={criarMeioDePagamento}
+      <SeletorDeFormulario
+        rotuloDoGrupo="Tipo de lançamento a cadastrar"
+        abas={[
+          {
+            id: "avulso",
+            rotulo: "Avulso",
+            conteudo: (
+              <FormLancamentoAvulso
+                competencia={resultado.value}
+                /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
+                meios={meios.map((meio) => ({
+                  id: meio.id,
+                  nome: meio.nome,
+                  geraFatura: meio.tipo === "CARTAO_CREDITO",
+                }))}
+                categorias={opcoesDeCategoria}
+                usuarios={opcoesDeUsuario}
+                enviar={criarLancamentoAvulso}
+                criarCategoria={criarCategoria}
+                criarMeioDePagamento={criarMeioDePagamento}
+              />
+            ),
+          },
+          {
+            id: "parcelado",
+            rotulo: "Parcelado",
+            conteudo: (
+              <FormCompra
+                competencia={resultado.value}
+                meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
+                categorias={opcoesDeCategoria}
+                usuarios={opcoesDeUsuario}
+                enviar={criarCompra}
+                criarCategoria={criarCategoria}
+                criarMeioDePagamento={criarMeioDePagamento}
+              />
+            ),
+          },
+        ]}
       />
     </div>
   );

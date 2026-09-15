@@ -394,7 +394,7 @@ T22 -> T23 -> T24
 **Tests**: componentes
 **Gate**: quick
 
-#### T16: Alternador Avulso ┊ Parcelado na página
+#### T16: Alternador Avulso ┊ Parcelado na página ✅ CONCLUÍDA
 **What**: A página de Lançamentos passa a oferecer os dois formulários sob um alternador, em vez de empilhá-los, e liga o de avulso à action de T12.
 **Where**: `src/app/(app)/[competencia]/lancamentos/page.tsx`
 **Depends on**: T12, T15
@@ -402,10 +402,10 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O alternador começa em "Avulso", que é o gesto mais frequente
-- [ ] Trocar de aba não perde o que já foi digitado na outra
-- [ ] O alternador é operável por teclado, com `aria-selected` correto
-- [ ] `pnpm build` passa
+- [x] O alternador começa em "Avulso", que é o gesto mais frequente
+- [x] Trocar de aba não perde o que já foi digitado na outra
+- [x] O alternador é operável por teclado, com `aria-selected` correto
+- [x] `pnpm build` passa
 **Tests**: none
 **Gate**: build
 

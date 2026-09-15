@@ -245,7 +245,7 @@ de ausência.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| AVUL-01 | P1: Registrar um gasto avulso | Design | Pending |
+| AVUL-01 | P1: Registrar um gasto avulso | Implementing | In Tasks |
 | AVUL-02 | P1: Registrar dinheiro que entra | Implementing | In Tasks |
 | AVUL-03 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
 | AVUL-04 | P2: Excluir um lançamento avulso | Implementing | In Tasks |
