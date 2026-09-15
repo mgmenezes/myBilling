@@ -571,7 +571,7 @@ T22 -> T23 -> T24
 **Tests**: e2e
 **Gate**: build
 
-#### T22: O CI passa a rodar o que o terminal roda
+#### T22: O CI passa a rodar o que o terminal roda ✅ CONCLUÍDA
 **What**: Acrescentar integração e e2e ao workflow, corrigindo o comentário que afirma não haver migration e ajustando a porta do serviço Postgres para a que os testes usam.
 **Where**: `.github/workflows/ci.yml`
 **Depends on**: T19, T20, T21
@@ -579,10 +579,10 @@ T22 -> T23 -> T24
 **Requirement**: AVUL-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O job roda `pnpm test:integration` depois de aplicar as migrations
-- [ ] O job roda `pnpm test:e2e`
-- [ ] O comentário desatualizado sobre ausência de migration é removido
-- [ ] O gate do CI passa a ser equivalente ao `pnpm verify` local
+- [x] O job roda `pnpm test:integration` depois de aplicar as migrations
+- [x] O job roda `pnpm test:e2e`
+- [x] O comentário desatualizado sobre ausência de migration é removido
+- [x] O gate do CI passa a ser equivalente ao `pnpm verify` local
 **Tests**: none
 **Gate**: build
 

@@ -9,8 +9,14 @@ jobs:
   verify:
     runs-on: ubuntu-latest
 
-    # Disponível para os testes de integração das fases seguintes (AD-010).
-    # Ainda não há schema/migration, então test:integration não roda neste job.
+    # Postgres real, nunca SQLite (AD-010): `CHECK` condicional, índice parcial
+    # e tipo `date` divergem de dialeto, e a suíte passaria exatamente onde a
+    # confiança importa.
+    #
+    # Publicado na **5433**, e não na 5432, porque é a porta que
+    # `URL_BANCO_DE_TESTE` usa por padrão — a mesma do `docker-compose.yml`.
+    # Divergir aqui obrigaria o CI a exportar `DATABASE_URL_TEST`, e o gate
+    # deixaria de ser o mesmo comando que roda no terminal.
     services:
       postgres:
         image: postgres:17
@@ -19,7 +25,7 @@ jobs:
           POSTGRES_PASSWORD: mybilling
           POSTGRES_DB: mybilling_test
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -42,6 +48,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # O projeto do Playwright usa `channel: "chrome"` para não baixar browser
+      # no gate local, onde o Chrome já está instalado. No runner ele não está.
+      - name: Install Chrome for Playwright
+        run: pnpm exec playwright install --with-deps chrome
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -51,5 +62,25 @@ jobs:
       - name: Unit tests
         run: pnpm test:unit
 
+      # Sem passo de migration antes: `recriarBancoDeTeste` derruba o schema e
+      # reaplica `drizzle/*.sql` do zero no `beforeAll` de cada arquivo. É essa
+      # execução que prova, a cada rodada, que as migrations aplicam num banco
+      # limpo — um `db:migrate` separado tiraria a prova do caminho.
+      - name: Integration tests
+        run: pnpm test:integration
+
       - name: Build
         run: pnpm build
+
+      # Por último porque é o mais lento e o mais frágil: se ele falhar, os
+      # gates mais baratos já disseram que o resto está de pé.
+      - name: End-to-end tests
+        run: pnpm test:e2e
+
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
