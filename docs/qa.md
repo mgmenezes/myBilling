@@ -4,7 +4,13 @@ Roteiro para exercitar o app **em modo produção**, contra um banco limpo, ante
 Ele existe porque `pnpm dev` e `pnpm start` não são o mesmo programa: o build de produção embute
 `NODE_ENV=production`, e isso muda autenticação, cookies e o provider de teste.
 
-O QA tem **dois estágios**, e o segundo depende de algo que só você pode criar.
+O QA tem **dois estágios**. O segundo exige login pelo Google, que é gesto humano — nenhum agente
+faz por você.
+
+> [!IMPORTANT]
+> **Ele roda contra o Postgres local, e não contra o Neon.** A porta 5432 de saída é bloqueada nesta
+> rede, então o app rodando aqui não alcança o banco gerenciado — o mesmo bloqueio que impede o
+> `pnpm db:migrate`. Exercitar o Neon de verdade só depois que o app estiver hospedado.
 
 ---
 
@@ -48,22 +54,26 @@ docker exec mybilling-db psql -U mybilling -d mybilling_qa -tAc \
 ```bash
 pnpm build
 
-DATABASE_URL="postgres://mybilling:mybilling@localhost:5433/mybilling_qa" \
-AUTH_SECRET="$(openssl rand -base64 32)" \
-AUTH_GOOGLE_ID="..." \
-AUTH_GOOGLE_SECRET="..." \
-EMAILS_PERMITIDOS="seu-email@exemplo.com" \
-pnpm start --port 3200
+set -a; source .env.local; set +a
+DATABASE_URL="postgres://mybilling:mybilling@localhost:5433/mybilling_qa" pnpm start
 ```
 
-`pnpm dev` precisa estar parado se você usar a porta dele. O Next 16 recusa um segundo `next dev` no
-mesmo diretório; `next start` numa porta livre convive com ele.
+**Na porta 3000, e não numa porta alternativa.** O `AUTH_GOOGLE_ID` tem as URLs de redirecionamento
+registradas no Google Cloud Console, e `http://localhost:3000/api/auth/callback/google` é a que já
+existe — é por ela que o login funciona em `pnpm dev`. Subir noutra porta devolve
+`redirect_uri_mismatch`, a menos que você acrescente a URL nova no console antes.
+
+`pnpm dev` precisa estar parado: os dois disputam a 3000, e o Next 16 recusa um segundo `next dev`
+no mesmo diretório de todo modo.
+
+O `source .env.local` reaproveita as credenciais que já existem ali; só o `DATABASE_URL` é
+sobrescrito, para apontar ao banco de QA em vez do de desenvolvimento.
 
 Conferência de que subiu e que a autenticação está ligada:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3200/
-# 307 http://localhost:3200/login
+curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3000/
+# 307 http://localhost:3000/login
 ```
 
 ---
@@ -74,13 +84,13 @@ curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:3200/
 confere na tela que cada um caiu no bloco certo e mexeu no indicador certo.
 
 > [!IMPORTANT]
-> **Depende das credenciais reais do Google OAuth, e só você pode criá-las.**
+> **Exige login pelo Google, no navegador. Nenhum agente faz isso por você.**
 
 Não há contorno, e a razão é de desenho, não descuido. Em modo produção o único provider registrado
 é o Google:
 
 ```bash
-curl -s http://localhost:3200/api/auth/providers
+curl -s http://localhost:3000/api/auth/providers
 # {"google":{...}}   — e nada mais
 ```
 
@@ -97,18 +107,26 @@ remova a variável do ambiente.
 Degradar em silêncio deixaria um provider de credenciais sem senha exposto na internet. A falha
 barulhenta é a feature (`src/infrastructure/auth/auth.ts`, `provedorDeTesteHabilitado`).
 
-### O que fazer, então
+### As credenciais já existem
 
-1. No Google Cloud Console, criar credenciais OAuth 2.0 do tipo *Aplicativo Web*.
-2. Em **Origens JavaScript autorizadas**, acrescentar `http://localhost:3200`.
-3. Em **URIs de redirecionamento autorizados**, acrescentar
-   `http://localhost:3200/api/auth/callback/google`.
-4. Pôr o id e o segredo nas variáveis do comando do estágio 1, passo 3.
-5. Pôr o seu e-mail em `EMAILS_PERMITIDOS`. Quem não está na lista recebe 403, e nenhum usuário é
-   criado (AD-007).
+`AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` e `EMAILS_PERMITIDOS` estão preenchidos em `.env.local`, com
+valores reais — é o que faz o login funcionar em `pnpm dev`. Rodando o estágio 1 na porta 3000 e
+com `source .env.local`, o estágio 2 não precisa de nada novo.
 
-Essas credenciais são pré-requisito do deploy de qualquer forma — o app não autentica ninguém sem
-elas. Fazê-las agora não é trabalho extra, é trabalho adiantado.
+**Quando o app for hospedado**, o Google Cloud Console precisa de duas entradas a mais, apontando
+para o domínio de produção:
+
+- **Origens JavaScript autorizadas**: `https://<dominio>`
+- **URIs de redirecionamento autorizados**: `https://<dominio>/api/auth/callback/google`
+
+Quem não está em `EMAILS_PERMITIDOS` recebe 403, e nenhum usuário é criado (AD-007).
+
+**`AUTH_SECRET` é outra coisa, e não pode ficar como o exemplo.** Ele assina o cookie de sessão; o
+valor do `.env.example` está publicado no repositório. Gere um por ambiente:
+
+```bash
+openssl rand -base64 32
+```
 
 **Nenhum segredo entra neste repositório.** Os valores acima são placeholders; os reais vivem em
 `.env.local`, que o `.gitignore` cobre, ou no ambiente do host.
