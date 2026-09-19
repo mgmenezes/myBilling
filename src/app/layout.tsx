@@ -63,6 +63,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <head>
+        {/*
+          O React avisa no console de desenvolvimento: "Encountered a script tag
+          while rendering React component. Scripts inside React components are
+          never executed when rendering on the client."
+
+          **O aviso é um falso positivo aqui, e trocar por `next/script` seria
+          pior.** Ele alerta sobre renderização no *cliente*; este script só
+          existe na primeira carga, vinda do servidor, que é exatamente quando o
+          tema precisa ser aplicado — antes da primeira pintura. Conferido: ele
+          chega ao HTML servido e executa.
+
+          `next/script` com `beforeInteractive` silenciaria o aviso e devolveria
+          o flash de tema errado, que é defeito que o usuário vê. Trocar ruído de
+          console por isso é andar para trás.
+        */}
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: conteúdo constante do próprio módulo, sem nenhum dado de usuário ou de requisição. É a única forma de rodar antes da pintura. */}
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
       </head>
