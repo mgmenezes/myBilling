@@ -51,6 +51,12 @@ export interface OpcaoDeCadastro {
 export interface FormCompraProps {
   /** Competência da parcela inicial: o mês que o usuário está vendo. */
   readonly competencia: string;
+  /**
+   * A data que o campo propõe: hoje, quando hoje pertence ao mês aberto; dia 1
+   * quando não (CAD-04, AC 10). Vem pronta do servidor porque quem conhece o
+   * relógio é a borda, nunca o domínio nem este componente.
+   */
+  readonly dataPadrao: string;
   readonly meios: ReadonlyArray<OpcaoDeCadastro>;
   readonly categorias: ReadonlyArray<OpcaoDeCadastro>;
   readonly usuarios: ReadonlyArray<OpcaoDeCadastro>;
@@ -88,6 +94,7 @@ function inteiro(texto: string): number {
 
 export function FormCompra({
   competencia,
+  dataPadrao,
   meios,
   categorias,
   usuarios,
@@ -108,7 +115,7 @@ export function FormCompra({
   const [valor, setValor] = useState("");
   const [qtdParcelas, setQtdParcelas] = useState("1");
   const [parcelaInicial, setParcelaInicial] = useState("1");
-  const [dataEvento, setDataEvento] = useState(`${competencia}-01`);
+  const [dataEvento, setDataEvento] = useState(dataPadrao);
   const [categoriaId, setCategoriaId] = useState("");
   const [usuarioId, setUsuarioId] = useState(usuarios[0]?.id ?? "");
   const [meioPagamentoId, setMeioPagamentoId] = useState(meios[0]?.id ?? "");

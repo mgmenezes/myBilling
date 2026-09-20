@@ -134,6 +134,26 @@ Explicitamente excluído desta fatia.
 
 **Independent Test**: Abrir o painel, registrar uma despesa à vista de R$ 40,00, e confirmar que ela aparece na lista e que o indicador de despesas aumentou em R$ 40,00.
 
+> [!NOTE]
+> **Reconciliado com a fatia `lancamento-avulso`, em 2026-09-19.** Esta história foi escrita antes
+> dela e três critérios não sobreviveram ao contato com a implementação. Ficam registrados aqui em
+> vez de removidos, porque o que mudou e por quê é a informação útil.
+>
+> **AC 5 (idempotência) — revogado.** A fatia nova recusou chave de idempotência no lançamento
+> avulso, e a razão está na spec dela: dois Pix de R$ 50 no mesmo dia são dois Pix, e deduplicar
+> impediria o caso legítimo para prevenir um clique duplo que o botão desabilitado já evita. A
+> compra parcelada **mantém** a chave, porque lá a duplicata é sempre erro. Vale para `AVUL-01`.
+>
+> **AC 8 (confirmar antes de descartar) — atendido de outra forma.** O cadastro vive num `<dialog>`
+> cujo conteúdo **nunca é desmontado** (AD-014): fechar e reabrir devolve tudo que foi digitado.
+> Isso atende a intenção do critério — não perder trabalho — sem o clique extra de um "tem
+> certeza?" que apareceria mesmo quando não há nada a perder.
+>
+> **AC 10 (data corrente) — cumprido, com a qualificação que faltava.** O critério pedia "a data
+> corrente" e estaria errado ao pé da letra: quem abre **março** a partir de setembro não quer
+> hoje ali, porque cai fora da competência. A regra implementada é **hoje quando hoje pertence ao
+> mês aberto, dia 1 quando não**, em `dataPadraoDoLancamento`.
+
 ---
 
 ### P2: Marcar pago e desfazer

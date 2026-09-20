@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { confirmarValor } from "@/application/mes/confirmar-valor/handler";
 import { marcarPagamento } from "@/application/mes/marcar-pagamento/handler";
-import { type Cents, dataParaCompetencia } from "@/domain";
+import type { Cents } from "@/domain";
 import { ErroDeSessao, requireSession } from "@/infrastructure/auth/sessao";
 import { criarRepositorios } from "@/infrastructure/container";
 import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros";
+import { hojeEm } from "@/lib/relogio";
 
 /**
  * Server Action de pagamento.
@@ -23,8 +24,6 @@ import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros"
  * decidem pela **competência**, não por esta data. Passa a importar quando
  * faturas existirem, e aí escolher a data vira item próprio.
  */
-
-const FUSO = "America/Sao_Paulo";
 
 export interface PagamentoGravado {
   readonly lancamentoId: string;
@@ -47,7 +46,7 @@ export async function alternarPagamento(
   try {
     const resultado = await marcarPagamento(criarRepositorios(), {
       lancamentoId,
-      pagoEm: pago ? hoje() : null,
+      pagoEm: pago ? hojeEm() : null,
     });
     if (!resultado.ok) {
       return erroDeAction(resultado.error.code);
@@ -71,30 +70,6 @@ export async function alternarPagamento(
       `${mensagemDoErro("ERRO_INESPERADO")} (ref. ${correlationId})`,
     );
   }
-}
-
-/**
- * A data de hoje em `'YYYY-MM-DD'`, no fuso da casa.
- *
- * Reusa `dataParaCompetencia` para o ano e o mês porque ela já resolve o fuso
- * sem objeto de data — o dia sai do mesmo `Intl`, pela mesma razão: às 21h de
- * 31/03 em São Paulo, o UTC já é 1º de abril, e usar o dia da máquina gravaria
- * o pagamento no dia seguinte.
- */
-function hoje(): string {
-  const agora = new Date().toISOString();
-  const competencia = dataParaCompetencia(agora, FUSO);
-  if (!competencia.ok) {
-    throw new Error("não foi possível resolver a data corrente");
-  }
-  const partes = new Intl.DateTimeFormat("en-CA", { timeZone: FUSO, day: "2-digit" }).formatToParts(
-    new Date(agora),
-  );
-  const dia = partes.find((parte) => parte.type === "day")?.value;
-  if (dia === undefined) {
-    throw new Error("não foi possível resolver o dia corrente");
-  }
-  return `${competencia.value}-${dia}`;
 }
 
 /**

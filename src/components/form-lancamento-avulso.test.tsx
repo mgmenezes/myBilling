@@ -49,6 +49,7 @@ function montar(enviar: typeof criarLancamentoAvulso = envioOk()) {
   render(
     <FormLancamentoAvulso
       competencia="2026-03"
+      dataPadrao={"2026-03-10"}
       meios={MEIOS}
       categorias={[{ id: "cat-0", nome: "Alimentação" }]}
       usuarios={[{ id: PESSOA, nome: "Pessoa A" }]}
@@ -348,5 +349,40 @@ describe("FormLancamentoAvulso — a língua da receita (ENTR-03)", () => {
 
     expect(screen.getByLabelText("Meio de pagamento")).toBeDefined();
     expect(screen.getByRole("option", { name: "Cartão Roxo" })).toBeDefined();
+  });
+});
+
+/*
+ * A regra de qual data propor é do domínio (`dataPadraoDoLancamento`); o que o
+ * formulário precisa provar é que **usa** o que recebeu. Sem isto a prop
+ * poderia ser ignorada e o campo voltar ao dia 1 sem nada ficar vermelho.
+ */
+describe("FormLancamentoAvulso — a data proposta (CAD-04, AC 10)", () => {
+  it("preenche o campo com a data que veio do servidor", () => {
+    montar();
+
+    expect((screen.getByLabelText("Data") as HTMLInputElement).value).toBe("2026-03-10");
+  });
+
+  it("envia a data proposta quando a pessoa não a altera", async () => {
+    const enviar = montar();
+
+    await userEvent.type(screen.getByLabelText("Descrição"), "Almoço");
+    await userEvent.type(screen.getByLabelText("Valor (R$)"), "32,50");
+    await userEvent.click(screen.getByRole("button", { name: "Cadastrar lançamento" }));
+
+    expect(enviar).toHaveBeenCalledWith(expect.objectContaining({ dataEvento: "2026-03-10" }));
+  });
+
+  it("continua editável: a proposta não prende ninguém", async () => {
+    const enviar = montar();
+
+    await userEvent.type(screen.getByLabelText("Descrição"), "Almoço");
+    await userEvent.type(screen.getByLabelText("Valor (R$)"), "32,50");
+    await userEvent.clear(screen.getByLabelText("Data"));
+    await userEvent.type(screen.getByLabelText("Data"), "2026-03-25");
+    await userEvent.click(screen.getByRole("button", { name: "Cadastrar lançamento" }));
+
+    expect(enviar).toHaveBeenCalledWith(expect.objectContaining({ dataEvento: "2026-03-25" }));
   });
 });

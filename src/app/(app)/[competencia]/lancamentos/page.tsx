@@ -21,11 +21,19 @@ import { FormCompra } from "@/components/form-compra";
 import { FormLancamentoAvulso } from "@/components/form-lancamento-avulso";
 import { SeletorDeFormulario } from "@/components/seletor-de-formulario";
 import { TabelaLancamentos } from "@/components/tabela-lancamentos";
-import { type Cents, criarCompetencia, type Natureza, somar, ZERO_CENTS } from "@/domain";
+import {
+  type Cents,
+  criarCompetencia,
+  dataPadraoDoLancamento,
+  type Natureza,
+  somar,
+  ZERO_CENTS,
+} from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
 import { formatarBRL } from "@/lib/formatar";
+import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../../sessao";
 
 /**
@@ -116,6 +124,10 @@ export default async function PaginaDeLancamentos({
   /* Montadas uma vez: os dois formulários do alternador recebem as mesmas. */
   const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
   const opcoesDeUsuario = usuarios.map((u) => ({ id: u.id, nome: u.nome }));
+  /* Hoje, se hoje for deste mês; senão o dia 1 (CAD-04, AC 10). Resolvido aqui
+     porque quem conhece o relógio é a borda, e no fuso da casa — nunca o da
+     máquina, que às 21h de 31/03 já está em abril. */
+  const dataPadrao = dataPadraoDoLancamento(resultado.value, hojeEm());
 
   return (
     <div className="flex flex-col gap-6">
@@ -131,6 +143,7 @@ export default async function PaginaDeLancamentos({
                 conteudo: (
                   <FormLancamentoAvulso
                     competencia={resultado.value}
+                    dataPadrao={dataPadrao}
                     /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
                     meios={meios.map((meio) => ({
                       id: meio.id,
@@ -151,6 +164,7 @@ export default async function PaginaDeLancamentos({
                 conteudo: (
                   <FormCompra
                     competencia={resultado.value}
+                    dataPadrao={dataPadrao}
                     meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
                     categorias={opcoesDeCategoria}
                     usuarios={opcoesDeUsuario}

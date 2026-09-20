@@ -52,6 +52,12 @@ export interface OpcaoDeMeio extends OpcaoDeCadastro {
 
 export interface FormLancamentoAvulsoProps {
   readonly competencia: string;
+  /**
+   * A data que o campo propõe: hoje, quando hoje pertence ao mês aberto; dia 1
+   * quando não (CAD-04, AC 10). Vem pronta do servidor porque quem conhece o
+   * relógio é a borda, nunca o domínio nem este componente.
+   */
+  readonly dataPadrao: string;
   readonly meios: ReadonlyArray<OpcaoDeMeio>;
   readonly categorias: ReadonlyArray<OpcaoDeCadastro>;
   readonly usuarios: ReadonlyArray<OpcaoDeCadastro>;
@@ -82,6 +88,7 @@ function inteiro(texto: string): number {
 
 export function FormLancamentoAvulso({
   competencia,
+  dataPadrao,
   meios,
   categorias,
   usuarios,
@@ -96,7 +103,7 @@ export function FormLancamentoAvulso({
   const [descricao, setDescricao] = useState("");
   const [natureza, setNatureza] = useState<"DESPESA" | "RECEITA">("DESPESA");
   const [valor, setValor] = useState("");
-  const [dataEvento, setDataEvento] = useState(`${competencia}-01`);
+  const [dataEvento, setDataEvento] = useState(dataPadrao);
   const [categoriaId, setCategoriaId] = useState("");
   const [usuarioId, setUsuarioId] = useState(usuarios[0]?.id ?? "");
   const [meioPagamentoId, setMeioPagamentoId] = useState(meios[0]?.id ?? "");

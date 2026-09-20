@@ -54,6 +54,7 @@ function montar(
   const utils = render(
     <FormCompra
       competencia={competencia}
+      dataPadrao="2026-03-04"
       meios={MEIOS}
       categorias={CATEGORIAS}
       usuarios={USUARIOS}
