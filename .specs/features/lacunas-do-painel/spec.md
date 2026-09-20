@@ -249,7 +249,7 @@ instantânea.
 | MES-01 | P2: Voltar ao mês de hoje — ACs 1 a 3 | Design | Pending |
 | VAZIO-01 | P2: Todo estado vazio oferece saída — ACs 1 a 4 | Design | Pending |
 | TOQUE-01 | P2: Os controles da linha respeitam a área de toque — ACs 1 a 3 | Design | Pending |
-| REDE-01 | P1: A busca e os filtros ganham prova — ACs 1 a 6 | Design | Pending |
+| REDE-01 | P1: A busca e os filtros ganham prova — ACs 1 a 6 | Execute | ACs 1 a 4 provadas (T1) |
 | REDE-02 | P1: O indicador e a lista param de poder divergir — ACs 1 a 4 | Design | Pending |
 | REDE-03 | P3: O que estava implementado e não provado — ACs 1 a 5 | Design | Pending |
 

@@ -118,12 +118,12 @@ T12 -> T13 -> T14
 **Requirement**: REDE-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Busca acha "Água" digitando "agua", e vice-versa (AC 1)
-- [ ] Cada uma das cinco dimensões filtra isoladamente (AC 2)
-- [ ] Dois filtros juntos devolvem a interseção, e não a união (AC 3)
-- [ ] Busca só com espaços não conta como filtro ativo (AC 4, edge case)
-- [ ] `situacaoDe` devolve os três estados, com competência aberta anterior, igual e posterior
-- [ ] **Mutante confirmado**: `filtrarLancamentos` devolvendo a lista inteira mata a suíte
+- [x] Busca acha "Água" digitando "agua", e vice-versa (AC 1)
+- [x] Cada uma das cinco dimensões filtra isoladamente (AC 2)
+- [x] Dois filtros juntos devolvem a interseção, e não a união (AC 3)
+- [x] Busca só com espaços não conta como filtro ativo (AC 4, edge case)
+- [x] `situacaoDe` devolve os três estados, com competência aberta anterior, igual e posterior
+- [x] **Mutante confirmado**: `filtrarLancamentos` devolvendo a lista inteira mata a suíte
 **Tests**: unit
 **Gate**: quick
 
