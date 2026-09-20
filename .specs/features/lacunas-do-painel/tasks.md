@@ -312,11 +312,12 @@ T12 -> T13 -> T14
 **Requirement**: REDE-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Com movimento reduzido ativo, a transição do elemento animado é instantânea (AC 1)
-- [ ] Valor monetário tem `font-variant-numeric` tabular e alinhamento à direita, no estilo computado (AC 2)
-- [ ] Cada eixo do painel tem exatamente quatro indicadores (AC 3)
-- [ ] O esqueleto tem a mesma contagem de blocos que a página (AC 5)
-- [ ] **Mutantes confirmados**: inverter a media query, e acrescentar um quinto indicador, matam a suíte
+- [x] Com movimento reduzido ativo, a transição do elemento animado é instantânea (AC 1) — `e2e/acessibilidade.spec.ts:191`, com teste de controle em `:206` para a media query invertida não passar à toa
+- [x] Valor monetário tem `font-variant-numeric` tabular e alinhamento à direita, no estilo computado (AC 2) — `e2e/acessibilidade.spec.ts:221`
+- [x] Cada eixo do painel tem exatamente quatro indicadores (AC 3) — `e2e/acessibilidade.spec.ts:238`
+- [ ] O esqueleto tem a mesma contagem de blocos que a página (AC 5) — **lacuna de precisão da spec, não fechada.** A página não define "contagem de blocos": tem cabeçalho, quatro indicadores e duas `section`, enquanto o esqueleto tem três zonas e sete blocos. Pior, ele **derivou**: declara espelhar uma proporção 3:2 (`lg:grid-cols-5`, `col-span-3`, `col-span-2`) que não existe mais em `page.tsx`, no painel nem no gráfico. Redesenhá-lo está em Out of Scope, e a forma nova é decisão visual
+- [x] A rota do mês transmite o esqueleto, com `role=status`, o texto acessível e os sete blocos que ele declara — `e2e/acessibilidade.spec.ts:252`. **Medido, não suposto**: em `next dev` o `Link` não prefetcha, então a navegação por clique não desenha esqueleto nenhum e a URL nem muda; e na navegação dura o React o substitui antes de 40ms, com vinte amostras seguidas em zero. O documento transmitido é o único lugar onde o comportamento é observável
+- [x] **Mutantes confirmados**: a media query invertida (`prefers-reduced-motion: no-preference` em `globals.css:318`) morre em `e2e/acessibilidade.spec.ts:191`; um quinto indicador no eixo planejamento morre em `e2e/acessibilidade.spec.ts:238`, com `Expected: 4, Received: 5`. Cada um foi confrontado com **o teste que deveria pegá-lo**, e não com a suíte inteira: suíte vermelha por outro motivo é o falso conforto que a L-004 existe para impedir
 **Tests**: e2e
 **Gate**: build
 

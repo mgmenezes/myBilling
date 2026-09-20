@@ -150,3 +150,129 @@ test("os dois alvos continuam separados, e a linha não transborda a janela", as
   );
   expect(transbordo).toBe(0);
 });
+
+/**
+ * O que existia só em CSS, e podia sumir sem nenhuma prova reclamar
+ * (REDE-03). Nada disto está quebrado hoje; tudo isto quebra em silêncio.
+ */
+
+/**
+ * A duração de transição que o navegador calculou, em milissegundos.
+ *
+ * Lê o valor bruto e recusa string vazia: estilo computado vazio significa nó
+ * solto do documento, e `parseFloat` devolveria `NaN` — que é uma falha
+ * silenciosa disfarçada de medida.
+ */
+async function duracaoDaTransicao(controle: Locator): Promise<number> {
+  const valor = await controle.evaluate(
+    (elemento) => getComputedStyle(elemento).transitionDuration,
+  );
+  /* Sob movimento reduzido o navegador devolve `1e-05s`, em notação
+     científica: o guarda precisa aceitá-la, ou recusa justamente a medida que
+     o teste existe para ver. */
+  if (!/^\d*\.?\d+(?:e[+-]?\d+)?m?s$/i.test(valor)) {
+    throw new Error(`transition-duration ilegível: "${valor}"`);
+  }
+  return valor.endsWith("ms") ? Number.parseFloat(valor) : Number.parseFloat(valor) * 1000;
+}
+
+/**
+ * O alvo da medida é a seta do seletor de mês: ela declara `duration-200`, e
+ * mora no layout, fora da árvore do Motion — onde o elemento é reconstruído na
+ * hidratação e o estilo computado vira medida de nó solto.
+ */
+function setaDoMesAnterior(page: Page): Locator {
+  return page.getByRole("link", { name: /Mês anterior/ });
+}
+
+test.describe("movimento reduzido (REDE-03, AC 1)", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("a transição do controle mais tocado é instantânea", async ({ page }) => {
+    await page.goto(`/${CORRENTE}/lancamentos`);
+
+    const seta = setaDoMesAnterior(page);
+    await expect(seta).toBeVisible();
+
+    expect(await duracaoDaTransicao(seta)).toBeLessThan(1);
+  });
+});
+
+test.describe("sem preferência declarada de movimento", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  /* O controle do caso acima. Sem ele, a media query invertida devolveria uma
+     duração baixa por outro motivo e o teste passaria à toa. */
+  test("o mesmo controle anima nos 200ms que a classe declara", async ({ page }) => {
+    await page.goto(`/${CORRENTE}/lancamentos`);
+
+    const seta = setaDoMesAnterior(page);
+    await expect(seta).toBeVisible();
+
+    expect(await duracaoDaTransicao(seta)).toBeGreaterThan(100);
+  });
+});
+
+test.describe("o valor monetário na lista (REDE-03, AC 2)", () => {
+  /* Alinhar à direita é comportamento de tabela, que só existe a partir de
+     `md`: abaixo disso a linha é um cartão empilhado. */
+  test.use({ viewport: { width: 1280, height: 900 } });
+
+  test("tem algarismo de largura fixa e alinhamento à direita", async ({ page }) => {
+    await cadastrarGastoAvulso(page, "Gasto avulso A");
+
+    const celula = page
+      .getByRole("row", { name: /Gasto avulso A/ })
+      .locator("td")
+      .filter({ hasText: "R$" });
+    const estilo = await celula.evaluate((elemento) => {
+      const computado = getComputedStyle(elemento);
+      return { algarismo: computado.fontVariantNumeric, alinhamento: computado.textAlign };
+    });
+
+    expect(estilo.algarismo).toContain("tabular-nums");
+    expect(estilo.alinhamento).toBe("right");
+  });
+});
+
+test("cada eixo do painel tem exatamente quatro indicadores (REDE-03, AC 3)", async ({ page }) => {
+  for (const eixo of ["", "?visao=movimentacoes"]) {
+    await page.goto(`/${CORRENTE}${eixo}`);
+
+    /* A grade é a avó do rótulo: rótulo → cartão → grade. Contar os filhos
+       dela é o que pega um quinto indicador; contar rótulos conhecidos não. */
+    const grade = page
+      .getByText(eixo === "" ? "Receitas do mês" : "Recebido", { exact: true })
+      .locator("xpath=../..");
+
+    await expect(grade.locator("> *")).toHaveCount(4);
+  }
+});
+
+test("a rota do mês transmite o esqueleto de carregamento (REDE-03, AC 5)", async ({ page }) => {
+  /* **Por que a prova é sobre a resposta, e não sobre a tela.**
+   *
+   * Medido, não suposto: em `next dev` o `Link` não prefetcha, então a
+   * fronteira de carregamento não existe no cliente e a navegação por clique
+   * espera a resposta inteira sem desenhar esqueleto nenhum — a URL nem chega
+   * a mudar. E na navegação dura o React substitui o esqueleto antes da
+   * primeira amostra: vinte medições de 40 em 40ms devolveram zero nós com
+   * `role=status`. A tela não é onde este comportamento é observável.
+   *
+   * O documento transmitido é. O esqueleto vem nele, e é dali que ele pode
+   * sumir em silêncio — que é exatamente o risco que o AC 5 existe para pegar.
+   */
+  const documento = await page.request.get(`/${CORRENTE}`);
+  expect(documento.ok()).toBe(true);
+  const html = await documento.text();
+
+  expect(html).toContain('role="status"');
+  expect(html).toContain("Carregando o mês");
+
+  /* Conta pelo atributo de classe, e não por `animate-pulse` solto: a carga
+     serializada do RSC repete cada `className` no mesmo documento, e contar a
+     string crua devolve o dobro — número que mudaria junto com o formato de
+     serialização do framework, sem nada ter mudado no app. */
+  const blocos = (html.match(/class="animate-pulse/g) ?? []).length;
+  expect(blocos).toBe(7);
+});
