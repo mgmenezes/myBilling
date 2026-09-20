@@ -6,7 +6,15 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!.next", "!public", "!.agents", "!.claude", "!drizzle"]
+    "includes": [
+      "**",
+      "!.next",
+      "!public",
+      "!.agents",
+      "!.claude",
+      "!drizzle",
+      "!.specs/lessons.json"
+    ]
   },
   "css": {
     "parser": {
