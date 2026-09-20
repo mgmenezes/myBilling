@@ -221,4 +221,14 @@ describe("limpar filtros devolve a lista inteira do mês", () => {
 
     expect(replace).toHaveBeenCalledWith("?", { scroll: false });
   });
+
+  /* O vazio de filtro é justamente onde a saída precisa estar à vista: a
+     lista não tem nada para mostrar, e o que tira a pessoa de lá é limpar. */
+  it("continua oferecido quando o filtro não devolveu resultado (VAZIO-01, AC 2)", () => {
+    estado.parametros = new URLSearchParams("busca=inexistente");
+    montar({ quantidadeVisivel: 0, totalVisivel: "R$ 0,00" });
+
+    expect(screen.getByRole("button", { name: "Limpar filtros" })).toBeDefined();
+    expect(screen.getByText(/lançamentos com 1 filtro/)).toBeDefined();
+  });
 });

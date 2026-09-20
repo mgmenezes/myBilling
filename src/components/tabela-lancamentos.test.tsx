@@ -1,4 +1,5 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento } from "@/app/actions/lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
@@ -592,5 +593,48 @@ describe("os dois controles da linha continuam separados (TOQUE-01)", () => {
     expect(contêiner).not.toBeNull();
     expect(contêiner?.contains(excluir)).toBe(true);
     expect(contêiner?.className).toContain("gap-2");
+  });
+});
+
+describe("o vazio do mês oferece a saída (VAZIO-01, ACs 1 e 4)", () => {
+  /* O gatilho do cadastro vive no topo da página, montado uma vez só
+     (AD-014). Aqui ele entra como dublê, com o mesmo contrato ARIA que o
+     `DialogoDeCadastro` declara, para provar que o controle do estado vazio
+     abre o cadastro que já existe em vez de montar um segundo. */
+  function montarVazio(aoAbrirCadastro: () => void) {
+    render(
+      <>
+        <button type="button" aria-haspopup="dialog" onClick={aoAbrirCadastro}>
+          + Novo lançamento
+        </button>
+        <TabelaLancamentos
+          competenciaCorrente={MARCO}
+          lancamentos={[]}
+          categorias={CATEGORIAS}
+          alternarPagamento={alternarOk}
+          confirmarValor={confirmarOk}
+          excluir={excluirOk}
+        />
+      </>,
+    );
+  }
+
+  it("oferece o controle que abre o cadastro", async () => {
+    const abrirCadastro = vi.fn();
+    montarVazio(abrirCadastro);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "+ Cadastrar o primeiro lançamento" }),
+    );
+
+    expect(abrirCadastro).toHaveBeenCalledTimes(1);
+  });
+
+  it("não manda procurar o cadastro em posição que ele não ocupa", () => {
+    montarVazio(vi.fn());
+
+    const aviso = screen.getByText(/Nenhum lançamento neste mês ainda/);
+
+    expect(aviso.textContent).not.toContain("abaixo");
   });
 });

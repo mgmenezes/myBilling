@@ -7,6 +7,7 @@ import { situacaoDe } from "@/application/mes/filtrar-lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import { type BlocoDoMes, type Competencia, type Natureza, resolverValorEfetivo } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
+import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
 import { Chip } from "./ui";
@@ -50,6 +51,13 @@ import { ValorConfirmavel } from "./valor-confirmavel";
  * rótulo do botão diria que existe um terceiro clique. Ele entra como selo
  * próprio, com a palavra escrita, pelo mesmo princípio do `BotaoPago`: o
  * estado está no texto, e a cor só repete o que o texto já disse.
+ *
+ * **O vazio do mês oferece a saída, e não só a notícia.** O texto mandava
+ * cadastrar "abaixo", e o cadastro subiu para o topo no AD-014: a frase passou
+ * a apontar para um lugar onde não há nada. Em vez de corrigir a direção, o
+ * estado vazio passa a carregar o próprio controle — ele aciona o diálogo que
+ * já está montado, de modo que a posição do cadastro deixa de ser uma
+ * informação que o texto precisa acertar (VAZIO-01, ACs 1 e 4).
  *
  * **A coluna "Parcela" só existe no bloco de compra parcelada.** Fora dele ela
  * era uma coluna permanentemente vazia, e coluna vazia não é neutra: ela
@@ -107,10 +115,13 @@ export function TabelaLancamentos({
 }) {
   if (lancamentos.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
-        Nenhum lançamento neste mês ainda. Cadastre um abaixo: um gasto avulso, uma entrada, ou uma
-        compra parcelada cujas parcelas dos meses seguintes aparecem sozinhas.
-      </p>
+      <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-line px-6 py-12 text-center">
+        <p className="text-[15px] text-ink-muted">
+          Nenhum lançamento neste mês ainda. Cadastre o primeiro: um gasto avulso, uma entrada, ou
+          uma compra parcelada cujas parcelas dos meses seguintes aparecem sozinhas.
+        </p>
+        <BotaoAbrirCadastro rotulo="+ Cadastrar o primeiro lançamento" />
+      </div>
     );
   }
 

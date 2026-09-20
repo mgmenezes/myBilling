@@ -263,10 +263,10 @@ T12 -> T13 -> T14
 **Requirement**: VAZIO-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O vazio do mês oferece o controle de cadastro (AC 1)
-- [ ] O vazio de filtro oferece limpar os filtros (AC 2)
-- [ ] Limpar devolve a lista inteira do mês (AC 3)
-- [ ] Nenhum texto manda procurar o cadastro em posição que ele não ocupa (AC 4)
+- [x] O vazio do mês oferece o controle de cadastro (AC 1)
+- [x] O vazio de filtro oferece limpar os filtros (AC 2)
+- [x] Limpar devolve a lista inteira do mês (AC 3)
+- [x] Nenhum texto manda procurar o cadastro em posição que ele não ocupa (AC 4)
 **Tests**: componentes
 **Gate**: quick
 
