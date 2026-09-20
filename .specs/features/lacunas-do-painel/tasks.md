@@ -249,9 +249,9 @@ T12 -> T13 -> T14
 **Requirement**: TOQUE-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Os dois controles medem ao menos 44 em cada dimensão, medido e não declarado (AC 3)
-- [ ] A medição roda em viewport de 400 pixels
-- [ ] **Mutante confirmado**: remover `min-h-11` mata este percurso
+- [x] Os dois controles medem ao menos 44 em cada dimensão, medido e não declarado (AC 3)
+- [x] A medição roda em viewport de 400 pixels
+- [x] **Mutante confirmado**: remover `min-h-11` mata este percurso
 **Tests**: e2e
 **Gate**: build
 

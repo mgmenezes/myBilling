@@ -251,7 +251,7 @@ instantânea.
 | VENC-01 | P1: "Vencido" volta a existir — ACs 1 a 6 | Execute | ACs 1 a 3 (T1); AC 5 (T5); ACs 4 e 6 (T6); percurso na tela (T7) |
 | MES-01 | P2: Voltar ao mês de hoje — ACs 1 a 3 | Design | Pending |
 | VAZIO-01 | P2: Todo estado vazio oferece saída — ACs 1 a 4 | Design | Pending |
-| TOQUE-01 | P2: Os controles da linha respeitam a área de toque — ACs 1 a 3 | Execute | ACs 1 e 2 (T8) |
+| TOQUE-01 | P2: Os controles da linha respeitam a área de toque — ACs 1 a 3 | Execute | ACs 1 e 2 (T8); AC 3 (T9) |
 | REDE-01 | P1: A busca e os filtros ganham prova — ACs 1 a 6 | Execute | ACs 1 a 4 (T1); ACs 5 e 6 (T3); percurso na tela (T4) |
 | REDE-02 | P1: O indicador e a lista param de poder divergir — ACs 1 a 4 | Execute | ACs 1, 2 e 4 (T2); AC 3 (T4) |
 | REDE-03 | P3: O que estava implementado e não provado — ACs 1 a 5 | Design | Pending |
