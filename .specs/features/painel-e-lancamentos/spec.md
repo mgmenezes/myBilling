@@ -207,34 +207,48 @@ Explicitamente excluído desta fatia.
 
 ## Requirement Traceability
 
-| Requirement ID | Story | Phase | Status |
-| --- | --- | --- | --- |
-| NAV-01 | P1: Navegação com período persistente | Design | Pending |
-| NAV-02 | P1: Navegação com período persistente | Design | Pending |
-| NAV-03 | P1: Navegação com período persistente | Design | Pending |
-| DASH-01 | P1: Painel de decisão com visão única | Design | Pending |
-| DASH-02 | P1: Painel de decisão com visão única | Design | Pending |
-| DASH-03 | P1: Painel de decisão com visão única | Design | Pending |
-| DASH-04 | P1: Painel de decisão com visão única | Design | Pending |
-| LANC-01 | P1: Lançamentos com busca e filtro | Design | Pending |
-| LANC-02 | P1: Lançamentos com busca e filtro | Design | Pending |
-| LANC-03 | P1: Lançamentos com busca e filtro | Design | Pending |
-| LANC-04 | P1: Lançamentos com busca e filtro | Design | Pending |
-| CAD-01 | P1: Cadastro rápido de despesa e receita | Design | Pending |
-| CAD-02 | P1: Cadastro rápido de despesa e receita | Design | Pending |
-| CAD-03 | P1: Cadastro rápido de despesa e receita | Design | Pending |
-| CAD-04 | P1: Cadastro rápido de despesa e receita | Design | Pending |
-| PAGO-01 | P2: Marcar pago e desfazer | Design | Pending |
-| PAGO-02 | P2: Marcar pago e desfazer | Design | Pending |
-| UX-01 | P2: Estados, densidade e acessibilidade | Design | Pending |
-| UX-02 | P2: Estados, densidade e acessibilidade | Design | Pending |
-| UX-03 | P2: Estados, densidade e acessibilidade | Design | Pending |
+> [!IMPORTANT]
+> **O recorte por AC abaixo foi reconstruído pelo Verifier em 2026-09-19**, porque esta tabela nunca
+> o teve: ela ligava cada requisito a uma *história*, e três requisitos apontando para os seis ACs da
+> mesma história tornam "quantos estão cobertos" uma pergunta sem resposta. A reconstrução seguiu as
+> únicas âncoras existentes — as citações de ID em `design.md` e em comentários de código
+> (`NAV-03, AC 5`; `CAD-04, AC 10`; `LANC-03`; `UX-03`; `DASH-02`/`DASH-03`/`DASH-04`). O recorte
+> definitivo é decisão do autor da spec; até lá, vale este, e ele está justificado em
+> `validation.md`.
+
+| Requirement ID | Story | ACs | Phase | Status |
+| --- | --- | --- | --- | --- |
+| NAV-01 | P1: Navegação com período persistente | 1, 2 | Implementing | ❌ Needs Fix — AC 1 provado; **AC 2 ("Mês atual") não implementado** |
+| NAV-02 | P1: Navegação com período persistente | 3 | Implementing | ❌ Not Covered |
+| NAV-03 | P1: Navegação com período persistente | 4, 5, 6 | Implementing | ⚠️ Partially Verified — ACs 4 e 5 provados; AC 6 pela metade |
+| DASH-01 | P1: Painel de decisão com visão única | 1, 8 | Implementing | ❌ Needs Fix — nem a contagem de quatro nem o estado vazio com ação |
+| DASH-02 | P1: Painel de decisão com visão única | 2 | Verified | ✅ Verified |
+| DASH-03 | P1: Painel de decisão com visão única | 3, 4, 7 | Implementing | ⚠️ Partially Verified — ACs 3 e 4 provados; AC 7 pela metade |
+| DASH-04 | P1: Painel de decisão com visão única | 5, 6 | Implementing | ❌ Not Covered — a reconciliação indicador↔lista não tem prova |
+| LANC-01 | P1: Lançamentos com busca e filtro | 1 | Implementing | ❌ Not Covered |
+| LANC-02 | P1: Lançamentos com busca e filtro | 2, 3, 4 | Implementing | ❌ Not Covered |
+| LANC-03 | P1: Lançamentos com busca e filtro | 5 | Implementing | ⚠️ Partially Verified — só o vazio do mês tem prova |
+| LANC-04 | P1: Lançamentos com busca e filtro | 6, 7, 8 | Implementing | ❌ Needs Fix — **"vencido" não existe na interface** |
+| CAD-01 | P1: Cadastro rápido de despesa e receita | 1, 2 | Verified | ✅ Verified |
+| CAD-02 | P1: Cadastro rápido de despesa e receita | 3, 4 | Verified | ✅ Verified |
+| CAD-03 | P1: Cadastro rápido de despesa e receita | 5, 6, 7 | Implementing | ⚠️ Partially Verified — ACs 5 e 6 provados; AC 7 pela metade |
+| CAD-04 | P1: Cadastro rápido de despesa e receita | 8, 9, 10 | Verified | ✅ Verified (ACs 8 e 10 contra a nota de reconciliação) |
+| PAGO-01 | P2: Marcar pago e desfazer | 1, 2, 3 | Verified | ✅ Verified |
+| PAGO-02 | P2: Marcar pago e desfazer | 4, 5 | Verified | ✅ Verified |
+| UX-01 | P2: Estados, densidade e acessibilidade | 1, 2, 3 | Implementing | ❌ Needs Fix — AC 2 provado; AC 1 pela metade; AC 3 sem implementação |
+| UX-02 | P2: Estados, densidade e acessibilidade | 4, 5 | Implementing | ❌ Needs Fix — AC 5 provado; AC 4 sem prova |
+| UX-03 | P2: Estados, densidade e acessibilidade | 6, 7 | Implementing | ❌ Not Covered — 44×44 violado; movimento reduzido sem teste |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
 **Coverage:** contagem e status são estabelecidos pelo Verifier independente em `validation.md`. Esta tabela não afirma completude por conta própria.
+
+**Veredito de 2026-09-19 — FAIL.** 6 de 20 requisitos verificados; 4 parciais; 10 sem evidência
+suficiente. 44 critérios numerados: 22 ✅, 6 ⚠️, 16 ❌. Sensor de discriminação: 15 mutações, 4
+mortas, **11 sobreviventes**. O relatório completo, com `file:line` por critério e o conserto exato
+de cada lacuna, está em `.specs/features/painel-e-lancamentos/validation.md`.
 
 ---
 
