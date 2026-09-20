@@ -135,11 +135,11 @@ T12 -> T13 -> T14
 **Requirement**: REDE-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Os quatro indicadores do eixo competência batem com a soma filtrada (AC 1)
-- [ ] Os quatro do eixo caixa batem (AC 2)
-- [ ] O predicado sai do `href` do link, e não é redigitado no teste (AC 4)
-- [ ] Os números afirmados não são todos zero
-- [ ] **Mutante confirmado**: trocar o filtro do indicador de despesas para `natureza=RECEITA` mata a suíte
+- [x] Os quatro indicadores do eixo competência batem com a soma filtrada (AC 1)
+- [x] Os quatro do eixo caixa batem (AC 2)
+- [x] O predicado sai do `href` do link, e não é redigitado no teste (AC 4)
+- [x] Os números afirmados não são todos zero
+- [x] **Mutante confirmado**: trocar o filtro do indicador de despesas para `natureza=RECEITA` mata a suíte
 **Tests**: componentes
 **Gate**: quick
 
