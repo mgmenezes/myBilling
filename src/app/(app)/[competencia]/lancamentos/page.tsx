@@ -79,6 +79,27 @@ export default async function PaginaDeLancamentos({
     notFound();
   }
 
+  /*
+   * A competência **corrente**, que é outra coisa que a competência aberta.
+   *
+   * "Vencido" é não pago de competência anterior à de hoje. Comparar com o
+   * segmento de rota nunca dá vencido, porque todo lançamento listado é
+   * exatamente daquela competência — o defeito nunca esteve em `situacaoDe`,
+   * esteve no argumento que ela recebia (VENC-01, AC 5).
+   *
+   * Sai de `hojeEm()`, que resolve o dia no fuso da casa, e o mês é o prefixo
+   * `'YYYY-MM'` desse dia: comparação textual, sem objeto de data (AD-002).
+   * Resolvida por requisição, e não em tempo de build, porque a página é
+   * `force-dynamic` — o mês vira sozinho à meia-noite do dia 1.
+   */
+  const hoje = hojeEm();
+  const corrente = criarCompetencia(hoje.slice(0, 7));
+  if (!corrente.ok) {
+    /* Falha visível. Cair para a competência aberta classificaria tudo como
+       pendente em silêncio, que é precisamente o defeito de origem. */
+    throw new Error("não foi possível resolver a competência corrente");
+  }
+
   const situacaoBruta = texto(query.situacao);
   const naturezaBruta = texto(query.natureza);
 
@@ -112,7 +133,7 @@ export default async function PaginaDeLancamentos({
     repositorios.cadastros.listarUsuarios(),
   ]);
 
-  const visiveis = filtrarLancamentos(visao.lancamentos, filtro, resultado.value);
+  const visiveis = filtrarLancamentos(visao.lancamentos, filtro, corrente.value);
   const total = visiveis.reduce<Cents>(
     (acumulado, item) => somar(acumulado, item.lancamento.valor),
     ZERO_CENTS,
@@ -127,7 +148,7 @@ export default async function PaginaDeLancamentos({
   /* Hoje, se hoje for deste mês; senão o dia 1 (CAD-04, AC 10). Resolvido aqui
      porque quem conhece o relógio é a borda, e no fuso da casa — nunca o da
      máquina, que às 21h de 31/03 já está em abril. */
-  const dataPadrao = dataPadraoDoLancamento(resultado.value, hojeEm());
+  const dataPadrao = dataPadraoDoLancamento(resultado.value, hoje);
 
   return (
     <div className="flex flex-col gap-6">

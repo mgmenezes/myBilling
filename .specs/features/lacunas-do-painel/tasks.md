@@ -265,11 +265,11 @@ T12 -> T13 -> T14
 **Requirement**: VENC-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Mês anterior ao corrente com pendente classifica como vencido (AC 1)
-- [ ] Mês corrente e futuro classificam como pendente (AC 2)
-- [ ] Pago continua pago em qualquer competência (AC 3)
-- [ ] A competência corrente é resolvida por requisição (AC 5)
-- [ ] Falha ao resolver a competência corrente é visível, e não vira "tudo pendente" (edge case)
+- [x] Mês anterior ao corrente com pendente classifica como vencido (AC 1)
+- [x] Mês corrente e futuro classificam como pendente (AC 2)
+- [x] Pago continua pago em qualquer competência (AC 3)
+- [x] A competência corrente é resolvida por requisição (AC 5)
+- [x] Falha ao resolver a competência corrente é visível, e não vira "tudo pendente" (edge case)
 **Tests**: none
 **Gate**: build
 

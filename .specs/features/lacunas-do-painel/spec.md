@@ -245,7 +245,7 @@ instantânea.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| VENC-01 | P1: "Vencido" volta a existir — ACs 1 a 6 | Design | Pending |
+| VENC-01 | P1: "Vencido" volta a existir — ACs 1 a 6 | Execute | ACs 1 a 3 (T1); AC 5 (T5) |
 | MES-01 | P2: Voltar ao mês de hoje — ACs 1 a 3 | Design | Pending |
 | VAZIO-01 | P2: Todo estado vazio oferece saída — ACs 1 a 4 | Design | Pending |
 | TOQUE-01 | P2: Os controles da linha respeitam a área de toque — ACs 1 a 3 | Design | Pending |
