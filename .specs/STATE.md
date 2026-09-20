@@ -122,24 +122,43 @@
 - **Date**: 2026-09-14
 - **Status**: active
 
+### AD-016
+- **Decision**: A competência corrente usada para classificar situação vem de `hojeEm()`, resolvida no servidor a cada requisição, e **nunca** do segmento de rota. `situacaoDe` fica como está.
+- **Reason**: "Vencido" era opção de filtro que nunca casava com nada, e a causa não era a regra — era o argumento. A página passava a competência da rota como corrente, e **todo lançamento listado é dessa mesma competência**, então `competencia < competenciaCorrente` era falso por construção. Um defeito de argumento não aparece lendo a função: ela estava certa o tempo todo, e um teste de `situacaoDe` sozinho continua verde com a interface morta. O que pega isso é prova que atravessa a fronteira entre página e domínio.
+- **Trade-off**: A classificação deixa de ser função só dos dados e passa a depender do relógio, então todo teste que a toca precisa ancorar a data em vez de fixá-la. `TabelaLancamentos` recebe `competenciaCorrente` como prop **obrigatória**: um padrão silencioso ali reintroduziria exatamente este defeito.
+- **Scope**: `src/app/(app)/[competencia]/lancamentos/page.tsx`, `TabelaLancamentos`, `PainelIndicadores`, `filtrarLancamentos`.
+- **Date**: 2026-09-20
+- **Status**: active
+
+### AD-017
+- **Decision**: O eixo caixa e a lista de lançamentos **não são reconciliáveis fora da competência aberta**, e isso fica registrado como dívida em vez de corrigido.
+- **Reason**: `resumoMensal` soma o caixa por `realizadoEm` (`src/domain/mes/resumo-mensal.ts:96`), que alcança lançamentos de **outras** competências pagos no mês aberto; a lista é sempre da competência aberta. Um lançamento de março pago em setembro entra no indicador de setembro e não pode aparecer na lista de setembro. É alcançável na prática, porque a action de marcar pago carimba `hojeEm()`. Não é filtro errado: são recortes diferentes, e MOV-03 diz que os dois eixos nunca se somam. Fechar isso é reescrever o que o eixo Movimentações significa e que conjunto a lista mostra — fatia própria, não conserto.
+- **Trade-off**: Fica um caso em que clicar num indicador do eixo caixa abre uma lista cuja soma não bate com ele. O AC 2 de REDE-02 passa a declarar o recorte em que a prova vale — lançamentos da competência aberta, pagos nela — em vez de afirmar uma paridade que o sistema não tem.
+- **Scope**: `resumoMensal`, `PainelIndicadores` no eixo movimentações, `filtrarLancamentos`.
+- **Date**: 2026-09-20
+- **Status**: active
+
 ---
 
 ## Handoff
 
-- **Feature**: `lancamento-avulso` — **32 de 32 tasks concluídas, Verifier PASS** em três ciclos. A fatia 1 do roadmap fechou: o mês agora fecha pela interface.
-- **Commit**: `main` local, sem push. **Sem push desde sempre:** `main` está ~70 commits à frente de `origin/main`.
-- **Gates**: `pnpm verify` exit 0 — **1.035 provas verdes**: 757 unitários, 166/166 branches em `src/domain`, 237 de integração, 41 e2e. Inclui a fatia "Home do ano", integrada em paralelo por outra sessão.
-- **Next step**: resolver as credenciais OAuth do Google. Elas destravam o estágio 2 do QA — inserir à mão em modo produção — e são pré-requisito do deploy. Roteiro e os quatro passos do console em `docs/qa.md`. Depois disso, `git push` (operação remota, exige autorização separada) para o CI corrigido finalmente rodar.
-- **O que a verificação independente custou, e pagou**: três ciclos. O primeiro achou um requisito cuja metade não estava implementada, um mutante sobrevivente na regra recém-pedida pelo usuário, e duas dívidas que os próprios comentários dos testes declaravam sem pagar. O segundo achou correção incompleta. **Três das minhas primeiras tentativas de conserto ficaram verdes sem provar nada** — paridade unidirecional, asserção de foco frágil, medição de posição em metade das áreas. A prática que fecha essa conta está em `.specs/LESSONS.md` como L-004: depois de corrigir, injetar o mutante e ver vermelho.
+- **Feature**: `lacunas-do-painel` — **15 tasks, todas implementadas**; falta a verificação independente, que é o passo de fechamento da fase Execute.
+- **Commit**: `main` local, de `74c0961` a este. **Sem push.** `main` está **21 commits à frente de `origin/main`**, e `git push` continua exigindo autorização explícita e separada.
+- **Gates**: `pnpm verify` exit 0 e `pnpm test:e2e` exit 0 — **1.150 provas**: 856 unitários, 237 de integração, 57 e2e.
+- **Next step**: despachar o Verifier independente (autor ≠ verificador) sobre `lacunas-do-painel`, com o sensor de discriminação. Só depois dele `validate_state.py` pode passar, e é por isso que o último critério de T14 ficou aberto de propósito.
+- **Por que esta fatia existiu**: a verificação de `painel-e-lancamentos` devolveu FAIL com 6 de 20 requisitos provados e 4 de 15 mutantes mortos. Um único mutante quebrava cinco comportamentos ao mesmo tempo com as 1.049 provas verdes. O padrão era claro: onde uma fatia posterior escreveu teste, o comportamento estava preso; onde a fatia 1 ficou sozinha, nada segurava.
+- **Entregue**:
+  - **A rede primeiro, sobre o comportamento atual** (T1 a T4): o predicado de filtragem, a reconciliação indicador ↔ lista com o filtro lido do `href`, o painel de filtros, e o Independent Test em e2e que a spec pedia e nunca teve.
+  - **"Vencido" passou a existir** (T5 a T7, AD-016). Era defeito de argumento, não de regra.
+  - **44 × 44 nos dois controles mais tocados** (T8, T9), medidos pela geometria renderizada em 400px, e não por presença de classe.
+  - **Todo estado vazio com saída** (T10), e o texto que mandava cadastrar "abaixo" corrigido — o cadastro subiu para o topo no AD-014.
+  - **Atalho para o mês corrente** (T11), preservando a área.
+  - **T15, que não estava no plano**: a T5 criou uma regressão — com a competência corrente vinda do relógio, o indicador "Ainda não pago" apontava para `PENDENTE` enquanto os lançamentos de mês passado viravam `VENCIDO`, e a lista voltava vazia. O teste da T2 não pegou porque as fixtures dele têm competência aberta igual à corrente.
+  - **O que só existia em CSS** (T12): movimento reduzido, algarismo tabular, contagem de quatro indicadores por eixo.
+  - **Rastreabilidade de `painel-e-lancamentos` datada** (T13): de 6 para 13 verificados, com os sete restantes nomeando o que falta.
+- **Três achados sobre o Next que não estavam em lugar nenhum**, medidos nesta sessão e registrados em `e2e/acessibilidade.spec.ts:252`: em `next dev` o `Link` **não prefetcha**, então a navegação por clique não desenha a fronteira de carregamento e a URL nem muda; na navegação dura o React substitui o esqueleto **antes de 40ms**, com vinte amostras seguidas em zero; e a carga serializada do RSC **repete cada `className` no mesmo documento**, então contar `animate-pulse` cru devolve o dobro do número de blocos.
+- **Lacuna declarada, não fechada**: o AC 5 de REDE-03 pede "a mesma contagem de blocos que a página tem", e a página não define isso — tem cabeçalho, quatro indicadores e duas `section`, contra três zonas e sete blocos do esqueleto. Pior: o esqueleto **derivou**, declarando espelhar uma proporção 3:2 que não existe mais em `page.tsx`, no painel nem no gráfico. Redesenhá-lo é decisão visual, e está em Out of Scope.
+- **Dívida de eixo registrada** (AD-017): o eixo caixa e a lista não reconciliam fora da competência aberta.
+- **Armadilha de ambiente desta sessão**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Três execuções seguidas estouraram `browserType.launch` em 180s cada, o que virou "flakiness" e execuções de 17 minutos sem nada de errado no código — o arquivo inteiro roda em 10s quando o navegador abre. Se voltar a acontecer, suspeite do navegador antes do teste.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.
-- **Entregue nesta fatia**:
-  - **Despesa avulsa e receita à vista**, com exclusão lógica em dois toques. `AVUL-01` a `AVUL-05`.
-  - **Blocos da lista por meio de pagamento** (AD-012), com teste de concordância entre o indicador do painel e a soma do bloco. `BLOCO-01` e `BLOCO-02`.
-  - **Bloco "Entradas" no topo e sempre visível**, e área renomeada para "Todo mês" (AD-013). `ENTR-01` e `ENTR-02`.
-  - **Cadastro em `<dialog>` nativo** aberto pelo topo (AD-014), com abas Avulso ┊ Parcelado.
-  - **Receita com vocabulário e opções próprios** (AD-015): não oferece mais cartão como destino. `ENTR-03`.
-  - Migration `0002_movimento_valor_positivo`: o `CHECK` que faltava no único razão somável.
-  - CI consertado e **verificado verde** (run #17, commit `5835e97`, 4m42s). Ele **não rodava**: o `setup-node` com `cache: pnpm` vinha antes do `corepack enable` e falhava no terceiro passo, deixando todos os seguintes pulados. O gate do GitHub não era mais fraco que o do terminal — não chegava a existir. Agora instala o pnpm primeiro e roda as mesmas 1.035 provas do terminal.
-  - `docs/qa.md`: roteiro de QA em modo produção, com o estágio 1 executado e medido.
-- **Corrigido no caminho**: o project `domain` do Vitest capturava `*.integration.test.ts` pelos globs e os rodava em paralelo, com dois arquivos chamando `recriarBancoDeTeste` ao mesmo tempo — corrida que passava por sorte e virou falha determinística ao acrescentar um arquivo de teste.
-- **Pendências conhecidas**: ver `.specs/HANDOFF.md`. A mais estrutural segue sendo a ausência de caminho de deploy, agora com o estágio 1 do QA resolvido e o estágio 2 bloqueado nas credenciais do Google.
+- **Pendências conhecidas**: ver `.specs/HANDOFF.md`. A mais estrutural segue sendo a ausência de caminho de deploy, com o estágio 2 do QA bloqueado nas credenciais do Google.

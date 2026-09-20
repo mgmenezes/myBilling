@@ -1,13 +1,14 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-09-14, branch `main`.
+> Última atualização: 2026-09-20, branch `main`.
 
 > [!IMPORTANT]
-> **`main` está integrada em `origin/main`, e o CI passa.** O run #17 é o primeiro em que o gate
-> completo do GitHub roda de verdade: typecheck, lint, unitários, integração, build e e2e — as
-> mesmas **1.035 provas** do terminal. `git push` continua exigindo autorização explícita e
-> separada, como toda operação remota.
+> **O CI passa, e `main` local está 21 commits à frente de `origin/main`.** O run #17 foi o
+> primeiro em que o gate completo do GitHub rodou de verdade: typecheck, lint, unitários,
+> integração, build e e2e. Os 21 commits não enviados são a fatia `lacunas-do-painel` inteira mais
+> o plano dela. `git push` continua exigindo autorização explícita e separada, como toda operação
+> remota.
 >
 > **Duas fatias foram integradas em paralelo nesta sessão:** `lancamento-avulso` (esta) e
 > `home-do-ano`, conduzida por outra sessão no mesmo repositório. A segunda consome o
@@ -103,7 +104,10 @@ virou especificação executável, com teste de concordância que confronta a fu
 .specs/STATE.md                                  decisões AD-001..AD-015 + handoff curto
 .specs/HANDOFF.md                                este arquivo
 .specs/features/mvp-gestao-financeira/           54 tasks, todas concluídas, Verifier PASS
-.specs/features/painel-e-lancamentos/spec.md     20 requisitos EARS (fatia 1)
+.specs/features/painel-e-lancamentos/spec.md     20 requisitos EARS (fatia 1); rastreabilidade
+                                                 recortada por AC, 13 dos 20 verificados
+.specs/features/painel-e-lancamentos/validation.md   o FAIL que originou a fatia das lacunas
+.specs/features/lacunas-do-painel/                spec (VENC/MES/VAZIO/TOQUE/REDE) + 15 tasks
 .specs/features/recorrencias/                    spec (FIXO-01..06) + 22 tasks, todas concluídas
 .specs/features/lancamento-avulso/               spec (AVUL-01..05, BLOCO-01..02, ENTR-01..03)
                                                  + 28 tasks, todas concluídas
@@ -141,8 +145,8 @@ schema Zod que o formulário usou, e nada lança para o cliente — todo caminho
 `ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
 correlação. Stack trace não chega ao navegador.
 
-`pnpm verify` sai 0: **741 testes unitários, 164/164 branches no domínio, 230 de integração** e
-**36 e2e**. Os e2e que mais importam provam as re-digitações que a planilha impunha: cadastrar
+`pnpm verify` sai 0: **856 testes unitários, 237 de integração** e **57 e2e** — 1.150 provas.
+Os e2e que mais importam provam as re-digitações que a planilha impunha: cadastrar
 1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; cadastrar um
 gasto fixo uma vez e vê-lo em três meses; e agora o avulso no cartão caindo no bloco da fatura em
 vez de "Gastos do Mês".
@@ -225,20 +229,26 @@ precisa ser escopada ao formulário, ou casa dois nós.
 
 ## Pendências reais
 
-1. **Eixo Movimentações parcial**: soma só lançamentos da própria competência já pagos,
-   sem `pagamento_fatura`.
+1. **Eixo Movimentações parcial**, e agora com a consequência medida (AD-017): ele soma por
+   `realizadoEm`, alcançando lançamentos de **outras** competências pagos no mês aberto, enquanto a
+   lista é sempre da competência aberta. Um de março pago em setembro entra no indicador de
+   setembro e não pode aparecer na lista dele. Segue sem `pagamento_fatura`. Clicar num indicador
+   do eixo caixa pode abrir uma lista cuja soma não bate com ele, e fechar isso é reescrever o que
+   Movimentações significa — fatia própria.
 2. **Renomear e arquivar cadastro seguem sem tela.** Orçamento, faturas e edição de compra com
    escopo são a fatia 1 do roadmap agora.
 3. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,
    `resolverCicloFatura` e `confirmarValorReal`. Duas tabelas ainda sem repositório:
    `orcamento_categoria` e `pagamento_fatura`. `resolverValorEfetivo` saiu desta lista com a fatia
    de recorrências — ela decide o que exibir na linha de um gasto fixo.
-4. **Credenciais do Google OAuth não configuradas.** Passou de inconveniente a **bloqueio
-   medido**: o estágio 2 do QA — inserir à mão em modo produção — não roda sem elas, porque em
-   build de produção o único provider registrado é o Google e `AUTH_PROVIDER_DE_TESTE` **derruba o
-   boot** por desenho. Roteiro e os quatro passos do console do Google em `docs/qa.md`. O estágio 1
-   já foi executado: banco `mybilling_qa` limpo, três migrations do zero, build de produção subindo
-   e redirecionando para `/login`.
+4. **O estágio 2 do QA está destravado e ainda não foi executado.** Não é mais bloqueio de
+   credencial — `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` e `EMAILS_PERMITIDOS` já estão preenchidos
+   em `.env.local` com valores reais, e `docs/qa.md` foi corrigido em `7538068`. O que falta é o
+   gesto humano: login pelo Google e inserção à mão em build de produção, na porta 3000, com
+   `source .env.local`. Nenhum agente faz isso. O estágio 1 já foi executado: banco `mybilling_qa`
+   limpo, três migrations do zero, build de produção subindo e redirecionando para `/login`.
+   Em build de produção o único provider registrado é o Google, e `AUTH_PROVIDER_DE_TESTE`
+   **derruba o boot** por desenho — degradar em silêncio exporia um provider sem senha.
 5. **O banco gerenciado existe e está migrado; falta onde o app roda.** O Neon foi provisionado
    em São Paulo, Postgres 18, BetterAuth desligado, e as três migrations estão aplicadas no branch
    `production` com o controle de migrations consistente — conferido. O que falta do deploy é o
