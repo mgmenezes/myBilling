@@ -155,7 +155,7 @@ T12 -> T13 -> T14
 - [x] Cada seletor escreve o próprio parâmetro na URL (AC 5)
 - [x] O total e a contagem exibidos são os recebidos (AC 6)
 - [x] Todo controle tem rótulo acessível associado
-- [ ] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — só um percurso e2e o mata, e o arquivo nasce em T4
+- [x] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — confirmado com o percurso de T4
 **Tests**: componentes
 **Gate**: quick
 
@@ -235,7 +235,7 @@ T12 -> T13 -> T14
 - [x] Cada seletor escreve o próprio parâmetro na URL (AC 5)
 - [x] O total e a contagem exibidos são os recebidos (AC 6)
 - [x] Todo controle tem rótulo acessível associado
-- [ ] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — só um percurso e2e o mata, e o arquivo nasce em T4
+- [x] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — confirmado com o percurso de T4
 **Tests**: componentes
 **Gate**: quick
 
