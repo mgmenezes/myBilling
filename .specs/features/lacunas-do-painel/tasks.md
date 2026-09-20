@@ -234,10 +234,10 @@ T12 -> T13 -> T14
 **Requirement**: TOQUE-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O selo de situação mede ao menos 44 × 44 (AC 1)
-- [ ] O mesmo é aplicado ao botão de excluir (AC 2)
-- [ ] A pílula continua legível, sem quebrar a linha da tabela em 400px
-- [ ] O espaçamento entre os dois continua separando os alvos
+- [x] O selo de situação mede ao menos 44 × 44 (AC 1)
+- [x] O mesmo é aplicado ao botão de excluir (AC 2)
+- [x] A pílula continua legível, sem quebrar a linha da tabela em 400px
+- [x] O espaçamento entre os dois continua separando os alvos
 **Tests**: componentes
 **Gate**: quick
 

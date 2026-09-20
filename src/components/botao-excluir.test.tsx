@@ -123,3 +123,24 @@ describe("BotaoExcluir — recusa do servidor", () => {
     expect(screen.getByRole("button").textContent).toContain("Excluir");
   });
 });
+
+describe("área de toque do botão de excluir (TOQUE-01, AC 2)", () => {
+  /* Mesma razão do `BotaoPago`: a medida é declarada aqui e medida no e2e. */
+  it("o botão de excluir declara o alvo mínimo de 44 × 44", () => {
+    montar();
+
+    const botao = screen.getByRole("button");
+
+    expect(botao.className).toContain("min-h-11");
+    expect(botao.className).toContain("min-w-11");
+  });
+
+  it("a pílula continua com largura de conteúdo, e não estica a linha", () => {
+    montar();
+
+    const botao = screen.getByRole("button");
+
+    expect(botao.className).toContain("w-fit");
+    expect(botao.textContent).toContain("Excluir");
+  });
+});

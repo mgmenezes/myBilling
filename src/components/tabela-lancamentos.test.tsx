@@ -566,3 +566,31 @@ describe("a situação vencida aparece na linha (VENC-01, AC 6)", () => {
     expect(screen.queryByRole("button", { name: /^Vencido/ })).toBeNull();
   });
 });
+
+describe("os dois controles da linha continuam separados (TOQUE-01)", () => {
+  /*
+   * Com o alvo a 44 × 44 os dois controles ficam encostados se nada os
+   * separar, e no celular a pessoa precisa **ver** onde um acaba. O tamanho é
+   * medido no e2e; o que se trava aqui é o espaçamento entre eles.
+   */
+  it("o selo e o excluir ficam no mesmo contêiner, com espaçamento entre si", () => {
+    render(
+      <TabelaLancamentos
+        competenciaCorrente={MARCO}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Almoço" })]}
+      />,
+    );
+
+    const selo = screen.getByRole("button", { name: /Previsto/ });
+    const excluir = screen.getByRole("button", { name: "Excluir, Almoço" });
+    const contêiner = selo.parentElement;
+
+    expect(contêiner).not.toBeNull();
+    expect(contêiner?.contains(excluir)).toBe(true);
+    expect(contêiner?.className).toContain("gap-2");
+  });
+});

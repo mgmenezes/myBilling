@@ -129,3 +129,30 @@ describe("alternar", () => {
     liberar();
   });
 });
+
+describe("área de toque do selo (TOQUE-01, AC 1)", () => {
+  /*
+   * Aqui trava-se a **declaração** do alvo mínimo, não a sua medida: jsdom não
+   * calcula layout, e uma assertion sobre tamanho neste arquivo mediria zero.
+   * A geometria de 44 × 44 é provada em `e2e/acessibilidade.spec.ts`, com o
+   * retângulo renderizado em 400 pixels (AC 3). Esta prova existe para que
+   * remover a medida do selo também falhe no gate rápido.
+   */
+  it("o selo declara o alvo mínimo de 44 × 44", () => {
+    montar(false);
+
+    const selo = screen.getByRole("button");
+
+    expect(selo.className).toContain("min-h-11");
+    expect(selo.className).toContain("min-w-11");
+  });
+
+  it("a pílula continua com largura de conteúdo, e não estica a linha", () => {
+    montar(false);
+
+    const selo = screen.getByRole("button");
+
+    expect(selo.className).toContain("w-fit");
+    expect(selo.textContent).toContain("Previsto");
+  });
+});

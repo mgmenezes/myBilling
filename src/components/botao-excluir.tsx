@@ -25,7 +25,7 @@ import type { cancelarLancamento as cancelarAction } from "@/app/actions/lancame
  */
 
 const BASE =
-  "inline-flex w-fit items-center rounded-pill px-2.5 py-0.5 text-[13px] " +
+  "inline-flex min-h-11 min-w-11 w-fit items-center justify-center rounded-pill px-2.5 py-0.5 text-[13px] " +
   "transition-[background-color,border-color,opacity] duration-200 " +
   "disabled:cursor-progress disabled:opacity-60";
 
