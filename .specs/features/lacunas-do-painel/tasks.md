@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/lacunas-do-painel/spec.md`
 **Origem**: `.specs/features/painel-e-lancamentos/validation.md` (FAIL, 2026-09-19)
 **Status**: Draft
-**Total**: 14 tasks em 4 fases
+**Total**: 15 tasks em 4 fases
 
 > **Por que a rede vem antes dos consertos.** Três dos quatro consertos mexem em código que hoje
 > **nenhum teste protege**. Consertar primeiro seria mudar comportamento às cegas, e é assim que se
@@ -93,6 +93,7 @@ T4 -> T8
 T8 -> T9
 T10
 T11
+T6 -> T15
 ```
 
 ### Phase 3 — Fechamento
@@ -284,7 +285,24 @@ T12 -> T13 -> T14
 **Tests**: componentes
 **Gate**: quick
 
+#### T15: O indicador de não pago aponta para o estado que o mês tem
+**What**: O link do indicador "Ainda não pago" / "Ainda não saiu" passa a carregar `situacao=VENCIDO` quando a competência aberta é anterior à corrente, e `PENDENTE` nas demais. Sem isso, T5 deixou o cartão mostrando um número e a lista voltando vazia em todo mês passado.
+**Where**: `src/components/painel-indicadores.tsx`
+**Depends on**: T6
+**Reuses**: a `competenciaCorrente` que T5 já resolve na página e T6 já repassa
+**Requirement**: REDE-02
+**Tools**: nenhuma
+**Done when**:
+- [ ] Em mês passado, o indicador leva à lista filtrada por "Vencido", e ela não volta vazia (AC 3)
+- [ ] O total do indicador é igual à soma da lista que ele abre, **em mês passado** (AC 1)
+- [ ] Em mês corrente e futuro o filtro continua "Pendente", e nada muda
+- [ ] A prova usa o filtro lido do `href`, e não um predicado redigitado (AC 4)
+- [ ] **Mutante confirmado**: fixar o filtro em `PENDENTE` mata a prova de mês passado
+**Tests**: componentes
+**Gate**: quick
+
 ### Phase 3 — Fechamento
+
 
 #### T12: Os comportamentos que só existiam em CSS
 **What**: Provas para movimento reduzido, algarismo de largura fixa, contagem de indicadores e esqueleto de carregamento.
@@ -325,6 +343,7 @@ T12 -> T13 -> T14
 **Tools**: nenhuma
 **Done when**:
 - [ ] A causa do "Vencido" morto fica registrada, porque o defeito era de argumento e não de regra
+- [ ] A divergência do eixo caixa fica registrada como decisão, com o caso concreto que a alcança
 - [ ] `.specs/HANDOFF.md` reflete os números e as pendências que restam
 - [ ] `validate_state.py` passa para `lacunas-do-painel`
 **Tests**: none
