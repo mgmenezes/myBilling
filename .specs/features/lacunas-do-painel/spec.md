@@ -34,7 +34,7 @@ olhava para lá.
 | A dívida de largura de coluna da tabela | Está no roadmap como dívida de interface, é decisão de desenho e não de correção, e mexer nela junto confundiria o que esta fatia prova |
 | Esqueleto de carregamento redesenhado por completo | A forma nova depende de decisão visual; aqui ele só passa a ter a contagem certa de blocos |
 | Recortar a rastreabilidade das outras fatias por AC | `recorrencias` e `home-do-ano` têm o mesmo problema. Consertar aqui e registrar a dívida lá |
-| Reconciliar o eixo caixa com a lista fora da competência aberta | O eixo caixa soma por `realizadoEm` e alcança lançamentos de outras competências; a lista é sempre da competência aberta. Um de março pago em setembro entra no indicador e não pode aparecer na lista de setembro. Não é filtro errado, são recortes diferentes: fechar isso é reescrever o que o eixo Movimentações significa, e é a pendência nº 1 do handoff. Registrado como decisão em T14 |
+| Reconciliar o eixo caixa com a lista quando o pagamento cai fora do mês aberto | O indicador exige `pagoEm` **dentro** da competência aberta (`realizadoEm`); o filtro da lista aceita qualquer `pagoEm`. Um lançamento do mês aberto, **pago fora dele**, conta na lista e não no indicador — e isso é o que acontece ao quitar hoje uma conta atrasada, porque a action carimba `hojeEm()`. Não é filtro errado, são recortes diferentes: fechar isso é reescrever o que o eixo Movimentações significa, e é a pendência nº 1 do handoff. Registrado como AD-017 |
 
 ---
 
@@ -196,8 +196,9 @@ não quebra nada.
 1. The system SHALL provar, para cada indicador do eixo competência, que o total exibido é igual à
    soma da lista filtrada pelo mesmo predicado do link
 2. The system SHALL provar o mesmo para cada indicador do eixo caixa **no recorte em que os dois
-   eixos coincidem** — lançamentos da competência aberta, pagos nela. Fora desse recorte os eixos
-   somam conjuntos diferentes por construção, e isso é dívida registrada, não requisito desta fatia
+   eixos coincidem** — lançamentos da competência aberta **pagos dentro dela**. Um lançamento do
+   mês aberto pago fora dele conta na lista e não no indicador, e isso é dívida registrada em
+   AD-017, não requisito desta fatia
 3. WHEN um indicador é acionado THEN o sistema SHALL abrir a lista com o filtro dele aplicado
 4. The system SHALL usar, nessa prova, o filtro que o link carrega, e SHALL não recalcular o
    predicado no teste

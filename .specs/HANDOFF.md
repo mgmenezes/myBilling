@@ -229,12 +229,12 @@ precisa ser escopada ao formulário, ou casa dois nós.
 
 ## Pendências reais
 
-1. **Eixo Movimentações parcial**, e agora com a consequência medida (AD-017): ele soma por
-   `realizadoEm`, alcançando lançamentos de **outras** competências pagos no mês aberto, enquanto a
-   lista é sempre da competência aberta. Um de março pago em setembro entra no indicador de
-   setembro e não pode aparecer na lista dele. Segue sem `pagamento_fatura`. Clicar num indicador
-   do eixo caixa pode abrir uma lista cuja soma não bate com ele, e fechar isso é reescrever o que
-   Movimentações significa — fatia própria.
+1. **Eixo Movimentações parcial**, e agora com a consequência medida (AD-017): o indicador exige
+   `pagoEm` **dentro** da competência aberta, e o filtro da lista aceita qualquer `pagoEm`. Um
+   lançamento do mês aberto **pago fora dele** conta na lista e não no indicador — que é o que
+   acontece ao quitar hoje uma conta atrasada, porque a action carimba `hojeEm()`. Segue sem
+   `pagamento_fatura`. Clicar num indicador do eixo caixa pode abrir uma lista cuja soma não bate
+   com ele, e fechar isso é reescrever o que Movimentações significa — fatia própria.
 2. **Renomear e arquivar cadastro seguem sem tela.** Orçamento, faturas e edição de compra com
    escopo são a fatia 1 do roadmap agora.
 3. **Domínio com código sem chamador**: `avaliarOrcamento`, `regenerarParcelas`,

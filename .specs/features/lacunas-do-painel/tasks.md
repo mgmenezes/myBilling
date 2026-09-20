@@ -346,6 +346,6 @@ T12 -> T13 -> T14
 - [x] A causa do "Vencido" morto fica registrada, porque o defeito era de argumento e não de regra — **AD-016**
 - [x] A divergência do eixo caixa fica registrada como decisão, com o caso concreto que a alcança — **AD-017**
 - [x] `.specs/HANDOFF.md` reflete os números e as pendências que restam — 1.150 provas, e **duas afirmações desatualizadas corrigidas**: as credenciais do Google existem desde `7538068`, e `main` está 21 commits à frente de `origin/main`, não ~70
-- [ ] `validate_state.py` passa para `lacunas-do-painel` — **aberto por dependência, de propósito.** Ele exige `validation.md`, que só o Verifier escreve, e o Verifier roda depois desta task. Marcá-lo aqui seria afirmar sem evidência exatamente o que a L-004 proíbe
+- [x] `validate_state.py` passa para `lacunas-do-painel` — exit 0, depois que o Verifier escreveu `validation.md`. Ficou aberto até aqui por dependência, de propósito: Ele exige `validation.md`, que só o Verifier escreve, e o Verifier roda depois desta task. Marcá-lo aqui seria afirmar sem evidência exatamente o que a L-004 proíbe
 **Tests**: none
 **Gate**: build
