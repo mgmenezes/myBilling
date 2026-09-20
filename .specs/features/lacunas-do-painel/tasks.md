@@ -151,11 +151,11 @@ T12 -> T13 -> T14
 **Requirement**: REDE-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Digitar na busca escreve o termo na URL (AC 5)
-- [ ] Cada seletor escreve o próprio parâmetro na URL (AC 5)
-- [ ] O total e a contagem exibidos são os recebidos (AC 6)
-- [ ] Todo controle tem rótulo acessível associado
-- [ ] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste
+- [x] Digitar na busca escreve o termo na URL (AC 5)
+- [x] Cada seletor escreve o próprio parâmetro na URL (AC 5)
+- [x] O total e a contagem exibidos são os recebidos (AC 6)
+- [x] Todo controle tem rótulo acessível associado
+- [ ] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — só um percurso e2e o mata, e o arquivo nasce em T4
 **Tests**: componentes
 **Gate**: quick
 
