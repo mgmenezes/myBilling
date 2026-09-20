@@ -329,9 +329,9 @@ T12 -> T13 -> T14
 **Requirement**: REDE-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Cada um dos 20 IDs diz quais ACs cobre
-- [ ] O status reflete o que passou a ter prova nesta fatia
-- [ ] A dívida equivalente em `recorrencias` e `home-do-ano` fica registrada no handoff
+- [x] Cada um dos 20 IDs diz quais ACs cobre — o recorte foi reconstruído pelo Verifier em `a44f58b`; esta task o manteve e o datou
+- [x] O status reflete o que passou a ter prova nesta fatia — **de 6 para 13 verificados**, com as dez linhas movidas citando a task que as moveu
+- [x] A dívida equivalente em `recorrencias` e `home-do-ano` fica registrada no handoff — `.specs/HANDOFF.md`, pendência 7
 **Tests**: none
 **Gate**: build
 

@@ -215,29 +215,35 @@ Explicitamente excluído desta fatia.
 > (`NAV-03, AC 5`; `CAD-04, AC 10`; `LANC-03`; `UX-03`; `DASH-02`/`DASH-03`/`DASH-04`). O recorte
 > definitivo é decisão do autor da spec; até lá, vale este, e ele está justificado em
 > `validation.md`.
+>
+> **Atualizado em 2026-09-20 pela fatia `lacunas-do-painel`**, que fechou as lacunas que a
+> verificação apontou. Os verificados passaram de 6 para 13 dos 20. Os sete que restam estão
+> nomeados com o que falta em cada um, e nenhum deles é "sem prova" genérico: são AC 8 de DASH-01
+> (o vazio do painel), AC 8 de LANC-04 (densidade abaixo de 768px), AC 1 de UX-01 (o esqueleto, que
+> derivou da forma da página), e NAV-02, NAV-03, DASH-03 e CAD-03, intocados por esta fatia.
 
 | Requirement ID | Story | ACs | Phase | Status |
 | --- | --- | --- | --- | --- |
-| NAV-01 | P1: Navegação com período persistente | 1, 2 | Implementing | ❌ Needs Fix — AC 1 provado; **AC 2 ("Mês atual") não implementado** |
+| NAV-01 | P1: Navegação com período persistente | 1, 2 | Verified | ✅ Verified — AC 1 provado antes; **AC 2 implementado e provado em `lacunas-do-painel` T11** (MES-01) |
 | NAV-02 | P1: Navegação com período persistente | 3 | Implementing | ❌ Not Covered |
 | NAV-03 | P1: Navegação com período persistente | 4, 5, 6 | Implementing | ⚠️ Partially Verified — ACs 4 e 5 provados; AC 6 pela metade |
-| DASH-01 | P1: Painel de decisão com visão única | 1, 8 | Implementing | ❌ Needs Fix — nem a contagem de quatro nem o estado vazio com ação |
+| DASH-01 | P1: Painel de decisão com visão única | 1, 8 | Implementing | ⚠️ Partially Verified — **AC 1 (contagem de quatro por eixo) provado em T12**, `e2e/acessibilidade.spec.ts:238`; AC 8 segue sem prova do lado do painel: T10 deu ação ao vazio da **lista**, não ao do painel |
 | DASH-02 | P1: Painel de decisão com visão única | 2 | Verified | ✅ Verified |
 | DASH-03 | P1: Painel de decisão com visão única | 3, 4, 7 | Implementing | ⚠️ Partially Verified — ACs 3 e 4 provados; AC 7 pela metade |
-| DASH-04 | P1: Painel de decisão com visão única | 5, 6 | Implementing | ❌ Not Covered — a reconciliação indicador↔lista não tem prova |
-| LANC-01 | P1: Lançamentos com busca e filtro | 1 | Implementing | ❌ Not Covered |
-| LANC-02 | P1: Lançamentos com busca e filtro | 2, 3, 4 | Implementing | ❌ Not Covered |
-| LANC-03 | P1: Lançamentos com busca e filtro | 5 | Implementing | ⚠️ Partially Verified — só o vazio do mês tem prova |
-| LANC-04 | P1: Lançamentos com busca e filtro | 6, 7, 8 | Implementing | ❌ Needs Fix — **"vencido" não existe na interface** |
+| DASH-04 | P1: Painel de decisão com visão única | 5, 6 | Verified | ✅ Verified — **reconciliação provada em T2**, com o predicado lido do `href` e não redigitado; AC 5 em T4; T15 estendeu a mês passado. Ressalva registrada: fora do recorte em que os dois eixos coincidem, o eixo caixa e a lista somam conjuntos diferentes por construção (Out of Scope de `lacunas-do-painel`) |
+| LANC-01 | P1: Lançamentos com busca e filtro | 1 | Verified | ✅ Verified — **T1** prova acento e caixa no predicado; **T4** prova pela tela |
+| LANC-02 | P1: Lançamentos com busca e filtro | 2, 3, 4 | Verified | ✅ Verified — **T1** (cada dimensão isolada, interseção, contagem de ativos), **T3** (chegada à URL, total e contagem exibidos), **T10** (controle de limpar) |
+| LANC-03 | P1: Lançamentos com busca e filtro | 5 | Verified | ✅ Verified — **T10** distingue os dois vazios e dá saída a cada um: cadastro no vazio do mês, limpar no vazio do filtro |
+| LANC-04 | P1: Lançamentos com busca e filtro | 6, 7, 8 | Implementing | ⚠️ Partially Verified — **ACs 6 e 7 fechados em T5, T6 e T7**: a competência corrente saiu do segmento de rota, e o vencido é distinguido por texto. AC 8 (densidade abaixo de 768px) segue sem prova |
 | CAD-01 | P1: Cadastro rápido de despesa e receita | 1, 2 | Verified | ✅ Verified |
 | CAD-02 | P1: Cadastro rápido de despesa e receita | 3, 4 | Verified | ✅ Verified |
 | CAD-03 | P1: Cadastro rápido de despesa e receita | 5, 6, 7 | Implementing | ⚠️ Partially Verified — ACs 5 e 6 provados; AC 7 pela metade |
 | CAD-04 | P1: Cadastro rápido de despesa e receita | 8, 9, 10 | Verified | ✅ Verified (ACs 8 e 10 contra a nota de reconciliação) |
 | PAGO-01 | P2: Marcar pago e desfazer | 1, 2, 3 | Verified | ✅ Verified |
 | PAGO-02 | P2: Marcar pago e desfazer | 4, 5 | Verified | ✅ Verified |
-| UX-01 | P2: Estados, densidade e acessibilidade | 1, 2, 3 | Implementing | ❌ Needs Fix — AC 2 provado; AC 1 pela metade; AC 3 sem implementação |
-| UX-02 | P2: Estados, densidade e acessibilidade | 4, 5 | Implementing | ❌ Needs Fix — AC 5 provado; AC 4 sem prova |
-| UX-03 | P2: Estados, densidade e acessibilidade | 6, 7 | Implementing | ❌ Not Covered — 44×44 violado; movimento reduzido sem teste |
+| UX-01 | P2: Estados, densidade e acessibilidade | 1, 2, 3 | Implementing | ⚠️ Partially Verified — AC 2 provado antes; **AC 3 fechado em T10**; **AC 1 segue em aberto e agora com defeito nomeado**: T12 prova que o esqueleto é transmitido, e registra que ele derivou da forma da página (declara uma proporção 3:2 que não existe mais nela) |
+| UX-02 | P2: Estados, densidade e acessibilidade | 4, 5 | Verified | ✅ Verified — AC 5 provado antes; **AC 4 provado em T12** no estilo computado, `e2e/acessibilidade.spec.ts:221` |
+| UX-03 | P2: Estados, densidade e acessibilidade | 6, 7 | Verified | ✅ Verified — **AC 6 corrigido e medido em T8 e T9**, pela geometria renderizada em 400px; **AC 7 provado em T12**, com teste de controle ao lado para a media query invertida não passar à toa |
 
 **ID format:** `[CATEGORY]-[NUMBER]`
 

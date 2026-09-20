@@ -255,6 +255,14 @@ precisa ser escopada ao formulário, ou casa dois nós.
    (`DESIGN-mastercard.md`) foi mantida fora do repositório de propósito, por descrever identidade
    de marca de terceiros. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra.
    Registrado em `docs/referencias/LEIA-ME.md`.
+7. **A rastreabilidade de `recorrencias` e `home-do-ano` não recorta por AC.** É a mesma dívida que
+   `painel-e-lancamentos` tinha e que a fatia `lacunas-do-painel` pagou: a tabela liga cada
+   requisito a uma *história*, e três requisitos apontando para os seis ACs da mesma história
+   tornam "quantos estão cobertos" uma pergunta sem resposta — foi assim que aquela fatia conseguiu
+   parecer completa com 6 de 20 requisitos realmente provados. Consertar exige o mesmo trabalho:
+   reconstruir o recorte pelas âncoras existentes (citações de ID em `design.md` e em comentários
+   de código) e conferir cada AC contra o teste que o prova.
+
 7. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
    pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão, mas a correção real é
    deixar a descrição absorver a folga e as demais colunas ocuparem só o que precisam.
