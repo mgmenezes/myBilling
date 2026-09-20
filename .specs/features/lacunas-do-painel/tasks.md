@@ -288,6 +288,208 @@ T12 -> T13 -> T14
 **Tests**: componentes
 **Gate**: quick
 
+### Phase 2 — Interface e acessibilidade
+
+```
+T4 -> T8
+T8 -> T9
+T10
+T11
+```
+
+### Phase 3 — Fechamento
+
+```
+T2 -> T12
+T6 -> T12
+T9 -> T12
+T12 -> T13 -> T14
+```
+
+---
+
+## Task Breakdown
+
+### Phase 0 — A rede, sobre o que existe hoje
+
+#### T1: Testes do predicado de filtragem
+**What**: `filtrar-lancamentos.test.ts`, cobrindo busca com acento e caixa, cada dimensão isolada, combinação como interseção, contagem de ativos e `situacaoDe` nos três estados.
+**Where**: `src/application/mes/filtrar-lancamentos.test.ts`
+**Depends on**: nenhuma
+**Reuses**: as fixtures de `obter-visao-mensal/handler.test.ts`
+**Requirement**: REDE-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Busca acha "Água" digitando "agua", e vice-versa (AC 1)
+- [x] Cada uma das cinco dimensões filtra isoladamente (AC 2)
+- [x] Dois filtros juntos devolvem a interseção, e não a união (AC 3)
+- [x] Busca só com espaços não conta como filtro ativo (AC 4, edge case)
+- [x] `situacaoDe` devolve os três estados, com competência aberta anterior, igual e posterior
+- [x] **Mutante confirmado**: `filtrarLancamentos` devolvendo a lista inteira mata a suíte
+**Tests**: unit
+**Gate**: quick
+
+#### T2: Teste da reconciliação indicador ↔ lista
+**What**: O teste que `design.md:180` prescreve e nunca existiu: para cada indicador, o total exibido é igual à soma da lista filtrada **pelo filtro que o link carrega**.
+**Where**: `src/components/painel-indicadores.test.tsx`
+**Depends on**: T1
+**Reuses**: `filtrarLancamentos`, já testado em T1
+**Requirement**: REDE-02
+**Tools**: nenhuma
+**Done when**:
+- [x] Os quatro indicadores do eixo competência batem com a soma filtrada (AC 1)
+- [x] Os quatro do eixo caixa batem (AC 2)
+- [x] O predicado sai do `href` do link, e não é redigitado no teste (AC 4)
+- [x] Os números afirmados não são todos zero
+- [x] **Mutante confirmado**: trocar o filtro do indicador de despesas para `natureza=RECEITA` mata a suíte
+**Tests**: componentes
+**Gate**: quick
+
+#### T3: Testes do componente de filtros
+**What**: `filtros-de-lancamentos.test.tsx`: a busca chega à URL, cada seletor chega à URL, e o total exibido é o do resultado.
+**Where**: `src/components/filtros-de-lancamentos.test.tsx`
+**Depends on**: nenhuma
+**Reuses**: o padrão de dublê de `next/navigation` de `navegacao-principal.test.tsx`
+**Requirement**: REDE-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Digitar na busca escreve o termo na URL (AC 5)
+- [x] Cada seletor escreve o próprio parâmetro na URL (AC 5)
+- [x] O total e a contagem exibidos são os recebidos (AC 6)
+- [x] Todo controle tem rótulo acessível associado
+- [x] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — confirmado com o percurso de T4
+**Tests**: componentes
+**Gate**: quick
+
+### Phase 1 — Os consertos de comportamento
+
+```
+T1 -> T5 -> T6
+T5 -> T7
+```
+
+### Phase 2 — Interface e acessibilidade
+
+```
+T4 -> T8
+T8 -> T9
+T10
+T11
+```
+
+### Phase 3 — Fechamento
+
+```
+T2 -> T12
+T6 -> T12
+T9 -> T12
+T12 -> T13 -> T14
+```
+
+---
+
+## Task Breakdown
+
+### Phase 0 — A rede, sobre o que existe hoje
+
+#### T1: Testes do predicado de filtragem
+**What**: `filtrar-lancamentos.test.ts`, cobrindo busca com acento e caixa, cada dimensão isolada, combinação como interseção, contagem de ativos e `situacaoDe` nos três estados.
+**Where**: `src/application/mes/filtrar-lancamentos.test.ts`
+**Depends on**: nenhuma
+**Reuses**: as fixtures de `obter-visao-mensal/handler.test.ts`
+**Requirement**: REDE-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Busca acha "Água" digitando "agua", e vice-versa (AC 1)
+- [x] Cada uma das cinco dimensões filtra isoladamente (AC 2)
+- [x] Dois filtros juntos devolvem a interseção, e não a união (AC 3)
+- [x] Busca só com espaços não conta como filtro ativo (AC 4, edge case)
+- [x] `situacaoDe` devolve os três estados, com competência aberta anterior, igual e posterior
+- [x] **Mutante confirmado**: `filtrarLancamentos` devolvendo a lista inteira mata a suíte
+**Tests**: unit
+**Gate**: quick
+
+#### T2: Teste da reconciliação indicador ↔ lista
+**What**: O teste que `design.md:180` prescreve e nunca existiu: para cada indicador, o total exibido é igual à soma da lista filtrada **pelo filtro que o link carrega**.
+**Where**: `src/components/painel-indicadores.test.tsx`
+**Depends on**: T1
+**Reuses**: `filtrarLancamentos`, já testado em T1
+**Requirement**: REDE-02
+**Tools**: nenhuma
+**Done when**:
+- [x] Os quatro indicadores do eixo competência batem com a soma filtrada (AC 1)
+- [x] Os quatro do eixo caixa batem (AC 2)
+- [x] O predicado sai do `href` do link, e não é redigitado no teste (AC 4)
+- [x] Os números afirmados não são todos zero
+- [x] **Mutante confirmado**: trocar o filtro do indicador de despesas para `natureza=RECEITA` mata a suíte
+**Tests**: componentes
+**Gate**: quick
+
+#### T3: Testes do componente de filtros
+**What**: `filtros-de-lancamentos.test.tsx`: a busca chega à URL, cada seletor chega à URL, e o total exibido é o do resultado.
+**Where**: `src/components/filtros-de-lancamentos.test.tsx`
+**Depends on**: nenhuma
+**Reuses**: o padrão de dublê de `next/navigation` de `navegacao-principal.test.tsx`
+**Requirement**: REDE-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Digitar na busca escreve o termo na URL (AC 5)
+- [x] Cada seletor escreve o próprio parâmetro na URL (AC 5)
+- [x] O total e a contagem exibidos são os recebidos (AC 6)
+- [x] Todo controle tem rótulo acessível associado
+- [x] **Mutante confirmado**: remover `<FiltrosDeLancamentos>` da página mata algum teste — confirmado com o percurso de T4
+**Tests**: componentes
+**Gate**: quick
+
+#### T4: e2e de busca e filtro, e o Independent Test que a spec pedia
+**What**: O percurso escrito em `painel-e-lancamentos/spec.md:112` e nunca implementado: buscar parte de uma descrição, ver só ela, ver o indicador de filtro ativo, e ver o total refletir só o resultado.
+**Where**: `e2e/busca-e-filtros.spec.ts`
+**Depends on**: nenhuma
+**Reuses**: helpers de sessão e de cadastro de `e2e/lancamento-avulso.spec.ts`
+**Requirement**: REDE-01
+**Tools**: nenhuma
+**Done when**:
+- [ ] Buscar por parte de uma descrição deixa só ela na lista
+- [ ] O total exibido é o da linha que restou, não o do mês
+- [ ] Filtrar por categoria, meio e pessoa funciona pela tela
+- [ ] Recarregar a página com o filtro na URL preserva o filtro
+- [ ] Clicar num indicador do painel abre a lista já filtrada (REDE-02, AC 3)
+**Tests**: e2e
+**Gate**: build
+
+### Phase 1 — Os consertos de comportamento
+
+#### T5: "Vencido" passa a existir
+**What**: A competência corrente vem de `hojeEm()` e não do segmento de rota, que é a causa de `situacaoDe` nunca devolver vencido.
+**Where**: `src/app/(app)/[competencia]/lancamentos/page.tsx`
+**Depends on**: T1
+**Reuses**: `hojeEm` e `dataParaCompetencia`, já usados para `dataPadrao`
+**Requirement**: VENC-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Mês anterior ao corrente com pendente classifica como vencido (AC 1)
+- [x] Mês corrente e futuro classificam como pendente (AC 2)
+- [x] Pago continua pago em qualquer competência (AC 3)
+- [x] A competência corrente é resolvida por requisição (AC 5)
+- [x] Falha ao resolver a competência corrente é visível, e não vira "tudo pendente" (edge case)
+**Tests**: none
+**Gate**: build
+
+#### T6: A situação vencida aparece na tela
+**What**: A coluna de situação passa a distinguir o terceiro estado por texto, e o filtro "Vencido" devolve linhas.
+**Where**: `src/components/tabela-lancamentos.tsx`
+**Depends on**: T5
+**Reuses**: `situacaoDe`, e o padrão de estado-por-texto do `BotaoPago`
+**Requirement**: VENC-01
+**Tools**: nenhuma
+**Done when**:
+- [x] Lançamento vencido é distinguido por texto, não só por cor (AC 6)
+- [x] O filtro "Vencido" num mês passado devolve os não pagos daquele mês (AC 4)
+- [x] O filtro "Pendente" no mesmo mês não devolve os mesmos
+- [x] O selo continua sendo o botão que alterna o pagamento
+**Tests**: componentes
+**Gate**: quick
+
 #### T7: e2e do vencido
 **What**: Percurso com pendente num mês passado, provando o estado na tela e no filtro.
 **Where**: `e2e/busca-e-filtros.spec.ts`

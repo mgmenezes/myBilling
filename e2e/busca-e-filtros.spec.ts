@@ -1,11 +1,13 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import type { Pool } from "pg";
+import { addMeses, criarCompetencia } from "@/domain";
 import {
   criarPoolDeTeste,
   limparDados,
   recriarBancoDeTeste,
   semearCadastroBase,
 } from "@/infrastructure/db/testing/banco-de-teste";
+import { hojeEm } from "@/lib/relogio";
 
 /**
  * **Busca e filtros passam a ter percurso.**
@@ -25,6 +27,30 @@ import {
 
 const EMAIL_PERMITIDO = "pessoa-a@example.com";
 const MARCO = "2026-03";
+
+/**
+ * "Vencido" é relativo ao mês de hoje, então o percurso não pode fixar mês
+ * nenhum: ele deriva os dois do mesmo relógio que o servidor usa. Meses fixos
+ * fariam o teste passar até a virada do ano e falhar depois.
+ */
+const CORRENTE = competenciaDeHoje();
+const PASSADO = mesesAntes(CORRENTE, 6);
+
+function competenciaDeHoje(): string {
+  const resultado = criarCompetencia(hojeEm().slice(0, 7));
+  if (!resultado.ok) {
+    throw new Error("competência corrente inválida");
+  }
+  return resultado.value;
+}
+
+function mesesAntes(competencia: string, n: number): string {
+  const resultado = criarCompetencia(competencia);
+  if (!resultado.ok) {
+    throw new Error("competência inválida");
+  }
+  return addMeses(resultado.value, -n);
+}
 
 let pool: Pool;
 
@@ -241,4 +267,86 @@ test("clicar num indicador do painel abre a lista já filtrada (REDE-02, AC 3)",
   await expect(filtros(page).getByText(/lançamentos com 1 filtro/)).toContainText("R$ 60,00");
   await expect(linha(page, "Reembolso")).toHaveCount(0);
   await expect(linha(page, "Farmácia")).toBeVisible();
+});
+
+/**
+ * O percurso do vencido (VENC-01).
+ *
+ * "Vencido" era opção do filtro que nunca casava com nada: a lista comparava
+ * a competência do lançamento com a competência **aberta**, e todo lançamento
+ * listado é daquela. Só um percurso com dois meses distintos pega isso.
+ *
+ * Os gastos entram no cartão de propósito: em conta corrente a caixa "já saiu
+ * da conta" vem marcada, e o lançamento nasceria pago.
+ */
+test("um não pago de mês passado aparece como vencido (VENC-01, ACs 1 e 6)", async ({ page }) => {
+  await page.goto(`/${PASSADO}/lancamentos`);
+  await cadastrarAvulso(page, {
+    descricao: "Conta atrasada",
+    valor: "40,00",
+    meio: "Cartão Roxo",
+  });
+  await page.keyboard.press("Escape");
+
+  const atrasada = linha(page, "Conta atrasada");
+  await expect(atrasada.getByText("Vencido")).toBeVisible();
+  /* E o selo continua dizendo que não foi pago: vencido não é um terceiro
+     estado do toggle, é uma leitura do calendário sobre o não pago. */
+  await expect(atrasada.getByRole("button", { name: /^Previsto/ })).toBeVisible();
+});
+
+test('filtrar por "Vencido" devolve o não pago do mês passado, e "Pendente" não (VENC-01, AC 4)', async ({
+  page,
+}) => {
+  await page.goto(`/${PASSADO}/lancamentos`);
+  await cadastrarAvulso(page, {
+    descricao: "Conta atrasada",
+    valor: "40,00",
+    meio: "Cartão Roxo",
+  });
+  await cadastrarAvulso(page, {
+    descricao: "Conta quitada",
+    valor: "25,00",
+    meio: "Conta Corrente",
+  });
+  await page.keyboard.press("Escape");
+
+  await filtros(page).getByLabel("Situação").selectOption({ label: "Vencido" });
+  await expect(page).toHaveURL(/situacao=VENCIDO/);
+  await expect(linha(page, "Conta atrasada")).toBeVisible();
+  await expect(linha(page, "Conta quitada")).toHaveCount(0);
+
+  await filtros(page).getByLabel("Situação").selectOption({ label: "Pendente" });
+  await expect(page).toHaveURL(/situacao=PENDENTE/);
+  await expect(linha(page, "Conta atrasada")).toHaveCount(0);
+
+  /* E o pago continua pago em qualquer competência (AC 3). */
+  await filtros(page).getByLabel("Situação").selectOption({ label: "Pago" });
+  await expect(page).toHaveURL(/situacao=PAGO/);
+  await expect(linha(page, "Conta quitada")).toBeVisible();
+  await expect(linha(page, "Conta atrasada")).toHaveCount(0);
+});
+
+test("no mês corrente o mesmo lançamento é pendente, e não vencido (VENC-01, AC 2)", async ({
+  page,
+}) => {
+  await page.goto(`/${CORRENTE}/lancamentos`);
+  await cadastrarAvulso(page, {
+    descricao: "Conta do mês",
+    valor: "40,00",
+    meio: "Cartão Roxo",
+  });
+  await page.keyboard.press("Escape");
+
+  const doMes = linha(page, "Conta do mês");
+  await expect(doMes.getByRole("button", { name: /^Previsto/ })).toBeVisible();
+  await expect(doMes.getByText("Vencido")).toHaveCount(0);
+
+  await filtros(page).getByLabel("Situação").selectOption({ label: "Pendente" });
+  await expect(page).toHaveURL(/situacao=PENDENTE/);
+  await expect(linha(page, "Conta do mês")).toBeVisible();
+
+  await filtros(page).getByLabel("Situação").selectOption({ label: "Vencido" });
+  await expect(page).toHaveURL(/situacao=VENCIDO/);
+  await expect(linha(page, "Conta do mês")).toHaveCount(0);
 });
