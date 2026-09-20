@@ -278,10 +278,10 @@ T12 -> T13 -> T14
 **Requirement**: MES-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] O controle leva ao mês corrente (AC 1)
-- [ ] A área é preservada: de `/2026-03/lancamentos` vai para `/<corrente>/lancamentos` (AC 2)
-- [ ] No mês corrente ele aparece desabilitado, e não oculto (AC 3)
-- [ ] Tem rótulo acessível que diz para onde leva
+- [x] O controle leva ao mês corrente (AC 1)
+- [x] A área é preservada: de `/2026-03/lancamentos` vai para `/<corrente>/lancamentos` (AC 2)
+- [x] No mês corrente ele aparece desabilitado, e não oculto (AC 3)
+- [x] Tem rótulo acessível que diz para onde leva
 **Tests**: componentes
 **Gate**: quick
 

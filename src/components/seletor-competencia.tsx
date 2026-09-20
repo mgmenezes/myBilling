@@ -2,7 +2,7 @@
 
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { addMeses, type Competencia, criarCompetencia } from "@/domain";
 import { formatarCompetencia, nomeDoMes } from "@/lib/formatar";
 
@@ -17,6 +17,21 @@ import { formatarCompetencia, nomeDoMes } from "@/lib/formatar";
  * O conjunto inteiro é um pill sobre a superfície elevada. É o controle que
  * mais recebe clique no app, então ele é o único elemento da tela com alvo
  * de toque generoso e posição fixa na composição.
+ *
+ * **"Mês atual" mora aqui, ao lado das setas** (MES-01). É onde a pessoa já
+ * está navegando, e voltar ao mês de hoje era o único trajeto que obrigava a
+ * passar pela home — perdendo a área em que se estava. O `design.md` previa um
+ * `seletor-periodo.tsx` próprio que nunca existiu; criar componente novo para
+ * um botão seria inventar estrutura.
+ *
+ * **Ele preserva a área**, lida do caminho: de `/2026-03/lancamentos` vai para
+ * `/<corrente>/lancamentos`, e não para a visão geral.
+ *
+ * **No mês corrente ele fica desabilitado, e não some.** Sumir mudaria o
+ * layout do seletor conforme o mês, e um controle que aparece e desaparece é
+ * mais confuso que um apagado. Desabilitado ele é `<button>`, porque link
+ * desabilitado não existe em HTML; habilitado ele é `<Link>`, como as setas,
+ * para ganhar teclado, nova aba e pré-carregamento de graça.
  */
 
 /** Quantos anos para cada lado o seletor de ano oferece. */
@@ -44,11 +59,34 @@ const CAMPO =
   "rounded-md border border-line bg-surface px-4 py-2.5 text-[15px] text-ink " +
   "transition-colors duration-200 hover:border-line-strong";
 
-export function SeletorCompetencia({ competencia }: { competencia: Competencia }) {
+const ATALHO =
+  "inline-flex min-h-11 items-center rounded-pill border border-line px-4 text-[14px] " +
+  "text-ink transition-[transform,background-color,border-color] duration-200 " +
+  "hover:border-line-strong hover:bg-canvas active:scale-[0.97] " +
+  "disabled:cursor-default disabled:opacity-50 disabled:hover:border-line disabled:hover:bg-transparent";
+
+export function SeletorCompetencia({
+  competencia,
+  competenciaCorrente,
+}: {
+  competencia: Competencia;
+  /**
+   * O mês de hoje, resolvido no servidor, no fuso da casa. Chega por prop
+   * porque o relógio é da borda: derivá-lo aqui daria o fuso do navegador, que
+   * às 21h de 31/03 já está em abril.
+   */
+  competenciaCorrente: Competencia;
+}) {
   const router = useRouter();
+  const caminho = usePathname();
   const anterior = addMeses(competencia, -1);
   const proxima = addMeses(competencia, 1);
   const [ano, mes] = [competencia.slice(0, 4), competencia.slice(5, 7)];
+  /* O que vem depois da competência no caminho é a área: "/lancamentos",
+     "/fixos", ou nada na visão geral. */
+  const area = caminho.startsWith(`/${competencia}`) ? caminho.slice(`/${competencia}`.length) : "";
+  const noMesCorrente = competencia === competenciaCorrente;
+  const rotuloDoAtalho = `Ir para o mês atual: ${formatarCompetencia(competenciaCorrente)}`;
 
   function irPara(anoAlvo: string, mesAlvo: string) {
     const alvo = criarCompetencia(`${anoAlvo}-${mesAlvo}`);
@@ -109,6 +147,20 @@ export function SeletorCompetencia({ competencia }: { competencia: Competencia }
       >
         <CaretRightIcon size={18} weight="bold" aria-hidden="true" />
       </Link>
+
+      {noMesCorrente ? (
+        <button type="button" disabled aria-label={rotuloDoAtalho} className={ATALHO}>
+          Mês atual
+        </button>
+      ) : (
+        <Link
+          href={`/${competenciaCorrente}${area}`}
+          aria-label={rotuloDoAtalho}
+          className={ATALHO}
+        >
+          Mês atual
+        </Link>
+      )}
 
       {/* Anuncia a mudança para leitor de tela sem depender da animação. */}
       <p aria-live="polite" className="sr-only">

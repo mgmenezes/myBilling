@@ -5,9 +5,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Competencia } from "@/domain";
 import { SeletorCompetencia } from "./seletor-competencia";
 
-const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+const { push, estado } = vi.hoisted(() => ({
+  push: vi.fn(),
+  estado: { caminho: "/2026-12" },
+}));
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
+  usePathname: () => estado.caminho,
+}));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...resto }: { href: string; children: ReactNode }) => (
     <a href={href} {...resto}>
@@ -19,10 +25,19 @@ vi.mock("next/link", () => ({
 afterEach(() => {
   cleanup();
   push.mockReset();
+  estado.caminho = "/2026-12";
 });
 
-function montar(competencia: string) {
-  return render(<SeletorCompetencia competencia={competencia as Competencia} />);
+/** O mês de hoje nestes testes, salvo onde o caso diz o contrário. */
+const CORRENTE = "2026-09";
+
+function montar(competencia: string, corrente: string = CORRENTE) {
+  return render(
+    <SeletorCompetencia
+      competencia={competencia as Competencia}
+      competenciaCorrente={corrente as Competencia}
+    />,
+  );
 }
 
 describe("navegação entre meses (UI-01, AC 2)", () => {
@@ -114,5 +129,55 @@ describe("acessibilidade dos controles", () => {
     seletorDeMes.focus();
     await userEvent.selectOptions(seletorDeMes, "01");
     expect(push).toHaveBeenCalledWith("/2026-01");
+  });
+});
+
+describe("o atalho para o mês corrente (MES-01)", () => {
+  it("leva ao mês corrente (AC 1)", () => {
+    estado.caminho = "/2026-03";
+    montar("2026-03");
+
+    expect(screen.getByRole("link", { name: /Ir para o mês atual/ })).toHaveProperty(
+      "href",
+      expect.stringContaining("/2026-09"),
+    );
+  });
+
+  it("preserva a área em que a pessoa está (AC 2)", () => {
+    estado.caminho = "/2026-03/lancamentos";
+    montar("2026-03");
+
+    expect(screen.getByRole("link", { name: /Ir para o mês atual/ })).toHaveProperty(
+      "href",
+      expect.stringContaining("/2026-09/lancamentos"),
+    );
+  });
+
+  it("da visão geral leva à visão geral do mês corrente", () => {
+    estado.caminho = "/2026-03";
+    montar("2026-03");
+
+    const destino = screen.getByRole("link", { name: /Ir para o mês atual/ }).getAttribute("href");
+
+    expect(destino).toBe("/2026-09");
+  });
+
+  it("no mês corrente aparece desabilitado, e não oculto (AC 3)", () => {
+    estado.caminho = `/${CORRENTE}/lancamentos`;
+    montar(CORRENTE);
+
+    const atalho = screen.getByRole("button", { name: /Ir para o mês atual/ });
+
+    expect((atalho as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByRole("link", { name: /Ir para o mês atual/ })).toBeNull();
+  });
+
+  it("o rótulo acessível diz para onde leva", () => {
+    estado.caminho = "/2026-03/fixos";
+    montar("2026-03");
+
+    expect(
+      screen.getByRole("link", { name: "Ir para o mês atual: Setembro de 2026" }),
+    ).toBeDefined();
   });
 });
