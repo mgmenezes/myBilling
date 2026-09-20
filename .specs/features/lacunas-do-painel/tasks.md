@@ -281,10 +281,10 @@ T12 -> T13 -> T14
 **Requirement**: VENC-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Lançamento vencido é distinguido por texto, não só por cor (AC 6)
-- [ ] O filtro "Vencido" num mês passado devolve os não pagos daquele mês (AC 4)
-- [ ] O filtro "Pendente" no mesmo mês não devolve os mesmos
-- [ ] O selo continua sendo o botão que alterna o pagamento
+- [x] Lançamento vencido é distinguido por texto, não só por cor (AC 6)
+- [x] O filtro "Vencido" num mês passado devolve os não pagos daquele mês (AC 4)
+- [x] O filtro "Pendente" no mesmo mês não devolve os mesmos
+- [x] O selo continua sendo o botão que alterna o pagamento
 **Tests**: componentes
 **Gate**: quick
 

@@ -222,6 +222,7 @@ export default async function PaginaDeLancamentos({
         <TabelaLancamentos
           lancamentos={temFiltro ? visiveis : visao.lancamentos}
           categorias={nomePorCategoria}
+          competenciaCorrente={corrente.value}
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValorDaOcorrencia}
           excluir={cancelarLancamento}

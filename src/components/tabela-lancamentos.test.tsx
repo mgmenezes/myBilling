@@ -7,6 +7,10 @@ import { TabelaLancamentos } from "./tabela-lancamentos";
 
 const CATEGORIAS = new Map([["cat-1", "Categoria Um"]]);
 
+/** O mês aberto nestes testes. Igual à competência corrente, salvo onde o
+ *  caso diz o contrário: aí o não pago é vencido. */
+const MARCO = "2026-03" as Competencia;
+
 /** Dublê da action; os testes que precisam observar a chamada passam o seu. */
 const alternarOk = vi.fn(async (lancamentoId: string, pago: boolean) => ({
   ok: true as const,
@@ -35,7 +39,7 @@ function lancamento(campos: Partial<Lancamento> & { id: string }): Lancamento {
     natureza: "DESPESA",
     origem: "AVULSO",
     descricao: "Lançamento avulso A",
-    competencia: "2026-03" as Competencia,
+    competencia: MARCO,
     dataEvento: "2026-03-10",
     valor: 1000 as Cents,
     valorPrevisto: null,
@@ -77,6 +81,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("exibe Entradas, Fixos, Cartão de Crédito e Gastos do Mês separadamente", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -108,6 +113,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("põe Entradas antes de todos os blocos de despesa — ENTR-02, AC 3", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -123,6 +129,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("põe cada lançamento no bloco que a visão do mês carimbou, e não em outro", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -144,6 +151,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("mantém os blocos de despesa visíveis mesmo quando um deles está vazio", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         lancamentos={[item({ id: "3", origem: "AVULSO" })]}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
@@ -159,6 +167,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("põe a receita no bloco Entradas, e não em bloco de despesa nenhum", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -186,6 +195,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("mantém Entradas visível num mês sem nenhuma receita — ENTR-02, AC 2 e 4", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -202,6 +212,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
   it("classifica pelo bloco recebido, e não pela origem: avulso no cartão vai para Cartão", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -234,6 +245,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
   it("exibe 8/10 e quantas parcelas ainda faltam", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -262,6 +274,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
   it("na última parcela diz que é a última, em vez de faltam 0", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -291,6 +304,7 @@ describe("valores e situação", () => {
   it("formata o valor em reais e distingue previsto de pago", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -319,6 +333,7 @@ describe("estado vazio (UI-02, AC 6)", () => {
   it("explica o que fazer em vez de mostrar tabela em branco", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         lancamentos={[]}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
@@ -341,6 +356,7 @@ describe("categoria na lista", () => {
   it("o bloco de cartão mostra categoria e parcela", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -363,6 +379,7 @@ describe("categoria na lista", () => {
   it("o bloco de gastos do mês mostra categoria e **não** mostra parcela", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -380,6 +397,7 @@ describe("categoria na lista", () => {
   it("lançamento sem categoria diz isso, em vez de deixar a célula muda", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -394,6 +412,7 @@ describe("categoria na lista", () => {
   it("categoria que saiu do cadastro não apaga a linha nem quebra a tabela", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -410,6 +429,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
   it("oferece o controle na linha de lançamento avulso", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -424,6 +444,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
   it("não oferece na linha de parcela: removê-la quebraria a soma da compra", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -449,6 +470,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
   it("não oferece na linha de gasto fixo: a ocorrência renasce na materialização", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -465,6 +487,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
   it("oferece na receita avulsa, que também é cancelável", () => {
     render(
       <TabelaLancamentos
+        competenciaCorrente={MARCO}
         categorias={CATEGORIAS}
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
@@ -476,5 +499,70 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
     );
 
     expect(screen.getByRole("button", { name: "Excluir, Pix recebido" })).toBeDefined();
+  });
+});
+
+/**
+ * Testes derivados de VENC-01 (AC 6). O terceiro estado existia na regra e não
+ * existia na tela: `situacaoDe` sabia devolver vencido, e nada na lista dizia.
+ *
+ * A competência corrente é **parâmetro**, e é o que estes casos variam: a
+ * mesma linha é pendente ou vencida conforme o mês de hoje, e não conforme o
+ * mês aberto.
+ */
+describe("a situação vencida aparece na linha (VENC-01, AC 6)", () => {
+  const SETEMBRO = "2026-09" as Competencia;
+  const ABRIL = "2026-04" as Competencia;
+
+  function montar(corrente: Competencia, campos: Partial<Lancamento> & { id: string }) {
+    return render(
+      <TabelaLancamentos
+        competenciaCorrente={corrente}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        lancamentos={[item(campos)]}
+      />,
+    );
+  }
+
+  it("distingue o não pago de mês anterior pela palavra, e não só pela cor", () => {
+    montar(SETEMBRO, { id: "1", descricao: "Atrasada A" });
+
+    const linha = screen.getByRole("row", { name: /Atrasada A/ });
+    expect(within(linha).getByText("Vencido")).toBeDefined();
+  });
+
+  it("no mês corrente o mesmo não pago segue previsto, e não vencido", () => {
+    montar(MARCO, { id: "1", descricao: "Atrasada A" });
+
+    const linha = screen.getByRole("row", { name: /Atrasada A/ });
+    expect(within(linha).queryByText("Vencido")).toBeNull();
+    expect(within(linha).getByText("Previsto")).toBeDefined();
+  });
+
+  it("competência futura não é vencida", () => {
+    montar(MARCO, { id: "1", descricao: "Futura A", competencia: ABRIL });
+
+    expect(screen.queryByText("Vencido")).toBeNull();
+  });
+
+  it("pago de mês anterior continua pago, e nunca vencido", () => {
+    montar(SETEMBRO, { id: "1", descricao: "Quitada A", pagoEm: "2026-03-12" });
+
+    const linha = screen.getByRole("row", { name: /Quitada A/ });
+    expect(within(linha).queryByText("Vencido")).toBeNull();
+    expect(within(linha).getByText("Pago")).toBeDefined();
+  });
+
+  /* O selo não vira um toggle de três posições: ele continua ligando e
+     desligando o pagamento, e o vencido entra ao lado. */
+  it("o selo continua sendo o botão que alterna o pagamento", () => {
+    montar(SETEMBRO, { id: "1", descricao: "Atrasada A" });
+
+    const selo = screen.getByRole("button", { name: "Previsto, Atrasada A" });
+    expect(selo.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.queryByRole("button", { name: /^Vencido/ })).toBeNull();
   });
 });

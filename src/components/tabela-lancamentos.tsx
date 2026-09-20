@@ -3,8 +3,9 @@ import type {
   alternarPagamento as alternarPagamentoAction,
   confirmarValorDaOcorrencia as confirmarValorAction,
 } from "@/app/actions/pagamentos";
+import { situacaoDe } from "@/application/mes/filtrar-lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
-import { type BlocoDoMes, type Natureza, resolverValorEfetivo } from "@/domain";
+import { type BlocoDoMes, type Competencia, type Natureza, resolverValorEfetivo } from "@/domain";
 import { formatarBRL, formatarData } from "@/lib/formatar";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
@@ -43,6 +44,13 @@ import { ValorConfirmavel } from "./valor-confirmavel";
  * botão** que alterna o pagamento — é o único ponto cliente desta árvore, e
  * está isolado em `BotaoPago` para a tabela continuar no servidor.
  *
+ * **O terceiro estado vem ao lado do selo, e não dentro dele.** O selo é um
+ * toggle de duas posições: pago e não pago. Vencido não é uma terceira posição
+ * desse toggle — é uma leitura do calendário sobre o não pago, e escrevê-la no
+ * rótulo do botão diria que existe um terceiro clique. Ele entra como selo
+ * próprio, com a palavra escrita, pelo mesmo princípio do `BotaoPago`: o
+ * estado está no texto, e a cor só repete o que o texto já disse.
+ *
  * **A coluna "Parcela" só existe no bloco de compra parcelada.** Fora dele ela
  * era uma coluna permanentemente vazia, e coluna vazia não é neutra: ela
  * empurra descrição e valor para as pontas opostas da tela e obriga o olho a
@@ -77,6 +85,7 @@ const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-mu
 export function TabelaLancamentos({
   lancamentos,
   categorias,
+  competenciaCorrente,
   alternarPagamento,
   confirmarValor,
   excluir,
@@ -84,6 +93,12 @@ export function TabelaLancamentos({
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
   /** Id para nome. O lançamento só carrega o id; o nome vive no cadastro. */
   readonly categorias: ReadonlyMap<string, string>;
+  /**
+   * O mês de hoje, e não o mês aberto. É o argumento que decide se um não pago
+   * está vencido, e é obrigatório de propósito: um padrão silencioso aqui
+   * devolveria o defeito que VENC-01 veio corrigir.
+   */
+  readonly competenciaCorrente: Competencia;
   /** A action chega por prop: a tabela não conhece infraestrutura nenhuma. */
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
@@ -108,6 +123,7 @@ export function TabelaLancamentos({
         id="entradas"
         titulo="Entradas"
         categorias={categorias}
+        competenciaCorrente={competenciaCorrente}
         alternarPagamento={alternarPagamento}
         confirmarValor={confirmarValor}
         excluir={excluir}
@@ -120,6 +136,7 @@ export function TabelaLancamentos({
           id={bloco.id}
           titulo={bloco.titulo}
           categorias={categorias}
+          competenciaCorrente={competenciaCorrente}
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValor}
           excluir={excluir}
@@ -137,6 +154,7 @@ function BlocoDeLancamentos({
   titulo,
   itens,
   categorias,
+  competenciaCorrente,
   comParcela,
   alternarPagamento,
   confirmarValor,
@@ -147,6 +165,7 @@ function BlocoDeLancamentos({
   readonly titulo: string;
   readonly itens: ReadonlyArray<LancamentoDoMes>;
   readonly categorias: ReadonlyMap<string, string>;
+  readonly competenciaCorrente: Competencia;
   readonly comParcela: boolean;
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
@@ -195,45 +214,47 @@ function BlocoDeLancamentos({
             </tr>
           </thead>
           <tbody className="block md:table-row-group">
-            {itens.map(({ lancamento, parcela }) => (
-              <tr
-                key={lancamento.id}
-                /*
-                 * Uma régua só, entre as linhas, nunca acima e abaixo de cada
-                 * uma. Régua dupla em toda linha é o que faz uma tabela
-                 * parecer exportação de planilha.
-                 */
-                className="mb-3 block rounded-xl border border-line bg-surface p-4 md:mb-0 md:table-row md:rounded-none md:border-0 md:bg-transparent md:p-0 md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line"
-              >
-                <td className={`${CELULA} font-medium`}>{lancamento.descricao}</td>
-                <td className={CELULA}>
-                  {lancamento.categoriaId === null ? (
-                    <span className="text-[14px] text-ink-soft">Sem categoria</span>
-                  ) : (
-                    <Chip>{categorias.get(lancamento.categoriaId) ?? "Categoria removida"}</Chip>
-                  )}
-                </td>
-                {comParcela ? (
-                  <td className={`${CELULA} text-ink-muted`}>
-                    {parcela === null ? (
-                      <span className="sr-only">sem parcelamento</span>
+            {itens.map((item) => {
+              const { lancamento, parcela } = item;
+              return (
+                <tr
+                  key={lancamento.id}
+                  /*
+                   * Uma régua só, entre as linhas, nunca acima e abaixo de cada
+                   * uma. Régua dupla em toda linha é o que faz uma tabela
+                   * parecer exportação de planilha.
+                   */
+                  className="mb-3 block rounded-xl border border-line bg-surface p-4 md:mb-0 md:table-row md:rounded-none md:border-0 md:bg-transparent md:p-0 md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line"
+                >
+                  <td className={`${CELULA} font-medium`}>{lancamento.descricao}</td>
+                  <td className={CELULA}>
+                    {lancamento.categoriaId === null ? (
+                      <span className="text-[14px] text-ink-soft">Sem categoria</span>
                     ) : (
-                      <>
-                        <span className="tabular">
-                          {parcela.numero}/{parcela.total}
-                        </span>{" "}
-                        {parcela.restantes === 0
-                          ? "(última)"
-                          : `(faltam ${parcela.restantes} depois desta)`}
-                      </>
+                      <Chip>{categorias.get(lancamento.categoriaId) ?? "Categoria removida"}</Chip>
                     )}
                   </td>
-                ) : null}
-                <td className={`${CELULA} tabular text-ink-muted`}>
-                  {formatarData(lancamento.dataEvento)}
-                </td>
-                <td className={CELULA}>
-                  {/*
+                  {comParcela ? (
+                    <td className={`${CELULA} text-ink-muted`}>
+                      {parcela === null ? (
+                        <span className="sr-only">sem parcelamento</span>
+                      ) : (
+                        <>
+                          <span className="tabular">
+                            {parcela.numero}/{parcela.total}
+                          </span>{" "}
+                          {parcela.restantes === 0
+                            ? "(última)"
+                            : `(faltam ${parcela.restantes} depois desta)`}
+                        </>
+                      )}
+                    </td>
+                  ) : null}
+                  <td className={`${CELULA} tabular text-ink-muted`}>
+                    {formatarData(lancamento.dataEvento)}
+                  </td>
+                  <td className={CELULA}>
+                    {/*
                     Excluir mora ao lado do selo, e não numa coluna própria.
                     Coluna própria ficaria vazia em toda linha de parcela e de
                     gasto fixo — que são a maioria —, e coluna permanentemente
@@ -241,28 +262,31 @@ function BlocoDeLancamentos({
                     é a dívida de interface que a pílula de categoria veio
                     reduzir.
                   */}
-                  <span className="flex flex-wrap items-center gap-2">
-                    <BotaoPago
-                      lancamentoId={lancamento.id}
-                      descricao={lancamento.descricao}
-                      pago={lancamento.pagoEm !== null}
-                      alternar={alternarPagamento}
-                    />
-                    {/* Parcela quebraria a soma da compra; ocorrência renasce
-                        na materialização seguinte. Nem uma nem outra oferece. */}
-                    {lancamento.origem === "AVULSO" ? (
-                      <BotaoExcluir
+                    <span className="flex flex-wrap items-center gap-2">
+                      <BotaoPago
                         lancamentoId={lancamento.id}
                         descricao={lancamento.descricao}
-                        excluir={excluir}
+                        pago={lancamento.pagoEm !== null}
+                        alternar={alternarPagamento}
                       />
-                    ) : null}
-                  </span>
-                </td>
-                <td
-                  className={`${CELULA} tabular whitespace-nowrap md:text-right ${corDaNatureza(lancamento.natureza)}`}
-                >
-                  {/*
+                      {situacaoDe(item, competenciaCorrente) === "VENCIDO" ? (
+                        <Chip tom="negativo">Vencido</Chip>
+                      ) : null}
+                      {/* Parcela quebraria a soma da compra; ocorrência renasce
+                        na materialização seguinte. Nem uma nem outra oferece. */}
+                      {lancamento.origem === "AVULSO" ? (
+                        <BotaoExcluir
+                          lancamentoId={lancamento.id}
+                          descricao={lancamento.descricao}
+                          excluir={excluir}
+                        />
+                      ) : null}
+                    </span>
+                  </td>
+                  <td
+                    className={`${CELULA} tabular whitespace-nowrap md:text-right ${corDaNatureza(lancamento.natureza)}`}
+                  >
+                    {/*
                     Ocorrência de gasto fixo tem valor confirmável; parcela e
                     avulso não. `resolverValorEfetivo` ganha aqui o chamador que
                     faltava desde a fase 3 do MVP — este é o caminho de leitura,
@@ -271,48 +295,49 @@ function BlocoDeLancamentos({
                     porque a materialização grava os dois iguais; é o mesmo
                     critério que `ocorrenciaProtegida` usa.
                   */}
-                  {lancamento.origem === "RECORRENCIA" && lancamento.valorPrevisto !== null ? (
-                    <ValorConfirmavel
-                      /* O sinal vem junto, e não some por a célula ter virado
+                    {lancamento.origem === "RECORRENCIA" && lancamento.valorPrevisto !== null ? (
+                      <ValorConfirmavel
+                        /* O sinal vem junto, e não some por a célula ter virado
                          controle: sem ele a linha de fixo seria a única da
                          tabela a depender só da cor para dizer o que é. */
-                      sinal={lancamento.natureza === "RECEITA" ? "+" : "−"}
-                      lancamentoId={lancamento.id}
-                      descricao={lancamento.descricao}
-                      valorFormatado={formatarBRL(
-                        resolverValorEfetivo(
-                          lancamento.valorPrevisto,
-                          lancamento.valor === lancamento.valorPrevisto ? null : lancamento.valor,
-                        ).valorEfetivo,
-                      )}
-                      previstoFormatado={formatarBRL(lancamento.valorPrevisto)}
-                      confirmado={
-                        resolverValorEfetivo(
-                          lancamento.valorPrevisto,
-                          lancamento.valor === lancamento.valorPrevisto ? null : lancamento.valor,
-                        ).sobrescritaManualmente
-                      }
-                      confirmar={confirmarValor}
-                    />
-                  ) : (
-                    <>
-                      {/*
+                        sinal={lancamento.natureza === "RECEITA" ? "+" : "−"}
+                        lancamentoId={lancamento.id}
+                        descricao={lancamento.descricao}
+                        valorFormatado={formatarBRL(
+                          resolverValorEfetivo(
+                            lancamento.valorPrevisto,
+                            lancamento.valor === lancamento.valorPrevisto ? null : lancamento.valor,
+                          ).valorEfetivo,
+                        )}
+                        previstoFormatado={formatarBRL(lancamento.valorPrevisto)}
+                        confirmado={
+                          resolverValorEfetivo(
+                            lancamento.valorPrevisto,
+                            lancamento.valor === lancamento.valorPrevisto ? null : lancamento.valor,
+                          ).sobrescritaManualmente
+                        }
+                        confirmar={confirmarValor}
+                      />
+                    ) : (
+                      <>
+                        {/*
                         O sinal repete em forma o que a cor diz, para a linha não
                         depender de matiz. O rótulo completo vai só para leitor
                         de tela: na coluna ele seria ruído.
                       */}
-                      {lancamento.natureza === "INVESTIMENTO" ? null : (
-                        <span aria-hidden="true">
-                          {lancamento.natureza === "RECEITA" ? "+" : "−"}
-                        </span>
-                      )}
-                      {formatarBRL(lancamento.valor)}
-                      <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
+                        {lancamento.natureza === "INVESTIMENTO" ? null : (
+                          <span aria-hidden="true">
+                            {lancamento.natureza === "RECEITA" ? "+" : "−"}
+                          </span>
+                        )}
+                        {formatarBRL(lancamento.valor)}
+                        <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
