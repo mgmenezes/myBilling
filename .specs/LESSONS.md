@@ -38,6 +38,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: mutante N10 (ciclo 2) — e2e/recorrencias.spec.ts:87 (verificacao)
 - last seen: 2026-09-15T04:13:17Z
 
+### L-005 - Achado de relatório de subagente vira decisão só depois de reler o código que o originou: a transcrição inverteu o mecanismo da divergência e o exemplo concreto passou a descrever algo que não acontece.
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `specs,decisoes` · harmful: 0
+- features: lacunas-do-painel
+- evidence: AD-017 (.specs/STATE.md), corrigido em f6644a7 (specs,decisoes)
+- last seen: 2026-09-20T13:06:26Z
+
+### L-006 - AC que compara duas coisas ('mesma contagem que X') precisa definir o referente dos dois lados, ou não há número a comparar e a prova vira número inventado.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `specs,acceptance-criteria` · harmful: 0
+- features: lacunas-do-painel
+- evidence: REDE-03 AC 5 (.specs/features/lacunas-do-painel/spec.md) (specs,acceptance-criteria)
+- last seen: 2026-09-20T13:06:26Z
+
+### L-007 - Fixture que põe a competência corrente igual à aberta esconde toda classe de bug de mês passado: a reconciliação indicador ↔ lista passou verde enquanto o link do indicador apontava para um estado que aquele mês não tem.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `testes,fixtures` · harmful: 0
+- features: lacunas-do-painel
+- evidence: REDE-02 AC 1 vs painel-indicadores.test.tsx:103 (corrente = mês aberto) (testes,fixtures)
+- last seen: 2026-09-20T13:06:27Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

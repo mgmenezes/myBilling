@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 5,
+  "next_id": 8,
   "lessons": [
     {
       "id": "L-001",
@@ -12,7 +12,9 @@
       "signal": "surviving_mutant",
       "scope": "app-router,paginas",
       "status": "candidate",
-      "features": ["lancamento-avulso"],
+      "features": [
+        "lancamento-avulso"
+      ],
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
@@ -28,7 +30,9 @@
       "signal": "surviving_mutant",
       "scope": "integridade,banco",
       "status": "candidate",
-      "features": ["lancamento-avulso"],
+      "features": [
+        "lancamento-avulso"
+      ],
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
@@ -44,10 +48,14 @@
       "signal": "spec_precision_gap",
       "scope": "spec",
       "status": "candidate",
-      "features": ["lancamento-avulso"],
+      "features": [
+        "lancamento-avulso"
+      ],
       "recurrence": 1,
       "harmful": 0,
-      "evidence": ["spec.md:91 (tabela de dimensões) e traceability de AVUL-04 — ciclo 2 (spec)"],
+      "evidence": [
+        "spec.md:91 (tabela de dimensões) e traceability de AVUL-04 — ciclo 2 (spec)"
+      ],
       "created": "2026-09-15T04:13:17Z",
       "last_seen": "2026-09-15T04:13:17Z"
     },
@@ -58,12 +66,70 @@
       "signal": "surviving_mutant",
       "scope": "verificacao",
       "status": "candidate",
-      "features": ["lancamento-avulso"],
+      "features": [
+        "lancamento-avulso"
+      ],
       "recurrence": 1,
       "harmful": 0,
-      "evidence": ["mutante N10 (ciclo 2) — e2e/recorrencias.spec.ts:87 (verificacao)"],
+      "evidence": [
+        "mutante N10 (ciclo 2) — e2e/recorrencias.spec.ts:87 (verificacao)"
+      ],
       "created": "2026-09-15T04:13:17Z",
       "last_seen": "2026-09-15T04:13:17Z"
+    },
+    {
+      "id": "L-005",
+      "key": "spec_deviation::achado de relatorio de subagente vira decisao so depois de reler o codigo que o originou a transcricao inverteu o mecanismo da divergencia e o exemplo concreto passou a descrever algo que nao acontece",
+      "text": "Achado de relatório de subagente vira decisão só depois de reler o código que o originou: a transcrição inverteu o mecanismo da divergência e o exemplo concreto passou a descrever algo que não acontece.",
+      "signal": "spec_deviation",
+      "scope": "specs,decisoes",
+      "status": "candidate",
+      "features": [
+        "lacunas-do-painel"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "AD-017 (.specs/STATE.md), corrigido em f6644a7 (specs,decisoes)"
+      ],
+      "created": "2026-09-20T13:06:26Z",
+      "last_seen": "2026-09-20T13:06:26Z"
+    },
+    {
+      "id": "L-006",
+      "key": "spec_precision_gap::ac que compara duas coisas mesma contagem que x precisa definir o referente dos dois lados ou nao ha numero a comparar e a prova vira numero inventado",
+      "text": "AC que compara duas coisas ('mesma contagem que X') precisa definir o referente dos dois lados, ou não há número a comparar e a prova vira número inventado.",
+      "signal": "spec_precision_gap",
+      "scope": "specs,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "lacunas-do-painel"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "REDE-03 AC 5 (.specs/features/lacunas-do-painel/spec.md) (specs,acceptance-criteria)"
+      ],
+      "created": "2026-09-20T13:06:26Z",
+      "last_seen": "2026-09-20T13:06:26Z"
+    },
+    {
+      "id": "L-007",
+      "key": "ac_gap::fixture que poe a competencia corrente igual a aberta esconde toda classe de bug de mes passado a reconciliacao indicador lista passou verde enquanto o link do indicador apontava para um estado que aquele mes nao tem",
+      "text": "Fixture que põe a competência corrente igual à aberta esconde toda classe de bug de mês passado: a reconciliação indicador ↔ lista passou verde enquanto o link do indicador apontava para um estado que aquele mês não tem.",
+      "signal": "ac_gap",
+      "scope": "testes,fixtures",
+      "status": "candidate",
+      "features": [
+        "lacunas-do-painel"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "REDE-02 AC 1 vs painel-indicadores.test.tsx:103 (corrente = mês aberto) (testes,fixtures)"
+      ],
+      "created": "2026-09-20T13:06:27Z",
+      "last_seen": "2026-09-20T13:06:27Z"
     }
   ]
 }
