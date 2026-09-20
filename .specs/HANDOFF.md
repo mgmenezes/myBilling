@@ -249,23 +249,26 @@ precisa ser escopada ao formulário, ou casa dois nós.
    limpo, três migrations do zero, build de produção subindo e redirecionando para `/login`.
    Em build de produção o único provider registrado é o Google, e `AUTH_PROVIDER_DE_TESTE`
    **derruba o boot** por desenho — degradar em silêncio exporia um provider sem senha.
-5. **O banco gerenciado existe e está migrado; falta onde o app roda.** O Neon foi provisionado
-   em São Paulo, Postgres 18, BetterAuth desligado, e as três migrations estão aplicadas no branch
-   `production` com o controle de migrations consistente — conferido. O que falta do deploy é o
-   resto: onde o app roda, como as variáveis chegam lá, e de onde `pnpm db:migrate` é executado.
-   **Atenção à rede:** a 5432 de saída é bloqueada da máquina de desenvolvimento, então o
-   `db:migrate` precisa rodar do pipeline, ou pelo contorno documentado em `docs/qa.md`
-   (`pnpm db:sql` + SQL Editor).
-6. **O roadmap não cobre infraestrutura.** Ele foi escrito como roadmap de
-   produto e nunca teve linha de infraestrutura. O que falta decidir e fazer: onde o app roda,
-   como as variáveis de ambiente chegam lá, e como `pnpm db:migrate` é executado contra o banco
-   gerenciado. As duas migrations aplicam num banco limpo — `recriarBancoDeTeste` prova isso a
-   cada execução da suíte de integração —, então o risco não é a migration: é não haver processo.
-6. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
+5. **Deploy decidido: Vercel + Neon, e o caminho existe.** Roteiro completo em `docs/deploy.md`.
+   O repositório já traz o que é dele: `vercel.json` fixando a região `gru1`, e o job `migrate` no
+   CI, que roda `pnpm db:migrate` depois do gate completo e só em `main` — o que também resolve a
+   rede, já que a 5432 de saída é bloqueada da máquina de desenvolvimento. **O que falta é
+   manual e é do painel:** importar o repo na Vercel, as cinco variáveis de produção, o secret
+   `NEON_DATABASE_URL_DIRETA` no GitHub, e as duas entradas do Google Console apontando para o
+   domínio. Nada disso passa por agente.
+   **Duas URLs, de propósito:** o app fala pelo endpoint `-pooler`; a migration precisa do direto,
+   porque o PgBouncer opera em modo transação e DDL por ele falha de forma intermitente.
+6. **Não há ordem garantida entre o deploy da Vercel e a migration.** A Vercel publica assim que o
+   push chega; o job do GitHub roda em paralelo. Para migration aditiva — tudo que este projeto
+   teve até hoje — é inofensivo. Para uma que remova ou renomeie, existe uma janela de código novo
+   contra schema velho. O caminho recomendado é *expand/contract* em dois merges, e não acoplar a
+   publicação ao CI; a alternativa (desligar o auto-deploy e disparar por Deploy Hook) está
+   documentada em `docs/deploy.md`.
+7. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
    (`DESIGN-mastercard.md`) foi mantida fora do repositório de propósito, por descrever identidade
    de marca de terceiros. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra.
    Registrado em `docs/referencias/LEIA-ME.md`.
-7. **A rastreabilidade de `recorrencias` e `home-do-ano` não recorta por AC.** É a mesma dívida que
+8. **A rastreabilidade de `recorrencias` e `home-do-ano` não recorta por AC.** É a mesma dívida que
    `painel-e-lancamentos` tinha e que a fatia `lacunas-do-painel` pagou: a tabela liga cada
    requisito a uma *história*, e três requisitos apontando para os seis ACs da mesma história
    tornam "quantos estão cobertos" uma pergunta sem resposta — foi assim que aquela fatia conseguiu
@@ -273,7 +276,7 @@ precisa ser escopada ao formulário, ou casa dois nós.
    reconstruir o recorte pelas âncoras existentes (citações de ID em `design.md` e em comentários
    de código) e conferir cada AC contra o teste que o prova.
 
-7. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
+9. **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
    pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão, mas a correção real é
    deixar a descrição absorver a folga e as demais colunas ocuparem só o que precisam.
 

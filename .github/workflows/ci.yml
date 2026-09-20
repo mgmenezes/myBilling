@@ -95,3 +95,55 @@ jobs:
           name: playwright-traces
           path: test-results/
           retention-days: 7
+
+  # Migration do banco gerenciado, **depois** do gate inteiro e **só** em `main`.
+  #
+  # Por que não no build da Vercel: lá o comando roda também em preview e em
+  # cada redeploy, e um branch qualquer passaria a migrar produção. Aqui ela
+  # corre uma vez por merge, atrás de 1.150 provas verdes.
+  #
+  # Por que não à mão: a 5432 de saída é bloqueada na máquina de
+  # desenvolvimento, então o caminho manual depende do SQL Editor do Neon e de
+  # alguém lembrar. Esquecimento de migration é silencioso até o primeiro erro
+  # em produção.
+  migrate:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    # Uma de cada vez, e sem cancelar a que já começou: dois merges seguidos
+    # dispararão dois `drizzle-kit migrate` contra o mesmo banco, e interromper
+    # uma migration pela metade é pior que atrasá-la.
+    concurrency:
+      group: migrate-producao
+      cancel-in-progress: false
+
+    # Existe para dar o gancho de aprovação manual: configure revisores neste
+    # environment se quiser que toda migration de produção espere um humano.
+    # Sem revisores configurados, ela simplesmente roda.
+    environment: producao
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # **Endpoint direto, nunca o `-pooler`.** O PgBouncer do Neon opera em
+      # modo transação, e DDL por ele é caminho de falha intermitente. A URL do
+      # app (com pooler) e a URL da migration (sem) são variáveis diferentes,
+      # de propósito.
+      - name: Migrate
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL_DIRETA }}
+        run: pnpm db:migrate
