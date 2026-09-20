@@ -96,10 +96,16 @@ beforeEach(async () => {
 
 afterEach(cleanup);
 
-function montar(tipo: "planejamento" | "movimentacoes") {
+function montar(
+  tipo: "planejamento" | "movimentacoes",
+  /* O mês de hoje. Por padrão é o próprio mês aberto, que é o recorte em que
+     os testes de reconciliação nasceram. */
+  corrente: Competencia = MARCO,
+) {
   return render(
     <GradeDeIndicadores
       competencia={MARCO}
+      competenciaCorrente={corrente}
       visao={tipo}
       planejamento={{
         entradas: visao.competenciaView.entradas,
@@ -139,11 +145,12 @@ function filtroDoLink(href: string): FiltroDeLancamentos {
   };
 }
 
-function somaDaLista(filtro: FiltroDeLancamentos): number {
-  return filtrarLancamentos(visao.lancamentos, filtro, MARCO).reduce(
-    (total, item) => total + item.lancamento.valor,
-    0,
-  );
+function somaDaLista(filtro: FiltroDeLancamentos, corrente: Competencia = MARCO): number {
+  return listaFiltrada(filtro, corrente).reduce((total, item) => total + item.lancamento.valor, 0);
+}
+
+function listaFiltrada(filtro: FiltroDeLancamentos, corrente: Competencia = MARCO) {
+  return filtrarLancamentos(visao.lancamentos, filtro, corrente);
 }
 
 /** O cartão de um indicador, seja ele link ou o cartão de ênfase sem link. */
@@ -257,4 +264,57 @@ describe("o link de cada indicador abre a lista da competência aberta", () => {
     const filtros = ["Receitas do mês", "Despesas do mês", "Ainda não pago"].map(href);
     expect(new Set(filtros).size).toBe(3);
   });
+});
+
+/**
+ * O indicador do não pago em mês passado (T15).
+ *
+ * Com a competência corrente vindo do relógio, todo não pago de mês passado
+ * virou `VENCIDO` — e o link do cartão continuava carregando
+ * `situacao=PENDENTE`. O cartão mostrava um número e a lista voltava vazia.
+ * Os testes acima não pegavam porque o mês aberto deles é o mês corrente.
+ */
+describe("o não pago aponta para o estado que o mês tem (REDE-02, ACs 1, 3 e 4)", () => {
+  /** Seis meses depois do mês aberto: março está no passado. */
+  const SETEMBRO = "2026-09" as Competencia;
+
+  for (const caso of [
+    { visao: "planejamento" as const, rotulo: "Ainda não pago" },
+    { visao: "movimentacoes" as const, rotulo: "Ainda não saiu" },
+  ]) {
+    it(`"${caso.rotulo}" leva à lista filtrada por Vencido em mês passado`, () => {
+      montar(caso.visao, SETEMBRO);
+
+      expect(href(caso.rotulo)).toContain("situacao=VENCIDO");
+    });
+
+    it(`a lista que "${caso.rotulo}" abre não volta vazia em mês passado`, () => {
+      montar(caso.visao, SETEMBRO);
+
+      expect(listaFiltrada(filtroDoLink(href(caso.rotulo)), SETEMBRO).length).toBeGreaterThan(0);
+    });
+
+    it(`o total de "${caso.rotulo}" é a soma da lista que ele abre, em mês passado`, () => {
+      montar(caso.visao, SETEMBRO);
+
+      const exibido = valorExibido(cartao(caso.rotulo));
+
+      expect(exibido).toBe(somaDaLista(filtroDoLink(href(caso.rotulo)), SETEMBRO));
+      expect(exibido).toBeGreaterThan(0);
+    });
+
+    it(`"${caso.rotulo}" continua em Pendente no mês corrente`, () => {
+      montar(caso.visao, MARCO);
+
+      expect(href(caso.rotulo)).toContain("situacao=PENDENTE");
+    });
+
+    it(`"${caso.rotulo}" continua em Pendente quando o mês aberto é futuro`, () => {
+      /* Hoje em janeiro, com março aberto: o não pago de março ainda não
+         venceu. */
+      montar(caso.visao, "2026-01" as Competencia);
+
+      expect(href(caso.rotulo)).toContain("situacao=PENDENTE");
+    });
+  }
 });

@@ -293,11 +293,11 @@ T12 -> T13 -> T14
 **Requirement**: REDE-02
 **Tools**: nenhuma
 **Done when**:
-- [ ] Em mês passado, o indicador leva à lista filtrada por "Vencido", e ela não volta vazia (AC 3)
-- [ ] O total do indicador é igual à soma da lista que ele abre, **em mês passado** (AC 1)
-- [ ] Em mês corrente e futuro o filtro continua "Pendente", e nada muda
-- [ ] A prova usa o filtro lido do `href`, e não um predicado redigitado (AC 4)
-- [ ] **Mutante confirmado**: fixar o filtro em `PENDENTE` mata a prova de mês passado
+- [x] Em mês passado, o indicador leva à lista filtrada por "Vencido", e ela não volta vazia (AC 3)
+- [x] O total do indicador é igual à soma da lista que ele abre, **em mês passado** (AC 1)
+- [x] Em mês corrente e futuro o filtro continua "Pendente", e nada muda
+- [x] A prova usa o filtro lido do `href`, e não um predicado redigitado (AC 4)
+- [x] **Mutante confirmado**: fixar o filtro em `PENDENTE` mata a prova de mês passado
 **Tests**: componentes
 **Gate**: quick
 

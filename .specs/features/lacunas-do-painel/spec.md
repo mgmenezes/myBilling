@@ -253,7 +253,7 @@ instantânea.
 | VAZIO-01 | P2: Todo estado vazio oferece saída — ACs 1 a 4 | Execute | ACs 1 e 4 (T10); ACs 2 e 3 (T3, T10) |
 | TOQUE-01 | P2: Os controles da linha respeitam a área de toque — ACs 1 a 3 | Execute | ACs 1 e 2 (T8); AC 3 (T9) |
 | REDE-01 | P1: A busca e os filtros ganham prova — ACs 1 a 6 | Execute | ACs 1 a 4 (T1); ACs 5 e 6 (T3); percurso na tela (T4) |
-| REDE-02 | P1: O indicador e a lista param de poder divergir — ACs 1 a 4 | Execute | ACs 1, 2 e 4 (T2); AC 3 (T4) |
+| REDE-02 | P1: O indicador e a lista param de poder divergir — ACs 1 a 4 | Execute | ACs 1, 2 e 4 (T2); AC 3 (T4); ACs 1, 3 e 4 em mês passado (T15) |
 | REDE-03 | P3: O que estava implementado e não provado — ACs 1 a 5 | Design | Pending |
 
 **Coverage:** 7 total, 7 mapeados para tasks.

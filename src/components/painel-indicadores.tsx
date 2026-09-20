@@ -18,6 +18,12 @@ import { formatarBRL } from "@/lib/formatar";
  *
  * Cada indicador também é link, levando à lista já filtrada. A soma dos
  * lançamentos que aparecem lá tem que bater com o número daqui (DASH-04).
+ *
+ * **O não pago aponta para o estado que o mês tem.** Situação é derivada do
+ * calendário: num mês anterior ao corrente, o não pago não é pendente, é
+ * vencido. Um link fixo em `situacao=PENDENTE` mostrava um número no cartão e
+ * abria uma lista vazia em todo mês passado — o cartão e a lista divergindo
+ * por caminhos diferentes de leitura da mesma regra (REDE-02, ACs 1 e 3).
  */
 
 export type Visao = "planejamento" | "movimentacoes";
@@ -82,11 +88,18 @@ export function AlternadorDeVisao({
 
 export function GradeDeIndicadores({
   competencia,
+  competenciaCorrente,
   visao,
   planejamento,
   movimentacoes,
 }: {
   readonly competencia: string;
+  /**
+   * O mês de hoje, resolvido no servidor. É o que decide se o não pago deste
+   * mês se chama pendente ou vencido, pela mesma comparação que `situacaoDe`
+   * faz — e a comparação é textual, porque competência é `'YYYY-MM'`.
+   */
+  readonly competenciaCorrente: string;
   readonly visao: Visao;
   readonly planejamento: {
     readonly entradas: Cents;
@@ -100,6 +113,9 @@ export function GradeDeIndicadores({
     readonly saldo: Cents;
   };
 }) {
+  /* O mesmo predicado de `situacaoDe`, do lado de quem monta o link. */
+  const situacaoDoNaoPago = competencia < competenciaCorrente ? "VENCIDO" : "PENDENTE";
+
   const indicadores: ReadonlyArray<Indicador> =
     visao === "planejamento"
       ? [
@@ -121,7 +137,7 @@ export function GradeDeIndicadores({
             chave: "pendente",
             rotulo: "Ainda não pago",
             valor: planejamento.pendente,
-            filtro: "natureza=DESPESA&situacao=PENDENTE",
+            filtro: `natureza=DESPESA&situacao=${situacaoDoNaoPago}`,
           },
           {
             chave: "saldo",
@@ -150,7 +166,7 @@ export function GradeDeIndicadores({
             chave: "pendente",
             rotulo: "Ainda não saiu",
             valor: planejamento.pendente,
-            filtro: "natureza=DESPESA&situacao=PENDENTE",
+            filtro: `natureza=DESPESA&situacao=${situacaoDoNaoPago}`,
           },
           {
             chave: "saldo",

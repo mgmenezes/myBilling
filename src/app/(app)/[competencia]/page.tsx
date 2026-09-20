@@ -14,6 +14,7 @@ import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
+import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../sessao";
 
 /**
@@ -50,6 +51,17 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
   }
 
   const visao: Visao = visaoBruta === "movimentacoes" ? "movimentacoes" : "planejamento";
+
+  /*
+   * A competência corrente, que é outra coisa que a competência aberta. O
+   * indicador do não pago precisa dela para apontar para o estado que o mês
+   * tem: num mês passado o não pago é vencido, e um link fixo em `PENDENTE`
+   * abriria a lista vazia com o cartão mostrando um número.
+   */
+  const corrente = criarCompetencia(hojeEm().slice(0, 7));
+  if (!corrente.ok) {
+    throw new Error("não foi possível resolver a competência corrente");
+  }
 
   const repositorios = criarRepositorios();
   /*
@@ -107,6 +119,7 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
 
           <GradeDeIndicadores
             competencia={resultado.value}
+            competenciaCorrente={corrente.value}
             visao={visao}
             planejamento={{
               entradas: visaoMensal.competenciaView.entradas,
