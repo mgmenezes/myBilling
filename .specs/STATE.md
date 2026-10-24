@@ -143,23 +143,15 @@
 
 ## Handoff
 
-- **Feature**: `lacunas-do-painel` — **15 tasks, todas implementadas**; falta a verificação independente, que é o passo de fechamento da fase Execute.
-- **Commit**: `main` local, de `74c0961` a este. **Sem push.** `main` está **21 commits à frente de `origin/main`**, e `git push` continua exigindo autorização explícita e separada.
-- **Gates**: `pnpm verify` exit 0 e `pnpm test:e2e` exit 0 — **1.150 provas**: 856 unitários, 237 de integração, 57 e2e.
-- **Next step**: despachar o Verifier independente (autor ≠ verificador) sobre `lacunas-do-painel`, com o sensor de discriminação. Só depois dele `validate_state.py` pode passar, e é por isso que o último critério de T14 ficou aberto de propósito.
-- **Por que esta fatia existiu**: a verificação de `painel-e-lancamentos` devolveu FAIL com 6 de 20 requisitos provados e 4 de 15 mutantes mortos. Um único mutante quebrava cinco comportamentos ao mesmo tempo com as 1.049 provas verdes. O padrão era claro: onde uma fatia posterior escreveu teste, o comportamento estava preso; onde a fatia 1 ficou sozinha, nada segurava.
-- **Entregue**:
-  - **A rede primeiro, sobre o comportamento atual** (T1 a T4): o predicado de filtragem, a reconciliação indicador ↔ lista com o filtro lido do `href`, o painel de filtros, e o Independent Test em e2e que a spec pedia e nunca teve.
-  - **"Vencido" passou a existir** (T5 a T7, AD-016). Era defeito de argumento, não de regra.
-  - **44 × 44 nos dois controles mais tocados** (T8, T9), medidos pela geometria renderizada em 400px, e não por presença de classe.
-  - **Todo estado vazio com saída** (T10), e o texto que mandava cadastrar "abaixo" corrigido — o cadastro subiu para o topo no AD-014.
-  - **Atalho para o mês corrente** (T11), preservando a área.
-  - **T15, que não estava no plano**: a T5 criou uma regressão — com a competência corrente vinda do relógio, o indicador "Ainda não pago" apontava para `PENDENTE` enquanto os lançamentos de mês passado viravam `VENCIDO`, e a lista voltava vazia. O teste da T2 não pegou porque as fixtures dele têm competência aberta igual à corrente.
-  - **O que só existia em CSS** (T12): movimento reduzido, algarismo tabular, contagem de quatro indicadores por eixo.
-  - **Rastreabilidade de `painel-e-lancamentos` datada** (T13): de 6 para 13 verificados, com os sete restantes nomeando o que falta.
-- **Três achados sobre o Next que não estavam em lugar nenhum**, medidos nesta sessão e registrados em `e2e/acessibilidade.spec.ts:252`: em `next dev` o `Link` **não prefetcha**, então a navegação por clique não desenha a fronteira de carregamento e a URL nem muda; na navegação dura o React substitui o esqueleto **antes de 40ms**, com vinte amostras seguidas em zero; e a carga serializada do RSC **repete cada `className` no mesmo documento**, então contar `animate-pulse` cru devolve o dobro do número de blocos.
-- **Lacuna declarada, não fechada**: o AC 5 de REDE-03 pede "a mesma contagem de blocos que a página tem", e a página não define isso — tem cabeçalho, quatro indicadores e duas `section`, contra três zonas e sete blocos do esqueleto. Pior: o esqueleto **derivou**, declarando espelhar uma proporção 3:2 que não existe mais em `page.tsx`, no painel nem no gráfico. Redesenhá-lo é decisão visual, e está em Out of Scope.
-- **Dívida de eixo registrada** (AD-017): o eixo caixa e a lista não reconciliam fora da competência aberta.
-- **Armadilha de ambiente desta sessão**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Três execuções seguidas estouraram `browserType.launch` em 180s cada, o que virou "flakiness" e execuções de 17 minutos sem nada de errado no código — o arquivo inteiro roda em 10s quando o navegador abre. Se voltar a acontecer, suspeite do navegador antes do teste.
+- **Feature**: nenhuma em andamento. A última fatia, `lacunas-do-painel`, está fechada: Verifier PASS com 14 de 14 mutantes mortos, `validate_state.py` exit 0, três lições destiladas. O único critério aberto em `tasks.md` (REDE-03, AC 5) é lacuna de precisão da spec, declarada, e fica aberto de propósito.
+- **Phase / Task**: entre fatias. O deploy está preparado no repositório (`af1264f`) e no banco, e espera os passos de painel.
+- **Completed**: `lacunas-do-painel` T1 a T15; preparação do deploy.
+- **In-progress**: nenhum.
+- **Next step**: o dono do repositório executa os passos 1 a 4 de `docs/deploy.md` (Vercel, Google Console, secret do GitHub) e o teste de fumaça do passo 5. Depois, a fatia 1 do roadmap, começando por orçamento por categoria.
+- **Blockers**: os passos de deploy são manuais e de painel; nenhum passa por agente.
+- **Uncommitted files**: nenhum.
+- **Branch**: `main`, igual a `origin/main` desde o push de 2026-09-20.
+- **CI vermelho em `main`**: no run #20 (`af1264f`) o `verify` passou inteiro e o job `migrate` falhou em 1s, depois de "applying migrations...", sem mensagem. Sem o secret `NEON_DATABASE_URL_DIRETA`, a URL chega vazia (`drizzle.config.ts` faz `DATABASE_URL ?? ""`) e o `drizzle-kit` sai com código 1 sem dizer por quê. O job passou a conferir o secret antes e falhar com o nome dele (commit local, sem push). Criado o secret, "Re-run failed jobs" no #20 resolve. O #19 (`6892e18`) caiu no lint do `lessons.json`, já corrigido em `f4c9f3e`. O `gh` não está instalado nesta máquina, então a conferência é pelo painel do GitHub.
+- **Neon**: o branch `production` foi arquivado em 2026-09-29 por inatividade, regra do plano gratuito. A primeira consulta desarquiva sozinha. As três migrations estão aplicadas com hash e `created_at` iguais aos que o drizzle gravaria, então o primeiro `db:migrate` do CI não tem nada a aplicar.
+- **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar 180s, suspeite do navegador antes do teste: o arquivo inteiro roda em 10s quando ele abre.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.
-- **Pendências conhecidas**: ver `.specs/HANDOFF.md`. A mais estrutural segue sendo a ausência de caminho de deploy, com o estágio 2 do QA bloqueado nas credenciais do Google.

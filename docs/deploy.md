@@ -12,9 +12,12 @@ saber o que estava resolvendo.
 ## O que já está pronto
 
 - **Banco provisionado e migrado.** Neon em São Paulo, Postgres 18, Neon Auth desligado, as três
-  migrations aplicadas no branch `production`, controle de migrations consistente.
-- **CI verde**, rodando o gate completo: typecheck, lint, 856 unitários, 237 de integração, build e
-  57 e2e.
+  migrations aplicadas no branch `production`, controle de migrations consistente. Foram aplicadas
+  pelo SQL Editor do console (`pnpm db:sql`), com o mesmo `hash` e o mesmo `created_at` que o
+  drizzle gravaria — por isso o primeiro `pnpm db:migrate` do CI não tem nada a aplicar.
+- **O CI roda o gate completo**: typecheck, lint, 856 unitários, 237 de integração, build e 57 e2e.
+  O job `migrate` só fica verde depois do passo 4; o run do push que o introduziu falhou sem o
+  secret, e basta "Re-run failed jobs" depois de criá-lo.
 - **`trustHost: true`** em `src/infrastructure/auth/auth.ts`, então o Auth.js resolve a URL sozinho
   na Vercel. **Não** defina `AUTH_URL`.
 - **`pg.Pool` com `max: 5`** e timeouts de 10s (`src/infrastructure/db/client.ts`), que é a
@@ -76,6 +79,11 @@ Depois do primeiro deploy, quando o domínio existir, acrescente ao cliente OAut
 Sem isso o login devolve `redirect_uri_mismatch`. Quem não estiver em `EMAILS_PERMITIDOS` recebe
 403 e **nenhum usuário é criado** (AD-007).
 
+**Confira o status da tela de consentimento OAuth.** Em modo **Testing**, o Google só deixa entrar
+quem estiver em **Test users**, e recusa os demais antes de o pedido chegar ao app. Os dois e-mails
+de `EMAILS_PERMITIDOS` precisam estar lá — ou a tela precisa ser publicada. São duas listas com
+papéis diferentes: a do Google decide quem consegue autenticar, a do app decide quem entra.
+
 ---
 
 ## Passo 4 — O secret da migration, no GitHub
@@ -85,6 +93,9 @@ Em **Settings → Secrets and variables → Actions**, crie:
 | Secret | Valor |
 | --- | --- |
 | `NEON_DATABASE_URL_DIRETA` | connection string do Neon **sem** `-pooler` |
+
+Sem ele, o job falha no primeiro passo, "Conferir o secret da migration", com o nome do secret na
+mensagem. Antes dessa conferência, a falha era um código 1 mudo do `drizzle-kit`.
 
 **É outra URL, e a diferença importa.** O app fala pelo pooler; a migration, não. O PgBouncer do
 Neon opera em modo transação, e DDL por ele é caminho de falha intermitente — o tipo de erro que
@@ -139,3 +150,7 @@ porque a materialização de recorrências roda durante a leitura da página. Co
 primeiro acesso do dia paga o cold start em cima disso. Não quebra nada — a materialização é
 idempotente e a janela é de quatro meses —, mas é a diferença entre uma tela instantânea e uma de
 alguns segundos, uma vez por dia.
+
+**No plano gratuito, o branch é arquivado depois de um período sem uso.** O `production` foi
+arquivado assim em 2026-09-29, antes de o app existir em lugar nenhum. A primeira consulta
+desarquiva sozinha, sem perder nada; é o primeiro acesso depois de um período parado que paga.

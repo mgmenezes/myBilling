@@ -13,7 +13,9 @@ dois divergirem, e eles divergem em três cores, cada uma com a razão medida re
 indica) e qualquer elemento que faça o myBilling parecer produto deles. A referência orienta a
 linguagem; a identidade é do myBilling.
 
-> **Decisão pendente:** a referência anterior (`DESIGN-mastercard.md`) foi mantida **fora** do
-> repositório de propósito, por descrever a identidade de uma marca de terceiros. O `DESIGN.md` está
-> hoje na raiz, sem commit. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra
-> anterior. É escolha do dono do repositório — hoje ele está apenas não rastreado.
+> **Decisão pendente, com o fato já consumado:** a referência anterior (`DESIGN-mastercard.md`) foi
+> mantida **fora** do repositório de propósito, por descrever a identidade de uma marca de
+> terceiros. O `DESIGN.md`, ao contrário do que esta nota dizia, **está versionado desde `9518dba`**
+> — o mesmo commit que a escreveu dizendo "não rastreado" — e já está em `origin`. Tirá-lo agora o
+> remove das versões futuras, não do histórico nem de clones. Mantê-lo torna a derivação auditável.
+> Continua sendo escolha do dono do repositório.

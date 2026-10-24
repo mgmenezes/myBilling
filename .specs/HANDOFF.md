@@ -1,18 +1,19 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-09-20, branch `main`.
+> Última atualização: 2026-10-24, branch `main`.
 
 > [!IMPORTANT]
-> **O CI passa, e `main` local está 21 commits à frente de `origin/main`.** O run #17 foi o
-> primeiro em que o gate completo do GitHub rodou de verdade: typecheck, lint, unitários,
-> integração, build e e2e. Os 21 commits não enviados são a fatia `lacunas-do-painel` inteira mais
-> o plano dela. `git push` continua exigindo autorização explícita e separada, como toda operação
-> remota.
+> **O CI de `main` está vermelho, e só no job `migrate`.** No run #20 (`af1264f`) o `verify`
+> passou inteiro; o `migrate`, novo nesse commit, recebeu a URL vazia porque o secret da migration
+> não existe, e o `drizzle-kit` saiu com código 1 sem dizer por quê. O job passou a conferir o
+> secret antes — ver a pendência 5. O último run inteiro verde é o #18 (`76dd047`). Os commits
+> desta atualização estão só no `main` local; `git push` continua exigindo autorização explícita e
+> separada, como toda operação remota.
 >
-> **Duas fatias foram integradas em paralelo nesta sessão:** `lancamento-avulso` (esta) e
-> `home-do-ano`, conduzida por outra sessão no mesmo repositório. A segunda consome o
-> `BlocoDoMes` que a primeira criou. Se duas sessões voltarem a trabalhar aqui ao mesmo tempo,
+> **Duas fatias já foram integradas em paralelo neste repositório:** `lancamento-avulso` e
+> `home-do-ano`, conduzidas por sessões diferentes. A segunda consome o `BlocoDoMes` que a
+> primeira criou. Se duas sessões voltarem a trabalhar aqui ao mesmo tempo,
 > vale lembrar que o gate de cobertura é global: código não commitado de uma derruba o gate da
 > outra.
 
@@ -101,13 +102,14 @@ virou especificação executável, com teste de concordância que confronta a fu
 ## Onde está o trabalho
 
 ```
-.specs/STATE.md                                  decisões AD-001..AD-015 + handoff curto
+.specs/STATE.md                                  decisões AD-001..AD-017 + handoff curto
 .specs/HANDOFF.md                                este arquivo
 .specs/features/mvp-gestao-financeira/           54 tasks, todas concluídas, Verifier PASS
 .specs/features/painel-e-lancamentos/spec.md     20 requisitos EARS (fatia 1); rastreabilidade
                                                  recortada por AC, 13 dos 20 verificados
 .specs/features/painel-e-lancamentos/validation.md   o FAIL que originou a fatia das lacunas
-.specs/features/lacunas-do-painel/                spec (VENC/MES/VAZIO/TOQUE/REDE) + 15 tasks
+.specs/features/lacunas-do-painel/                spec (VENC/MES/VAZIO/TOQUE/REDE) + 15 tasks,
+                                                 todas concluídas, Verifier PASS
 .specs/features/recorrencias/                    spec (FIXO-01..06) + 22 tasks, todas concluídas
 .specs/features/lancamento-avulso/               spec (AVUL-01..05, BLOCO-01..02, ENTR-01..03)
                                                  + 28 tasks, todas concluídas
@@ -249,13 +251,17 @@ precisa ser escopada ao formulário, ou casa dois nós.
    limpo, três migrations do zero, build de produção subindo e redirecionando para `/login`.
    Em build de produção o único provider registrado é o Google, e `AUTH_PROVIDER_DE_TESTE`
    **derruba o boot** por desenho — degradar em silêncio exporia um provider sem senha.
-5. **Deploy decidido: Vercel + Neon, e o caminho existe.** Roteiro completo em `docs/deploy.md`.
-   O repositório já traz o que é dele: `vercel.json` fixando a região `gru1`, e o job `migrate` no
-   CI, que roda `pnpm db:migrate` depois do gate completo e só em `main` — o que também resolve a
-   rede, já que a 5432 de saída é bloqueada da máquina de desenvolvimento. **O que falta é
-   manual e é do painel:** importar o repo na Vercel, as cinco variáveis de produção, o secret
-   `NEON_DATABASE_URL_DIRETA` no GitHub, e as duas entradas do Google Console apontando para o
-   domínio. Nada disso passa por agente.
+5. **Deploy: Vercel + Neon. Repositório e banco prontos; falta o painel.** Roteiro completo em
+   `docs/deploy.md`. O banco existe e está migrado (ver "Banco gerenciado", abaixo). O repositório
+   traz `vercel.json` fixando a região `gru1`, e o job `migrate` no CI, que roda `pnpm db:migrate`
+   depois do gate completo e só em `main` — o que também resolve a rede, já que a 5432 de saída é
+   bloqueada da máquina de desenvolvimento. **O que falta é manual e é do painel:** importar o
+   repo na Vercel, as cinco variáveis de produção, as duas entradas do Google Console apontando
+   para o domínio, o secret `NEON_DATABASE_URL_DIRETA` no GitHub — e, criado o secret, "Re-run
+   failed jobs" no run #20 — e o teste de fumaça. Nada disso passa por agente.
+   **Test users do Google:** em modo Testing, a tela de consentimento OAuth só deixa autenticar
+   quem estiver em Test users. Os dois e-mails da allowlist precisam estar lá, ou o Google recusa
+   antes de o pedido chegar ao app.
    **Duas URLs, de propósito:** o app fala pelo endpoint `-pooler`; a migration precisa do direto,
    porque o PgBouncer opera em modo transação e DDL por ele falha de forma intermitente.
 6. **Não há ordem garantida entre o deploy da Vercel e a migration.** A Vercel publica assim que o
@@ -264,10 +270,12 @@ precisa ser escopada ao formulário, ou casa dois nós.
    contra schema velho. O caminho recomendado é *expand/contract* em dois merges, e não acoplar a
    publicação ao CI; a alternativa (desligar o auto-deploy e disparar por Deploy Hook) está
    documentada em `docs/deploy.md`.
-7. **`DESIGN.md` está na raiz sem commit, e é decisão aberta.** A referência anterior
-   (`DESIGN-mastercard.md`) foi mantida fora do repositório de propósito, por descrever identidade
-   de marca de terceiros. Versioná-lo torna a derivação auditável; deixá-lo de fora mantém a regra.
-   Registrado em `docs/referencias/LEIA-ME.md`.
+7. **`DESIGN.md` está versionado desde `9518dba` (2026-09-14)**, e não "sem commit" como esta nota
+   dizia. O mesmo commit que escreveu em `docs/referencias/LEIA-ME.md` que ele estava "não
+   rastreado" incluiu o arquivo, e ele já está em `origin`. A decisão ficou tomada sem ter sido
+   decidida: tirá-lo agora o remove das versões futuras, não do histórico nem de clones. A
+   referência anterior (`DESIGN-mastercard.md`) segue fora do repositório. Continua sendo escolha
+   do dono do repositório se o `DESIGN.md` fica.
 8. **A rastreabilidade de `recorrencias` e `home-do-ano` não recorta por AC.** É a mesma dívida que
    `painel-e-lancamentos` tinha e que a fatia `lacunas-do-painel` pagou: a tabela liga cada
    requisito a uma *história*, e três requisitos apontando para os seis ACs da mesma história
@@ -289,15 +297,23 @@ pnpm dev          # http://localhost:3000 redireciona para o mês corrente
 pnpm verify       # gate completo
 ```
 
-## Banco gerenciado, quando houver
+## Banco gerenciado
 
-O projeto no Neon estava sendo criado quando esta sessão terminou; nada foi provisionado por
-aqui — criação de recurso em nuvem exige autorização explícita e separada, como `git push`.
+O projeto `mybilling` no Neon existe desde 2026-09-15: São Paulo, Postgres 18, plano gratuito,
+branch `production`. As três migrations foram aplicadas pelo SQL Editor do console, a partir de
+`pnpm db:sql`, porque a 5432 de saída é bloqueada da máquina de desenvolvimento. O bloco grava em
+`drizzle.__drizzle_migrations` o mesmo `hash` e o mesmo `created_at` que o drizzle gravaria, então o
+primeiro `db:migrate` do CI não tem nada a aplicar. As dez tabelas existem e estão vazias. Nenhum
+recurso foi criado por agente — criação de recurso em nuvem exige autorização explícita e separada,
+como `git push`.
 
-Três coisas que o app exige e que valem no momento de configurar:
+Coisas que o app exige e que continuam valendo:
 
-- **Desligar o Neon Auth.** A autenticação é do app: Auth.js v5 com Google OAuth e allowlist de
-  dois e-mails (AD-007). Ligar o serviço acrescenta uma peça que nada no código usa.
+- **Neon Auth desligado.** A autenticação é do app: Auth.js v5 com Google OAuth e allowlist de
+  dois e-mails (AD-007). O "Get started" do Better Auth no painel liga esse serviço, e ele
+  acrescentaria uma peça que nada no código usa.
+- **Arquivamento por inatividade.** O plano gratuito arquivou o branch `production` em
+  2026-09-29. A primeira consulta desarquiva sozinha, sem perder nada.
 - **Região São Paulo**, e não só por latência: competência e data de pagamento são resolvidas em
   `America/Sao_Paulo` explicitamente, nunca no fuso da máquina. Banco e fuso na mesma região
   evitam uma classe inteira de confusão de virada de mês.
@@ -306,8 +322,9 @@ Três coisas que o app exige e que valem no momento de configurar:
   primeiro acesso do dia paga o cold start em cima disso. Não quebra nada: a materialização é
   idempotente e a janela é de quatro meses.
 
-O caminho é `DATABASE_URL` no ambiente e `pnpm db:migrate`. As duas migrations aplicam num banco
-limpo, e `recriarBancoDeTeste` prova isso a cada execução da suíte de integração.
+Daqui em diante, migration de produção passa pelo job `migrate` do CI, pelo endpoint direto. As
+três migrations aplicam num banco limpo, e `recriarBancoDeTeste` prova isso a cada execução da
+suíte de integração.
 
 **O Next 16 recusa um segundo `next dev` no mesmo diretório.** Com `pnpm dev` de pé, tanto o
 `pnpm test:e2e` (que sobe o próprio servidor na 3100) quanto qualquer inspeção manual falham com
