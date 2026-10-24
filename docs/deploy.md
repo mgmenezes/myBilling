@@ -54,6 +54,10 @@ Em **Settings → Environment Variables**, no escopo **Production**:
 
 São exatamente cinco — a lista completa está em `.env.example`.
 
+**Variável criada ou alterada só vale a partir do deploy seguinte.** O deploy no ar continua com o
+valor que tinha quando foi construído. Depois de editar qualquer uma, **Deployments → ⋯ →
+Redeploy**, e espere o status **Ready**.
+
 **`DATABASE_URL` usa o endpoint com pooler.** Cada invocação serverless abre seu próprio pool, e
 sem o PgBouncer do Neon na frente o número de conexões cresce com o tráfego até estourar o limite
 do projeto.
@@ -150,6 +154,30 @@ sistemas estiver fora do ar.
    a idempotência vem da restrição única `movimento_recorrencia_competencia_uq`.
 
 O roteiro completo de QA manual, com o que digitar e o que esperar, está em `docs/qa.md`.
+
+---
+
+## Quando o login falha
+
+Cada recusa tem uma tela própria, e a tela diz **quem** recusou:
+
+| O que aparece | Onde | Quem recusou | O que conferir |
+| --- | --- | --- | --- |
+| `redirect_uri_mismatch` | `accounts.google.com` | o Google: o cliente OAuth não conhece a URI | passo 3, item 1, com o domínio de produção |
+| "Acesso bloqueado" ou "Erro 403: access_denied" | `accounts.google.com` | o Google: conta fora dos Usuários de teste | passo 3, item 2 |
+| **"Acesso não autorizado"**, botão "Entrar com outra conta" | o domínio do app | **o app**: o callback `signIn` recusou o e-mail | `EMAILS_PERMITIDOS`, e se o deploy no ar é **posterior** à última alteração dela |
+
+A terceira tela só existe quando o Google **já autenticou** a pessoa: o `@auth/core` lança
+`AccessDenied` apenas quando o callback `signIn` responde falso. Recusa do próprio Google chega como
+`OAuthCallbackError` e cai na mensagem genérica do `/login`. Então, diante dela, o Google está certo
+e a investigação é toda na allowlist.
+
+A comparação ignora maiúsculas e espaços em volta, **não pontos**. Para o Gmail,
+`nome.sobrenome@gmail.com` e `nomesobrenome@gmail.com` são a mesma caixa; para o app, são textos
+diferentes. Copie o endereço como aparece em `myaccount.google.com`, com a conta que vai entrar.
+
+Na primeira entrada em produção, a causa foi a segunda metade da última coluna: a variável estava
+certa, e o deploy no ar ainda tinha o valor antigo.
 
 ---
 

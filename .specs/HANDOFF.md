@@ -251,17 +251,18 @@ precisa ser escopada ao formulário, ou casa dois nós.
    limpo, três migrations do zero, build de produção subindo e redirecionando para `/login`.
    Em build de produção o único provider registrado é o Google, e `AUTH_PROVIDER_DE_TESTE`
    **derruba o boot** por desenho — degradar em silêncio exporia um provider sem senha.
-5. **Deploy: Vercel + Neon. Repositório e banco prontos; falta o painel.** Roteiro completo em
-   `docs/deploy.md`. O banco existe e está migrado (ver "Banco gerenciado", abaixo). O repositório
-   traz `vercel.json` fixando a região `gru1`, e o job `migrate` no CI, que roda `pnpm db:migrate`
-   depois do gate completo e só em `main` — o que também resolve a rede, já que a 5432 de saída é
-   bloqueada da máquina de desenvolvimento. **O que falta é manual e é do painel:** importar o
-   repo na Vercel, as cinco variáveis de produção, as duas entradas do Google Console apontando
-   para o domínio, o secret `NEON_DATABASE_URL_DIRETA` no GitHub — e, criado o secret, "Re-run
-   failed jobs" no run #20 — e o teste de fumaça. Nada disso passa por agente.
-   **Test users do Google:** em modo Testing, a tela de consentimento OAuth só deixa autenticar
-   quem estiver em Test users. Os dois e-mails da allowlist precisam estar lá, ou o Google recusa
-   antes de o pedido chegar ao app.
+5. **Deploy: no ar desde 2026-10-24**, em `https://my-billing-pearl.vercel.app` (Vercel na região
+   `gru1`, Neon em São Paulo). As duas pessoas entram pelo Google, e a garantia do AD-007 foi vista
+   em produção: o primeiro login recusado não criou linha em `usuario`. Roteiro em
+   `docs/deploy.md`, que agora traz a tabela "Quando o login falha". O job `migrate` do CI roda
+   `pnpm db:migrate` depois do gate completo e só em `main` — o que também resolve a rede, já que a
+   5432 de saída é bloqueada da máquina de desenvolvimento.
+   **Falta:** o item 5 do teste de fumaça (cadastrar um lançamento e ver o indicador do painel se
+   mover), e confirmar o CI — o secret `NEON_DATABASE_URL_DIRETA` e o "Re-run failed jobs" no run
+   #20 não foram confirmados nesta sessão.
+   **A primeira entrada falhou por um motivo que vai se repetir:** `EMAILS_PERMITIDOS` foi corrigida
+   e o deploy no ar continuou com o valor antigo. Variável na Vercel só vale a partir do deploy
+   seguinte — vale lembrar ao acrescentar alguém à lista.
    **Duas URLs, de propósito:** o app fala pelo endpoint `-pooler`; a migration precisa do direto,
    porque o PgBouncer opera em modo transação e DDL por ele falha de forma intermitente.
 6. **Não há ordem garantida entre o deploy da Vercel e a migration.** A Vercel publica assim que o

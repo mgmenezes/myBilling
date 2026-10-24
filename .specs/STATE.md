@@ -144,13 +144,13 @@
 ## Handoff
 
 - **Feature**: nenhuma em andamento. A última fatia, `lacunas-do-painel`, está fechada: Verifier PASS com 14 de 14 mutantes mortos, `validate_state.py` exit 0, três lições destiladas. O único critério aberto em `tasks.md` (REDE-03, AC 5) é lacuna de precisão da spec, declarada, e fica aberto de propósito.
-- **Phase / Task**: entre fatias. O deploy está preparado no repositório (`af1264f`) e no banco, e espera os passos de painel.
-- **Completed**: `lacunas-do-painel` T1 a T15; preparação do deploy.
+- **Phase / Task**: entre fatias. **O app está no ar** desde 2026-10-24, em `https://my-billing-pearl.vercel.app`, e as duas pessoas entram pelo Google.
+- **Completed**: `lacunas-do-painel` T1 a T15; preparação do deploy; deploy em produção.
 - **In-progress**: nenhum.
-- **Next step**: o dono do repositório executa os passos 1 a 4 de `docs/deploy.md` (Vercel, Google Console, secret do GitHub) e o teste de fumaça do passo 5. Depois, a fatia 1 do roadmap, começando por orçamento por categoria.
-- **Blockers**: os passos de deploy são manuais e de painel; nenhum passa por agente.
-- **Uncommitted files**: nenhum.
-- **Branch**: `main`, igual a `origin/main` desde o push de 2026-09-20.
+- **Next step**: fechar o deploy — item 5 do teste de fumaça (cadastrar um lançamento e ver o indicador se mover) e confirmar o CI verde depois do secret. Depois, a fatia 1 do roadmap, começando por orçamento por categoria.
+- **Blockers**: nenhum. O `git push` dos commits locais espera autorização.
+- **Uncommitted files**: nenhum. `next-env.d.ts` aparece modificado quando há um `next dev` rodando; é dele, e não entra em commit.
+- **Branch**: `main`, à frente de `origin/main` só por docs e pela conferência do secret no CI.
 - **CI vermelho em `main`**: no run #20 (`af1264f`) o `verify` passou inteiro e o job `migrate` falhou em 1s, depois de "applying migrations...", sem mensagem. Sem o secret `NEON_DATABASE_URL_DIRETA`, a URL chega vazia (`drizzle.config.ts` faz `DATABASE_URL ?? ""`) e o `drizzle-kit` sai com código 1 sem dizer por quê. O job passou a conferir o secret antes e falhar com o nome dele (commit local, sem push). Criado o secret, "Re-run failed jobs" no #20 resolve. O #19 (`6892e18`) caiu no lint do `lessons.json`, já corrigido em `f4c9f3e`. O `gh` não está instalado nesta máquina, então a conferência é pelo painel do GitHub.
 - **Neon**: o branch `production` foi arquivado em 2026-09-29 por inatividade, regra do plano gratuito. A primeira consulta desarquiva sozinha. As três migrations estão aplicadas com hash e `created_at` iguais aos que o drizzle gravaria, então o primeiro `db:migrate` do CI não tem nada a aplicar.
 - **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar 180s, suspeite do navegador antes do teste: o arquivo inteiro roda em 10s quando ele abre.
