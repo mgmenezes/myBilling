@@ -69,20 +69,30 @@ publicado neste repositório. Reaproveitá-lo é publicar a chave da sessão.
 
 ---
 
-## Passo 3 — Google Cloud Console
+## Passo 3 — Google Auth Platform
 
-Depois do primeiro deploy, quando o domínio existir, acrescente ao cliente OAuth:
+O OAuth fica no **Google Auth Platform**, com menu lateral Visão geral, Branding, Público-alvo,
+Clientes, Acesso a dados, Central de verificação e Configurações. Os nomes da interface antiga
+correspondem assim: "Credenciais" é **Clientes**; "Tela de consentimento OAuth" se dividiu entre
+Branding, **Público-alvo** e Acesso a dados.
 
-- **Origens JavaScript autorizadas**: `https://<dominio>`
-- **URIs de redirecionamento autorizados**: `https://<dominio>/api/auth/callback/google`
+Depois do primeiro deploy, quando o domínio existir:
 
-Sem isso o login devolve `redirect_uri_mismatch`. Quem não estiver em `EMAILS_PERMITIDOS` recebe
-403 e **nenhum usuário é criado** (AD-007).
+1. **Clientes** → o cliente cujo ID está em `AUTH_GOOGLE_ID` → acrescente, sem apagar as entradas
+   de `localhost`:
+   - **Origens JavaScript autorizadas**: `https://<dominio>`
+   - **URIs de redirecionamento autorizados**: `https://<dominio>/api/auth/callback/google`
 
-**Confira o status da tela de consentimento OAuth.** Em modo **Testing**, o Google só deixa entrar
-quem estiver em **Test users**, e recusa os demais antes de o pedido chegar ao app. Os dois e-mails
-de `EMAILS_PERMITIDOS` precisam estar lá — ou a tela precisa ser publicada. São duas listas com
-papéis diferentes: a do Google decide quem consegue autenticar, a do app decide quem entra.
+   `<dominio>` é o domínio de produção do projeto na Vercel, e não a URL de um deploy específico,
+   que muda a cada publicação. O Google compara letra por letra, e a mudança pode levar alguns
+   minutos para valer.
+2. **Público-alvo** → confira o **status de publicação**. **Em teste**, o Google só deixa autenticar
+   quem estiver em **Usuários de teste**, e recusa os demais antes de o pedido chegar ao app. Os
+   dois e-mails de `EMAILS_PERMITIDOS` precisam estar lá — ou o app precisa ser publicado.
+
+Sem o passo 1, o login devolve `redirect_uri_mismatch`. São duas listas com papéis diferentes: a do
+Google decide quem consegue autenticar, a do app decide quem entra. Quem passar pela primeira e não
+estiver em `EMAILS_PERMITIDOS` recebe 403 e **nenhum usuário é criado** (AD-007).
 
 ---
 
