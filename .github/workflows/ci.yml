@@ -124,6 +124,19 @@ jobs:
     environment: producao
 
     steps:
+      # Secret ausente vira string vazia, e o `drizzle-kit` sai com código 1
+      # depois de "applying migrations..." sem dizer por quê — foi assim no
+      # primeiro run deste job. Conferir antes troca a investigação pelo nome
+      # do secret que falta.
+      - name: Conferir o secret da migration
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL_DIRETA }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::O secret NEON_DATABASE_URL_DIRETA não existe ou está vazio. Ver o passo 4 de docs/deploy.md."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v7
 
