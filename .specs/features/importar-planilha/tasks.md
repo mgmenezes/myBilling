@@ -518,13 +518,13 @@ T26 -> T27
 **Interfaces**: produz `CodigoErroImportacao`, `ErroImportacao`, `EntradaDaImportacao`, `PreviaDaImportacao`, `preverImportacao`, `carregarEstadoParaImportacao` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Banco vazio, sem registro, outubro → prévia com `competenciaEsperada = null` e as pendências de outubro
-- [ ] Sem registro e com um avulso no banco → `IMPORTACAO_BANCO_NAO_VAZIO` (IMP-02 AC 6)
-- [ ] Último registro `2026-10`, prévia de `2026-12` → `IMPORTACAO_FORA_DE_ORDEM` com `detalhes.esperada = "2026-11"` (AC 5)
-- [ ] Último registro `2026-10` → `competenciaEsperada = "2026-11"` (AC 4)
-- [ ] `carregarEstadoParaImportacao(2026-11)` sobre o estado de outubro: despesas vigentes Aluguel, Internet (10000), Academia ×2; receitas Salário A e B; compras com parcela em novembro: Sofá 8, Fone 2, Óculos 3, os dois Livros 2 — Curso fora
-- [ ] Arquivo inválido e bloco ausente propagam `PLANILHA_ARQUIVO_INVALIDO` e `PLANILHA_BLOCO_AUSENTE` com `detalhes.bloco`
-- [ ] Nada é escrito em nenhum fake
+- [x] Banco vazio, sem registro, outubro → prévia com `competenciaEsperada = null` e as pendências de outubro
+- [x] Sem registro e com um avulso no banco → `IMPORTACAO_BANCO_NAO_VAZIO` (IMP-02 AC 6)
+- [x] Último registro `2026-10`, prévia de `2026-12` → `IMPORTACAO_FORA_DE_ORDEM` com `detalhes.esperada = "2026-11"` (AC 5)
+- [x] Último registro `2026-10` → `competenciaEsperada = "2026-11"` (AC 4)
+- [x] `carregarEstadoParaImportacao(2026-11)` sobre o estado de outubro: despesas vigentes Aluguel, Internet (10000), Academia ×2; receitas Salário A e B; compras com parcela em novembro: Sofá 8, Fone 2, Óculos 3, os dois Livros 2 — Curso fora
+- [x] Arquivo inválido e bloco ausente propagam `PLANILHA_ARQUIVO_INVALIDO` e `PLANILHA_BLOCO_AUSENTE` com `detalhes.bloco`
+- [x] Nada é escrito em nenhum fake
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): prever a importação de uma aba sem gravar nada`
