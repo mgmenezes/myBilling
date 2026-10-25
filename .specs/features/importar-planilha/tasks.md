@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Draft
+**Status**: In Progress (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27)
 **Total**: 27 tasks em 6 fases
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
@@ -197,14 +197,14 @@ T26 -> T27
 **Interfaces**: produz `Grade` e `lerCsv` (design.md, "csv.ts")
 **Tools**: nenhuma
 **Done when**:
-- [ ] `a,b\r\nc,d` e `a,b\nc,d` dão `[["a","b"],["c","d"]]`
-- [ ] Campo entre aspas com vírgula: `"Seguro (casa, carro)",x` dá `["Seguro (casa, carro)","x"]`
-- [ ] Aspas escapadas: `"a ""b"""` dá `a "b"`
-- [ ] BOM inicial `﻿` é removido da primeira célula (IMP-01 AC 2)
-- [ ] Células vazias são preservadas: `,,x,` dá `["","","x",""]`
-- [ ] Aspas não fechadas devolvem `PLANILHA_ARQUIVO_INVALIDO`
-- [ ] Linha final vazia após o último `\n` não vira linha extra
-- [ ] 100% de branches
+- [x] `a,b\r\nc,d` e `a,b\nc,d` dão `[["a","b"],["c","d"]]`
+- [x] Campo entre aspas com vírgula: `"Seguro (casa, carro)",x` dá `["Seguro (casa, carro)","x"]`
+- [x] Aspas escapadas: `"a ""b"""` dá `a "b"`
+- [x] BOM inicial `﻿` é removido da primeira célula (IMP-01 AC 2)
+- [x] Células vazias são preservadas: `,,x,` dá `["","","x",""]`
+- [x] Aspas não fechadas devolvem `PLANILHA_ARQUIVO_INVALIDO`
+- [x] Linha final vazia após o último `\n` não vira linha extra
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): ler o CSV da aba em grade de células`

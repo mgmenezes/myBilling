@@ -415,7 +415,7 @@ outubro com sucesso.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| IMP-01 | P1: Ler a aba exportada | Tasks | In Tasks |
+| IMP-01 | P1: Ler a aba exportada | Execute | Implementing: AC 2 (T1) |
 | IMP-02 | P1: Decidir o mês da aba | Tasks | In Tasks |
 | IMP-03 | P1: Transformar cada linha no que ela é | Tasks | In Tasks |
 | IMP-04 | P1: Resolver o que o app não sabe | Tasks | In Tasks |

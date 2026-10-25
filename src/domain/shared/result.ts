@@ -38,7 +38,8 @@ export type CodigoErro =
   | "MEIO_PAGAMENTO_ARQUIVADO"
   | "CONSERVACAO_VIOLADA"
   | "COMPETENCIA_INVALIDA"
-  | "LANCAMENTO_NAO_CANCELAVEL";
+  | "LANCAMENTO_NAO_CANCELAVEL"
+  | "PLANILHA_ARQUIVO_INVALIDO";
 
 export type DomainError = {
   readonly code: CodigoErro;

@@ -65,6 +65,8 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
   LANCAMENTO_NAO_CONFIRMAVEL: "Só gasto fixo tem valor a confirmar.",
+  PLANILHA_ARQUIVO_INVALIDO:
+    "Este arquivo não parece uma aba da planilha exportada em CSV. No Google Sheets: Arquivo → Fazer download → Valores separados por vírgula (.csv).",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",
