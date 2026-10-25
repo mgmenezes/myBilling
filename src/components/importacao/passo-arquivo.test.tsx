@@ -100,6 +100,23 @@ describe("PassoArquivo — pelo teclado (IMP-08, AC 7)", () => {
     expect(ano().value).toBe("2026");
   });
 
+  it("espaço no botão aciona o seletor, e o arquivo escolhido tem o mesmo efeito", async () => {
+    montar();
+    const seletor = screen.getByLabelText("Arquivo .csv da aba") as HTMLInputElement;
+    const abrirSeletor = vi.spyOn(seletor, "click");
+
+    screen.getByRole("button", { name: "Escolher arquivo" }).focus();
+    await userEvent.keyboard(" ");
+    expect(abrirSeletor).toHaveBeenCalledTimes(1);
+
+    await userEvent.upload(seletor, arquivo(OUTUBRO, "Planilha 2026 - Outubro.csv"));
+
+    expect(await screen.findByText("Planilha 2026 - Outubro.csv")).toBeDefined();
+    expect(screen.getByText("4 blocos encontrados")).toBeDefined();
+    expect(mes().value).toBe("10");
+    expect(ano().value).toBe("2026");
+  });
+
   it("o seletor aceita só .csv", () => {
     montar();
 

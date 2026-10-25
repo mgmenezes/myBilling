@@ -839,7 +839,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] Espaço no botão "Escolher arquivo" aciona o seletor uma vez, e o arquivo escolhido mostra o nome, "4 blocos encontrados", Outubro e 2026 (IMP-08 AC 7)
+- [x] Espaço no botão "Escolher arquivo" aciona o seletor uma vez, e o arquivo escolhido mostra o nome, "4 blocos encontrados", Outubro e 2026 (IMP-08 AC 7)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `test(importacao): acionar o seletor de arquivo pelo espaço`
