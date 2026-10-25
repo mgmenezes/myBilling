@@ -263,12 +263,12 @@ T26 -> T27
 **Interfaces**: produz `MesEAnoDoArquivo`, `competenciaDoNomeDoArquivo`, `competenciaDeAnoEMes` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] `Planilha 2026 - Outubro.csv` → `{ mes: 10, ano: 2026 }` (IMP-02 AC 1)
-- [ ] Review Focus 4: `Planilha 2026 - Outubro (1).csv` → 10/2026; `X 2026 - MARÇO.csv` e `X 2026 - marco.csv` → 3/2026
-- [ ] `Planilha 2025 2026 - Janeiro.csv` → ano 2026 (o último número de quatro dígitos)
-- [ ] `outubro.csv` → `{ mes: 10, ano: null }`; `Planilha 2026 - Resumo.csv` → `{ mes: null, ano: 2026 }`; ano 1999 → `ano: null` (AC 2)
-- [ ] `competenciaDeAnoEMes(2026, 3)` → `"2026-03"`; mês 0 ou 13 → `COMPETENCIA_INVALIDA`
-- [ ] 100% de branches em ambos os arquivos
+- [x] `Planilha 2026 - Outubro.csv` → `{ mes: 10, ano: 2026 }` (IMP-02 AC 1)
+- [x] Review Focus 4: `Planilha 2026 - Outubro (1).csv` → 10/2026; `X 2026 - MARÇO.csv` e `X 2026 - marco.csv` → 3/2026
+- [x] `Planilha 2025 2026 - Janeiro.csv` → ano 2026 (o último número de quatro dígitos)
+- [x] `outubro.csv` → `{ mes: 10, ano: null }`; `Planilha 2026 - Resumo.csv` → `{ mes: null, ano: 2026 }`; ano 1999 → `ano: null` (AC 2)
+- [x] `competenciaDeAnoEMes(2026, 3)` → `"2026-03"`; mês 0 ou 13 → `COMPETENCIA_INVALIDA`
+- [x] 100% de branches em ambos os arquivos
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): pré-selecionar mês e ano pelo nome do arquivo`

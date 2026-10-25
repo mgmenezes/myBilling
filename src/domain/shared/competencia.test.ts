@@ -5,6 +5,7 @@ import {
   addMeses,
   type Competencia,
   compararCompetencias,
+  competenciaDeAnoEMes,
   criarCompetencia,
   dataParaCompetencia,
   diffMeses,
@@ -158,6 +159,23 @@ describe("dataParaCompetencia (COMP-03)", () => {
 
   it("devolve erro em vez de lançar quando o fuso não existe (AD-006)", () => {
     const resultado = dataParaCompetencia("2026-03-31T23:30:00Z", "Nao/Existe");
+
+    expect(isErr(resultado)).toBe(true);
+    expect(isErr(resultado) && resultado.error.code).toBe("COMPETENCIA_INVALIDA");
+  });
+});
+
+describe("competenciaDeAnoEMes — mês e ano dos seletores da importação (IMP-02)", () => {
+  it("monta a competência com o mês em dois dígitos", () => {
+    expect(competenciaDeAnoEMes(2026, 3)).toEqual({ ok: true, value: "2026-03" });
+  });
+
+  it.each([
+    [2026, 0],
+    [2026, 13],
+    [999, 3],
+  ])("recusa ano %p e mês %p com COMPETENCIA_INVALIDA", (ano, mes) => {
+    const resultado = competenciaDeAnoEMes(ano, mes);
 
     expect(isErr(resultado)).toBe(true);
     expect(isErr(resultado) && resultado.error.code).toBe("COMPETENCIA_INVALIDA");

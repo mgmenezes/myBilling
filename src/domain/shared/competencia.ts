@@ -18,6 +18,15 @@ export function criarCompetencia(texto: string): Result<Competencia, DomainError
   return ok(texto as Competencia);
 }
 
+/**
+ * Competência a partir dos seletores de mês e ano. O ano entra como está, sem
+ * preenchimento: um ano que não tem quatro dígitos não casa a regex e é
+ * recusado junto com o mês fora de 1 a 12.
+ */
+export function competenciaDeAnoEMes(ano: number, mes: number): Result<Competencia, DomainError> {
+  return criarCompetencia(`${ano}-${String(mes).padStart(2, "0")}`);
+}
+
 /** Meses decorridos desde o ano 0. Só existe dentro deste módulo. */
 function paraIndice(competencia: Competencia): number {
   const ano = Number.parseInt(competencia.slice(0, 4), 10);
