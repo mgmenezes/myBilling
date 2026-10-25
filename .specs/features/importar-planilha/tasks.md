@@ -501,10 +501,10 @@ T26 -> T27
 **Interfaces**: produz `MAX_CONTEUDO_PLANILHA` e os dois schemas (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] `nomeArquivo` sem `.csv` (`aba.xlsx`) é recusado; `ABA.CSV` é aceito (IMP-01 AC 1)
-- [ ] `conteudo` com 1.048.577 caracteres é recusado; com 1.048.576, aceito
-- [ ] `competencia` `2026-13` recusada; `decisoes.meios` com valor que não é uuid recusado; `classe` fora de `FIXA`/`AVULSA` recusada
-- [ ] Gravação exige `confirmouDivergencia` booleano
+- [x] `nomeArquivo` sem `.csv` (`aba.xlsx`) é recusado; `ABA.CSV` é aceito (IMP-01 AC 1)
+- [x] `conteudo` com 1.048.577 caracteres é recusado; com 1.048.576, aceito
+- [x] `competencia` `2026-13` recusada; `decisoes.meios` com valor que não é uuid recusado; `classe` fora de `FIXA`/`AVULSA` recusada
+- [x] Gravação exige `confirmouDivergencia` booleano
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): validar o payload da prévia e da gravação`

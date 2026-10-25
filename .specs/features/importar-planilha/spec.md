@@ -415,12 +415,12 @@ outubro com sucesso.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| IMP-01 | P1: Ler a aba exportada | Execute | Implementing: AC 2 (T1); ACs 9, 10, 11, 13 e 18 na célula (T2); ACs 3 a 12 e 14 a 17 na aba (T3) |
+| IMP-01 | P1: Ler a aba exportada | Execute | Implementing: AC 2 (T1); ACs 9, 10, 11, 13 e 18 na célula (T2); ACs 3 a 12 e 14 a 17 na aba (T3); AC 1 na extensão e no tamanho do payload (T16) |
 | IMP-02 | P1: Decidir o mês da aba | Execute | Implementing: ACs 1 e 2 no nome do arquivo (T4); registro de importação, um por competência, base dos ACs 4, 5 e 7 (T11); última competência, guarda do AC 6 e importações concorrentes serializadas pela trava do AC 7 (T14) |
 | IMP-03 | P1: Transformar cada linha no que ela é | Execute | Implementing: ACs 2 a 5 e 7 a 12 no plano (T9); AC 8 na origem do avulso e AC 9 nas categorias com as arquivadas, no banco (T13) |
 | IMP-04 | P1: Resolver o que o app não sabe | Execute | Implementing: ACs 1, 3 e 5 e as decisões a lembrar do AC 4 no plano (T9); tabela das decisões lembradas, uma por tipo e nome (T11); port e fake das decisões lembradas, com upsert (T12); upsert das decisões no banco, AC 4 (T14) |
 | IMP-05 | P1: Conferir antes de gravar | Execute | Implementing: ACs 1 a 4 na conferência (T5); destinos do AC 5 e contagem do AC 9 no plano (T9) |
-| IMP-06 | P1: Gravar tudo ou nada | Execute | Implementing: repositórios sobre uma transação de fora, base dos ACs 1 e 2 (T10); port `TransacaoDaImportacao` e fakes (T12); transação com trava e os cinco repositórios, rollback do AC 2 (T14) |
+| IMP-06 | P1: Gravar tudo ou nada | Execute | Implementing: repositórios sobre uma transação de fora, base dos ACs 1 e 2 (T10); port `TransacaoDaImportacao` e fakes (T12); transação com trava e os cinco repositórios, rollback do AC 2 (T14); schema do payload revalidado no servidor, AC 6 (T16) |
 | IMP-07 | P1: Importar a aba seguinte sem duplicar | Execute | Implementing: AC 10 na reprecificação (T6); ACs 1 a 6 e 12 no reconhecimento de recorrências (T7); ACs 7, 8, 9 e 11 no reconhecimento de compras (T8); reajuste, encerramento e reprecificação compostos no plano (T9); port e fake de `reprecificar` com a conservação (T12); `reprecificar` no banco, com a conservação conferida na transação (T13) |
 | IMP-08 | P1: Abrir a importação pela Visão geral | Tasks | In Tasks |
 | IMP-09 | P2: Recomeçar do zero | Execute | Implementing: script de limpeza com os ACs 1 a 3 provados contra Postgres; `fatura`, `pagamento_fatura` e `orcamento_categoria` ficam, sem AC que as cubra (T15) |
