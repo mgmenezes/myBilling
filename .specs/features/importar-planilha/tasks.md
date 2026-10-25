@@ -822,9 +822,9 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] IMP-09 AC 2 nomeia `fatura`, `pagamento_fatura` e `orcamento_categoria` ao lado de `usuario`, `meio_pagamento` e `categoria`
-- [ ] Antes do script, cada uma das três tem uma linha; depois, as três têm as mesmas linhas de antes (AC 2)
-- [ ] A lacuna do IMP-09 sai da traceability
+- [x] IMP-09 AC 2 nomeia `fatura`, `pagamento_fatura` e `orcamento_categoria` ao lado de `usuario`, `meio_pagamento` e `categoria`
+- [x] Antes do script, cada uma das três tem uma linha; depois, as três têm as mesmas linhas de antes (AC 2)
+- [x] A lacuna do IMP-09 sai da traceability
 **Tests**: integration
 **Gate**: full
 **Commit**: `test(db): provar que o script de limpeza preserva faturas e orçamentos`

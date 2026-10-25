@@ -389,8 +389,8 @@ três importações se algo sair errado.
 1. WHEN o script de limpeza é executado THEN o sistema SHALL esvaziar `movimento`,
    `compra_parcelada`, `recorrencia_versao`, `recorrencia`, o registro de importações e as decisões
    lembradas
-2. WHEN o script de limpeza é executado THEN o sistema SHALL preservar `usuario`, `meio_pagamento` e
-   `categoria`
+2. WHEN o script de limpeza é executado THEN o sistema SHALL preservar `usuario`, `meio_pagamento`,
+   `categoria`, `fatura`, `pagamento_fatura` e `orcamento_categoria`
 3. WHEN o script termina THEN a primeira importação seguinte SHALL ser aceita para qualquer mês
 
 **Independent Test**: depois de importar duas fixtures, executar o script e importar de novo a de
@@ -424,7 +424,7 @@ outubro com sucesso.
 | IMP-06 | P1: Gravar tudo ou nada | Execute | Implemented, aguarda o Verifier: repositórios sobre uma transação de fora, base dos ACs 1 e 2 (T10); port `TransacaoDaImportacao` e fakes (T12); transação com trava e os cinco repositórios, rollback do AC 2 (T14); schema do payload revalidado no servidor, AC 6 (T16); plano recalculado dentro da transação, AC 6, e recusa de caso de uso relançada para o rollback do AC 2 (T18); actions com sessão primeiro (AC 4), payload revalidado (AC 6), rollback de falha injetada na última escrita (AC 2), revalidação das três rotas (AC 3) e erro inesperado com referência (AC 5) (T19) |
 | IMP-07 | P1: Importar a aba seguinte sem duplicar | Execute | Implemented, aguarda o Verifier: AC 10 na reprecificação (T6); ACs 1 a 6 e 12 no reconhecimento de recorrências (T7); ACs 7, 8, 9 e 11 no reconhecimento de compras (T8); reajuste, encerramento e reprecificação compostos no plano (T9); port e fake de `reprecificar` com a conservação (T12); `reprecificar` no banco, com a conservação conferida na transação (T13); reajuste, encerramento e reprecificação executados pelos casos de uso, ACs 4, 5 e 10 (T18); sequência outubro → novembro → dezembro até o estado final do design, contra Postgres (T19); reajuste e encerramento vistos em "Todo mês" de novembro, de ponta a ponta (T26); correção da rodada 1: AC 12 com a ordem das recorrências definida (`competencia_inicio`, depois `id`), entregue nessa ordem pelo estado e provada com duas vigentes de mesma chave (F3) |
 | IMP-08 | P1: Abrir a importação pela Visão geral | Execute | Implemented, aguarda o Verifier: ACs 3, 4, 5 e 7 no passo do arquivo (T21); AC 8 no passo da conferência (T23); ACs 2, 6 e 8 no diálogo e no resultado (T24); AC 1 com o botão ao lado do título da Visão geral, que passa quem está logado, a competência esperada e os meios (T25); Independent Test de ponta a ponta, com o painel de outubro (T26); correção da rodada 1: o Independent Test com as despesas de outubro no painel, além das receitas (F4) |
-| IMP-09 | P2: Recomeçar do zero | Execute | Implemented, aguarda o Verifier: script de limpeza com os ACs 1 a 3 provados contra Postgres (T15); quando e como rodá-lo, no local e no Neon, em `docs/importacao.md` (T27). **Lacuna:** a preservação de `fatura`, `pagamento_fatura` e `orcamento_categoria` não tem assertion; o AC 2 nomeia só `usuario`, `meio_pagamento` e `categoria`, e o script não as toca por construção |
+| IMP-09 | P2: Recomeçar do zero | Execute | Implemented, aguarda o Verifier: script de limpeza com os ACs 1 a 3 provados contra Postgres (T15); quando e como rodá-lo, no local e no Neon, em `docs/importacao.md` (T27); correção da rodada 1: o AC 2 nomeia também `fatura`, `pagamento_fatura` e `orcamento_categoria`, e o teste do script prova que as três ficam com as mesmas linhas (F5) |
 
 **ID format:** `IMP-NN`
 

@@ -201,6 +201,15 @@ async function cadastros() {
   };
 }
 
+/** O que a importação não cria e o script também não pode apagar. */
+async function faturasEOrcamentos() {
+  return {
+    fatura: (await pool.query("SELECT * FROM fatura ORDER BY id")).rows,
+    pagamento_fatura: (await pool.query("SELECT * FROM pagamento_fatura ORDER BY id")).rows,
+    orcamento_categoria: (await pool.query("SELECT * FROM orcamento_categoria ORDER BY id")).rows,
+  };
+}
+
 describe("limpar-para-importar.sql (T15, IMP-09)", () => {
   it("esvazia o que a importação cria (AC 1)", async () => {
     await popularTudo();
@@ -223,6 +232,18 @@ describe("limpar-para-importar.sql (T15, IMP-09)", () => {
 
     expect(antes.categoria).toHaveLength(2);
     expect(await cadastros()).toEqual(antes);
+  });
+
+  it("preserva faturas, pagamentos de fatura e orçamentos como estavam (AC 2)", async () => {
+    await popularTudo();
+    const antes = await faturasEOrcamentos();
+
+    await pool.query(SCRIPT);
+
+    expect(antes.fatura).toHaveLength(1);
+    expect(antes.pagamento_fatura).toHaveLength(1);
+    expect(antes.orcamento_categoria).toHaveLength(1);
+    expect(await faturasEOrcamentos()).toEqual(antes);
   });
 
   it("deixa a próxima importação ser a primeira, para qualquer mês (AC 3)", async () => {
