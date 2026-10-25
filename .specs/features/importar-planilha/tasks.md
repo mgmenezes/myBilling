@@ -665,6 +665,502 @@ T26 -> T27
 **Gate**: quick
 **Commit**: `feat(importacao): diálogo da importação do começo ao resultado`
 
+### Phase 5 — Ponta a ponta e fechamento
+
+```
+T15 -> T26
+T25 -> T26
+T26 -> T27
+```
+
+---
+
+## Task Breakdown
+
+> **Sobre os avisos de granularidade do validador.** Algumas tasks tocam mais de um arquivo porque eles
+> mudam juntos por necessidade: uma port nova não compila sem o fake que a implementa; a migration
+> nasce de `schema.ts` com o snapshot do `drizzle-kit`; as fixtures são o dado de teste da task que
+> as lê pela primeira vez.
+
+### Phase 0 — Leitura pura
+
+#### T1: Ler o CSV em grade
+**What**: `lerCsv(texto)` devolve a grade de células, seguindo RFC 4180.
+**Where**: `src/domain/importacao/csv.ts`
+**Depends on**: nenhuma
+**Reuses**: `Result`, `ok`, `err` de `src/domain/shared/result.ts`; código novo `PLANILHA_ARQUIVO_INVALIDO` na union `CodigoErro`
+**Requirement**: IMP-01
+**Interfaces**: produz `Grade` e `lerCsv` (design.md, "csv.ts")
+**Tools**: nenhuma
+**Done when**:
+- [x] `a,b\r\nc,d` e `a,b\nc,d` dão `[["a","b"],["c","d"]]`
+- [x] Campo entre aspas com vírgula: `"Seguro (casa, carro)",x` dá `["Seguro (casa, carro)","x"]`
+- [x] Aspas escapadas: `"a ""b"""` dá `a "b"`
+- [x] BOM inicial `﻿` é removido da primeira célula (IMP-01 AC 2)
+- [x] Células vazias são preservadas: `,,x,` dá `["","","x",""]`
+- [x] Aspas não fechadas devolvem `PLANILHA_ARQUIVO_INVALIDO`
+- [x] Linha final vazia após o último `\n` não vira linha extra
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): ler o CSV da aba em grade de células`
+
+#### T2: Ler valor, parcela e nome de uma célula
+**What**: `valorDaCelula`, `parcelaDaCelula` e `normalizarNome`.
+**Where**: `src/domain/importacao/celula.ts`
+**Depends on**: nenhuma
+**Reuses**: `parseBRL` (`src/domain/shared/money.ts:49`), `MAX_PARCELAS`
+**Requirement**: IMP-01
+**Interfaces**: produz `MotivoNaoLida`, `ParcelaDaLinha`, `valorDaCelula`, `parcelaDaCelula`, `normalizarNome` (design.md, "celula.ts")
+**Tools**: nenhuma
+**Done when**:
+- [x] `R$ 1.234,56` → 123456 (IMP-01 AC 13); `R$ 1.398,00` com U+00A0 depois de `R$` → 139800
+- [x] Review Focus 3: `R$10,00` → 1000; `R$ 1.234.567,89` → 123456789; `10` → 1000; `-R$ 10,00` → `VALOR_INVALIDO`; `R$ 0,00` → `VALOR_ZERO` (IMP-01 AC 18)
+- [x] `""` e `"   "` → `VALOR_VAZIO` (AC 9); `200*` → `VALOR_INVALIDO` (AC 10)
+- [x] `7/10` → `{ numero: 7, total: 10 }`; ` 3/3 ` → `{ 3, 3 }`; `12/10`, `0/3`, `3/121`, `3-10`, `""` → `PARCELA_INVALIDA` (AC 11)
+- [x] `normalizarNome("  Cartão   Roxo ")` → `"cartão roxo"`; `"MERCADO"` e `"Mercado"` dão o mesmo
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): ler valor, parcela e nome normalizado de uma célula`
+
+#### T3: Localizar os blocos e ler a aba
+**What**: `lerAba(grade)` localiza os quatro blocos, os totais e a tabela de categorias, e separa linhas lidas e não lidas. Cria as três fixtures sintéticas.
+**Where**: `src/domain/importacao/ler-aba.ts` (+ `src/domain/importacao/__fixtures__/Planilha 2026 - {Outubro,Novembro,Dezembro}.csv`)
+**Depends on**: T1, T2
+**Reuses**: `lerCsv`, `valorDaCelula`, `parcelaDaCelula`
+**Requirement**: IMP-01
+**Interfaces**: produz `Bloco`, `LinhaLida`, `LinhaDeCartao`, `LinhaNaoLida`, `AbaLida`, `TITULOS`, `lerAba` (design.md, "ler-aba.ts"); as fixtures seguem as três tabelas da seção "Fixtures sintéticas" do design, no layout do `context.md`
+**Tools**: nenhuma
+**Done when**:
+- [x] Outubro: 4 fixos, 6 linhas de cartão, 3 gastos, 3 entradas lidas; 1 não lida (`FIXOS`, "Seguro (casa, carro)", `VALOR_VAZIO`)
+- [x] Outubro: `totais` = FIXOS 184000, CARTAO 42334, GASTOS 11250, ENTRADAS 1015000, SAIDAS 238784
+- [x] Outubro: `categoriasDaTabela` = Moradia, Assinaturas, Saúde, Casa, Eletrônicos, Estudo, Mercado, Lazer (a linha vazia no meio não encerra a tabela — AC 14)
+- [x] A linha residual do Gastos do Mês (sem nome, sem valor, "Tipo" `Débito`) não aparece em lugar nenhum (AC 8)
+- [x] O `X` em A1, a linha 2, Saídas (exceto o total) e "Gastos por tipo de pagamento" não aparecem (AC 16)
+- [x] `Gastos do Mês ` com espaço no fim é encontrado (AC 4); remover qualquer título de uma cópia da grade devolve `PLANILHA_BLOCO_AUSENTE` com `detalhes.bloco` igual a esse título, na ordem Fixos, Cartão de Crédito, Gastos do Mês, Entradas (AC 3)
+- [x] Deslocar a grade inteira duas colunas para a direita produz a mesma `AbaLida` (AC 5)
+- [x] Linha com valor e nome vazio → `NOME_VAZIO` (AC 12); Dezembro: `Mesa 12/10` → `PARCELA_INVALIDA`, `Bônus 200*` → `VALOR_INVALIDO`
+- [x] Sem a tabela de categorias, `categoriasDaTabela` é `[]` e não há erro (AC 15)
+- [x] Review Focus 1: a fixture de outubro com as vírgulas trocadas por `;` devolve `PLANILHA_ARQUIVO_INVALIDO` (AC 17)
+- [x] `posicao` conta só as linhas não vazias do bloco, a partir de 0
+- [x] As três fixtures não contêm nenhum nome, valor ou categoria da planilha real (revisão manual registrada no commit)
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): localizar os blocos e ler a aba exportada`
+
+#### T4: Mês e ano pelo nome do arquivo
+**What**: `competenciaDoNomeDoArquivo(nome)` e `competenciaDeAnoEMes(ano, mes)`.
+**Where**: `src/domain/importacao/competencia-do-arquivo.ts` (+ `competenciaDeAnoEMes` em `src/domain/shared/competencia.ts`)
+**Depends on**: nenhuma
+**Reuses**: `criarCompetencia`
+**Requirement**: IMP-02
+**Interfaces**: produz `MesEAnoDoArquivo`, `competenciaDoNomeDoArquivo`, `competenciaDeAnoEMes` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] `Planilha 2026 - Outubro.csv` → `{ mes: 10, ano: 2026 }` (IMP-02 AC 1)
+- [x] Review Focus 4: `Planilha 2026 - Outubro (1).csv` → 10/2026; `X 2026 - MARÇO.csv` e `X 2026 - marco.csv` → 3/2026
+- [x] `Planilha 2025 2026 - Janeiro.csv` → ano 2026 (o último número de quatro dígitos)
+- [x] `outubro.csv` → `{ mes: 10, ano: null }`; `Planilha 2026 - Resumo.csv` → `{ mes: null, ano: 2026 }`; ano 1999 → `ano: null` (AC 2)
+- [x] `competenciaDeAnoEMes(2026, 3)` → `"2026-03"`; mês 0 ou 13 → `COMPETENCIA_INVALIDA`
+- [x] 100% de branches em ambos os arquivos
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): pré-selecionar mês e ano pelo nome do arquivo`
+
+#### T5: Conferir a aba contra os totais da planilha
+**What**: `conferirAba(aba)` por bloco e de Saídas.
+**Where**: `src/domain/importacao/conferir-aba.ts`
+**Depends on**: T3
+**Reuses**: `somar`, `ZERO_CENTS`
+**Requirement**: IMP-05
+**Interfaces**: produz `ConferenciaDeBloco`, `Conferencia`, `conferirAba` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Outubro: FIXOS, CARTAO, ENTRADAS conferem; GASTOS `confere = false`, `somaLida` 12450, `diferenca` −1200; Saídas confere com `somaLida` 238784 (IMP-05 AC 1-4)
+- [x] Novembro: tudo confere; `temDivergencia = false`
+- [x] Dezembro: CARTAO `diferenca` +4000; Saídas `somaLida` 244333, `totalDaPlanilha` 248333, não confere
+- [x] Total ausente (`null`) → `confere = false`, `diferenca = null` (AC 3)
+- [x] Bloco sem linhas → `somaLida = ZERO_CENTS`
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): conferir a aba contra os totais da própria planilha`
+
+### Phase 1 — Reconhecimento e plano, puros
+
+#### T6: Reprecificar parcelas a partir de uma
+**What**: `reprecificarAPartirDe(compra, aPartirDe, valor)`.
+**Where**: `src/domain/parcelamento/reprecificar-parcelas.ts`
+**Depends on**: nenhuma
+**Reuses**: `somar`, tipos de `src/domain/tipos.ts`
+**Requirement**: IMP-07
+**Interfaces**: produz `ParcelaDaCompra`, `CompraParaReprecificar`, `Reprecificacao`, `reprecificarAPartirDe` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Fone: amortizado 0, parcelas 1–3 de 3334, a partir de 2 com 3333 → parcelas `[{2,3333},{3,3333}]`, total 10000 (IMP-07 AC 10)
+- [x] Livro de 30: parcelas 1–2 de 3000, a partir de 2 com 3002 → total 6002
+- [x] Compra em andamento: amortizado 126000, parcelas 7–10 de 21000, a partir de 9 com 21100 → total 126000 + 21000 + 21000 + 21100 + 21100
+- [x] `aPartirDe` que não é parcela gravada (6 na compra acima) → `PARCELA_INICIAL_INVALIDA`
+- [x] Conservação: em todos os casos, total = amortizado + soma das parcelas devolvidas e das não alteradas
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(parcelamento): reprecificar as parcelas a partir de uma, conservando a soma`
+
+#### T7: Reconhecer fixos e receitas fixas entre abas
+**What**: `reconhecerRecorrencias(linhas, vigentes)`.
+**Where**: `src/domain/importacao/reconhecer-recorrencias.ts`
+**Depends on**: T2
+**Reuses**: `normalizarNome`
+**Requirement**: IMP-07
+**Interfaces**: produz `RecorrenciaVigente`, `LinhaDeRecorrencia`, `DestinoDeRecorrencia`, `RecorrenciasReconhecidas`, `reconhecerRecorrencias` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Mesmo nome normalizado e meio, mesmo valor → `INALTERADA` (IMP-07 AC 1, 3)
+- [x] Valor diferente → `REAJUSTE` com `de` 10000 e `para` 11000 (AC 4)
+- [x] Vigente sem linha → em `encerrar` (AC 5); Academia/Cartão Roxo em novembro
+- [x] Linha reconhecida com `valor = null` → `PRESENTE_SEM_VALOR`, e a vigente **não** vai para `encerrar` (AC 6)
+- [x] Linha com `valor = null` e sem par → fora de `destinos` e fora de `encerrar`
+- [x] Mesmo nome em outro meio → `NOVA` (Academia/Cartão Roxo em outubro, ao lado de Academia/Débito)
+- [x] Entrada (`meioPagamentoId = null`) reconhece só pelo nome (AC 2)
+- [x] Duas linhas e uma vigente com a mesma chave → a primeira pareia, a segunda é `NOVA` (AC 12)
+- [x] Review Focus 2: `"Internet "` e `"internet"` reconhecem `"Internet"`
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): reconhecer fixos e receitas fixas da aba anterior`
+
+#### T8: Reconhecer compras parceladas pela sequência
+**What**: `reconhecerCompras(linhas, emCurso)`.
+**Where**: `src/domain/importacao/reconhecer-compras.ts`
+**Depends on**: T2
+**Reuses**: `normalizarNome`, `ParcelaDaLinha`
+**Requirement**: IMP-07
+**Interfaces**: produz `TOLERANCIA_DE_RECONHECIMENTO`, `CompraEmCurso`, `LinhaDeCompra`, `DestinoDeCompra`, `ComprasReconhecidas`, `reconhecerCompras` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Sofá 8/10 contra compra com `numeroEmM` 8, `qtdParcelas` 10, mesmo meio → `CONTINUA` (IMP-07 AC 7)
+- [x] Fone 2/3 de 3333 contra `valorEmM` 3334 → `CONTINUA_COM_NOVO_VALOR` 3334 → 3333
+- [x] Diferença de 101 centavos → `COMPRA_NOVA`; de 100 → reconhece (AC 8)
+- [x] Os dois Livros de novembro (3002 e 2000, nessa ordem) contra as compras de 3000 e 2000: a de 3002 fica com a de 3000, a de 2000 com a de 2000; nenhuma compra é usada duas vezes (AC 9)
+- [x] `numeroEmM` diferente de `n`, ou `qtdParcelas` diferente de `t`, ou meio diferente → `COMPRA_NOVA`
+- [x] Compra em curso sem linha → em `naoAparecem` (Óculos em dezembro — AC 11)
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): reconhecer compras parceladas pela sequência das parcelas`
+
+#### T9: Montar o plano da importação
+**What**: `planejarImportacao({ aba, estado, decisoes })` compõe categorias, pendências, reconhecimento, destinos, operações e `quantidadeAImportar`; exporta o necessário em `src/domain/index.ts`.
+**Where**: `src/domain/importacao/planejar-importacao.ts`
+**Depends on**: T3, T5, T7, T8
+**Reuses**: `conferirAba`, `reconhecerRecorrencias`, `reconhecerCompras`, `normalizarNome`
+**Requirement**: IMP-03, IMP-04, IMP-05
+**Interfaces**: produz `ClasseEntrada`, `DecisaoDeEntrada`, `DecisoesDaImportacao`, `EstadoParaImportacao`, `Pendencias`, `DestinoDaLinha`, `LinhaDaPrevia`, `OperacoesDaImportacao`, `PlanoDeImportacao`, `planejarImportacao` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Outubro sem decisões: pendências `débito` (linhas 4), `cartão roxo` (8), `cartão verde` (1) — contando só linhas lidas; entradas `salário a`, `salário b`, `reembolso`; `operacoes = null` (IMP-04 AC 1, 3)
+- [x] Outubro com as decisões completas: 6 recorrências novas (4 despesas, 2 receitas), 6 compras novas, 4 avulsos (3 despesas, 1 receita), `quantidadeAImportar` 16 (IMP-05 AC 9)
+- [x] Categorias de outubro: CRIAR Moradia, Assinaturas, Saúde, Casa, Eletrônicos, Estudo, Mercado, Lazer — "Mercado" com a grafia da primeira linha, "Seguros" (só na linha não lida) não criada (IMP-03 AC 9-11)
+- [x] Categoria existente arquivada → `REATIVAR`; existente ativa → `REAPROVEITAR`; célula vazia → `chaveCategoria = null` (AC 12)
+- [x] Compra nova do Sofá: `qtdParcelas` 10, `parcelaInicial` 7, `valorParcela` 21000 (IMP-03 AC 5)
+- [x] `chaveDeOrigem` da Padaria em outubro = `2026-10|GASTOS|2` (AC 8)
+- [x] Novembro com o estado depois de outubro e as decisões lembradas: pendências só `cartão azul` e `presente` (IMP-04 AC 5); com elas resolvidas, os destinos e `quantidadeAImportar` 9 da tabela de novembro do design; `deixamDeValer` = Academia/Cartão Roxo
+- [x] Dezembro: nenhuma pendência (Bônus ilegível não pede classificação); `naoAparecem` = Óculos parcela 4; `deixamDeValer` = Salário B; `quantidadeAImportar` 2
+- [x] Review Focus 2: decisão lembrada para `cartão roxo` atende a linha com "Tipo" `"Cartão  Roxo"`
+- [x] Review Focus 5: `Cartão Laranja` e `cartão laranja ` na mesma aba → uma pendência, com a soma das linhas
+- [x] 100% de branches
+**Tests**: unit
+**Gate**: build
+**Commit**: `feat(importacao): montar o plano completo de uma aba`
+
+### Phase 2 — Banco e ports
+
+#### T10: Repositórios aceitam uma transação
+**What**: Tipo `Executor` e construtores dos repositórios Drizzle passando a recebê-lo, sem mudança de comportamento.
+**Where**: `src/infrastructure/db/client.ts` (+ construtores em `src/infrastructure/db/repositories/*.repository.ts`)
+**Depends on**: nenhuma
+**Reuses**: `PgDatabase` de `drizzle-orm/pg-core`, `NodePgQueryResultHKT` de `drizzle-orm/node-postgres`
+**Requirement**: IMP-06
+**Interfaces**: produz `Executor` (design.md, Decisão 1)
+**Tools**: nenhuma
+**Done when**:
+- [x] Todos os testes de integração existentes passam sem alteração
+- [x] Novo teste: `RecorrenciaRepositoryDrizzle` e `CompraRepositoryDrizzle` construídos sobre `tx` dentro de `db.transaction`, seguidos de um `throw`, não deixam linha nenhuma em `recorrencia`, `recorrencia_versao`, `compra_parcelada` e `movimento` (o savepoint interno não escapa do rollback externo)
+- [x] `pnpm typecheck` sem erro
+**Tests**: integration
+**Gate**: full
+**Commit**: `refactor(db): deixar os repositórios aceitarem uma transação de fora`
+
+#### T11: Tabelas do registro de importação
+**What**: `importacao` e `importacao_decisao` em `schema.ts`, migration `0003` gerada e revisada, e as duas tabelas em `limpar.ts`.
+**Where**: `src/infrastructure/db/schema.ts` (+ `drizzle/0003_*.sql`, `drizzle/meta/*`, `src/infrastructure/db/limpar.ts`)
+**Depends on**: nenhuma
+**Reuses**: `competenciaNoDiaUm` de `schema.ts`
+**Requirement**: IMP-02, IMP-04
+**Interfaces**: produz as tabelas da Decisão 5 do design
+**Tools**: nenhuma
+**Done when**:
+- [x] `recriarBancoDeTeste` aplica `0000` a `0003` num banco limpo
+- [x] Segunda `importacao` com a mesma competência → violação de unicidade (base do IMP-02 AC 7)
+- [x] Competência fora do dia 1 → violação de `CHECK`
+- [x] `importacao_decisao` com `tipo = 'ENTRADA'` e `classe` nula, ou `tipo = 'MEIO'` com `classe` preenchida → violação de `CHECK`
+- [x] Duas decisões com o mesmo `(tipo, nome_normalizado)` → violação de unicidade
+- [x] `limparDados` esvazia as duas tabelas novas
+- [x] `pnpm db:sql` continua imprimindo o bloco com a migration nova e o veredito de conferência
+**Tests**: integration
+**Gate**: full
+**Commit**: `feat(db): registrar importações e decisões lembradas`
+
+#### T12: Ports e fakes da importação
+**What**: Métodos novos nas ports existentes, `ImportacaoRepository`, `RepositoriosDaImportacao`, `TransacaoDaImportacao`, e os fakes correspondentes.
+**Where**: `src/application/ports/repositories.ts` (+ `src/application/ports/fakes.ts`)
+**Depends on**: T6, T9
+**Reuses**: `EstadoEmMemoria`, `criarFakes`
+**Requirement**: IMP-04, IMP-06, IMP-07
+**Interfaces**: produz os tipos da seção "Ports" do design; `criarFakes()` passa a incluir `recorrencias`, `importacoes` e `transacao`
+**Tools**: nenhuma
+**Done when**:
+- [x] `FakeCompraRepository.reprecificar` grava valores e total, e recusa com `CONSERVACAO_VIOLADA` quando total ≠ amortizado + soma
+- [x] `FakeImportacaoRepository.registrar` com competência repetida lança como a unicidade do banco
+- [x] `FakeImportacaoRepository.decisoesLembradas` devolve o que `registrar` gravou, com upsert por `(tipo, chave)`
+- [x] `FakeCadastroRepository.listarTodasAsCategorias` inclui arquivadas; `buscarCategoriaPorNome` ignora caixa
+- [x] `FakeMovimentoRepository.criarAvulso` guarda `origemDado` e recusa `(fonte, chave)` repetido
+- [x] Testes existentes de `src/application` passam sem alteração
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): declarar as ports e os fakes da importação`
+
+#### T13: Implementar os métodos novos das ports existentes
+**What**: `listarTodasAsCategorias` no cadastro, `buscarPorId` e `reprecificar` na compra, `origemDado` em `criarAvulso`.
+**Where**: `src/infrastructure/db/repositories/compra.repository.ts` (+ `cadastro.repository.ts`, `movimento.repository.ts`)
+**Depends on**: T10, T12
+**Reuses**: `paraLancamento`, `deCompetencia`, o padrão de verificação de conservação de `salvarComParcelas`
+**Requirement**: IMP-03, IMP-07
+**Interfaces**: implementa os métodos da seção "Ports" do design
+**Tools**: nenhuma
+**Done when**:
+- [x] `reprecificar` atualiza só as parcelas informadas e o total, e falha com `CONSERVACAO_VIOLADA` sem gravar nada quando total ≠ amortizado + soma no banco
+- [x] `reprecificar` não toca outra compra nem lançamento de outra origem
+- [x] `criarAvulso` com `origemDado` grava `origem_dado = 'PLANILHA'` e `origem_hash` = chave; a mesma chave duas vezes viola `movimento_origem_dado_hash_uq`; sem `origemDado`, as colunas ficam nulas como hoje
+- [x] `buscarPorId` devolve a compra com as parcelas; id inexistente → `null`
+- [x] `listarTodasAsCategorias` inclui arquivada
+**Tests**: integration
+**Gate**: full
+**Commit**: `feat(db): reprecificar compra e gravar a origem do avulso importado`
+
+#### T14: Repositório e transação da importação
+**What**: `ImportacaoRepositoryDrizzle` e `TransacaoDaImportacaoDrizzle` (transação + `pg_advisory_xact_lock(hashtext('importacao'))` + repositórios sobre o `tx`).
+**Where**: `src/infrastructure/db/repositories/importacao.repository.ts` (+ `src/infrastructure/db/transacao-da-importacao.ts`)
+**Depends on**: T10, T11, T12
+**Reuses**: repositórios existentes construídos com `Executor`
+**Requirement**: IMP-02, IMP-04, IMP-06
+**Interfaces**: implementa `ImportacaoRepository` e `TransacaoDaImportacao`
+**Tools**: nenhuma
+**Done when**:
+- [x] `ultimaCompetenciaImportada` → `null` sem registro; `2026-11` depois de registrar outubro e novembro
+- [x] `haLancamentoCompraOuRecorrencia` → `true` com uma linha em qualquer das três tabelas, inclusive avulso cancelado; `false` no banco limpo (IMP-02 AC 6)
+- [x] `registrar` grava a importação e faz upsert das decisões: registrar `cartão roxo` com outro meio substitui o anterior
+- [x] Exceção dentro de `executar` desfaz escritas feitas por qualquer repositório recebido (IMP-06 AC 2)
+- [x] Duas chamadas concorrentes a `executar` que registram a mesma competência: uma conclui e a outra falha com violação de unicidade (IMP-02 AC 7)
+**Tests**: integration
+**Gate**: full
+**Commit**: `feat(db): registrar a importação dentro de uma transação serializada`
+
+#### T15: Script de limpeza para recomeçar
+**What**: SQL que esvazia o que a importação cria e preserva cadastros.
+**Where**: `src/infrastructure/db/sql/limpar-para-importar.sql`
+**Depends on**: T11
+**Reuses**: `recriarBancoDeTeste`, `semearCadastroBase`
+**Requirement**: IMP-09
+**Interfaces**: arquivo SQL executável no SQL Editor do Neon, sem `CASCADE`
+**Tools**: nenhuma
+**Done when**:
+- [x] Teste de integração lê o arquivo e o executa num banco com dados em todas as tabelas
+- [x] Depois: `movimento`, `compra_parcelada`, `recorrencia_versao`, `recorrencia`, `importacao`, `importacao_decisao` vazias (IMP-09 AC 1)
+- [x] `usuario`, `meio_pagamento` e `categoria` com as mesmas linhas de antes (AC 2)
+- [x] `ultimaCompetenciaImportada` → `null` e `haLancamentoCompraOuRecorrencia` → `false` (AC 3)
+**Tests**: integration
+**Gate**: build
+**Commit**: `feat(db): script de limpeza para recomeçar a importação`
+
+### Phase 3 — Aplicação e actions
+
+#### T16: Schema da importação
+**What**: `entradaPreviaImportacaoSchema` e `entradaGravacaoImportacaoSchema`.
+**Where**: `src/application/schemas/importacao.schema.ts`
+**Depends on**: nenhuma
+**Reuses**: padrão de `compra.schema.ts` (competência via `criarCompetencia`)
+**Requirement**: IMP-01, IMP-06
+**Interfaces**: produz `MAX_CONTEUDO_PLANILHA` e os dois schemas (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] `nomeArquivo` sem `.csv` (`aba.xlsx`) é recusado; `ABA.CSV` é aceito (IMP-01 AC 1)
+- [x] `conteudo` com 1.048.577 caracteres é recusado; com 1.048.576, aceito
+- [x] `competencia` `2026-13` recusada; `decisoes.meios` com valor que não é uuid recusado; `classe` fora de `FIXA`/`AVULSA` recusada
+- [x] Gravação exige `confirmouDivergencia` booleano
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): validar o payload da prévia e da gravação`
+
+#### T17: Prever a importação
+**What**: `carregarEstadoParaImportacao` e `preverImportacao`, com a guarda de ordem e de banco vazio.
+**Where**: `src/application/importacao/prever-importacao/handler.ts` (+ `src/application/importacao/carregar-estado.ts`)
+**Depends on**: T9, T12
+**Reuses**: `valeNaCompetencia`, `versaoVigente`, `listarPorCompetencia`, `totaisDeParcelas`, `lerCsv`, `lerAba`, `planejarImportacao`
+**Requirement**: IMP-02, IMP-04, IMP-05
+**Interfaces**: produz `CodigoErroImportacao`, `ErroImportacao`, `EntradaDaImportacao`, `PreviaDaImportacao`, `preverImportacao`, `carregarEstadoParaImportacao` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Banco vazio, sem registro, outubro → prévia com `competenciaEsperada = null` e as pendências de outubro
+- [x] Sem registro e com um avulso no banco → `IMPORTACAO_BANCO_NAO_VAZIO` (IMP-02 AC 6)
+- [x] Último registro `2026-10`, prévia de `2026-12` → `IMPORTACAO_FORA_DE_ORDEM` com `detalhes.esperada = "2026-11"` (AC 5)
+- [x] Último registro `2026-10` → `competenciaEsperada = "2026-11"` (AC 4)
+- [x] `carregarEstadoParaImportacao(2026-11)` sobre o estado de outubro: despesas vigentes Aluguel, Internet (10000), Academia ×2; receitas Salário A e B; compras com parcela em novembro: Sofá 8, Fone 2, Óculos 3, os dois Livros 2 — Curso fora
+- [x] Arquivo inválido e bloco ausente propagam `PLANILHA_ARQUIVO_INVALIDO` e `PLANILHA_BLOCO_AUSENTE` com `detalhes.bloco`
+- [x] Nada é escrito em nenhum fake
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): prever a importação de uma aba sem gravar nada`
+
+#### T18: Gravar a importação
+**What**: `gravarImportacao(transacao, entrada)` executa o plano com os casos de uso existentes dentro da transação.
+**Where**: `src/application/importacao/gravar-importacao/handler.ts`
+**Depends on**: T17, T6
+**Reuses**: `criarRecorrencia`, `registrarVersao`, `encerrarRecorrencia`, `criarCompraParcelada` (modo `VALOR_PARCELA`, `politicaResiduo` `PRIMEIRAS`, `idempotencyKey` de `crypto.randomUUID()`), `reprecificarAPartirDe`, `movimentos.criarAvulso` com `origemDado`
+**Requirement**: IMP-03, IMP-04, IMP-05, IMP-06, IMP-07
+**Interfaces**: produz `EntradaGravarImportacao`, `ResumoDaImportacao`, `gravarImportacao` (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] Outubro com decisões completas e `confirmouDivergencia = true` → fakes com as recorrências, compras, avulsos e categorias da tabela de outubro; todos com `usuarioId` de entrada, `dataEvento` `2026-10-01`, `pagoEm` nulo, recorrências com `diaVencimento` 1 (IMP-03 AC 1-12)
+- [x] Compra do Óculos com `valorAmortizadoAnterior` 8000 e parcelas só de 2 a 5 (AC 6)
+- [x] Outubro com `confirmouDivergencia = false` → `IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA` e nada gravado nos fakes (IMP-05 AC 8)
+- [x] Decisão de meio faltando → `IMPORTACAO_PENDENCIA_ABERTA` (IMP-04 AC 7)
+- [x] Novembro depois de outubro: Internet ganha vigência 2026-11 de 11000; Academia/Cartão Roxo encerrada com `competenciaFim` 2026-10; Fone reprecificado para total 10000; Tênis criado; resumo `criados` 5, `alterados` 4, `encerrados` 1
+- [x] Decisões lembradas gravadas depois da gravação, e a importação registrada com a competência e o nome do arquivo
+- [x] `ResumoDaImportacao.proxima` = competência seguinte
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(importacao): gravar o plano de uma aba com os casos de uso existentes`
+
+#### T19: Actions da importação
+**What**: `previaDaPlanilha` e `importarPlanilha` como Server Actions (sobre os casos de uso `preverImportacao` e `gravarImportacao`), e os códigos novos em `src/lib/erros.ts`.
+**Where**: `src/app/actions/importacao.ts` (+ `src/lib/erros.ts`)
+**Depends on**: T13, T14, T16, T18
+**Reuses**: esqueleto de `src/app/actions/compras.ts`; `TransacaoDaImportacaoDrizzle`; `formatarCompetencia`
+**Requirement**: IMP-02, IMP-05, IMP-06, IMP-07
+**Interfaces**: produz `PreviaParaATela` e as duas actions (design.md)
+**Tools**: nenhuma
+**Done when**:
+- [x] `requireSession()` é a primeira instrução das duas (leitura do fonte, como em `compras.integration.test.ts`); sem sessão → `NAO_AUTENTICADO` sem consulta ao banco (IMP-06 AC 4)
+- [x] Payload inválido → `VALIDACAO` com `campos`
+- [x] Sequência outubro → novembro → dezembro com as fixtures produz exatamente o **estado final esperado** do design (7 recorrências, 7 compras com os totais listados, 9 avulsos com `origem_dado = 'PLANILHA'`, 3 importações, 8 decisões) (IMP-07)
+- [x] Repetir a gravação de outubro depois de feita → `IMPORTACAO_FORA_DE_ORDEM`, com a mensagem "As abas entram em sequência. A próxima é Novembro de 2026."
+- [x] Falha injetada na última escrita (mock do `criarAvulso` lançando na quarta chamada) → banco igual ao de antes e sem linha em `importacao` (IMP-06 AC 2)
+- [x] Duas gravações de outubro disparadas juntas → uma `ok`, a outra `IMPORTACAO_FORA_DE_ORDEM` (IMP-02 AC 7)
+- [x] Sucesso chama `revalidatePath` para `/2026-10`, `/2026-10/lancamentos` e `/2026-10/fixos` (IMP-06 AC 3)
+- [x] Erro não previsto → `ERRO_INESPERADO` com referência, sem stack (AC 5)
+- [x] `PLANILHA_BLOCO_AUSENTE` sai com "O arquivo não tem o bloco “Entradas”. Exporte a aba de um mês da planilha."
+**Tests**: integration
+**Gate**: build
+**Commit**: `feat(importacao): actions de prévia e gravação da planilha`
+
+### Phase 4 — Interface
+
+#### T20: Extrair o cadastro de meio para um componente
+**What**: Mover os campos de meio e o `CadastroInline` de `form-lancamento-avulso.tsx` para `CadastroDeMeioInline`, com `nomeInicial` opcional.
+**Where**: `src/components/cadastro-de-meio-inline.tsx` (+ `form-lancamento-avulso.tsx`)
+**Depends on**: nenhuma
+**Reuses**: `CadastroInline`, `entradaMeioPagamentoSchema`, `TIPOS_DE_MEIO`
+**Requirement**: IMP-04
+**Interfaces**: produz `CadastroDeMeioInline({ idDoControle, rotulo, nomeInicial?, rotuloDoAtalho?, ajuda?, criarMeioDePagamento, aoCriado, children })` (`rotuloDoAtalho` e `ajuda` acrescentados na execução: o avulso diz "+ novo" e troca a ajuda na receita; as pendências dizem "+ cadastrar")
+**Tools**: nenhuma
+**Done when**:
+- [x] Todos os testes existentes de `form-lancamento-avulso.test.tsx` passam sem alteração (é movimentação, não cópia)
+- [x] Com `nomeInicial = "Cartão Azul"`, abrir o cadastro mostra o campo nome preenchido com "Cartão Azul"
+- [x] `aoCriado` recebe `{ id, nome, geraFatura }` do meio criado
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `refactor(componentes): extrair o cadastro de meio de pagamento para reuso`
+
+#### T21: Passo 1 — arquivo e mês
+**What**: `PassoArquivo`.
+**Where**: `src/components/importacao/passo-arquivo.tsx`
+**Depends on**: T3, T4
+**Reuses**: `lerCsv`, `lerAba`, `competenciaDoNomeDoArquivo`, `formatarCompetencia`
+**Requirement**: IMP-01, IMP-02, IMP-08
+**Interfaces**: produz `PassoArquivo({ nomeDaPessoa, competenciaEsperada, aoContinuar })` com `aoContinuar({ nomeArquivo, conteudo, competencia })`
+**Tools**: nenhuma
+**Done when**:
+- [x] Soltar `Planilha 2026 - Outubro.csv` na área mostra o nome do arquivo e "4 blocos encontrados", e seleciona Outubro e 2026 (IMP-08 AC 3-4, IMP-02 AC 1)
+- [x] O mesmo arquivo pelo seletor (acionado por `Enter` no botão) tem o mesmo efeito (IMP-08 AC 7)
+- [x] Exibe "Outubro de 2026" e "Confira o ano antes de continuar" (IMP-02 AC 3); "Tudo entra em nome de Pessoa A" (IMP-08 AC 5)
+- [x] Com `competenciaEsperada = "2026-11"`, exibe "Próximo mês esperado: Novembro de 2026" (IMP-02 AC 4)
+- [x] Arquivo `outubro.csv`: ano sem seleção e "Continuar" desabilitado até escolher (AC 2)
+- [x] Arquivo `.xlsx` ou acima de 1 MB: mensagem de `PLANILHA_ARQUIVO_INVALIDO` e nada de prévia (IMP-01 AC 1)
+- [x] Arquivo sem "Entradas": mensagem de bloco ausente nomeando "Entradas"
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `feat(importacao): passo do arquivo e do mês no diálogo`
+
+#### T22: Passo 2 — o que precisa de você
+**What**: `PassoPendencias`.
+**Where**: `src/components/importacao/passo-pendencias.tsx`
+**Depends on**: T19, T20
+**Reuses**: `CadastroDeMeioInline`, `OpcaoDeMeio`
+**Requirement**: IMP-04
+**Interfaces**: produz `PassoPendencias({ pendencias, meios, criarMeioDePagamento, aoConcluir })` com `aoConcluir(decisoes)`
+**Tools**: nenhuma
+**Done when**:
+- [x] Mostra um seletor por "Tipo" com o nome e a quantidade de linhas — "Débito (4 linhas)" na prévia de outubro (IMP-04 AC 1)
+- [x] "+ cadastrar" abre `CadastroDeMeioInline` com o nome do "Tipo" preenchido e seleciona o meio criado (AC 2)
+- [x] Cada entrada tem "fixa"/"avulsa" e "cai em" listando só meios sem fatura — Cartão Roxo não aparece (AC 3)
+- [x] "Continuar" fica desabilitado enquanto houver seletor sem escolha
+- [x] `aoConcluir` recebe as chaves normalizadas com os ids escolhidos
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `feat(importacao): passo das decisões que a planilha não traz`
+
+#### T23: Passo 3 — conferência
+**What**: `PassoConferencia`.
+**Where**: `src/components/importacao/passo-conferencia.tsx`
+**Depends on**: T19
+**Reuses**: `formatarBRL`, `formatarCompetencia`
+**Requirement**: IMP-05
+**Interfaces**: produz `PassoConferencia({ previa, gravando, erro, aoImportar })` com `aoImportar(confirmouDivergencia)`
+**Tools**: nenhuma
+**Done when**:
+- [x] Prévia de outubro: quatro blocos com linhas, soma e total; Gastos do Mês marcado como divergente com "R$ 12,00" de diferença; Saídas conferido (IMP-05 AC 1-4)
+- [x] Abrir Fixos de novembro mostra "reajuste a partir de Novembro de 2026: R$ 100,00 → R$ 110,00"; abrir Cartão mostra "continua de Outubro de 2026, com valor novo: R$ 33,34 → R$ 33,33" (AC 5)
+- [x] Lista "Deixa de valer a partir de Novembro de 2026: Academia" e, em dezembro, "Não aparece nesta aba: Óculos"
+- [x] Linhas não lidas com bloco, nome e motivo em pt-BR ("sem valor", "valor zero", "valor não é dinheiro", "parcela fora do formato n/t", "sem nome") (AC 6)
+- [x] Com divergência, o botão fica desabilitado até marcar "Entendi a diferença, importar mesmo assim" (AC 7)
+- [x] Rótulo "Importar 16 lançamentos" em outubro (AC 9)
+- [x] Erro recebido aparece dentro do passo (IMP-08 AC 8)
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `feat(importacao): conferência da aba antes de gravar`
+
+#### T24: Diálogo da importação e resultado
+**What**: `DialogoImportacao` orquestra os passos e `ResultadoImportacao` fecha o fluxo.
+**Where**: `src/components/importacao/dialogo-importacao.tsx` (+ `resultado-importacao.tsx`)
+**Depends on**: T21, T22, T23
+**Reuses**: padrão de `<dialog>` de `DialogoDeCadastro`
+**Requirement**: IMP-08
+**Interfaces**: produz `DialogoImportacao({ nomeDaPessoa, competenciaEsperada, meios, previaDaPlanilha, importarPlanilha, criarMeioDePagamento })`, com as actions de T19 entrando por props
+**Tools**: nenhuma
+**Done when**:
+- [x] O botão "Importar planilha" abre um `<dialog>` nativo via `showModal` (IMP-08 AC 2)
+- [x] Prévia sem pendências vai do passo 1 direto à conferência (IMP-04 AC 6)
+- [x] Com pendências, o passo 2 aparece e, ao concluir, a prévia é pedida de novo com as decisões
+- [x] Gravação bem-sucedida mostra "16 criados" (ou as contagens recebidas), o link "Abrir Outubro de 2026" para `/2026-10` e "Próximo: Novembro de 2026" (IMP-08 AC 6)
+- [x] Recusa do servidor mantém o diálogo aberto com a mensagem (AC 8)
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `feat(importacao): diálogo da importação do começo ao resultado`
+
 #### T25: Botão na Visão geral
 **What**: A Visão geral passa a exibir o diálogo no topo.
 **Where**: `src/app/(app)/[competencia]/page.tsx`

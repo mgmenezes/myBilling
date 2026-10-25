@@ -1,5 +1,7 @@
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
+import { importarPlanilha, previaDaPlanilha } from "@/app/actions/importacao";
+import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
 import {
   MESES_DE_PROJECAO,
@@ -7,11 +9,13 @@ import {
 } from "@/application/recorrencias/materializar/handler";
 import { GraficoCategorias } from "@/components/grafico-categorias";
 import { HorizonteFuturo } from "@/components/horizonte-futuro";
+import { DialogoImportacao } from "@/components/importacao/dialogo-importacao";
 import { AlternadorDeVisao, GradeDeIndicadores, type Visao } from "@/components/painel-indicadores";
 import { TransicaoMes } from "@/components/transicao-mes";
-import { criarCompetencia, resumoPorCategoria } from "@/domain";
+import { addMeses, criarCompetencia, resumoPorCategoria } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
+import { ImportacaoRepositoryDrizzle } from "@/infrastructure/db/repositories/importacao.repository";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { hojeEm } from "@/lib/relogio";
@@ -36,12 +40,17 @@ import { sessaoDaUI } from "../sessao";
  * duas disputarem os mesmos frames, o `transform` que o Motion mantém no
  * ancestral desloca toda medida de posição do ScrollTrigger, e o gatilho da
  * revelação nunca casa com a posição real da seção.
+ *
+ * **A importação da planilha abre daqui**, por um botão ao lado do título
+ * (IMP-08). É ferramenta de largada: as três abas entram de uma vez, antes de
+ * qualquer lançamento. O diálogo recebe quem está logado, porque tudo entra em
+ * nome dessa pessoa, e a competência seguinte à última importada.
  */
 
 export const dynamic = "force-dynamic";
 
 export default async function PainelDoMes({ params, searchParams }: PageProps<"/[competencia]">) {
-  await sessaoDaUI();
+  const usuario = await sessaoDaUI();
 
   const { competencia } = await params;
   const { visao: visaoBruta } = await searchParams;
@@ -84,18 +93,36 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
     visaoMensal.competenciaView.totalGastos,
   );
 
-  const nomePorCategoria = new Map(
-    (await repositorios.cadastros.listarCategoriasDisponiveis()).map((c) => [c.id, c.nome]),
-  );
+  const [categoriasDisponiveis, meios, ultimaImportada] = await Promise.all([
+    repositorios.cadastros.listarCategoriasDisponiveis(),
+    repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),
+    new ImportacaoRepositoryDrizzle(db()).ultimaCompetenciaImportada(),
+  ]);
+  const nomePorCategoria = new Map(categoriasDisponiveis.map((c) => [c.id, c.nome]));
 
   return (
     <div className="flex flex-col gap-8">
       <TransicaoMes competencia={resultado.value}>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-4">
-            <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
-              {formatarCompetencia(resultado.value)}
-            </h1>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
+                {formatarCompetencia(resultado.value)}
+              </h1>
+              <DialogoImportacao
+                nomeDaPessoa={usuario.nome}
+                competenciaEsperada={ultimaImportada === null ? null : addMeses(ultimaImportada, 1)}
+                /* "Cai em" lista só meio sem fatura (AD-015). */
+                meios={meios.map((meio) => ({
+                  id: meio.id,
+                  nome: meio.nome,
+                  geraFatura: meio.tipo === "CARTAO_CREDITO",
+                }))}
+                previaDaPlanilha={previaDaPlanilha}
+                importarPlanilha={importarPlanilha}
+                criarMeioDePagamento={criarMeioDePagamento}
+              />
+            </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <AlternadorDeVisao competencia={resultado.value} visao={visao} />
