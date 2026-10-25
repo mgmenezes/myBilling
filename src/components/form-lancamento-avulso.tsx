@@ -9,13 +9,9 @@ import type { criarMeioDePagamento as criarMeioAction } from "@/app/actions/meio
 import { jaPagoPorPadrao } from "@/application/mes/criar-lancamento-avulso/handler";
 import { entradaCategoriaSchema, MAX_NOME_CATEGORIA } from "@/application/schemas/categoria.schema";
 import { entradaLancamentoAvulsoSchema } from "@/application/schemas/lancamento-avulso.schema";
-import {
-  entradaMeioPagamentoSchema,
-  MAX_NOME_MEIO,
-  TIPOS_DE_MEIO,
-} from "@/application/schemas/meio-pagamento.schema";
 import { parseBRL } from "@/domain";
 import { formatarBRL } from "@/lib/formatar";
+import { CadastroDeMeioInline } from "./cadastro-de-meio-inline";
 import { CadastroInline } from "./cadastro-inline";
 
 /**
@@ -81,11 +77,6 @@ const CONTROLE_CLASSE =
   "aria-[invalid=true]:border-negativo aria-[invalid=true]:border-2";
 const ERRO_CLASSE = "flex items-center gap-1.5 text-[14px] font-medium text-negativo";
 
-function inteiro(texto: string): number {
-  const valor = Number.parseInt(texto, 10);
-  return Number.isNaN(valor) ? Number.NaN : valor;
-}
-
 export function FormLancamentoAvulso({
   competencia,
   dataPadrao,
@@ -119,11 +110,6 @@ export function FormLancamentoAvulso({
   const [nomeCategoria, setNomeCategoria] = useState("");
 
   const [listaMeios, setListaMeios] = useState<ReadonlyArray<OpcaoDeMeio>>(meios);
-  const [nomeMeio, setNomeMeio] = useState("");
-  const [tipoMeio, setTipoMeio] =
-    useState<(typeof TIPOS_DE_MEIO)[number]["valor"]>("CARTAO_CREDITO");
-  const [diaFechamento, setDiaFechamento] = useState("");
-  const [diaVencimento, setDiaVencimento] = useState("");
 
   const [campos, setCampos] = useState<Campos>({});
   const [erroGeral, setErroGeral] = useState("");
@@ -171,19 +157,6 @@ export function FormLancamentoAvulso({
 
   function payloadDeCategoria() {
     return entradaCategoriaSchema.safeParse({ nome: nomeCategoria });
-  }
-
-  function payloadDeMeio() {
-    return entradaMeioPagamentoSchema.safeParse(
-      tipoMeio === "CARTAO_CREDITO"
-        ? {
-            nome: nomeMeio,
-            tipo: tipoMeio,
-            diaFechamento: inteiro(diaFechamento),
-            diaVencimento: inteiro(diaVencimento),
-          }
-        : { nome: nomeMeio, tipo: tipoMeio },
-    );
   }
 
   function primeiroErro(resultado: {
@@ -335,19 +308,10 @@ export function FormLancamentoAvulso({
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <CadastroInline
+        <CadastroDeMeioInline
           rotulo={rotuloDoMeio}
           idDoControle={`${id}-meio`}
-          rotuloDoAtalho="+ novo"
-          descricaoDoGrupo="Novo meio de pagamento"
-          validar={() => primeiroErro(payloadDeMeio())}
-          aoCriar={async () => {
-            const validado = payloadDeMeio();
-            if (!validado.success) {
-              throw new Error("payload inválido chegou ao envio");
-            }
-            return criarMeioDePagamento(validado.data);
-          }}
+          criarMeioDePagamento={criarMeioDePagamento}
           aoCriado={(criado) => {
             const novo: OpcaoDeMeio = {
               id: criado.id,
@@ -362,82 +326,7 @@ export function FormLancamentoAvulso({
               setJaPago(jaPagoPorPadrao(novo.geraFatura));
             }
           }}
-          aoLimpar={() => {
-            setNomeMeio("");
-            setTipoMeio("CARTAO_CREDITO");
-            setDiaFechamento("");
-            setDiaVencimento("");
-          }}
-          ajuda={
-            ehReceita
-              ? "Só contas: dinheiro não entra em cartão de crédito."
-              : tipoMeio === "ROTULO"
-                ? "Rótulo não é meio de pagamento: é uma etiqueta para separar um gasto específico, sem ciclo e sem fatura."
-                : "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram."
-          }
-          campos={(idCadastro) => (
-            <>
-              <div className="flex flex-col gap-1">
-                <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-nome-meio`}>
-                  Nome do novo meio de pagamento
-                </label>
-                <input
-                  id={`${idCadastro}-nome-meio`}
-                  className={CONTROLE_CLASSE}
-                  value={nomeMeio}
-                  onChange={(e) => setNomeMeio(e.target.value)}
-                  maxLength={MAX_NOME_MEIO}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-tipo-meio`}>
-                  Tipo
-                </label>
-                <select
-                  id={`${idCadastro}-tipo-meio`}
-                  className={CONTROLE_CLASSE}
-                  value={tipoMeio}
-                  onChange={(e) => setTipoMeio(e.target.value as typeof tipoMeio)}
-                >
-                  {TIPOS_DE_MEIO.map((opcao) => (
-                    <option key={opcao.valor} value={opcao.valor}>
-                      {opcao.rotulo}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {tipoMeio === "CARTAO_CREDITO" ? (
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <div className="flex w-full flex-col gap-1">
-                    <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-fechamento`}>
-                      Dia de fechamento
-                    </label>
-                    <input
-                      id={`${idCadastro}-fechamento`}
-                      className={CONTROLE_CLASSE}
-                      inputMode="numeric"
-                      value={diaFechamento}
-                      onChange={(e) => setDiaFechamento(e.target.value)}
-                      placeholder="25"
-                    />
-                  </div>
-                  <div className="flex w-full flex-col gap-1">
-                    <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-vencimento`}>
-                      Dia de vencimento
-                    </label>
-                    <input
-                      id={`${idCadastro}-vencimento`}
-                      className={CONTROLE_CLASSE}
-                      inputMode="numeric"
-                      value={diaVencimento}
-                      onChange={(e) => setDiaVencimento(e.target.value)}
-                      placeholder="5"
-                    />
-                  </div>
-                </div>
-              ) : null}
-            </>
-          )}
+          ajuda={ehReceita ? "Só contas: dinheiro não entra em cartão de crédito." : undefined}
         >
           <select
             id={`${id}-meio`}
@@ -453,7 +342,7 @@ export function FormLancamentoAvulso({
             ))}
           </select>
           {erroMeio.no}
-        </CadastroInline>
+        </CadastroDeMeioInline>
 
         <CadastroInline
           rotulo="Categoria"

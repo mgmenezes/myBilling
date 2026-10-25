@@ -460,7 +460,7 @@ As chaves `{…}` são compostas na action a partir de `detalhes`. Sucesso reval
 | `passo-pendencias.tsx` | Um seletor de meio por "Tipo" (com `CadastroDeMeioInline`), fixa/avulsa e "cai em" por entrada |
 | `passo-conferencia.tsx` | Conferência por bloco e de Saídas, blocos abríveis com destino por linha, não lidas, confirmação de divergência, botão "Importar N lançamentos" |
 | `resultado-importacao.tsx` | Contagens, link para a competência, "Próximo: …" |
-| `../cadastro-de-meio-inline.tsx` | Extraído de `form-lancamento-avulso.tsx` (movido, não copiado), com `nomeInicial` opcional |
+| `../cadastro-de-meio-inline.tsx` | Extraído de `form-lancamento-avulso.tsx` (movido, não copiado), com `nomeInicial` opcional; `rotuloDoAtalho` e `ajuda` opcionais preservam o texto do avulso ("+ novo", ajuda da receita) e deixam as pendências dizerem "+ cadastrar" |
 
 As actions entram por props, como `criarMeioDePagamento` já entra em `FormLancamentoAvulso`. A
 página `src/app/(app)/[competencia]/page.tsx` passa nome de quem está logado, competência

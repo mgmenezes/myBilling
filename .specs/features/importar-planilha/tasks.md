@@ -579,12 +579,12 @@ T26 -> T27
 **Depends on**: nenhuma
 **Reuses**: `CadastroInline`, `entradaMeioPagamentoSchema`, `TIPOS_DE_MEIO`
 **Requirement**: IMP-04
-**Interfaces**: produz `CadastroDeMeioInline({ idDoControle, rotulo, nomeInicial?, criarMeioDePagamento, aoCriado, children })`
+**Interfaces**: produz `CadastroDeMeioInline({ idDoControle, rotulo, nomeInicial?, rotuloDoAtalho?, ajuda?, criarMeioDePagamento, aoCriado, children })` (`rotuloDoAtalho` e `ajuda` acrescentados na execução: o avulso diz "+ novo" e troca a ajuda na receita; as pendências dizem "+ cadastrar")
 **Tools**: nenhuma
 **Done when**:
-- [ ] Todos os testes existentes de `form-lancamento-avulso.test.tsx` passam sem alteração (é movimentação, não cópia)
-- [ ] Com `nomeInicial = "Cartão Azul"`, abrir o cadastro mostra o campo nome preenchido com "Cartão Azul"
-- [ ] `aoCriado` recebe `{ id, nome, geraFatura }` do meio criado
+- [x] Todos os testes existentes de `form-lancamento-avulso.test.tsx` passam sem alteração (é movimentação, não cópia)
+- [x] Com `nomeInicial = "Cartão Azul"`, abrir o cadastro mostra o campo nome preenchido com "Cartão Azul"
+- [x] `aoCriado` recebe `{ id, nome, geraFatura }` do meio criado
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `refactor(componentes): extrair o cadastro de meio de pagamento para reuso`
