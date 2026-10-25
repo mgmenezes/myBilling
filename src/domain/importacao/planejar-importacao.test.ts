@@ -448,7 +448,7 @@ describe("planejarImportacao — outubro com as decisões completas (IMP-03, IMP
   });
 });
 
-describe("planejarImportacao — categorias (IMP-03 AC 9 e 12)", () => {
+describe("planejarImportacao — categorias (IMP-03 AC 9, 10 e 12)", () => {
   it("reativa a existente arquivada e reaproveita a ativa, sem diferenciar caixa (AC 9)", () => {
     const estado: EstadoParaImportacao = {
       ...ESTADO_DE_OUTUBRO,
@@ -475,6 +475,31 @@ describe("planejarImportacao — categorias (IMP-03 AC 9 e 12)", () => {
       categoriaId: "cat-casa",
     });
     expect(categorias.filter((c) => c.acao === "CRIAR")).toHaveLength(6);
+  });
+
+  it("cria com a grafia da primeira linha, e não com a da última ocorrência (AC 10)", () => {
+    const outubro = abaDaFixture("Outubro");
+    // Sem "Mercado" na tabela, a primeira e a última ocorrência de "mercado"
+    // ficam nas linhas, e com grafias diferentes: a Feira e a Padaria.
+    const aba: AbaLida = {
+      ...outubro,
+      categoriasDaTabela: outubro.categoriasDaTabela.filter((nome) => nome !== "Mercado"),
+    };
+    expect(aba.gastos.map((linha) => [linha.nome, linha.categoria])).toEqual([
+      ["Feira", "Mercado"],
+      ["Farmácia", "Saúde"],
+      ["Padaria", "MERCADO"],
+    ]);
+    expect(
+      [...aba.fixos, ...aba.cartao].map((linha) => linha.categoria.toLowerCase()),
+    ).not.toContain("mercado");
+    expect(aba.categoriasDaTabela.map((nome) => nome.toLowerCase())).not.toContain("mercado");
+
+    const categorias = operacoesDe(planoDe(aba, ESTADO_DE_OUTUBRO, DECISOES_DE_OUTUBRO)).categorias;
+
+    expect(categorias.filter((c) => c.chave === "mercado")).toEqual([
+      { chave: "mercado", grafia: "Mercado", acao: "CRIAR", categoriaId: null },
+    ]);
   });
 
   it("célula de categoria vazia cria o plano ou o lançamento sem categoria (AC 12)", () => {

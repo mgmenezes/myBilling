@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Implemented, aguarda o Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados)
-**Total**: 27 tasks em 6 fases
+**Status**: Implemented, aguarda a rodada 2 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F7)
+**Total**: 34 tasks em 7 fases (27 da fatia e 7 correções da verificação)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
 > aba errado ou reconhecer errado entre abas, e descobrir só no terceiro mês. Leitura, conferência,
@@ -176,6 +176,25 @@ T15 -> T26
 T25 -> T26
 T26 -> T27
 ```
+
+### Phase 6 — Correções da verificação (rodada 1)
+
+```
+T9 -> F1
+T2 -> F2
+T4 -> F2
+T7 -> F3
+T17 -> F3
+T25 -> F4
+T26 -> F4
+T15 -> F5
+T21 -> F6
+T16 -> F7
+T21 -> F7
+```
+
+As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
+`tasks.md` e atualiza a traceability do `spec.md`.
 
 ---
 
@@ -717,6 +736,131 @@ T26 -> T27
 **Gate**: build
 **Commit**: `docs(importacao): roteiro de uso, roadmap da edição e handoff`
 
+### Phase 6 — Correções da verificação (rodada 1)
+
+> **Origem.** O `validation.md` de 2026-10-25 deu FAIL sem defeito de comportamento: 7 mutantes
+> vivos (M13, M26 a M30, E2) e 3 provas parciais mostram testes que não discriminam. O escopo é
+> teste e spec. A única mudança de produção permitida é a ordenação em `carregar-estado.ts` (F3), e
+> só porque a ordem de hoje não é determinística.
+>
+> **Prova do sensor.** Em F1 a F5, depois do commit, a mesma mutação do relatório é reaplicada numa
+> `git worktree` descartável, com `node_modules` em symlink e sem `git stash`. O teste corrigido tem
+> que falhar com ela. O porcelain da árvore real é conferido antes e depois. O resultado não entra
+> em commit: ele vai para o resumo da rodada e é refeito pelo Verifier na rodada 2.
+
+#### F1: Distinguir a grafia da primeira linha da última
+**What**: Caso do plano em que a primeira e a última ocorrência de uma categoria têm grafias diferentes e a tabela de categorias não repete nenhuma das duas.
+**Where**: `src/domain/importacao/planejar-importacao.test.ts`
+**Depends on**: T9
+**Reuses**: `abaDaFixture`, `planoDe`, `operacoesDe`, `ESTADO_DE_OUTUBRO`, `DECISOES_DE_OUTUBRO`
+**Requirement**: IMP-03
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [x] Outubro com a tabela de categorias sem "Mercado": a primeira ocorrência de "mercado" é `Mercado` (Feira) e a última é `MERCADO` (Padaria); a categoria sai `{ chave: "mercado", grafia: "Mercado", acao: "CRIAR", categoriaId: null }`, uma vez só (IMP-03 AC 10)
+**Tests**: unit
+**Gate**: quick
+**Commit**: `test(importacao): distinguir a grafia da primeira linha da última`
+**Sensor**: M13 (a última linha vence, `planejar-importacao.ts:210`) tem que fazer o caso novo falhar.
+
+#### F2: Provar os limites inclusivos de parcela e de ano
+**What**: Casos no próprio limite, do lado aceito e do lado recusado.
+**Where**: `src/domain/importacao/celula.test.ts` (+ `competencia-do-arquivo.test.ts`)
+**Depends on**: T2, T4
+**Reuses**: os `it.each` de aceitos e recusados que já existem
+**Requirement**: IMP-01, IMP-02
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [ ] `parcelaDaCelula("1/120")` → `{ numero: 1, total: 120 }`; `("120/120")` → `{ numero: 120, total: 120 }`; `("1/121")` → `PARCELA_INVALIDA` (IMP-01 AC 11)
+- [ ] `Planilha 2099 - Outubro.csv` → `{ mes: 10, ano: 2099 }`; `Planilha 2000 - Outubro.csv` → `{ mes: 10, ano: 2000 }`; `Planilha 2100 - Outubro.csv` → `{ mes: 10, ano: null }` (IMP-02 AC 1)
+**Tests**: unit
+**Gate**: quick
+**Commit**: `test(importacao): provar os limites de 120 parcelas e do ano 2099`
+**Sensor**: M30 (`>=` no teto, `celula.ts:63`) e M29 (`/^2\d{3}$/`, `competencia-do-arquivo.ts:30`) têm que fazer os casos novos falhar.
+
+#### F3: Definir e provar a ordem do pareamento dos homônimos
+**What**: A spec diz em que ordem as recorrências reconhecíveis entram no pareamento; o estado as entrega nessa ordem; o reconhecimento pareia a primeira linha com a primeira delas.
+**Where**: `src/domain/importacao/reconhecer-recorrencias.test.ts` (+ `src/application/importacao/carregar-estado.ts` e `carregar-estado.test.ts`)
+**Depends on**: T7, T17
+**Reuses**: `vigente`, `fixo`, `criarCenario`, `compararCompetencias`
+**Requirement**: IMP-07
+**Interfaces**: —
+**Tools**: nenhuma
+**Por que muda produção**: `carregarEstadoParaImportacao` repassa a ordem de `listarComVersoes`, que ordena por `descricao` e `vigente_desde`. Dois homônimos de mesmo meio criados na mesma aba empatam nas duas colunas, e o Postgres devolve o empate em ordem qualquer. O pareamento do AC 12 ficaria sem ordem definida justamente no caso que ele trata.
+**Done when**:
+- [ ] IMP-07 AC 12 diz a ordem: as recorrências reconhecíveis em ordem de `competencia_inicio` e, no empate, de `id`
+- [ ] Duas vigentes de mesma chave (12000 e 13000) e duas linhas (12000 e 13000), nessa ordem: as duas `INALTERADA`, cada linha com a sua vigente, e nenhum `REAJUSTE` cruzado (AC 12)
+- [ ] `carregarEstadoParaImportacao` entrega as vigentes em ordem de `competenciaInicio` e, no empate, de `id`, qualquer que seja a ordem em que o repositório as devolve
+**Tests**: unit
+**Gate**: quick
+**Commit**: `fix(importacao): parear homônimos na ordem de início das recorrências`
+**Sensor**: M28 (vigentes pareadas na ordem inversa, `reconhecer-recorrencias.ts:71`) tem que fazer o caso novo falhar.
+
+#### F4: Provar o "cai em" e as despesas na página
+**What**: O e2e de outubro olha as opções de "cai em" que a página monta e as despesas que o painel mostra.
+**Where**: `e2e/importacao.spec.ts`
+**Depends on**: T25, T26
+**Reuses**: `importarOutubro`, `indicador`
+**Requirement**: IMP-04, IMP-08
+**Interfaces**: —
+**Tools**: Playwright
+**Done when**:
+- [ ] No passo 2 de outubro, o "Cai em" do Salário A oferece "Conta Corrente" e não oferece "Cartão Roxo" (IMP-04 AC 3, na composição da página)
+- [ ] O painel de outubro mostra "Despesas do mês" 238784: as quatro ocorrências de fixo de outubro (184000), as parcelas que caem em outubro (42334) e os três gastos do mês (12450), pelo `design.md` (IMP-08 Independent Test)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(e2e): conferir o cai em e as despesas de outubro na Visão geral`
+**Sensor**: E2 (`geraFatura: false` para todo meio, `page.tsx:119`) tem que fazer o e2e falhar.
+
+#### F5: Nomear e provar o que o script de limpeza preserva
+**What**: O AC 2 do IMP-09 passa a nomear faturas, pagamentos de fatura e orçamentos, e o teste do script prova que eles ficam.
+**Where**: `src/infrastructure/db/limpar-para-importar.integration.test.ts`
+**Depends on**: T15
+**Reuses**: `popularTudo`, que já preenche as três tabelas
+**Requirement**: IMP-09
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [ ] IMP-09 AC 2 nomeia `fatura`, `pagamento_fatura` e `orcamento_categoria` ao lado de `usuario`, `meio_pagamento` e `categoria`
+- [ ] Antes do script, cada uma das três tem uma linha; depois, as três têm as mesmas linhas de antes (AC 2)
+- [ ] A lacuna do IMP-09 sai da traceability
+**Tests**: integration
+**Gate**: full
+**Commit**: `test(db): provar que o script de limpeza preserva faturas e orçamentos`
+**Sensor**: M26 (`orcamento_categoria` no `TRUNCATE`) e M27 (`pagamento_fatura` e `fatura` no `TRUNCATE`), em `limpar-para-importar.sql:33`, têm que fazer o teste novo falhar.
+
+#### F6: Provar o espaço no seletor do passo 1
+**What**: O seletor acionado por espaço tem o mesmo efeito que arrastar, como já está provado para `Enter`.
+**Where**: `src/components/importacao/passo-arquivo.test.tsx`
+**Depends on**: T21
+**Reuses**: `montar`, `arquivo`, `mes`, `ano`
+**Requirement**: IMP-08
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [ ] Espaço no botão "Escolher arquivo" aciona o seletor uma vez, e o arquivo escolhido mostra o nome, "4 blocos encontrados", Outubro e 2026 (IMP-08 AC 7)
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(importacao): acionar o seletor de arquivo pelo espaço`
+
+#### F7: Dizer no IMP-01 AC 1 o que cada linha de defesa faz
+**What**: O AC 1 passa a descrever o diálogo e o servidor como são, sem mudar código, com a assertion de cada metade citada.
+**Where**: `.specs/features/importar-planilha/spec.md` (+ `passo-arquivo.test.tsx` e `importacao.schema.test.ts`, onde faltar prova)
+**Depends on**: T16, T21
+**Reuses**: `ARQUIVO_INVALIDO`, `camposComErro`, `PREVIA`
+**Requirement**: IMP-01
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [ ] AC 1 reescrito: o diálogo recusa com a mensagem de `PLANILHA_ARQUIVO_INVALIDO`, medindo o tamanho do arquivo em bytes; o servidor recusa o mesmo payload com `VALIDACAO`, medindo em caracteres, como segunda linha de defesa
+- [ ] Cada metade com assertion citada: extensão e tamanho no diálogo, extensão e tamanho no servidor, e o envelope `VALIDACAO` na action
+- [ ] A unidade de cada lado com um caso que a distingue: conteúdo com menos de 1 MB em caracteres e mais de 1 MB em bytes é recusado pelo diálogo e aceito pelo schema
+- [ ] `validate_spec.py` sem erro
+**Tests**: unit (schema) e componentes
+**Gate**: quick
+**Commit**: `test(importacao): medir em bytes e em caracteres as recusas de arquivo`
+
 ---
 
 ## Task Granularity Check
@@ -732,6 +876,9 @@ T26 -> T27
 | T14 | 1 repositório + 1 transação | ⚠️ coeso: a transação entrega o repositório |
 | T15, T19–T26 | 1 arquivo de produto cada (T19: + mensagens; T24: + resultado) | ✅ |
 | T27 | documentação | ✅ |
+| F1, F2, F4, F5, F6 | 1 arquivo de teste cada (F2: os dois testes de limite) e a linha da spec que ele prova | ✅ |
+| F3 | 1 teste de domínio + a ordenação em `carregar-estado.ts` e o teste dela | ⚠️ coeso: a ordem que a spec define é a que o estado entrega |
+| F7 | 1 AC reescrito + os dois casos que distinguem bytes de caracteres | ⚠️ coeso: cada caso prova uma metade do AC novo |
 
 ## Diagram-Definition Cross-Check
 
@@ -764,6 +911,18 @@ T26 -> T27
 | T25 | T24 | T24→T25 | ✅ |
 | T26 | T15, T25 | T15→T26, T25→T26 | ✅ |
 | T27 | T26 | T26→T27 | ✅ |
+| F1 | T9 | T9→F1 | ✅ |
+| F2 | T2, T4 | T2→F2, T4→F2 | ✅ |
+| F3 | T7, T17 | T7→F3, T17→F3 | ✅ |
+| F4 | T25, T26 | T25→F4, T26→F4 | ✅ |
+| F5 | T15 | T15→F5 | ✅ |
+| F6 | T21 | T21→F6 | ✅ |
+| F7 | T16, T21 | T16→F7, T21→F7 | ✅ |
+
+`validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
+campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
+trocados por `T101` a `T107` passou pelo validador com 0 erros e 3 avisos de granularidade (F2, F3
+e F7).
 
 ## Test Co-location Validation
 
@@ -777,3 +936,9 @@ T26 -> T27
 | T25 | composição de página | none | none | ✅ |
 | T26 | fluxo de usuário | e2e | e2e | ✅ |
 | T27 | documentação | none | none | ✅ |
+| F1, F2 | `src/domain/**` | unit | unit | ✅ |
+| F3 | `src/domain/**` e `src/application/**` | unit | unit | ✅ |
+| F4 | fluxo de usuário | e2e | e2e | ✅ |
+| F5 | script de limpeza | integration | integration | ✅ |
+| F6 | `src/components/**` | componentes | componentes | ✅ |
+| F7 | `src/application/schemas/**` e `src/components/**` | unit e componentes | unit e componentes | ✅ |
