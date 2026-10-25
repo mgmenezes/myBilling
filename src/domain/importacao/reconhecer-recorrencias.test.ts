@@ -139,6 +139,27 @@ describe("reconhecerRecorrencias — fixos e receitas fixas de M − 1 (IMP-07)"
     ]);
   });
 
+  it("duas linhas e duas vigentes com a mesma chave: a 1ª linha pareia com a 1ª vigente (AC 12)", () => {
+    const primeira = fixo(0, "Academia", CONTA, 12000);
+    const segunda = fixo(1, "Academia", CONTA, 13000);
+
+    expect(
+      reconhecerRecorrencias(
+        [primeira, segunda],
+        [
+          vigente("rec-academia-1", "Academia", CONTA, 12000),
+          vigente("rec-academia-2", "Academia", CONTA, 13000),
+        ],
+      ),
+    ).toEqual({
+      destinos: [
+        { tipo: "INALTERADA", linha: primeira, recorrenciaId: "rec-academia-1" },
+        { tipo: "INALTERADA", linha: segunda, recorrenciaId: "rec-academia-2" },
+      ],
+      encerrar: [],
+    });
+  });
+
   it.each([["Internet "], ["internet"]])("%p reconhece a vigente Internet", (nome) => {
     const linha = fixo(1, nome, ROXO, 10000);
 

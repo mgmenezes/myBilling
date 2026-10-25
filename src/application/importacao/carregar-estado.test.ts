@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { RecorrenciaComVersoes } from "@/application/ports/repositories";
 import type { Cents } from "@/domain";
 import { carregarEstadoParaImportacao } from "./carregar-estado";
 import { AZUL, CONTA, c, criarCenario, PESSOA_A, ROXO, semearOutubroAMao } from "./testing/cenario";
@@ -127,6 +128,37 @@ describe("carregarEstadoParaImportacao (T17)", () => {
       "rec-3",
       "rec-7",
     ]);
+  });
+
+  it("entrega as vigentes em ordem de início e, no empate, de id, e não na ordem do repositório (IMP-07 AC 12)", async () => {
+    const fakes = criarCenario();
+    const academia = (id: string, inicio: string, valor: number): RecorrenciaComVersoes => ({
+      recorrencia: {
+        id,
+        descricao: "Academia",
+        natureza: "DESPESA",
+        categoriaId: null,
+        usuarioId: PESSOA_A,
+        meioPagamentoId: CONTA,
+        competenciaInicio: c(inicio),
+        competenciaFim: null,
+        diaVencimento: 1,
+        encerradaEm: null,
+      },
+      versoes: [{ vigenteDesde: c(inicio), valorPrevisto: valor as Cents }],
+    });
+    // O repositório as devolve nesta ordem, que não é a de início nem a de id.
+    for (const homonima of [
+      academia("rec-a", "2026-11", 14000),
+      academia("rec-c", "2026-10", 13000),
+      academia("rec-b", "2026-10", 12000),
+    ]) {
+      fakes.estado.recorrencias.set(homonima.recorrencia.id, homonima);
+    }
+
+    const estado = await carregarEstadoParaImportacao(fakes, c("2026-12"));
+
+    expect(estado.despesasFixasVigentes.map((r) => r.id)).toEqual(["rec-b", "rec-c", "rec-a"]);
   });
 
   it("traz todas as categorias, inclusive as arquivadas (IMP-03 AC 9)", async () => {

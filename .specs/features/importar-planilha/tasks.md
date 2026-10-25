@@ -789,9 +789,9 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Tools**: nenhuma
 **Por que muda produção**: `carregarEstadoParaImportacao` repassa a ordem de `listarComVersoes`, que ordena por `descricao` e `vigente_desde`. Dois homônimos de mesmo meio criados na mesma aba empatam nas duas colunas, e o Postgres devolve o empate em ordem qualquer. O pareamento do AC 12 ficaria sem ordem definida justamente no caso que ele trata.
 **Done when**:
-- [ ] IMP-07 AC 12 diz a ordem: as recorrências reconhecíveis em ordem de `competencia_inicio` e, no empate, de `id`
-- [ ] Duas vigentes de mesma chave (12000 e 13000) e duas linhas (12000 e 13000), nessa ordem: as duas `INALTERADA`, cada linha com a sua vigente, e nenhum `REAJUSTE` cruzado (AC 12)
-- [ ] `carregarEstadoParaImportacao` entrega as vigentes em ordem de `competenciaInicio` e, no empate, de `id`, qualquer que seja a ordem em que o repositório as devolve
+- [x] IMP-07 AC 12 diz a ordem: as recorrências reconhecíveis em ordem de `competencia_inicio` e, no empate, de `id`
+- [x] Duas vigentes de mesma chave (12000 e 13000) e duas linhas (12000 e 13000), nessa ordem: as duas `INALTERADA`, cada linha com a sua vigente, e nenhum `REAJUSTE` cruzado (AC 12)
+- [x] `carregarEstadoParaImportacao` entrega as vigentes em ordem de `competenciaInicio` e, no empate, de `id`, qualquer que seja a ordem em que o repositório as devolve
 **Tests**: unit
 **Gate**: quick
 **Commit**: `fix(importacao): parear homônimos na ordem de início das recorrências`
