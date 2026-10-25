@@ -1,7 +1,7 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-10-24, branch `main`.
+> Última atualização: 2026-10-25, branch `main`.
 
 > [!IMPORTANT]
 > **O CI de `main` está vermelho, e só no job `migrate`.** No run #20 (`af1264f`) o `verify`
@@ -114,6 +114,10 @@ virou especificação executável, com teste de concordância que confronta a fu
 .specs/features/lancamento-avulso/               spec (AVUL-01..05, BLOCO-01..02, ENTR-01..03)
                                                  + 28 tasks, todas concluídas
 .specs/features/home-do-ano/                     fatia integrada em paralelo por outra sessão
+.specs/features/importar-planilha/               spec (IMP-01..09) + 27 tasks, todas concluídas;
+                                                 aguarda o Verifier
+docs/importacao.md                               roteiro de uso da importação: baixar a aba,
+                                                 testar em localhost, limpar e importar no Neon
 docs/qa.md                                       roteiro de QA em modo produção; estágio 1 executado
 DESIGN.md                                        referência de linguagem visual (Coinbase), não rastreado
 docs/design.md                                   identidade visual normativa, derivada dela, com contraste medido
@@ -122,7 +126,13 @@ docs/roadmap.md                                  o que ficou para depois, em 2 f
 AGENTS.md                                        as 5 regras acima
 
 src/app/actions/                                 compras · categorias · meios-de-pagamento ·
-                                                 pagamentos · recorrencias · lancamentos
+                                                 pagamentos · recorrencias · lancamentos ·
+                                                 importacao
+src/domain/importacao/                           leitura da aba, conferência, reconhecimento
+                                                 entre abas e plano, puros; fixtures sintéticas
+src/components/importacao/                       o diálogo da importação e os três passos
+src/components/cadastro-de-meio-inline.tsx       o cadastro de meio, extraído do avulso para reuso
+src/infrastructure/db/sql/limpar-para-importar.sql  o script de limpeza para recomeçar a importação
 src/application/recorrencias/                    materializar · criar · registrar-versao · encerrar
 src/application/schemas/nome.ts                  normalização de nome compartilhada pelos cadastros
 src/components/cadastro-inline.tsx               o padrão "criar sem sair do formulário"
@@ -147,7 +157,7 @@ schema Zod que o formulário usou, e nada lança para o cliente — todo caminho
 `ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
 correlação. Stack trace não chega ao navegador.
 
-`pnpm verify` sai 0: **856 testes unitários, 237 de integração** e **57 e2e** — 1.150 provas.
+`pnpm verify` sai 0: **1.123 testes unitários, 284 de integração** e **59 e2e** — 1.466 provas.
 Os e2e que mais importam provam as re-digitações que a planilha impunha: cadastrar
 1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; cadastrar um
 gasto fixo uma vez e vê-lo em três meses; e agora o avulso no cartão caindo no bloco da fatura em

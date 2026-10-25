@@ -25,6 +25,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Lançamento avulso e receita à vista | Despesa que não é parcelada nem fixa, e o dinheiro que entra fora do salário. Exclusão lógica em dois toques, só no avulso. Cadastro num `<dialog>` aberto pelo topo, com abas Avulso ┊ Parcelado |
 | Blocos por meio de pagamento | "Cartão de Crédito" passou a significar "vai cair na fatura", e não "veio de compra parcelada" (AD-012). Painel e lista usam a mesma função, com teste de concordância |
 | Entradas visíveis | O bloco subiu para o topo e aparece sempre, mesmo vazio. Com receita marcada, os formulários trocam o vocabulário e não oferecem cartão como destino (AD-015) |
+| Importar a planilha | As abas mensais exportadas em CSV entram pela Visão geral, em sequência: arquivo e mês, o que a planilha não diz, conferência contra os totais da própria planilha, e gravação tudo ou nada. A aba seguinte reconhece os fixos e as compras da anterior em vez de duplicar. Roteiro de uso em `docs/importacao.md`; spec, design e tasks em `.specs/features/importar-planilha/` |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -48,12 +49,6 @@ concordância: a primeira contra o total que o painel exibe, a segunda contra o 
 `confirmarValorReal` do domínio continua sem chamador: `resolverValorEfetivo` ganhou o dele na
 leitura da lista, mas a confirmação em lote que a outra modela não tem tela — e fabricar um chamador
 para ela seria a encenação que esta fatia recusou três vezes.
-
-## Em andamento: importar a planilha
-
-As abas mensais exportadas em CSV entram pelo app, para que outubro, novembro e dezembro de 2026
-não sejam redigitados — o primeiro cadastro feito à mão em produção caiu inteiro no ano errado.
-Spec, design e tasks em `.specs/features/importar-planilha/`.
 
 ## Fatia seguinte: editar qualquer item lançado
 

@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: In Progress (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27)
+**Status**: Implemented, aguarda o Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados)
 **Total**: 27 tasks em 6 fases
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
@@ -709,10 +709,10 @@ T26 -> T27
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] `docs/importacao.md` descreve: download da aba em CSV, as três importações em sequência, o teste primeiro em localhost, o script de limpeza (`limpar-para-importar.sql`) e quando rodá-lo, e o significado de cada marcação da conferência
-- [ ] `docs/roadmap.md` move a importação de "Em andamento" para "Pronto" e mantém **editar qualquer item lançado, incluindo trocar a categoria** como a fatia seguinte (registrada no planejamento, em 2026-10-24)
-- [ ] Traceability do `spec.md` com cada requisito `Verified` ou com a lacuna nomeada
-- [ ] Nenhum dado real em nenhum dos arquivos (busca pelos termos conhecidos da planilha registrada no commit)
+- [x] `docs/importacao.md` descreve: download da aba em CSV, as três importações em sequência, o teste primeiro em localhost, o script de limpeza (`limpar-para-importar.sql`) e quando rodá-lo, e o significado de cada marcação da conferência
+- [x] `docs/roadmap.md` move a importação de "Em andamento" para "Pronto" e mantém **editar qualquer item lançado, incluindo trocar a categoria** como a fatia seguinte (registrada no planejamento, em 2026-10-24)
+- [x] Traceability do `spec.md` com cada requisito `Implemented` e a lacuna nomeada (o IMP-09 sem assertion para `fatura`, `pagamento_fatura` e `orcamento_categoria`); `Verified` fica para o Verifier
+- [x] Nenhum dado real em nenhum dos arquivos (busca pelos termos conhecidos da planilha registrada no commit)
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(importacao): roteiro de uso, roadmap da edição e handoff`

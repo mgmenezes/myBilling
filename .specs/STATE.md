@@ -143,15 +143,16 @@
 
 ## Handoff
 
-- **Feature**: nenhuma em andamento. A última fatia, `lacunas-do-painel`, está fechada: Verifier PASS com 14 de 14 mutantes mortos, `validate_state.py` exit 0, três lições destiladas. O único critério aberto em `tasks.md` (REDE-03, AC 5) é lacuna de precisão da spec, declarada, e fica aberto de propósito.
-- **Phase / Task**: entre fatias. **O app está no ar** desde 2026-10-24, em `https://my-billing-pearl.vercel.app`, e as duas pessoas entram pelo Google.
-- **Completed**: `lacunas-do-painel` T1 a T15; preparação do deploy; deploy em produção.
+- **Feature**: `importar-planilha`, **implementada e aguardando a verificação independente**. As 27 tasks estão commitadas, de `caa9484` (T1) até o commit da T27, com uma correção de `tasks.md` no meio (`61eede3`: o commit da T25 duplicou o arquivo e deixou a T25 aberta). Traceability do `spec.md` em `Implemented`; `Verified` é do Verifier.
+- **Phase / Task**: Execute concluído pelo autor. Falta o Verifier.
+- **Completed**: T1 a T27. Domínio puro (leitura, conferência, reconhecimento, plano), banco e transação, casos de uso e actions, o diálogo na Visão geral, o e2e de outubro e novembro, e o roteiro `docs/importacao.md`.
 - **In-progress**: nenhum.
-- **Next step**: fechar o deploy — item 5 do teste de fumaça (cadastrar um lançamento e ver o indicador se mover) e confirmar o CI verde depois do secret. Depois, a fatia 1 do roadmap, começando por orçamento por categoria.
-- **Blockers**: nenhum. O `git push` dos commits locais espera autorização.
-- **Uncommitted files**: nenhum. `next-env.d.ts` aparece modificado quando há um `next dev` rodando; é dele, e não entra em commit.
-- **Branch**: `main`, à frente de `origin/main` só por docs e pela conferência do secret no CI.
-- **CI vermelho em `main`**: no run #20 (`af1264f`) o `verify` passou inteiro e o job `migrate` falhou em 1s, depois de "applying migrations...", sem mensagem. Sem o secret `NEON_DATABASE_URL_DIRETA`, a URL chega vazia (`drizzle.config.ts` faz `DATABASE_URL ?? ""`) e o `drizzle-kit` sai com código 1 sem dizer por quê. O job passou a conferir o secret antes e falhar com o nome dele (commit local, sem push). Criado o secret, "Re-run failed jobs" no #20 resolve. O #19 (`6892e18`) caiu no lint do `lessons.json`, já corrigido em `f4c9f3e`. O `gh` não está instalado nesta máquina, então a conferência é pelo painel do GitHub.
-- **Neon**: o branch `production` foi arquivado em 2026-09-29 por inatividade, regra do plano gratuito. A primeira consulta desarquiva sozinha. As três migrations estão aplicadas com hash e `created_at` iguais aos que o drizzle gravaria, então o primeiro `db:migrate` do CI não tem nada a aplicar.
-- **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar 180s, suspeite do navegador antes do teste: o arquivo inteiro roda em 10s quando ele abre.
+- **Next step**: (1) o Verifier da fatia, com o sensor de discriminação e o `validation.md`; (2) o teste do dono em localhost com as três abas reais, pelo roteiro `docs/importacao.md`; (3) só então a importação em produção, no Neon, pelo dono.
+- **Blockers**: nenhum. `git push`, a migration `0003` no Neon e o script de limpeza no Neon esperam autorização explícita e separada.
+- **Uncommitted files**: nenhum além de `next-env.d.ts`, que o `next dev` do e2e regrava; é dele, e não entra em commit.
+- **Branch**: `main`, à frente de `origin/main`.
+- **Atenção no teste em localhost**: o `pnpm dev` registra no terminal os argumentos de cada Server Action, e o da importação é o texto da aba real. O log não pode ser copiado para lugar nenhum. `logging.serverFunctions: false` no `next.config.ts` desligaria o registro; não foi ligado, porque mexer na configuração estava fora das tasks.
+- **CI vermelho em `main`**: no run #20 (`af1264f`) o `verify` passou inteiro e o job `migrate` falhou em 1s, sem o secret `NEON_DATABASE_URL_DIRETA`. O job passou a conferir o secret antes e falhar com o nome dele. Criado o secret, "Re-run failed jobs" no #20 resolve. O `gh` não está instalado nesta máquina, então a conferência é pelo painel do GitHub.
+- **Neon**: o branch `production` é arquivado por inatividade no plano gratuito; a primeira consulta desarquiva sozinha. As três primeiras migrations estão aplicadas; a `0003_registro_de_importacao.sql` sobe com o push, pelo job `migrate`, ou pelo `pnpm db:sql` no SQL Editor.
+- **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar 180s, suspeite do navegador antes do teste.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.
