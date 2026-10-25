@@ -10,12 +10,13 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
 /**
- * Schema físico do myBilling. Dez tabelas.
+ * Schema físico do myBilling. Doze tabelas.
  *
  * Três invariantes estruturais mandam neste arquivo:
  *
@@ -37,6 +38,8 @@ export const origemEnum = pgEnum("origem", ["AVULSO", "PARCELA", "RECORRENCIA"])
 export const tipoMeioEnum = pgEnum("tipo_meio", ["CONTA_CORRENTE", "CARTAO_CREDITO", "ROTULO"]);
 export const politicaResiduoEnum = pgEnum("politica_residuo", ["PRIMEIRAS", "ULTIMAS"]);
 export const modoEntradaEnum = pgEnum("modo_entrada", ["TOTAL", "VALOR_PARCELA"]);
+export const tipoDecisaoImportacaoEnum = pgEnum("tipo_decisao_importacao", ["MEIO", "ENTRADA"]);
+export const classeEntradaEnum = pgEnum("classe_entrada", ["FIXA", "AVULSA"]);
 
 /** `EXTRACT(DAY FROM col) = 1` — competência é sempre o dia 1 (AD-002). */
 const competenciaNoDiaUm = (coluna: unknown) => sql`EXTRACT(DAY FROM ${coluna}) = 1`;
@@ -325,4 +328,55 @@ export const pagamentoFatura = pgTable(
     criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [check("pagamento_fatura_valor_positivo", sql`${t.valorPagoCentavos} > 0`)],
+);
+
+/**
+ * Uma linha por aba importada. É o que responde "qual foi a última
+ * competência importada" (IMP-02 AC 4-5): uma recorrência criada à mão e uma
+ * criada pela importação são idênticas no razão, então isso não se infere.
+ *
+ * `competencia` única é a segunda linha de defesa da ordem: duas gravações do
+ * mesmo mês ao mesmo tempo, e o banco deixa ficar só uma (IMP-02 AC 7).
+ */
+export const importacao = pgTable(
+  "importacao",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    competencia: date("competencia", { mode: "string" }).notNull().unique(),
+    nomeArquivo: text("nome_arquivo").notNull(),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    importadaEm: timestamp("importada_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check("importacao_competencia_dia_1", competenciaNoDiaUm(t.competencia))],
+);
+
+/**
+ * O que a planilha não diz e a pessoa decidiu uma vez (IMP-04 AC 4-5): a que
+ * meio um nome da coluna "Tipo" se liga (`MEIO`), e se uma entrada é fixa ou
+ * avulsa e em que conta cai (`ENTRADA`). A chave é o nome normalizado, e há
+ * uma decisão por `(tipo, nome)`: decidir de novo substitui.
+ *
+ * `classe` existe se e somente se a decisão é de entrada. Um meio com classe,
+ * ou uma entrada sem ela, seria uma decisão que não diz o que fazer.
+ */
+export const importacaoDecisao = pgTable(
+  "importacao_decisao",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tipo: tipoDecisaoImportacaoEnum("tipo").notNull(),
+    nomeNormalizado: text("nome_normalizado").notNull(),
+    meioPagamentoId: uuid("meio_pagamento_id")
+      .notNull()
+      .references(() => meioPagamento.id),
+    classe: classeEntradaEnum("classe"),
+  },
+  (t) => [
+    unique("importacao_decisao_unica").on(t.tipo, t.nomeNormalizado),
+    check(
+      "importacao_decisao_classe_sse_entrada",
+      sql`(${t.tipo} = 'ENTRADA') = (${t.classe} IS NOT NULL)`,
+    ),
+  ],
 );

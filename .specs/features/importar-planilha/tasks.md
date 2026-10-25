@@ -407,13 +407,13 @@ T26 -> T27
 **Interfaces**: produz as tabelas da Decisão 5 do design
 **Tools**: nenhuma
 **Done when**:
-- [ ] `recriarBancoDeTeste` aplica `0000` a `0003` num banco limpo
-- [ ] Segunda `importacao` com a mesma competência → violação de unicidade (base do IMP-02 AC 7)
-- [ ] Competência fora do dia 1 → violação de `CHECK`
-- [ ] `importacao_decisao` com `tipo = 'ENTRADA'` e `classe` nula, ou `tipo = 'MEIO'` com `classe` preenchida → violação de `CHECK`
-- [ ] Duas decisões com o mesmo `(tipo, nome_normalizado)` → violação de unicidade
-- [ ] `limparDados` esvazia as duas tabelas novas
-- [ ] `pnpm db:sql` continua imprimindo o bloco com a migration nova e o veredito de conferência
+- [x] `recriarBancoDeTeste` aplica `0000` a `0003` num banco limpo
+- [x] Segunda `importacao` com a mesma competência → violação de unicidade (base do IMP-02 AC 7)
+- [x] Competência fora do dia 1 → violação de `CHECK`
+- [x] `importacao_decisao` com `tipo = 'ENTRADA'` e `classe` nula, ou `tipo = 'MEIO'` com `classe` preenchida → violação de `CHECK`
+- [x] Duas decisões com o mesmo `(tipo, nome_normalizado)` → violação de unicidade
+- [x] `limparDados` esvazia as duas tabelas novas
+- [x] `pnpm db:sql` continua imprimindo o bloco com a migration nova e o veredito de conferência
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(db): registrar importações e decisões lembradas`

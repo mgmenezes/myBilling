@@ -416,9 +416,9 @@ outubro com sucesso.
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | IMP-01 | P1: Ler a aba exportada | Execute | Implementing: AC 2 (T1); ACs 9, 10, 11, 13 e 18 na célula (T2); ACs 3 a 12 e 14 a 17 na aba (T3) |
-| IMP-02 | P1: Decidir o mês da aba | Execute | Implementing: ACs 1 e 2 no nome do arquivo (T4) |
+| IMP-02 | P1: Decidir o mês da aba | Execute | Implementing: ACs 1 e 2 no nome do arquivo (T4); registro de importação, um por competência, base dos ACs 4, 5 e 7 (T11) |
 | IMP-03 | P1: Transformar cada linha no que ela é | Execute | Implementing: ACs 2 a 5 e 7 a 12 no plano (T9) |
-| IMP-04 | P1: Resolver o que o app não sabe | Execute | Implementing: ACs 1, 3 e 5 e as decisões a lembrar do AC 4 no plano (T9) |
+| IMP-04 | P1: Resolver o que o app não sabe | Execute | Implementing: ACs 1, 3 e 5 e as decisões a lembrar do AC 4 no plano (T9); tabela das decisões lembradas, uma por tipo e nome (T11) |
 | IMP-05 | P1: Conferir antes de gravar | Execute | Implementing: ACs 1 a 4 na conferência (T5); destinos do AC 5 e contagem do AC 9 no plano (T9) |
 | IMP-06 | P1: Gravar tudo ou nada | Execute | Implementing: repositórios sobre uma transação de fora, base dos ACs 1 e 2 (T10) |
 | IMP-07 | P1: Importar a aba seguinte sem duplicar | Execute | Implementing: AC 10 na reprecificação (T6); ACs 1 a 6 e 12 no reconhecimento de recorrências (T7); ACs 7, 8, 9 e 11 no reconhecimento de compras (T8); reajuste, encerramento e reprecificação compostos no plano (T9) |

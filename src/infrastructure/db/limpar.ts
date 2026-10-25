@@ -13,6 +13,8 @@ import type { Pool } from "pg";
  * direta de as duas divergirem.
  */
 export const TABELAS = [
+  "importacao_decisao",
+  "importacao",
   "pagamento_fatura",
   "movimento",
   "fatura",

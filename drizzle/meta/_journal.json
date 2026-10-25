@@ -22,6 +22,13 @@
       "when": 1789433714998,
       "tag": "0002_movimento_valor_positivo",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792899229842,
+      "tag": "0003_registro_de_importacao",
+      "breakpoints": true
     }
   ]
 }
