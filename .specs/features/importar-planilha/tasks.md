@@ -538,13 +538,13 @@ T26 -> T27
 **Interfaces**: produz `EntradaGravarImportacao`, `ResumoDaImportacao`, `gravarImportacao` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Outubro com decisões completas e `confirmouDivergencia = true` → fakes com as recorrências, compras, avulsos e categorias da tabela de outubro; todos com `usuarioId` de entrada, `dataEvento` `2026-10-01`, `pagoEm` nulo, recorrências com `diaVencimento` 1 (IMP-03 AC 1-12)
-- [ ] Compra do Óculos com `valorAmortizadoAnterior` 8000 e parcelas só de 2 a 5 (AC 6)
-- [ ] Outubro com `confirmouDivergencia = false` → `IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA` e nada gravado nos fakes (IMP-05 AC 8)
-- [ ] Decisão de meio faltando → `IMPORTACAO_PENDENCIA_ABERTA` (IMP-04 AC 7)
-- [ ] Novembro depois de outubro: Internet ganha vigência 2026-11 de 11000; Academia/Cartão Roxo encerrada com `competenciaFim` 2026-10; Fone reprecificado para total 10000; Tênis criado; resumo `criados` 5, `alterados` 4, `encerrados` 1
-- [ ] Decisões lembradas gravadas depois da gravação, e a importação registrada com a competência e o nome do arquivo
-- [ ] `ResumoDaImportacao.proxima` = competência seguinte
+- [x] Outubro com decisões completas e `confirmouDivergencia = true` → fakes com as recorrências, compras, avulsos e categorias da tabela de outubro; todos com `usuarioId` de entrada, `dataEvento` `2026-10-01`, `pagoEm` nulo, recorrências com `diaVencimento` 1 (IMP-03 AC 1-12)
+- [x] Compra do Óculos com `valorAmortizadoAnterior` 8000 e parcelas só de 2 a 5 (AC 6)
+- [x] Outubro com `confirmouDivergencia = false` → `IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA` e nada gravado nos fakes (IMP-05 AC 8)
+- [x] Decisão de meio faltando → `IMPORTACAO_PENDENCIA_ABERTA` (IMP-04 AC 7)
+- [x] Novembro depois de outubro: Internet ganha vigência 2026-11 de 11000; Academia/Cartão Roxo encerrada com `competenciaFim` 2026-10; Fone reprecificado para total 10000; Tênis criado; resumo `criados` 5, `alterados` 4, `encerrados` 1
+- [x] Decisões lembradas gravadas depois da gravação, e a importação registrada com a competência e o nome do arquivo
+- [x] `ResumoDaImportacao.proxima` = competência seguinte
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): gravar o plano de uma aba com os casos de uso existentes`
