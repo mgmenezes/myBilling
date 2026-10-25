@@ -49,6 +49,19 @@ concordância: a primeira contra o total que o painel exibe, a segunda contra o 
 leitura da lista, mas a confirmação em lote que a outra modela não tem tela — e fabricar um chamador
 para ela seria a encenação que esta fatia recusou três vezes.
 
+## Em andamento: importar a planilha
+
+As abas mensais exportadas em CSV entram pelo app, para que outubro, novembro e dezembro de 2026
+não sejam redigitados — o primeiro cadastro feito à mão em produção caiu inteiro no ano errado.
+Spec, design e tasks em `.specs/features/importar-planilha/`.
+
+## Fatia seguinte: editar qualquer item lançado
+
+Pedido do dono em 2026-10-24. Editar o que já foi lançado — avulso, parcelado, gasto fixo e entrada
+—, **incluindo trocar a categoria**. Absorve o item 3 da fatia abaixo (editar e excluir compra com
+escopo). Ganha peso com a importação: as entradas chegam sem categoria, porque a planilha não tem
+essa coluna, e um erro pontual depois de importar passa a ter conserto sem recomeçar.
+
 ## Fatia 1: orçamento e cartões
 
 1. **Orçamento por categoria.** Repositório de limites e tela para defini-los. O alerta de estouro
@@ -81,5 +94,4 @@ para ela seria a encenação que esta fatia recusou três vezes.
 - **Remover o campo de destino da receita.** O formulário hoje pede em qual conta o dinheiro cai, e
   isso é informação real — é o que vai permitir conciliar. Se um dia se decidir que receita não tem
   destino, é migration: `movimento.meio_pagamento_id` é `NOT NULL`.
-- **Importador da planilha.** O exportador precisa definir o formato antes.
 - **Integração bancária, Open Finance e IA.** Descartados por decisão do usuário.
