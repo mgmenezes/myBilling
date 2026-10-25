@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 8,
+  "next_id": 14,
   "lessons": [
     {
       "id": "L-001",
@@ -11,17 +11,19 @@
       "text": "Regra de negócio aplicada num .filter() de página precisa de um percurso e2e que a exercite; sem ele o filtro pode ser apagado com a suíte inteira verde.",
       "signal": "surviving_mutant",
       "scope": "app-router,paginas",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "lancamento-avulso"
+        "lancamento-avulso",
+        "importar-planilha"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "mutante M24 (ciclo 1) e N2 (ciclo 3) — src/app/(app)/[competencia]/fixos/page.tsx:66-72 (app-router,paginas)"
+        "mutante M24 (ciclo 1) e N2 (ciclo 3) — src/app/(app)/[competencia]/fixos/page.tsx:66-72 (app-router,paginas)",
+        "mutante E2 — src/app/(app)/[competencia]/page.tsx:119 (geraFatura que alimenta o filtro de 'cai em', IMP-04 AC 3); e2e/importacao.spec.ts:140 verde (app-router,paginas)"
       ],
       "created": "2026-09-15T04:13:17Z",
-      "last_seen": "2026-09-15T04:13:17Z"
+      "last_seen": "2026-10-25T05:06:38Z"
     },
     {
       "id": "L-002",
@@ -130,6 +132,114 @@
       ],
       "created": "2026-09-20T13:06:27Z",
       "last_seen": "2026-09-20T13:06:27Z"
+    },
+    {
+      "id": "L-008",
+      "key": "surviving_mutant::teste de regra de precedencia a primeira vence precisa de fixture em que a primeira e a ultima ocorrencia difiram se a ultima repete a primeira a regra invertida passa verde",
+      "text": "Teste de regra de precedência ('a primeira vence') precisa de fixture em que a primeira e a última ocorrência difiram; se a última repete a primeira, a regra invertida passa verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,fixtures",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutante M13 — src/domain/importacao/planejar-importacao.ts:210; testes planejar-importacao.test.ts:394 e gravar-importacao/handler.test.ts:287 (IMP-03 AC 10) (testes,fixtures)"
+      ],
+      "created": "2026-10-25T05:06:38Z",
+      "last_seen": "2026-10-25T05:06:38Z"
+    },
+    {
+      "id": "L-009",
+      "key": "surviving_mutant::limite inclusivo de um ac precisa de um caso no proprio limite do lado aceito provar so o primeiro valor recusado deixa o off by one passar",
+      "text": "Limite inclusivo de um AC precisa de um caso no próprio limite, do lado aceito; provar só o primeiro valor recusado deixa o off-by-one passar.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutantes M29 (competencia-do-arquivo.ts:30, IMP-02 AC 1) e M30 (celula.ts:63, IMP-01 AC 11) (testes,limites)"
+      ],
+      "created": "2026-10-25T05:06:38Z",
+      "last_seen": "2026-10-25T05:06:38Z"
+    },
+    {
+      "id": "L-010",
+      "key": "surviving_mutant::ac com duas clausulas precisa de uma assertion para cada uma provar so uma deixa a outra livre para regredir",
+      "text": "AC com duas cláusulas precisa de uma assertion para cada uma; provar só uma deixa a outra livre para regredir.",
+      "signal": "surviving_mutant",
+      "scope": "testes,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria)"
+      ],
+      "created": "2026-10-25T05:06:38Z",
+      "last_seen": "2026-10-25T05:06:38Z"
+    },
+    {
+      "id": "L-011",
+      "key": "spec_precision_gap::ac que manda parear por ordem precisa dizer a ordem dos dois lados inclusive a dos registros que ja estao no banco senao o pareamento nao tem resultado verificavel",
+      "text": "AC que manda parear 'por ordem' precisa dizer a ordem dos dois lados, inclusive a dos registros que já estão no banco, senão o pareamento não tem resultado verificável.",
+      "signal": "spec_precision_gap",
+      "scope": "specs,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "IMP-07 AC 12 — validation.md, Fix 3 (specs,acceptance-criteria)"
+      ],
+      "created": "2026-10-25T05:06:38Z",
+      "last_seen": "2026-10-25T05:06:38Z"
+    },
+    {
+      "id": "L-012",
+      "key": "spec_precision_gap::script destrutivo precisa de ac que nomeie o que ele preserva e de teste que conte essas tabelas antes e depois nao toca por construcao nao segura quem editar a lista",
+      "text": "Script destrutivo precisa de AC que nomeie o que ele preserva e de teste que conte essas tabelas antes e depois; 'não toca por construção' não segura quem editar a lista.",
+      "signal": "spec_precision_gap",
+      "scope": "banco,scripts",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "IMP-09 AC 2; mutantes M26 e M27 — src/infrastructure/db/sql/limpar-para-importar.sql:33 (banco,scripts)"
+      ],
+      "created": "2026-10-25T05:06:38Z",
+      "last_seen": "2026-10-25T05:06:38Z"
+    },
+    {
+      "id": "L-013",
+      "key": "gate_fail::ampliar uma port e implementar o metodo nas classes concretas vao na mesma task separadas o commit da port nao compila",
+      "text": "Ampliar uma port e implementar o método nas classes concretas vão na mesma task; separadas, o commit da port não compila.",
+      "signal": "gate_fail",
+      "scope": "tasks,ports",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "commit 7fe7552 (T12): tsc --noEmit com 10 erros em 5 arquivos; 0 em 3fca286 (T13) (tasks,ports)"
+      ],
+      "created": "2026-10-25T05:06:38Z",
+      "last_seen": "2026-10-25T05:06:38Z"
     }
   ]
 }
