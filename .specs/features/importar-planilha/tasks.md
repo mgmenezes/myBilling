@@ -618,11 +618,11 @@ T26 -> T27
 **Interfaces**: produz `PassoPendencias({ pendencias, meios, criarMeioDePagamento, aoConcluir })` com `aoConcluir(decisoes)`
 **Tools**: nenhuma
 **Done when**:
-- [ ] Mostra um seletor por "Tipo" com o nome e a quantidade de linhas — "Débito (4 linhas)" na prévia de outubro (IMP-04 AC 1)
-- [ ] "+ cadastrar" abre `CadastroDeMeioInline` com o nome do "Tipo" preenchido e seleciona o meio criado (AC 2)
-- [ ] Cada entrada tem "fixa"/"avulsa" e "cai em" listando só meios sem fatura — Cartão Roxo não aparece (AC 3)
-- [ ] "Continuar" fica desabilitado enquanto houver seletor sem escolha
-- [ ] `aoConcluir` recebe as chaves normalizadas com os ids escolhidos
+- [x] Mostra um seletor por "Tipo" com o nome e a quantidade de linhas — "Débito (4 linhas)" na prévia de outubro (IMP-04 AC 1)
+- [x] "+ cadastrar" abre `CadastroDeMeioInline` com o nome do "Tipo" preenchido e seleciona o meio criado (AC 2)
+- [x] Cada entrada tem "fixa"/"avulsa" e "cai em" listando só meios sem fatura — Cartão Roxo não aparece (AC 3)
+- [x] "Continuar" fica desabilitado enquanto houver seletor sem escolha
+- [x] `aoConcluir` recebe as chaves normalizadas com os ids escolhidos
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(importacao): passo das decisões que a planilha não traz`
