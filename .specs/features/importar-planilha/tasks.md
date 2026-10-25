@@ -598,13 +598,13 @@ T26 -> T27
 **Interfaces**: produz `PassoArquivo({ nomeDaPessoa, competenciaEsperada, aoContinuar })` com `aoContinuar({ nomeArquivo, conteudo, competencia })`
 **Tools**: nenhuma
 **Done when**:
-- [ ] Soltar `Planilha 2026 - Outubro.csv` na área mostra o nome do arquivo e "4 blocos encontrados", e seleciona Outubro e 2026 (IMP-08 AC 3-4, IMP-02 AC 1)
-- [ ] O mesmo arquivo pelo seletor (acionado por `Enter` no botão) tem o mesmo efeito (IMP-08 AC 7)
-- [ ] Exibe "Outubro de 2026" e "Confira o ano antes de continuar" (IMP-02 AC 3); "Tudo entra em nome de Pessoa A" (IMP-08 AC 5)
-- [ ] Com `competenciaEsperada = "2026-11"`, exibe "Próximo mês esperado: Novembro de 2026" (IMP-02 AC 4)
-- [ ] Arquivo `outubro.csv`: ano sem seleção e "Continuar" desabilitado até escolher (AC 2)
-- [ ] Arquivo `.xlsx` ou acima de 1 MB: mensagem de `PLANILHA_ARQUIVO_INVALIDO` e nada de prévia (IMP-01 AC 1)
-- [ ] Arquivo sem "Entradas": mensagem de bloco ausente nomeando "Entradas"
+- [x] Soltar `Planilha 2026 - Outubro.csv` na área mostra o nome do arquivo e "4 blocos encontrados", e seleciona Outubro e 2026 (IMP-08 AC 3-4, IMP-02 AC 1)
+- [x] O mesmo arquivo pelo seletor (acionado por `Enter` no botão) tem o mesmo efeito (IMP-08 AC 7)
+- [x] Exibe "Outubro de 2026" e "Confira o ano antes de continuar" (IMP-02 AC 3); "Tudo entra em nome de Pessoa A" (IMP-08 AC 5)
+- [x] Com `competenciaEsperada = "2026-11"`, exibe "Próximo mês esperado: Novembro de 2026" (IMP-02 AC 4)
+- [x] Arquivo `outubro.csv`: ano sem seleção e "Continuar" desabilitado até escolher (AC 2)
+- [x] Arquivo `.xlsx` ou acima de 1 MB: mensagem de `PLANILHA_ARQUIVO_INVALIDO` e nada de prévia (IMP-01 AC 1)
+- [x] Arquivo sem "Entradas": mensagem de bloco ausente nomeando "Entradas"
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(importacao): passo do arquivo e do mês no diálogo`
