@@ -1,4 +1,5 @@
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
+import type { CodigoErroImportacao } from "@/application/importacao/prever-importacao/handler";
 import type { CodigoErroCancelamento } from "@/application/mes/cancelar-lancamento/handler";
 import type { CodigoErroConfirmacao } from "@/application/mes/confirmar-valor/handler";
 import type { CodigoErroAvulso } from "@/application/mes/criar-lancamento-avulso/handler";
@@ -34,6 +35,7 @@ export type CodigoErroExibivel =
   | CodigoErroConfirmacao
   | CodigoErroRecorrencia
   | CodigoErroVersao
+  | CodigoErroImportacao
   | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
@@ -70,6 +72,13 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   /* `{bloco}` é composto pela action a partir de `detalhes.bloco`. */
   PLANILHA_BLOCO_AUSENTE:
     "O arquivo não tem o bloco “{bloco}”. Exporte a aba de um mês da planilha.",
+  /* `{competencia}` é composto pela action, por extenso, a partir de `detalhes.esperada`. */
+  IMPORTACAO_FORA_DE_ORDEM: "As abas entram em sequência. A próxima é {competencia}.",
+  IMPORTACAO_BANCO_NAO_VAZIO:
+    "Já existem lançamentos no app. Rode o script de limpeza antes da primeira importação.",
+  IMPORTACAO_PENDENCIA_ABERTA: "Ainda há meio de pagamento ou entrada sem decisão.",
+  IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA:
+    "Há totais que não batem. Confirme que entendeu a diferença antes de importar.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",

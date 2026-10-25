@@ -558,15 +558,15 @@ T26 -> T27
 **Interfaces**: produz `PreviaParaATela` e as duas actions (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] `requireSession()` é a primeira instrução das duas (leitura do fonte, como em `compras.integration.test.ts`); sem sessão → `NAO_AUTENTICADO` sem consulta ao banco (IMP-06 AC 4)
-- [ ] Payload inválido → `VALIDACAO` com `campos`
-- [ ] Sequência outubro → novembro → dezembro com as fixtures produz exatamente o **estado final esperado** do design (7 recorrências, 7 compras com os totais listados, 9 avulsos com `origem_dado = 'PLANILHA'`, 3 importações, 8 decisões) (IMP-07)
-- [ ] Repetir a gravação de outubro depois de feita → `IMPORTACAO_FORA_DE_ORDEM`, com a mensagem "As abas entram em sequência. A próxima é Novembro de 2026."
-- [ ] Falha injetada na última escrita (mock do `criarAvulso` lançando na quarta chamada) → banco igual ao de antes e sem linha em `importacao` (IMP-06 AC 2)
-- [ ] Duas gravações de outubro disparadas juntas → uma `ok`, a outra `IMPORTACAO_FORA_DE_ORDEM` (IMP-02 AC 7)
-- [ ] Sucesso chama `revalidatePath` para `/2026-10`, `/2026-10/lancamentos` e `/2026-10/fixos` (IMP-06 AC 3)
-- [ ] Erro não previsto → `ERRO_INESPERADO` com referência, sem stack (AC 5)
-- [ ] `PLANILHA_BLOCO_AUSENTE` sai com "O arquivo não tem o bloco “Entradas”. Exporte a aba de um mês da planilha."
+- [x] `requireSession()` é a primeira instrução das duas (leitura do fonte, como em `compras.integration.test.ts`); sem sessão → `NAO_AUTENTICADO` sem consulta ao banco (IMP-06 AC 4)
+- [x] Payload inválido → `VALIDACAO` com `campos`
+- [x] Sequência outubro → novembro → dezembro com as fixtures produz exatamente o **estado final esperado** do design (7 recorrências, 7 compras com os totais listados, 9 avulsos com `origem_dado = 'PLANILHA'`, 3 importações, 8 decisões) (IMP-07)
+- [x] Repetir a gravação de outubro depois de feita → `IMPORTACAO_FORA_DE_ORDEM`, com a mensagem "As abas entram em sequência. A próxima é Novembro de 2026."
+- [x] Falha injetada na última escrita (mock do `criarAvulso` lançando na quarta chamada) → banco igual ao de antes e sem linha em `importacao` (IMP-06 AC 2)
+- [x] Duas gravações de outubro disparadas juntas → uma `ok`, a outra `IMPORTACAO_FORA_DE_ORDEM` (IMP-02 AC 7)
+- [x] Sucesso chama `revalidatePath` para `/2026-10`, `/2026-10/lancamentos` e `/2026-10/fixos` (IMP-06 AC 3)
+- [x] Erro não previsto → `ERRO_INESPERADO` com referência, sem stack (AC 5)
+- [x] `PLANILHA_BLOCO_AUSENTE` sai com "O arquivo não tem o bloco “Entradas”. Exporte a aba de um mês da planilha."
 **Tests**: integration
 **Gate**: build
 **Commit**: `feat(importacao): actions de prévia e gravação da planilha`
