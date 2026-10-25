@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Implemented, aguarda a rodada 2 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F7)
+**Status**: Implemented, aguarda a rodada 2 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8)
 **Total**: 34 tasks em 7 fases (27 da fatia e 7 correções da verificação)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
@@ -191,6 +191,7 @@ T15 -> F5
 T21 -> F6
 T16 -> F7
 T21 -> F7
+T24 -> F8
 ```
 
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
@@ -861,6 +862,21 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Gate**: quick
 **Commit**: `test(importacao): medir em bytes e em caracteres as recusas de arquivo`
 
+#### F8: Separar a leitura da prévia da gravação no diálogo
+**What**: O diálogo usava uma só transição para ler a prévia e para gravar; a conferência nascia dentro da leitura ainda pendente e o botão dizia "Importando…" antes de qualquer gravação. Achado do implementador da rodada 1 como teste instável (`dialogo-importacao.test.tsx`), confirmado como defeito de produção.
+**Where**: `src/components/importacao/dialogo-importacao.tsx` (+ o teste)
+**Depends on**: T24
+**Reuses**: `useTransition`, `previaOk`, `decidirOutubro`
+**Requirement**: IMP-05
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [x] Teste que observa cada commit do React com `MutationObserver` e falha se "Importando…" aparecer em qualquer um durante a leitura das duas prévias de outubro — falhou 3 de 3 vezes no código antigo (IMP-05 AC 9)
+- [x] Com as transições separadas, o arquivo de teste do diálogo passa 5 de 5 vezes, inclusive o caso que antes falhava ao acaso
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `fix(importacao): separar a leitura da prévia da gravação no diálogo`
+
 ---
 
 ## Task Granularity Check
@@ -879,6 +895,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F1, F2, F4, F5, F6 | 1 arquivo de teste cada (F2: os dois testes de limite) e a linha da spec que ele prova | ✅ |
 | F3 | 1 teste de domínio + a ordenação em `carregar-estado.ts` e o teste dela | ⚠️ coeso: a ordem que a spec define é a que o estado entrega |
 | F7 | 1 AC reescrito + os dois casos que distinguem bytes de caracteres | ⚠️ coeso: cada caso prova uma metade do AC novo |
+| F8 | 1 componente e o teste dele | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -918,6 +935,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F5 | T15 | T15→F5 | ✅ |
 | F6 | T21 | T21→F6 | ✅ |
 | F7 | T16, T21 | T16→F7, T21→F7 | ✅ |
+| F8 | T24 | T24→F8 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -942,3 +960,4 @@ e F7).
 | F5 | script de limpeza | integration | integration | ✅ |
 | F6 | `src/components/**` | componentes | componentes | ✅ |
 | F7 | `src/application/schemas/**` e `src/components/**` | unit e componentes | unit e componentes | ✅ |
+| F8 | `src/components/**` | componentes | componentes | ✅ |

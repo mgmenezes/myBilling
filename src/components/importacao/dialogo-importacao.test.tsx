@@ -201,6 +201,32 @@ describe("DialogoImportacao — o passo 2 só quando há o que decidir (IMP-04, 
   });
 });
 
+describe("DialogoImportacao — ler a prévia não é gravar (IMP-05, AC 9)", () => {
+  it("a conferência nasce rotulada 'Importar 16 lançamentos', sem passar por 'Importando…'", async () => {
+    const previa = previaOk(previaDe("Outubro", { comDecisoes: false }), previaDe("Outubro"));
+    montar({ previa });
+    // O observador vê cada commit do React antes do seguinte: um rótulo que
+    // aparece só entre dois commits é pego aqui, e não por sorte de tempo.
+    let viuImportando = false;
+    const observador = new MutationObserver(() => {
+      if (document.body.textContent?.includes("Importando…")) {
+        viuImportando = true;
+      }
+    });
+    observador.observe(document.body, { childList: true, subtree: true, characterData: true });
+    try {
+      await abrir();
+      await escolherArquivo("Outubro");
+      expect(await screen.findByText("Meios de pagamento")).toBeDefined();
+      await decidirOutubro();
+      expect(await screen.findByRole("button", { name: "Importar 16 lançamentos" })).toBeDefined();
+    } finally {
+      observador.disconnect();
+    }
+    expect(viuImportando).toBe(false);
+  });
+});
+
 describe("DialogoImportacao — recusa da prévia (IMP-02, AC 5)", () => {
   it("mostra a mensagem que nomeia o mês esperado e continua no passo do arquivo", async () => {
     const previa = recusa(

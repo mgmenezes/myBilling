@@ -77,11 +77,17 @@ export function DialogoImportacao({
    * importado; importar a partir de outro mês não a revalidaria.
    */
   const [esperadaDepoisDeGravar, setEsperadaDepoisDeGravar] = useState<Competencia | null>(null);
-  const [ocupado, iniciar] = useTransition();
+  /*
+   * Ler e gravar são transições separadas. Com uma só, a conferência nascia
+   * dentro da transição da leitura, ainda pendente, e o botão dizia
+   * "Importando…" antes de qualquer gravação começar.
+   */
+  const [lendo, iniciarLeitura] = useTransition();
+  const [gravando, iniciarGravacao] = useTransition();
 
   function pedirPrevia(escolhido: ArquivoEscolhido, comDecisoes: DecisoesDoPasso): void {
     setErro("");
-    iniciar(async () => {
+    iniciarLeitura(async () => {
       const resposta = await previaDaPlanilha({ ...escolhido, decisoes: comDecisoes });
       if (!resposta.ok) {
         setErro(resposta.erro.mensagem);
@@ -100,7 +106,7 @@ export function DialogoImportacao({
       return;
     }
     setErro("");
-    iniciar(async () => {
+    iniciarGravacao(async () => {
       const resposta = await importarPlanilha({ ...arquivo, decisoes, confirmouDivergencia });
       if (!resposta.ok) {
         setErro(resposta.erro.mensagem);
@@ -175,7 +181,7 @@ export function DialogoImportacao({
         {passo.nome === "CONFERENCIA" ? (
           <PassoConferencia
             previa={passo.previa}
-            gravando={ocupado}
+            gravando={gravando}
             erro={erro === "" ? null : erro}
             aoImportar={gravar}
           />
@@ -185,7 +191,7 @@ export function DialogoImportacao({
           <ResultadoImportacao resumo={passo.resumo} aoImportarOutra={recomecar} />
         ) : null}
 
-        {passo.nome !== "CONFERENCIA" && ocupado ? (
+        {passo.nome !== "CONFERENCIA" && lendo ? (
           <p role="status" className="text-[14px] text-ink-muted">
             Lendo a aba no servidor…
           </p>
