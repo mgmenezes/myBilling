@@ -419,7 +419,7 @@ outubro com sucesso.
 | IMP-02 | P1: Decidir o mês da aba | Execute | Implementing: ACs 1 e 2 no nome do arquivo (T4) |
 | IMP-03 | P1: Transformar cada linha no que ela é | Tasks | In Tasks |
 | IMP-04 | P1: Resolver o que o app não sabe | Tasks | In Tasks |
-| IMP-05 | P1: Conferir antes de gravar | Tasks | In Tasks |
+| IMP-05 | P1: Conferir antes de gravar | Execute | Implementing: ACs 1 a 4 na conferência (T5) |
 | IMP-06 | P1: Gravar tudo ou nada | Tasks | In Tasks |
 | IMP-07 | P1: Importar a aba seguinte sem duplicar | Tasks | In Tasks |
 | IMP-08 | P1: Abrir a importação pela Visão geral | Tasks | In Tasks |

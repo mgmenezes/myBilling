@@ -282,12 +282,12 @@ T26 -> T27
 **Interfaces**: produz `ConferenciaDeBloco`, `Conferencia`, `conferirAba` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Outubro: FIXOS, CARTAO, ENTRADAS conferem; GASTOS `confere = false`, `somaLida` 12450, `diferenca` −1200; Saídas confere com `somaLida` 238784 (IMP-05 AC 1-4)
-- [ ] Novembro: tudo confere; `temDivergencia = false`
-- [ ] Dezembro: CARTAO `diferenca` +4000; Saídas `somaLida` 244333, `totalDaPlanilha` 248333, não confere
-- [ ] Total ausente (`null`) → `confere = false`, `diferenca = null` (AC 3)
-- [ ] Bloco sem linhas → `somaLida = ZERO_CENTS`
-- [ ] 100% de branches
+- [x] Outubro: FIXOS, CARTAO, ENTRADAS conferem; GASTOS `confere = false`, `somaLida` 12450, `diferenca` −1200; Saídas confere com `somaLida` 238784 (IMP-05 AC 1-4)
+- [x] Novembro: tudo confere; `temDivergencia = false`
+- [x] Dezembro: CARTAO `diferenca` +4000; Saídas `somaLida` 244333, `totalDaPlanilha` 248333, não confere
+- [x] Total ausente (`null`) → `confere = false`, `diferenca = null` (AC 3)
+- [x] Bloco sem linhas → `somaLida = ZERO_CENTS`
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): conferir a aba contra os totais da própria planilha`
