@@ -911,8 +911,8 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] IMP-08 AC 10: WHILE a conferência está na tela, o sistema SHALL não exibir o aviso "Lendo a aba no servidor…"
-- [ ] O teste da F8 falha se, em algum commit, "Lendo a aba no servidor…" e "Conferência de" estiverem na tela juntos
+- [x] IMP-08 AC 9: WHILE a conferência está na tela, o sistema SHALL não exibir o aviso "Lendo a aba no servidor…"
+- [x] O teste da F8 falha se, em algum commit, "Lendo a aba no servidor…" e "Conferência de" estiverem na tela juntos
 **Sensor**: N5 (sem `passo.nome !== "CONFERENCIA"` na guarda do aviso) falha o teste.
 **Tests**: componentes
 **Gate**: quick
@@ -927,7 +927,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] IMP-08 AC 9: WHILE a gravação está em andamento, o sistema SHALL manter o botão de importar desabilitado, com o rótulo "Importando…"
+- [ ] IMP-08 AC 10: WHILE a gravação está em andamento, o sistema SHALL manter o botão de importar desabilitado, com o rótulo "Importando…"
 - [ ] Com `importarPlanilha` pendente, o botão vira "Importando…" e fica desabilitado; ao concluir, aparece "16 criados"
 **Sensor**: N6 (`gravando={false}`) falha o teste.
 **Tests**: componentes

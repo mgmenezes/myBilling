@@ -201,16 +201,21 @@ describe("DialogoImportacao — o passo 2 só quando há o que decidir (IMP-04, 
   });
 });
 
-describe("DialogoImportacao — ler a prévia não é gravar (IMP-05, AC 9)", () => {
-  it("a conferência nasce rotulada 'Importar 16 lançamentos', sem passar por 'Importando…'", async () => {
+describe("DialogoImportacao — ler a prévia não é gravar (IMP-05 AC 9, IMP-08 AC 9)", () => {
+  it("a conferência nasce rotulada 'Importar 16 lançamentos', sem 'Importando…' nem o aviso de leitura", async () => {
     const previa = previaOk(previaDe("Outubro", { comDecisoes: false }), previaDe("Outubro"));
     montar({ previa });
     // O observador vê cada commit do React antes do seguinte: um rótulo que
     // aparece só entre dois commits é pego aqui, e não por sorte de tempo.
     let viuImportando = false;
+    let viuLeituraNaConferencia = false;
     const observador = new MutationObserver(() => {
-      if (document.body.textContent?.includes("Importando…")) {
+      const texto = document.body.textContent ?? "";
+      if (texto.includes("Importando…")) {
         viuImportando = true;
+      }
+      if (texto.includes("Lendo a aba no servidor…") && texto.includes("Conferência de")) {
+        viuLeituraNaConferencia = true;
       }
     });
     observador.observe(document.body, { childList: true, subtree: true, characterData: true });
@@ -224,6 +229,7 @@ describe("DialogoImportacao — ler a prévia não é gravar (IMP-05, AC 9)", ()
       observador.disconnect();
     }
     expect(viuImportando).toBe(false);
+    expect(viuLeituraNaConferencia).toBe(false);
   });
 });
 
