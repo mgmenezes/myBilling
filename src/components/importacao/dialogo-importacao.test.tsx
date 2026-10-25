@@ -57,7 +57,7 @@ function recusa(code: string, mensagem: string) {
   return vi.fn(async () => ({ ok: false as const, erro: { code, mensagem } }));
 }
 
-const resumoDeOutubro = vi.fn(async () => ({
+const RESPOSTA_DE_OUTUBRO = {
   ok: true as const,
   data: {
     competencia: "2026-10" as Competencia,
@@ -66,7 +66,9 @@ const resumoDeOutubro = vi.fn(async () => ({
     alterados: 0,
     encerrados: 0,
   },
-})) as unknown as Importar;
+};
+
+const resumoDeOutubro = vi.fn(async () => RESPOSTA_DE_OUTUBRO) as unknown as Importar;
 
 function montar({
   previa,
@@ -300,9 +302,8 @@ describe("DialogoImportacao — gravar (IMP-08, AC 6 e 8)", () => {
     const botao = await screen.findByRole("button", { name: "Importando…" });
     expect(botao.hasAttribute("disabled")).toBe(true);
 
-    const resposta = await resumoDeOutubro();
     await act(async () => {
-      concluir(resposta);
+      concluir(RESPOSTA_DE_OUTUBRO);
     });
     expect(await screen.findByText("16 criados")).toBeDefined();
   });
