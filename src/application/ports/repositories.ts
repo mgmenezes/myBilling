@@ -1,11 +1,14 @@
 import type {
   Categoria,
   Cents,
+  CodigoErro,
   Competencia,
+  DecisoesDaImportacao,
   DomainError,
   Lancamento,
   MeioPagamento,
   Natureza,
+  ParcelaDaCompra,
   PlanoParcelamento,
   PoliticaResiduo,
   Recorrencia,
@@ -68,6 +71,26 @@ export interface CompraPersistida {
   readonly parcelas: ReadonlyArray<Lancamento>;
 }
 
+/**
+ * Lançada por `CompraRepository.reprecificar` quando o total informado não
+ * fecha com o amortizado mais a soma das parcelas gravadas. Nada fica gravado.
+ *
+ * É exceção, e não `Result`, porque o total vem de `reprecificarAPartirDe`,
+ * que já conserva a soma: se ela não fecha no banco, é defeito, e a transação
+ * da importação precisa voltar atrás inteira.
+ */
+export class ViolacaoDeConservacao extends Error {
+  readonly code = "CONSERVACAO_VIOLADA" satisfies CodigoErro;
+
+  constructor(
+    readonly soma: number,
+    readonly valorTotal: number,
+  ) {
+    super(`conservação violada: ${soma} != ${valorTotal}`);
+    this.name = "ViolacaoDeConservacao";
+  }
+}
+
 export interface CompraRepository {
   /**
    * Grava o plano e as N parcelas em **uma única transação**, com assert de
@@ -90,6 +113,19 @@ export interface CompraRepository {
    * aparecem nele.
    */
   totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>>;
+  /** A compra com as parcelas gravadas, em ordem de número; `null` se não existe. */
+  buscarPorId(compraId: string): Promise<CompraPersistida | null>;
+  /**
+   * Grava o valor novo de cada parcela informada e o total da compra, numa
+   * transação, e confere a conservação **no banco**: amortizado + soma das
+   * parcelas gravadas tem que dar `valorTotal` (IMP-07 AC 10). Se não der,
+   * lança `ViolacaoDeConservacao` e nada fica gravado.
+   */
+  reprecificar(
+    compraId: string,
+    parcelas: ReadonlyArray<ParcelaDaCompra>,
+    valorTotal: Cents,
+  ): Promise<void>;
 }
 
 /** Uma ocorrência de recorrência pronta para virar linha de `movimento`. */
@@ -124,6 +160,12 @@ export interface EntradaLancamentoAvulso {
   readonly categoriaId: string | null;
   readonly usuarioId: string;
   readonly meioPagamentoId: string;
+  /**
+   * Só na linha importada: vira `origem_dado` e `origem_hash`, e o índice
+   * parcial único recusa a mesma chave duas vezes (IMP-03 AC 8). Sem ela, as
+   * duas colunas ficam nulas e nada é deduplicado.
+   */
+  readonly origemDado?: { readonly fonte: "PLANILHA"; readonly chave: string };
 }
 
 export interface MovimentoRepository {
@@ -267,4 +309,57 @@ export interface CadastroRepository {
    * uma vez por lançamento da tela.
    */
   idsDeMeiosComFatura(): Promise<ReadonlySet<string>>;
+  /**
+   * Por nome **ignorando caixa**, inclusive arquivada: o nome arquivado ainda
+   * ocupa o `UNIQUE`, e quem o encontra reativa em vez de tentar criar.
+   */
+  buscarCategoriaPorNome(nome: string): Promise<Categoria | null>;
+  criarCategoria(nova: { readonly nome: string; readonly arquivadaEm: null }): Promise<Categoria>;
+  /** Desfaz o arquivamento; reativar uma ativa não a muda. */
+  reativarCategoria(id: string): Promise<Categoria>;
+  /** Todas, **inclusive arquivadas**: a importação reconhece por nome também as que saíram dos formulários. */
+  listarTodasAsCategorias(): Promise<ReadonlyArray<Categoria>>;
+}
+
+/** Uma aba gravada: a competência confirmada, o arquivo e quem importou. */
+export interface ImportacaoRegistrada {
+  readonly competencia: Competencia;
+  readonly nomeArquivo: string;
+  readonly usuarioId: string;
+}
+
+export interface ImportacaoRepository {
+  /** A maior competência registrada; `null` antes da primeira importação (IMP-02 AC 4). */
+  ultimaCompetenciaImportada(): Promise<Competencia | null>;
+  /**
+   * Se existe qualquer linha em `movimento`, `compra_parcelada` ou
+   * `recorrencia`, inclusive avulso cancelado. É a guarda da primeira
+   * importação (IMP-02 AC 6).
+   */
+  haLancamentoCompraOuRecorrencia(): Promise<boolean>;
+  decisoesLembradas(): Promise<DecisoesDaImportacao>;
+  /**
+   * Grava a importação e as decisões, estas por upsert em `(tipo, nome)`:
+   * decidir de novo substitui (IMP-04 AC 4). A mesma competência duas vezes
+   * viola a unicidade e lança (IMP-02 AC 7).
+   */
+  registrar(importacao: ImportacaoRegistrada, decisoes: DecisoesDaImportacao): Promise<void>;
+}
+
+/** Os repositórios que uma importação usa, todos sobre a mesma transação. */
+export interface RepositoriosDaImportacao {
+  readonly compras: CompraRepository;
+  readonly movimentos: MovimentoRepository;
+  readonly recorrencias: RecorrenciaRepository;
+  readonly cadastros: CadastroRepository;
+  readonly importacoes: ImportacaoRepository;
+}
+
+/**
+ * Executa a operação com repositórios de uma transação só (IMP-06): ou tudo
+ * o que ela grava fica, ou nada fica. Qualquer exceção dentro de `operacao`
+ * desfaz todas as escritas e é relançada.
+ */
+export interface TransacaoDaImportacao {
+  executar<T>(operacao: (repos: RepositoriosDaImportacao) => Promise<T>): Promise<T>;
 }

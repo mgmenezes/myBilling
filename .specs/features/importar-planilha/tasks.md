@@ -427,12 +427,12 @@ T26 -> T27
 **Interfaces**: produz os tipos da seção "Ports" do design; `criarFakes()` passa a incluir `recorrencias`, `importacoes` e `transacao`
 **Tools**: nenhuma
 **Done when**:
-- [ ] `FakeCompraRepository.reprecificar` grava valores e total, e recusa com `CONSERVACAO_VIOLADA` quando total ≠ amortizado + soma
-- [ ] `FakeImportacaoRepository.registrar` com competência repetida lança como a unicidade do banco
-- [ ] `FakeImportacaoRepository.decisoesLembradas` devolve o que `registrar` gravou, com upsert por `(tipo, chave)`
-- [ ] `FakeCadastroRepository.listarTodasAsCategorias` inclui arquivadas; `buscarCategoriaPorNome` ignora caixa
-- [ ] `FakeMovimentoRepository.criarAvulso` guarda `origemDado` e recusa `(fonte, chave)` repetido
-- [ ] Testes existentes de `src/application` passam sem alteração
+- [x] `FakeCompraRepository.reprecificar` grava valores e total, e recusa com `CONSERVACAO_VIOLADA` quando total ≠ amortizado + soma
+- [x] `FakeImportacaoRepository.registrar` com competência repetida lança como a unicidade do banco
+- [x] `FakeImportacaoRepository.decisoesLembradas` devolve o que `registrar` gravou, com upsert por `(tipo, chave)`
+- [x] `FakeCadastroRepository.listarTodasAsCategorias` inclui arquivadas; `buscarCategoriaPorNome` ignora caixa
+- [x] `FakeMovimentoRepository.criarAvulso` guarda `origemDado` e recusa `(fonte, chave)` repetido
+- [x] Testes existentes de `src/application` passam sem alteração
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): declarar as ports e os fakes da importação`

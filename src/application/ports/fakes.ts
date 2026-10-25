@@ -3,29 +3,37 @@ import {
   type Cents,
   type Competencia,
   compararCompetencias,
+  type DecisaoDeEntrada,
+  type DecisoesDaImportacao,
   type DomainError,
   err,
   type Lancamento,
   type MeioPagamento,
   ocorrenciaProtegida,
   ok,
+  type ParcelaDaCompra,
   type Recorrencia,
   type Result,
   somar,
   ZERO_CENTS,
 } from "@/domain";
-import type {
-  CadastroRepository,
-  CompraPersistida,
-  CompraRepository,
-  EntradaCriarRecorrencia,
-  EntradaLancamentoAvulso,
-  EntradaSalvarCompra,
-  MovimentoRepository,
-  OcorrenciaParaMaterializar,
-  RecorrenciaComVersoes,
-  RecorrenciaRepository,
-  Usuario,
+import {
+  type CadastroRepository,
+  type CompraPersistida,
+  type CompraRepository,
+  type EntradaCriarRecorrencia,
+  type EntradaLancamentoAvulso,
+  type EntradaSalvarCompra,
+  type ImportacaoRegistrada,
+  type ImportacaoRepository,
+  type MovimentoRepository,
+  type OcorrenciaParaMaterializar,
+  type RecorrenciaComVersoes,
+  type RecorrenciaRepository,
+  type RepositoriosDaImportacao,
+  type TransacaoDaImportacao,
+  type Usuario,
+  ViolacaoDeConservacao,
 } from "./repositories";
 
 /**
@@ -47,6 +55,14 @@ export interface EstadoEmMemoria {
   readonly meiosDePagamento: MeioPagamento[];
   readonly categorias: Categoria[];
   readonly recorrencias: Map<string, RecorrenciaComVersoes>;
+  readonly importacoes: ImportacaoRegistrada[];
+  /** As decisões lembradas, uma por tipo e chave, como `importacao_decisao`. */
+  readonly decisoes: {
+    readonly meios: Map<string, string>;
+    readonly entradas: Map<string, DecisaoDeEntrada>;
+  };
+  /** `origem_dado` e `origem_hash` dos avulsos importados, por id do lançamento. */
+  readonly origensDeDado: Map<string, NonNullable<EntradaLancamentoAvulso["origemDado"]>>;
 }
 
 export function criarEstadoEmMemoria(): EstadoEmMemoria {
@@ -57,6 +73,9 @@ export function criarEstadoEmMemoria(): EstadoEmMemoria {
     meiosDePagamento: [],
     categorias: [],
     recorrencias: new Map(),
+    importacoes: [],
+    decisoes: { meios: new Map(), entradas: new Map() },
+    origensDeDado: new Map(),
   };
 }
 
@@ -83,6 +102,39 @@ export class FakeCompraRepository implements CompraRepository {
       }
     }
     return null;
+  }
+
+  async buscarPorId(compraId: string): Promise<CompraPersistida | null> {
+    return this.estado.compras.get(compraId) ?? null;
+  }
+
+  /**
+   * Mesma conferência do Drizzle: com os valores novos aplicados, amortizado +
+   * soma das parcelas gravadas tem que dar o total. Se não der, lança antes de
+   * tocar no estado, que é o que o rollback faz no banco.
+   */
+  async reprecificar(
+    compraId: string,
+    parcelas: ReadonlyArray<ParcelaDaCompra>,
+    valorTotal: Cents,
+  ): Promise<void> {
+    const compra = this.estado.compras.get(compraId);
+    if (!compra) {
+      throw new Error(`compra inexistente: ${compraId}`);
+    }
+    const valorNovo = new Map<number | null, Cents>(parcelas.map((p) => [p.numero, p.valor]));
+    const atualizadas = compra.parcelas.map((parcela) => {
+      const valor = valorNovo.get(parcela.numeroParcela);
+      return valor === undefined ? parcela : { ...parcela, valor };
+    });
+    const soma = somar(somarParcelas(atualizadas), compra.valorAmortizadoAnterior);
+    if (soma !== valorTotal) {
+      throw new ViolacaoDeConservacao(soma, valorTotal);
+    }
+    for (const parcela of atualizadas) {
+      this.estado.movimentos.set(parcela.id, parcela);
+    }
+    this.estado.compras.set(compraId, { ...compra, valorTotal, parcelas: atualizadas });
   }
 
   async totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>> {
@@ -164,8 +216,20 @@ export class FakeMovimentoRepository implements MovimentoRepository {
   private proximoAvulso = 1;
 
   /** Id sequencial e legível: o teste que falha aponta para `avulso-2`, não
-   *  para um uuid que não diz nada. */
+   *  para um uuid que não diz nada.
+   *
+   *  Com `origemDado`, reproduz o índice parcial único do banco: a mesma fonte
+   *  e chave uma segunda vez lança, e nada é gravado. */
   async criarAvulso(entrada: EntradaLancamentoAvulso): Promise<Lancamento> {
+    const { origemDado } = entrada;
+    if (origemDado) {
+      const repetida = [...this.estado.origensDeDado.values()].some(
+        (o) => o.fonte === origemDado.fonte && o.chave === origemDado.chave,
+      );
+      if (repetida) {
+        throw new ViolacaoDeUnicidade("movimento_origem_dado_hash_uq");
+      }
+    }
     const lancamento: Lancamento = {
       id: `avulso-${this.proximoAvulso++}`,
       natureza: entrada.natureza,
@@ -185,6 +249,9 @@ export class FakeMovimentoRepository implements MovimentoRepository {
       canceladoEm: null,
     };
     this.estado.movimentos.set(lancamento.id, lancamento);
+    if (origemDado) {
+      this.estado.origensDeDado.set(lancamento.id, origemDado);
+    }
     return lancamento;
   }
 
@@ -302,6 +369,8 @@ export class FakeMovimentoRepository implements MovimentoRepository {
 }
 
 export class FakeCadastroRepository implements CadastroRepository {
+  private proximaCategoria = 1;
+
   constructor(private readonly estado: EstadoEmMemoria) {}
 
   async listarUsuarios(): Promise<ReadonlyArray<Usuario>> {
@@ -330,6 +399,101 @@ export class FakeCadastroRepository implements CadastroRepository {
       this.estado.meiosDePagamento.filter((m) => m.tipo === "CARTAO_CREDITO").map((m) => m.id),
     );
   }
+
+  /** Ignora caixa e não filtra arquivada, igual ao `lower()` do Drizzle. */
+  async buscarCategoriaPorNome(nome: string): Promise<Categoria | null> {
+    const alvo = nome.toLowerCase();
+    return this.estado.categorias.find((c) => c.nome.toLowerCase() === alvo) ?? null;
+  }
+
+  async criarCategoria(nova: {
+    readonly nome: string;
+    readonly arquivadaEm: null;
+  }): Promise<Categoria> {
+    const categoria: Categoria = {
+      id: `categoria-${this.proximaCategoria++}`,
+      nome: nova.nome,
+      arquivadaEm: nova.arquivadaEm,
+    };
+    this.estado.categorias.push(categoria);
+    return categoria;
+  }
+
+  async reativarCategoria(id: string): Promise<Categoria> {
+    const indice = this.estado.categorias.findIndex((c) => c.id === id);
+    const atual = this.estado.categorias[indice];
+    if (!atual) {
+      throw new Error(`categoria inexistente: ${id}`);
+    }
+    const reativada: Categoria = { ...atual, arquivadaEm: null };
+    this.estado.categorias[indice] = reativada;
+    return reativada;
+  }
+
+  async listarTodasAsCategorias(): Promise<ReadonlyArray<Categoria>> {
+    return [...this.estado.categorias];
+  }
+}
+
+/**
+ * Registro da importação em memória. A competência repetida lança como a
+ * unicidade de `importacao.competencia`, e as decisões entram por upsert em
+ * `(tipo, chave)`, como `importacao_decisao`.
+ */
+export class FakeImportacaoRepository implements ImportacaoRepository {
+  constructor(private readonly estado: EstadoEmMemoria) {}
+
+  async ultimaCompetenciaImportada(): Promise<Competencia | null> {
+    let ultima: Competencia | null = null;
+    for (const { competencia } of this.estado.importacoes) {
+      if (ultima === null || compararCompetencias(competencia, ultima) > 0) {
+        ultima = competencia;
+      }
+    }
+    return ultima;
+  }
+
+  /** Avulso cancelado conta: a linha continua em `movimento` (IMP-02 AC 6). */
+  async haLancamentoCompraOuRecorrencia(): Promise<boolean> {
+    return (
+      this.estado.movimentos.size > 0 ||
+      this.estado.compras.size > 0 ||
+      this.estado.recorrencias.size > 0
+    );
+  }
+
+  async decisoesLembradas(): Promise<DecisoesDaImportacao> {
+    return {
+      meios: new Map(this.estado.decisoes.meios),
+      entradas: new Map(this.estado.decisoes.entradas),
+    };
+  }
+
+  async registrar(importacao: ImportacaoRegistrada, decisoes: DecisoesDaImportacao): Promise<void> {
+    if (this.estado.importacoes.some((i) => i.competencia === importacao.competencia)) {
+      throw new ViolacaoDeUnicidade("importacao_competencia_unique");
+    }
+    this.estado.importacoes.push(importacao);
+    for (const [chave, meioPagamentoId] of decisoes.meios) {
+      this.estado.decisoes.meios.set(chave, meioPagamentoId);
+    }
+    for (const [chave, decisao] of decisoes.entradas) {
+      this.estado.decisoes.entradas.set(chave, decisao);
+    }
+  }
+}
+
+/**
+ * Executa a operação sobre os fakes, **sem rollback**: desfazer é prova de
+ * integração, contra Postgres real. Aqui o que importa é que todos os
+ * repositórios vejam o mesmo estado.
+ */
+export class FakeTransacaoDaImportacao implements TransacaoDaImportacao {
+  constructor(private readonly repos: RepositoriosDaImportacao) {}
+
+  executar<T>(operacao: (repos: RepositoriosDaImportacao) => Promise<T>): Promise<T> {
+    return operacao(this.repos);
+  }
 }
 
 export interface Fakes {
@@ -337,15 +501,21 @@ export interface Fakes {
   readonly compras: FakeCompraRepository;
   readonly movimentos: FakeMovimentoRepository;
   readonly cadastros: FakeCadastroRepository;
+  readonly recorrencias: FakeRecorrenciaRepository;
+  readonly importacoes: FakeImportacaoRepository;
+  /** Entrega à operação os mesmos repositórios acima, sobre o mesmo estado. */
+  readonly transacao: FakeTransacaoDaImportacao;
 }
 
 export function criarFakes(estado: EstadoEmMemoria = criarEstadoEmMemoria()): Fakes {
-  return {
-    estado,
+  const repos = {
     compras: new FakeCompraRepository(estado),
     movimentos: new FakeMovimentoRepository(estado),
     cadastros: new FakeCadastroRepository(estado),
+    recorrencias: new FakeRecorrenciaRepository(estado),
+    importacoes: new FakeImportacaoRepository(estado),
   };
+  return { estado, ...repos, transacao: new FakeTransacaoDaImportacao(repos) };
 }
 
 /**

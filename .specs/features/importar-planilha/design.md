@@ -352,6 +352,7 @@ listarTodasAsCategorias(): Promise<ReadonlyArray<Categoria>>;   // inclusive arq
 // CompraRepository ganha:
 buscarPorId(compraId: string): Promise<CompraPersistida | null>;
 reprecificar(compraId: string, parcelas: ReadonlyArray<ParcelaDaCompra>, valorTotal: Cents): Promise<void>;
+// total ≠ amortizado + soma gravada → lança `ViolacaoDeConservacao` (exportada daqui, `code: "CONSERVACAO_VIOLADA"`, `soma`, `valorTotal`) e nada fica gravado
 
 // EntradaLancamentoAvulso ganha, opcional:
 readonly origemDado?: { readonly fonte: "PLANILHA"; readonly chave: string };
@@ -376,7 +377,8 @@ export interface TransacaoDaImportacao {
 
 `src/application/ports/fakes.ts` ganha `FakeImportacaoRepository`, `FakeTransacaoDaImportacao`
 (executa a operação sobre os fakes, sem rollback — rollback é prova de integração) e os métodos
-novos nos fakes existentes.
+novos nos fakes existentes. `EstadoEmMemoria` ganha `importacoes`, `decisoes` (`meios` e `entradas`)
+e `origensDeDado` (a origem de cada avulso importado, por id do lançamento).
 
 ### Aplicação — `src/application/importacao/`
 
