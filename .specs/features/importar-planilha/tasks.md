@@ -464,11 +464,11 @@ T26 -> T27
 **Interfaces**: implementa `ImportacaoRepository` e `TransacaoDaImportacao`
 **Tools**: nenhuma
 **Done when**:
-- [ ] `ultimaCompetenciaImportada` → `null` sem registro; `2026-11` depois de registrar outubro e novembro
-- [ ] `haLancamentoCompraOuRecorrencia` → `true` com uma linha em qualquer das três tabelas, inclusive avulso cancelado; `false` no banco limpo (IMP-02 AC 6)
-- [ ] `registrar` grava a importação e faz upsert das decisões: registrar `cartão roxo` com outro meio substitui o anterior
-- [ ] Exceção dentro de `executar` desfaz escritas feitas por qualquer repositório recebido (IMP-06 AC 2)
-- [ ] Duas chamadas concorrentes a `executar` que registram a mesma competência: uma conclui e a outra falha com violação de unicidade (IMP-02 AC 7)
+- [x] `ultimaCompetenciaImportada` → `null` sem registro; `2026-11` depois de registrar outubro e novembro
+- [x] `haLancamentoCompraOuRecorrencia` → `true` com uma linha em qualquer das três tabelas, inclusive avulso cancelado; `false` no banco limpo (IMP-02 AC 6)
+- [x] `registrar` grava a importação e faz upsert das decisões: registrar `cartão roxo` com outro meio substitui o anterior
+- [x] Exceção dentro de `executar` desfaz escritas feitas por qualquer repositório recebido (IMP-06 AC 2)
+- [x] Duas chamadas concorrentes a `executar` que registram a mesma competência: uma conclui e a outra falha com violação de unicidade (IMP-02 AC 7)
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(db): registrar a importação dentro de uma transação serializada`
