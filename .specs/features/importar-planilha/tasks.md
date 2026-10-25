@@ -446,11 +446,11 @@ T26 -> T27
 **Interfaces**: implementa os métodos da seção "Ports" do design
 **Tools**: nenhuma
 **Done when**:
-- [ ] `reprecificar` atualiza só as parcelas informadas e o total, e falha com `CONSERVACAO_VIOLADA` sem gravar nada quando total ≠ amortizado + soma no banco
-- [ ] `reprecificar` não toca outra compra nem lançamento de outra origem
-- [ ] `criarAvulso` com `origemDado` grava `origem_dado = 'PLANILHA'` e `origem_hash` = chave; a mesma chave duas vezes viola `movimento_origem_dado_hash_uq`; sem `origemDado`, as colunas ficam nulas como hoje
-- [ ] `buscarPorId` devolve a compra com as parcelas; id inexistente → `null`
-- [ ] `listarTodasAsCategorias` inclui arquivada
+- [x] `reprecificar` atualiza só as parcelas informadas e o total, e falha com `CONSERVACAO_VIOLADA` sem gravar nada quando total ≠ amortizado + soma no banco
+- [x] `reprecificar` não toca outra compra nem lançamento de outra origem
+- [x] `criarAvulso` com `origemDado` grava `origem_dado = 'PLANILHA'` e `origem_hash` = chave; a mesma chave duas vezes viola `movimento_origem_dado_hash_uq`; sem `origemDado`, as colunas ficam nulas como hoje
+- [x] `buscarPorId` devolve a compra com as parcelas; id inexistente → `null`
+- [x] `listarTodasAsCategorias` inclui arquivada
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(db): reprecificar compra e gravar a origem do avulso importado`

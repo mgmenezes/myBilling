@@ -14,9 +14,10 @@ import { paraCategoria, paraMeioPagamento, paraUsuario } from "./mapeadores";
  * precisam mostrar o nome do cartão ou da categoria de quando o gasto
  * aconteceu (CART-03, AC 6).
  *
- * As escritas ficam nesta classe e fora da port: quem escreve cadastro é o
- * seed e, mais adiante, a tela de cadastro — nenhum caso de uso de mês ou
- * de compra precisa delas.
+ * As escritas de usuário e de meio ficam nesta classe e fora da port: quem as
+ * faz é o seed e a tela de cadastro, e nenhum caso de uso de mês ou de compra
+ * precisa delas. As de categoria subiram para a port porque a importação cria
+ * e reativa categorias (IMP-03 AC 9 a 11).
  */
 
 export type NovoUsuario = Omit<Usuario, "id">;
@@ -101,6 +102,12 @@ export class CadastroRepositoryDrizzle implements CadastroRepository {
       throw new Error("insert de meio_pagamento não retornou linha");
     }
     return paraMeioPagamento(linha);
+  }
+
+  /** Todas, inclusive arquivadas: a importação reconhece por nome também as que saíram dos formulários. */
+  async listarTodasAsCategorias(): Promise<ReadonlyArray<Categoria>> {
+    const linhas = await this.db.select().from(categoria).orderBy(asc(categoria.nome));
+    return linhas.map(paraCategoria);
   }
 
   async listarCategoriasDisponiveis(): Promise<ReadonlyArray<Categoria>> {

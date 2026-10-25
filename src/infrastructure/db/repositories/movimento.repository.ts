@@ -43,6 +43,10 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
    * `origem` é fixado aqui, e os três campos de vínculo ficam de fora da
    * entrada. É o que os `CHECK` bicondicionais exigem, e deixá-los preenchíveis
    * abriria a porta para um avulso carregando vínculo de parcela.
+   *
+   * A linha importada traz `origemDado`, que vira `origem_dado` e `origem_hash`.
+   * O índice parcial único recusa a mesma chave duas vezes (IMP-03 AC 8); sem
+   * ela, as duas colunas ficam nulas e a linha fica fora do índice.
    */
   async criarAvulso(entrada: EntradaLancamentoAvulso): Promise<Lancamento> {
     const [linha] = await this.db
@@ -58,6 +62,8 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
         categoriaId: entrada.categoriaId,
         usuarioId: entrada.usuarioId,
         meioPagamentoId: entrada.meioPagamentoId,
+        origemDado: entrada.origemDado?.fonte ?? null,
+        origemHash: entrada.origemDado?.chave ?? null,
       })
       .returning();
     if (!linha) {

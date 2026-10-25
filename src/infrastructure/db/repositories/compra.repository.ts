@@ -1,10 +1,11 @@
-import { asc, eq, inArray, sql } from "drizzle-orm";
-import type {
-  CompraPersistida,
-  CompraRepository,
-  EntradaSalvarCompra,
+import { and, asc, eq, inArray, type SQL, sql } from "drizzle-orm";
+import {
+  type CompraPersistida,
+  type CompraRepository,
+  type EntradaSalvarCompra,
+  ViolacaoDeConservacao,
 } from "@/application/ports/repositories";
-import { type DomainError, err, ok, type Result } from "@/domain";
+import { type Cents, type DomainError, err, ok, type ParcelaDaCompra, type Result } from "@/domain";
 import type { Executor } from "../client";
 import { compraParcelada, movimento } from "../schema";
 import { deCompetencia, paraCents, paraCentsOuZero, paraLancamento } from "./mapeadores";
@@ -60,11 +61,58 @@ export class CompraRepositoryDrizzle implements CompraRepository {
   constructor(private readonly db: Executor) {}
 
   async buscarPorIdempotencyKey(idempotencyKey: string): Promise<CompraPersistida | null> {
-    const linhas = await this.db
-      .select()
-      .from(compraParcelada)
-      .where(eq(compraParcelada.idempotencyKey, idempotencyKey))
-      .limit(1);
+    return this.buscarUma(eq(compraParcelada.idempotencyKey, idempotencyKey));
+  }
+
+  async buscarPorId(compraId: string): Promise<CompraPersistida | null> {
+    return this.buscarUma(eq(compraParcelada.id, compraId));
+  }
+
+  /**
+   * Reprecificação da compra reconhecida com valor novo (IMP-07 AC 10): o valor
+   * da aba vale para as parcelas informadas, e o total passa a ser o informado.
+   *
+   * Mesma garantia de `salvarComParcelas`, e pelo mesmo motivo: a conservação
+   * é conferida **no banco**, com a soma relida das parcelas gravadas, dentro
+   * da transação. Se amortizado + soma não der o total, nada fica gravado.
+   */
+  async reprecificar(
+    compraId: string,
+    parcelas: ReadonlyArray<ParcelaDaCompra>,
+    valorTotal: Cents,
+  ): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      for (const parcela of parcelas) {
+        await tx
+          .update(movimento)
+          .set({ valorCentavos: parcela.valor })
+          .where(
+            and(eq(movimento.compraId, compraId), eq(movimento.numeroParcela, parcela.numero)),
+          );
+      }
+
+      const [compra] = await tx
+        .update(compraParcelada)
+        .set({ valorTotalCentavos: valorTotal })
+        .where(eq(compraParcelada.id, compraId))
+        .returning({ amortizado: compraParcelada.valorAmortizadoAnteriorCentavos });
+      if (!compra) {
+        throw new Error(`compra_parcelada inexistente: ${compraId}`);
+      }
+
+      const [agregado] = await tx
+        .select({ soma: sql<string>`coalesce(sum(${movimento.valorCentavos}), 0)::text` })
+        .from(movimento)
+        .where(eq(movimento.compraId, compraId));
+      const soma = Number.parseInt(agregado?.soma ?? "0", 10) + compra.amortizado;
+      if (soma !== valorTotal) {
+        throw new ViolacaoDeConservacao(soma, valorTotal);
+      }
+    });
+  }
+
+  private async buscarUma(filtro: SQL): Promise<CompraPersistida | null> {
+    const linhas = await this.db.select().from(compraParcelada).where(filtro).limit(1);
     const compra = linhas[0];
     if (!compra) {
       return null;
