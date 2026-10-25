@@ -806,8 +806,8 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: Playwright
 **Done when**:
-- [ ] No passo 2 de outubro, o "Cai em" do Salário A oferece "Conta Corrente" e não oferece "Cartão Roxo" (IMP-04 AC 3, na composição da página)
-- [ ] O painel de outubro mostra "Despesas do mês" 238784: as quatro ocorrências de fixo de outubro (184000), as parcelas que caem em outubro (42334) e os três gastos do mês (12450), pelo `design.md` (IMP-08 Independent Test)
+- [x] No passo 2 de outubro, o "Cai em" do Salário A oferece "Conta Corrente" e não oferece "Cartão Roxo" (IMP-04 AC 3, na composição da página)
+- [x] O painel de outubro mostra "Despesas do mês" 238784: as quatro ocorrências de fixo de outubro (184000), as parcelas que caem em outubro (42334) e os três gastos do mês (12450), pelo `design.md` (IMP-08 Independent Test)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(e2e): conferir o cai em e as despesas de outubro na Visão geral`

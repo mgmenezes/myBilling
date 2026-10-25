@@ -119,6 +119,10 @@ async function importarOutubro(page: Page): Promise<Locator> {
   await aberto.getByLabel("Débito (4 linhas)").selectOption({ label: "Conta Corrente" });
   await aberto.getByLabel("Cartão Roxo (8 linhas)").selectOption({ label: "Cartão Roxo" });
   await aberto.getByLabel("Cartão Verde (1 linha)").selectOption({ label: "Cartão Verde" });
+  /* "Cai em" só oferece meio sem fatura, com os meios que a página monta (IMP-04, AC 3). */
+  const caiEm = aberto.getByRole("group", { name: "Salário A" }).getByLabel("Cai em");
+  await expect(caiEm.locator("option", { hasText: "Conta Corrente" })).toHaveCount(1);
+  await expect(caiEm.locator("option", { hasText: "Cartão Roxo" })).toHaveCount(0);
   await decidirEntrada(aberto, "Salário A", "Fixa");
   await decidirEntrada(aberto, "Salário B", "Fixa");
   await decidirEntrada(aberto, "Reembolso", "Avulsa");
@@ -147,9 +151,12 @@ test("importa outubro e novembro pela Visão geral, e o mês mostra o que entrou
   await aberto.getByRole("link", { name: "Abrir Outubro de 2026" }).click();
   await expect(dialogo(page)).toBeHidden();
 
-  /* IMP-08, Independent Test: o painel de outubro com as entradas da fixture. */
+  /* IMP-08, Independent Test: o painel de outubro com as entradas e as despesas da fixture. */
   await page.goto("/2026-10");
   expect(await indicador(page, "Receitas do mês")).toBe(1_015_000);
+  /* Só o que cai em outubro: as quatro ocorrências de fixo (R$ 1.840,00), uma parcela de
+     cada compra (R$ 423,34) e os três gastos do mês (R$ 124,50), como no design.md. */
+  expect(await indicador(page, "Despesas do mês")).toBe(238_784);
 
   /* Novembro: só o que aparece pela primeira vez é perguntado (IMP-04, AC 5). */
   const novembro = await abrirImportacao(page);
