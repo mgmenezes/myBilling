@@ -853,10 +853,10 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] AC 1 reescrito: o diálogo recusa com a mensagem de `PLANILHA_ARQUIVO_INVALIDO`, medindo o tamanho do arquivo em bytes; o servidor recusa o mesmo payload com `VALIDACAO`, medindo em caracteres, como segunda linha de defesa
-- [ ] Cada metade com assertion citada: extensão e tamanho no diálogo, extensão e tamanho no servidor, e o envelope `VALIDACAO` na action
-- [ ] A unidade de cada lado com um caso que a distingue: conteúdo com menos de 1 MB em caracteres e mais de 1 MB em bytes é recusado pelo diálogo e aceito pelo schema
-- [ ] `validate_spec.py` sem erro
+- [x] AC 1 reescrito: o diálogo recusa com a mensagem de `PLANILHA_ARQUIVO_INVALIDO`, medindo o tamanho do arquivo em bytes; o servidor recusa o mesmo payload com `VALIDACAO`, medindo em caracteres, como segunda linha de defesa
+- [x] Cada metade com assertion citada: extensão e tamanho no diálogo, extensão e tamanho no servidor, e o envelope `VALIDACAO` na action
+- [x] A unidade de cada lado com um caso que a distingue: conteúdo com menos de 1 MB em caracteres e mais de 1 MB em bytes é recusado pelo diálogo e aceito pelo schema
+- [x] `validate_spec.py` sem erro
 **Tests**: unit (schema) e componentes
 **Gate**: quick
 **Commit**: `test(importacao): medir em bytes e em caracteres as recusas de arquivo`

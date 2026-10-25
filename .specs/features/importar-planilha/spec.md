@@ -95,8 +95,10 @@ decisões de engenharia com a razão registrada, sujeitas à revisão desta spec
 
 **Acceptance Criteria**
 
-1. IF o arquivo não tiver extensão `.csv` ou passar de 1 MB THEN o sistema SHALL recusá-lo com
-   `PLANILHA_ARQUIVO_INVALIDO`, sem montar prévia
+1. IF o arquivo não tiver extensão `.csv` ou passar de 1 MB (1.048.576) THEN o diálogo SHALL
+   recusá-lo com a mensagem de `PLANILHA_ARQUIVO_INVALIDO`, medindo o tamanho do arquivo em bytes,
+   sem montar prévia; e, como segunda linha de defesa, o servidor SHALL recusar o mesmo payload com
+   `VALIDACAO`, medindo o tamanho do conteúdo em caracteres
 2. WHEN o arquivo começa com marca de ordem de bytes UTF-8 THEN o sistema SHALL ignorá-la na leitura
 3. IF faltar qualquer um dos títulos `Fixos`, `Cartão de Crédito`, `Gastos do Mês` ou `Entradas`
    THEN o sistema SHALL recusar o arquivo com `PLANILHA_BLOCO_AUSENTE`, nomeando o primeiro título
@@ -416,7 +418,7 @@ outubro com sucesso.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| IMP-01 | P1: Ler a aba exportada | Execute | Implemented, aguarda o Verifier: AC 2 (T1); ACs 9, 10, 11, 13 e 18 na célula (T2); ACs 3 a 12 e 14 a 17 na aba (T3); AC 1 na extensão e no tamanho do payload (T16); mensagem do AC 3 nomeando o bloco, na action (T19); ACs 1 e 3 no navegador, antes de qualquer prévia (T21); correção da rodada 1: AC 11 no próprio limite, com `1/120` e `120/120` aceitos e `1/121` recusado (F2) |
+| IMP-01 | P1: Ler a aba exportada | Execute | Implemented, aguarda o Verifier: AC 2 (T1); ACs 9, 10, 11, 13 e 18 na célula (T2); ACs 3 a 12 e 14 a 17 na aba (T3); AC 1 na extensão e no tamanho do payload (T16); mensagem do AC 3 nomeando o bloco, na action (T19); ACs 1 e 3 no navegador, antes de qualquer prévia (T21); correção da rodada 1: AC 11 no próprio limite, com `1/120` e `120/120` aceitos e `1/121` recusado (F2); AC 1 reescrito com as duas linhas de defesa, o diálogo medindo em bytes e o servidor em caracteres, cada unidade provada por um caso que as distingue (F7) |
 | IMP-02 | P1: Decidir o mês da aba | Execute | Implemented, aguarda o Verifier: ACs 1 e 2 no nome do arquivo (T4); registro de importação, um por competência, base dos ACs 4, 5 e 7 (T11); última competência, guarda do AC 6 e importações concorrentes serializadas pela trava do AC 7 (T14); guarda de ordem e de banco vazio na prévia, ACs 4 a 6 (T17); AC 5 com a competência esperada por extenso e AC 7 com duas gravações simultâneas contra Postgres, nas actions (T19); ACs 1 a 4 no passo do arquivo, com o mês e o ano por extenso (T21); Independent Test de ponta a ponta, com dezembro recusado depois de outubro (T26); correção da rodada 1: AC 1 no próprio limite, com 2000 e 2099 aceitos e 2100 sem seleção (F2) |
 | IMP-03 | P1: Transformar cada linha no que ela é | Execute | Implemented, aguarda o Verifier: ACs 2 a 5 e 7 a 12 no plano (T9); AC 8 na origem do avulso e AC 9 nas categorias com as arquivadas, no banco (T13); ACs 1 a 12 executados pelos casos de uso existentes na gravação, sobre os fakes (T18); correção da rodada 1: AC 10 com a primeira e a última ocorrência de grafias diferentes e a tabela sem nenhuma das duas (F1) |
 | IMP-04 | P1: Resolver o que o app não sabe | Execute | Implemented, aguarda o Verifier: ACs 1, 3 e 5 e as decisões a lembrar do AC 4 no plano (T9); tabela das decisões lembradas, uma por tipo e nome (T11); port e fake das decisões lembradas, com upsert (T12); upsert das decisões no banco, AC 4 (T14); decisões lembradas somadas às do passo 2 na prévia, AC 5 (T17); recusa da pendência aberta, AC 7, e decisões gravadas com o registro, AC 4 (T18); cadastro de meio extraído com o nome pré-preenchido, base do AC 2 (T20); passo "O que precisa de você" com os ACs 1 a 3 na tela (T22); AC 6 no diálogo, que pula o passo 2 sem pendência e pede a prévia de novo com as decisões (T24); Independent Test de ponta a ponta, com o Cartão Azul cadastrado no passo 2 (T26); correção da rodada 1: AC 3 na composição da página, com o "Cai em" de ponta a ponta oferecendo Conta Corrente e não o Cartão Roxo (F4) |

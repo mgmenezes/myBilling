@@ -71,6 +71,14 @@ describe("entradaPreviaImportacaoSchema", () => {
     ).toBe(true);
   });
 
+  it("mede o limite em caracteres: conteúdo com menos de 1 MB em caracteres e mais em bytes passa (IMP-01 AC 1)", () => {
+    const conteudo = "\u00e9".repeat(600_000);
+    expect(conteudo.length).toBeLessThan(MAX_CONTEUDO_PLANILHA);
+    expect(new TextEncoder().encode(conteudo).length).toBeGreaterThan(MAX_CONTEUDO_PLANILHA);
+
+    expect(entradaPreviaImportacaoSchema.safeParse({ ...PREVIA, conteudo }).success).toBe(true);
+  });
+
   it("recusa competência com mês 13", () => {
     expect(
       camposComErro(entradaPreviaImportacaoSchema, { ...PREVIA, competencia: "2026-13" }),

@@ -214,6 +214,22 @@ describe("PassoArquivo — arquivo recusado (IMP-01, AC 1 e 3)", () => {
     expect(continuar().disabled).toBe(true);
   });
 
+  it("mede o tamanho em bytes: a aba com menos de 1 MB em caracteres e mais em bytes é recusada", async () => {
+    montar();
+    // A1 tem um caractere solto, que a leitura ignora (IMP-01 AC 16): inflado
+    // com "é", que ocupa dois bytes em UTF-8, a aba continua legível.
+    const conteudo = OUTUBRO.replace(/^X,/, `X${"\u00e9".repeat(600_000)},`);
+    const grande = arquivo(conteudo, "Planilha 2026 - Outubro.csv");
+    expect(conteudo.length).toBeLessThan(1_048_576);
+    expect(grande.size).toBeGreaterThan(1_048_576);
+
+    soltar(grande);
+
+    expect((await screen.findByRole("alert")).textContent).toBe(ARQUIVO_INVALIDO);
+    expect(screen.queryByText("4 blocos encontrados")).toBeNull();
+    expect(continuar().disabled).toBe(true);
+  });
+
   it("sem o bloco Entradas: a mensagem nomeia “Entradas”", async () => {
     montar();
     const semEntradas = OUTUBRO.replace(",Entradas,", ",Outra coisa,");
