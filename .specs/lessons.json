@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 16,
+  "next_id": 17,
   "lessons": [
     {
       "id": "L-001",
@@ -254,10 +254,11 @@
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
-        "validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)"
+        "validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)",
+        "N9r: planejar-importacao.ts:394 invertendo as receitas vigentes; validation.md, rodada 3 (testes,composicao)"
       ],
       "created": "2026-10-25T06:12:20Z",
-      "last_seen": "2026-10-25T06:12:20Z"
+      "last_seen": "2026-10-25T06:36:08Z"
     },
     {
       "id": "L-015",
@@ -276,6 +277,24 @@
       ],
       "created": "2026-10-25T06:12:20Z",
       "last_seen": "2026-10-25T06:12:20Z"
+    },
+    {
+      "id": "L-016",
+      "key": "gate_fail::o gate de cada task precisa incluir tsc noemit encadeado com o vitest transpila sem checar tipos e o commit que nao compila passa verde",
+      "text": "O gate de cada task precisa incluir `tsc --noEmit`, encadeado com `&&`: o Vitest transpila sem checar tipos, e o commit que não compila passa verde.",
+      "signal": "gate_fail",
+      "scope": "tasks,gates",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "commit f8920a8 (F11): tsc --noEmit com TS2554 em dialogo-importacao.test.tsx:303, 0 em a033fef; antes, 7fe7552 (T12); validation.md, rodada 3 (tasks,gates)"
+      ],
+      "created": "2026-10-25T06:36:08Z",
+      "last_seen": "2026-10-25T06:36:08Z"
     }
   ]
 }

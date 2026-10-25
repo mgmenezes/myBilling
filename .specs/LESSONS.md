@@ -93,14 +93,20 @@ Seen once or not yet corroborated. Tracked, not trusted.
 ### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,composicao` · harmful: 0
 - features: importar-planilha
-- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)
-- last seen: 2026-10-25T06:12:20Z
+- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao) (+1 more)
+- last seen: 2026-10-25T06:36:08Z
 
 ### L-015 - Correção de estado transitório na tela precisa observar todo elemento ligado ao mesmo sinal pendente, e não só o que exibiu o defeito.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
 - features: importar-planilha
 - evidence: validation.md rodada 2: N5 (src/components/importacao/dialogo-importacao.tsx:194) (componentes,testes)
 - last seen: 2026-10-25T06:12:20Z
+
+### L-016 - O gate de cada task precisa incluir `tsc --noEmit`, encadeado com `&&`: o Vitest transpila sem checar tipos, e o commit que não compila passa verde.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `tasks,gates` · harmful: 0
+- features: importar-planilha
+- evidence: commit f8920a8 (F11): tsc --noEmit com TS2554 em dialogo-importacao.test.tsx:303, 0 em a033fef; antes, 7fe7552 (T12); validation.md, rodada 3 (tasks,gates)
+- last seen: 2026-10-25T06:36:08Z
 
 ## Quarantined (failed when applied - ignore)
 

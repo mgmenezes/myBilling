@@ -1,15 +1,16 @@
 # Importar a planilha — Validação
 
-## Validation: importar-planilha — **FAIL** (rodada 2, veredito vigente)
+## Validation: importar-planilha — **FAIL** (rodada 3, veredito vigente)
 
-**Result**: FAIL ❌ — rodada 2, 2026-10-25, sobre `8094bb9`. **Nenhum defeito de comportamento.**
-Os sete sobreviventes da rodada 1 morrem, cada um no teste que a sua correção escreveu, e as três
-provas parciais fecharam. O FAIL vem de três mutantes novos que sobrevivem à suíte inteira, e2e
-incluído. N9: o plano reordena as vigentes e quebra o IMP-07 AC 12 reescrito. N5: "Lendo a aba no
-servidor…" aparece na conferência. N6: a gravação não marca o botão como ocupado. N5 e N6 estão no
-estado de espera do diálogo, que a F8 reescreveu e que nenhum AC descreve. O detalhe está na seção
-"Rodada 2", no fim do arquivo. A rodada 1 vem logo abaixo, com o texto original; só o título e a
-linha do veredito dela mudaram de nome, para que o veredito vigente seja um só.
+**Result**: FAIL ❌ — rodada 3, 2026-10-25, sobre `a033fef`. **Nenhum defeito de comportamento.**
+N9, N5 e N6, os três sobreviventes da rodada 2, morrem, cada um no teste que a sua correção
+escreveu. N5 e N6 morrem 3 de 3 vezes. Os ACs novos, IMP-08 AC 9 e AC 10, têm assertion que bate
+com a spec. Os 13 mortos de regressão e os dois do AD-011 continuam mortos. O FAIL vem de um
+mutante só, N9r, que é o gêmeo de N9 do lado das receitas: o plano inverte as receitas vigentes em
+`planejar-importacao.ts:394`, e a suíte inteira fica verde. A rodada 2 já pedia esse caso ("Vale
+repetir para as receitas"), e a F9 provou só as despesas. É a terceira iteração, então o caso vai
+ao dono, com duas saídas descritas na seção "Rodada 3", no fim do arquivo. O cabeçalho da rodada 2
+resumia a seção "Rodada 2", que continua intacta. A rodada 1 vem logo abaixo, com o texto original.
 
 ---
 
@@ -790,3 +791,238 @@ falhas e 0 puladas.
 **Próximo passo**: três tasks de teste, mais uma linha de spec no IMP-05. Depois, a rodada 3 do
 Verificador reaplica N5, N6 e N9. É a última iteração antes de escalar para o dono, pelo limite de
 três do ciclo de correção.
+
+---
+
+## Rodada 3
+
+**Data**: 2026-10-25
+**Spec**: a mesma da rodada 2, com dois ACs novos no IMP-08 (9 e 10) e a traceability do IMP-07 e do
+IMP-08 atualizada. `validate_spec.py` sai sem erro nem aviso.
+**Faixa do diff**: correções `4c3a2a9..a033fef`, quatro commits: `8272c5b` (F9), `3a91693` (F10),
+`f8920a8` (F11) e `a033fef`, que conserta o tipo do caso da F11 e não tem task. Nenhum toca código
+de produção. O diff é `planejar-importacao.test.ts`, `dialogo-importacao.test.tsx`, `spec.md` e
+`tasks.md`. `check_commit.py` sai 0 nos quatro. Fatia inteira: `caa9484^..a033fef`.
+**Verificador**: sub-agente independente, que não escreveu a fatia nem as correções. Somente
+leitura sobre código e teste. As mutações rodaram numa `git worktree` descartável em
+`/private/tmp/.../scratchpad/verifier3-wt`, **nenhum `git stash`**.
+
+### Veredito — FAIL ❌
+
+O que a rodada 2 pediu está entregue. N9 morre no caso novo do plano. N5 morre 3 de 3 vezes na
+assertion nova do `MutationObserver`, e não na antiga. N6 morre 3 de 3 vezes no caso da gravação
+pendente. Os dois ACs novos do IMP-08 têm assertion com o resultado que a spec escreve, e uma
+mutação extra (N6d) prova que as duas cláusulas do AC 10, o rótulo e o botão desabilitado, são
+vigiadas separadamente. A regressão continua morta: 13 de 13, mais os dois do AD-011. O gate passa
+na árvore real, e o e2e passa 59/59.
+
+O FAIL vem de **N9r**, uma mutação extra deste verificador. É o gêmeo exato de N9: N9 inverte as
+despesas vigentes antes do reconhecimento (`planejar-importacao.ts:362`), e N9r inverte as
+receitas (`:394`), que passam pelo mesmo `reconhecerRecorrencias`. N9r passa verde nos 35 testes do
+plano, nos 167 unitários da fatia e nos 13 de integração.
+
+Três fatos sustentam que N9r conta:
+
+1. **O mutante não é equivalente.** Uma sonda, escrita na worktree e apagada, repete o caso da F9
+   com duas entradas fixas "Salário A" (600000 e 30000) e duas receitas vigentes na mesma ordem. No
+   `HEAD`, as duas linhas saem `JA_EXISTE`. Com N9r, saem `["REAJUSTE", "REAJUSTE"]`: dois reajustes
+   cruzados, que gravariam duas versões erradas.
+2. **O IMP-07 AC 12 alcança as entradas fixas.** Ele vale para "duas linhas da mesma aba [com] o
+   mesmo nome e meio". Duas entradas homônimas têm sempre o mesmo meio, porque o "cai em" é decidido
+   por nome. A implementação aplica o AC 12 às linhas sem meio: `reconhecer-recorrencias.ts:52-56`
+   diz "ou só pelo nome quando a linha não tem meio" e "a segunda linha com a mesma chave é nova
+   (IMP-07 AC 12)".
+3. **A rodada 2 pediu este caso.** O item 1 das lacunas da rodada 2 dizia: "Vale repetir para as
+   receitas, que passam pelo mesmo caminho em `:392-394`". O Done when da F9 cobre só as despesas.
+
+Aplico a régua das rodadas 1 e 2: todo mutante vivo e não equivalente vira task. N9 caiu nessa régua
+na rodada 2, e N9r é o mesmo mutante do outro lado. Nenhum código de produção precisa mudar.
+
+**Decisão do dono.** É a terceira iteração, então o ciclo para aqui. Há duas saídas:
+
+- **(a) F12, recomendada.** Um caso em `planejar-importacao.test.ts`, que é a sonda desta rodada,
+  com cerca de 35 linhas e sem tocar código de produção. Done when: N9r morre.
+- **(b) Aceitar a lacuna.** O AC 12 passa a dizer "duas linhas de Fixos". Isso alinha o AC com a
+  linha de premissas (`spec.md:64`, "mesmo nome e meio em dois fixos"). Mas deixa o caminho das
+  receitas no plano sem prova, enquanto a implementação aplica ali a mesma regra.
+
+### Gates
+
+| Gate | Onde | Resultado |
+| --- | --- | --- |
+| `pnpm verify` | árvore real, em `a033fef`, com o Postgres da porta 5433 de pé | ✅ saída 0 |
+| — `typecheck` | | ✅ `Types generated successfully` |
+| — `lint` | | ✅ `Checked 255 files in 126ms. No fixes applied.` |
+| — `test:unit` | | ✅ **84 arquivos, 1.138 testes**; `src/domain` com 100% de branches (323/323), statements (642/642), funções (154/154) e linhas (607/607) |
+| — `test:integration` | | ✅ **21 arquivos, 285 testes** |
+| — `build` | | ✅ `Compiled successfully`; `/[competencia]` sai como `ƒ` |
+| `pnpm exec playwright test` | worktree em `a033fef`, com `node_modules` de `pnpm install --frozen-lockfile --offline` | ✅ **59 passed** em 2,2 min |
+
+**Total**: 1.482 provas, 0 falhas, 0 puladas. Nenhum `.skip`, `.only` ou `.todo` em `src` ou `e2e`.
+
+**Integridade.** Unit foi de 1.136 para 1.138. São +2: um caso da F9 e um da F11. A F10 acrescentou
+uma assertion ao caso da F8, sem criar caso novo. Integração ficou em 285 e e2e em 59. Nos arquivos
+de teste, o diff `4c3a2a9..a033fef` remove seis linhas, e nenhuma é assertion. São estas:
+
+- o `import`, regravado com `act`;
+- duas linhas de `resumoDeOutubro`, que virou a constante `RESPOSTA_DE_OUTUBRO` em `a033fef`;
+- o título do `describe` e o do `it` do caso da F8;
+- o `if` do observador, regravado sobre a variável `texto`.
+
+**`next-env.d.ts`.** O e2e rodou só na worktree, então a árvore real não foi reescrita. O
+`next dev` da worktree reescreveu o arquivo dela, que restaurei antes do E2.
+
+**Commits que não compilam sozinhos.** Rodei `tsc --noEmit` em cada correção:
+
+| Commit | Erros | Detalhe |
+| --- | --- | --- |
+| `8272c5b` | 0 | |
+| `3a91693` | 0 | |
+| `f8920a8` | 1 | `dialogo-importacao.test.tsx(303,28): error TS2554: Expected 1 arguments, but got 0.` |
+| `a033fef` | 0 | |
+
+O gate que o `tasks.md` declara para a F11 é o `quick`, ou seja, `pnpm test:unit`. O Vitest
+transpila sem checar tipos, então o caso passou. O corpo de `a033fef` diz que os comandos foram
+encadeados com `;`. A causa é a mesma de `7fe7552` (T12), cujo gate também era o `quick`. Vale para
+os dois: o gate da task não roda `tsc`, e só o `build` da última task da fase o pega. O registro
+está em "Lições", abaixo. O código final não muda por isso, e o fato fica fora do veredito.
+
+### Sensor de discriminação
+
+A worktree descartável ficou em `a033fef`. O Vitest rodou com `node_modules` em symlink para a raiz.
+Para o e2e, troquei o symlink por `pnpm install --frozen-lockfile --offline`. As mutações das
+rodadas 1 e 2 foram reaplicadas com o mesmo texto de substituição, carregado sem alteração dos
+scripts delas. Reverti cada mutante com `git checkout -- <arquivo>` e conferi a worktree limpa antes
+do seguinte. A integração e o e2e rodaram em série, contra o Postgres da porta 5433.
+
+Antes do sensor, a linha de base passou na worktree:
+
+- 319 testes unitários de `src/domain/importacao`, `src/application/importacao`,
+  `src/components/importacao`, `src/domain/parcelamento` e `competencia.test.ts`;
+- o arquivo do diálogo, 12/12 em 3 de 3 execuções;
+- 20 testes de integração em 3 arquivos;
+- os 59 do e2e.
+
+#### Os três sobreviventes da rodada 2
+
+| # | Mutação | `file:line` | Morto por (assertion, e o que ela recebeu) | Resultado |
+| --- | --- | --- | --- | --- |
+| N9 | o plano inverte as despesas vigentes: `[...estado.despesasFixasVigentes].reverse()` | `src/domain/importacao/planejar-importacao.ts:362` | `planejar-importacao.test.ts:872`, o `toEqual` de `:868-875`: recebeu `[[2, "REAJUSTE"], [4, "REAJUSTE"]]` e esperava `JA_EXISTE` nas duas (F9). Na fatia unitária, é a única falha | ✅ Morto |
+| N5 | sem a guarda `passo.nome !== "CONFERENCIA"`, ou seja, `{lendo ? (` | `src/components/importacao/dialogo-importacao.tsx:194` | `dialogo-importacao.test.tsx:234`: `viuLeituraNaConferencia` deu `true`, **3 de 3**. A assertion da F8 (`:233`, `viuImportando`) passou nas três, então quem mata é a da F10 | ✅ Morto |
+| N6 | `gravando={false}` no `PassoConferencia` | `dialogo-importacao.tsx:184` | `dialogo-importacao.test.tsx:302`: `findByRole("button", { name: "Importando…" })` não encontrou o botão, **3 de 3** (F11) | ✅ Morto |
+
+#### Mutações extras desta rodada
+
+| # | Mutação | `file:line` | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| N6d | o botão diz "Importando…" mas não trava, com `const bloqueado = conferencia.temDivergencia && !confirmou` | `src/components/importacao/passo-conferencia.tsx:131` | `dialogo-importacao.test.tsx:303`: `hasAttribute("disabled")` deu `false`. Prova a segunda cláusula do IMP-08 AC 10 no diálogo | ✅ Morto |
+| **N9r** | **o plano inverte as receitas vigentes: `[...estado.receitasFixasVigentes].reverse()`** | `src/domain/importacao/planejar-importacao.ts:394` | nenhum: o plano passa 35/35, a fatia unitária 167/167 e a integração 13/13. A sonda (`HEAD` verde, mutante com dois `REAJUSTE`) mostra que não é equivalente | ❌ **Sobreviveu** |
+
+#### AD-011
+
+| # | Mutação | `file:line` | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| M01 | (a) rateio por truncamento, sem distribuir o resto | `src/domain/parcelamento/ratear-parcelas.ts:37` | 9 falhas: `ratear-parcelas.test.ts:26`, `:30`, `:37`, `:57`, `:61`, `:94` e `:99` (`[1, 1, 1]` contra `[2, 2, 1]`), e `gerar-parcelas.test.ts:46`, `:77` e `:160`. A fatia fica verde (171), como nas rodadas 1 e 2, porque a importação grava em `VALOR_PARCELA` | ✅ Morto |
+| M02 | (b) `addMeses` gira o mês e mantém o ano | `src/domain/shared/competencia.ts:45` | `competencia.test.ts:50`, `:54` e `:58` (`'2026-02'` contra `'2027-02'`). Também `gravar-importacao/handler.test.ts:145` e `importacao.integration.test.ts:327`, onde `proxima` recebeu `"2026-01"` e esperava `"2027-01"` | ✅ Morto |
+
+#### Regressão: amostra dos mortos das rodadas 1 e 2
+
+| # | Mutação | Morto por | Resultado |
+| --- | --- | --- | --- |
+| M13 | grafia da categoria: a última linha vence | `planejar-importacao.test.ts:500` | ✅ Morto |
+| M28 | vigentes de mesma chave pareadas na ordem inversa, no reconhecimento | `reconhecer-recorrencias.test.ts:154` e, agora, também `planejar-importacao.test.ts:872`, porque o caso da F9 atravessa o plano | ✅ Morto |
+| M29 | ano aceito até 2999 | `competencia-do-arquivo.test.ts:59`: `{ mes: 10, ano: 2100 }` contra `ano: null` | ✅ Morto |
+| M30 | `t = 120` recusado | `celula.test.ts:45`, nos casos `1/120` e `120/120` | ✅ Morto |
+| E2 | página: `geraFatura: false` para todo meio | `e2e/importacao.spec.ts:125`: `toHaveCount(0)` das opções "Cartão Roxo" em "Cai em" recebeu 1 | ✅ Morto |
+| N4 | uma transição só, o código de antes da F8 | `dialogo-importacao.test.tsx:233`: `viuImportando` deu `true` | ✅ Morto |
+| N4b | duas transições, com `gravando={lendo}` | `dialogo-importacao.test.tsx:233`, `:302`, `:317`, `:343`, `:365` e `:386`, com 6 falhas | ✅ Morto |
+| N1 | sem a ordenação de `carregar-estado` | `carregar-estado.test.ts:161`: `["rec-a", "rec-c", "rec-b"]` contra `["rec-b", "rec-c", "rec-a"]` | ✅ Morto |
+| M20 | passo 3: `bloqueado` ignora a confirmação | `passo-conferencia.test.tsx:249` | ✅ Morto |
+| M10 | fixo com valor ilegível deixa a vigente sem par | `reconhecer-recorrencias.test.ts:80`; `planejar-importacao.test.ts:764`, `:800` e `:836` | ✅ Morto |
+| M26 | o script de limpeza esvazia `orcamento_categoria` | `limpar-para-importar.integration.test.ts:246` | ✅ Morto |
+| M27 | o script esvazia `pagamento_fatura` e `fatura` | `limpar-para-importar.integration.test.ts:246`: recebeu `fatura: []` | ✅ Morto |
+| M23 | sem `pg_advisory_xact_lock` | `transacao-da-importacao.integration.test.ts:249` ("a segunda importação nunca esperou na trava"); `importacao.integration.test.ts:576` | ✅ Morto |
+
+**Contagem**: 20 mutações. São os 3 sobreviventes da rodada 2, 2 extras, os 2 do AD-011 e 13 de
+regressão. **19 mortas e 1 sobrevivente**, que é N9r. Sensor ❌.
+
+**Isolamento.** O porcelain da árvore real estava vazio antes de tudo, inclusive depois do
+`pnpm verify`. Depois de `git worktree remove --force` e `git worktree prune`, continuou vazio.
+Nenhuma mutação vazou, e `next-env.d.ts` não mudou na árvore real.
+
+### Evidência dos ACs novos ou alterados
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| IMP-07 AC 12, no elo do plano, despesas | a 1ª linha pareia com a vigente de menor `competencia_inicio`, e o `id` desempata; cada linha fica com a sua | `planejar-importacao.test.ts:842-881`. As vigentes são "Academia" na Conta Corrente com 12000 e 13000, nessa ordem (`:858-863`). As linhas estão na posição 2, da fixture, e 4, com 13000 (`:847-855`). A assertion de `:868-875` é `expect(plano.linhas.filter(… "Academia").map((l) => [l.posicao, l.destino])).toEqual([[2, "JA_EXISTE"], [4, "JA_EXISTE"]])`, e a de `:876-880` é `expect(operacoesDe(plano).reajustes.filter((r) => r.recorrenciaId.startsWith("rec-academia"))).toEqual([])` | ✅ PASS (N9 e M28 mortos) |
+| IMP-07 AC 12, no elo do plano, receitas | o mesmo pareamento para duas entradas fixas homônimas | nenhum teste | ❌ GAP (N9r vivo) |
+| IMP-08 AC 9 | enquanto a conferência está na tela, "Lendo a aba no servidor…" não aparece | `dialogo-importacao.test.tsx:207-235`. O `MutationObserver` de `:214-222` marca qualquer commit em que "Lendo a aba no servidor…" e "Conferência de" estejam juntos. "Conferência de" é o título do passo, em `passo-conferencia.tsx:138`. A assertion é `expect(viuLeituraNaConferencia).toBe(false)` (`:234`). A condição dispara sob N5, então não é vazia | ✅ PASS (N5 morto 3 de 3) |
+| IMP-08 AC 10 | enquanto grava, o botão fica desabilitado e com o rótulo "Importando…" | `dialogo-importacao.test.tsx:286-309`. `importarPlanilha` é dublado com uma promessa pendente (`:288-293`). O rótulo é provado por `findByRole("button", { name: "Importando…" })` (`:302`) e o bloqueio por `expect(botao.hasAttribute("disabled")).toBe(true)` (`:303`). Ao resolver, aparece "16 criados" (`:305-308`) | ✅ PASS (N6 morto em `:302`, N6d em `:303`) |
+
+**Os ACs que esta rodada não tocou.** A suíte passa inteira, com 1.482 provas, e a amostra de
+regressão continua morta. Por amostragem, isso cobre:
+
+- IMP-01 AC 11 (M30) e IMP-02 AC 1 e 7 (M29, M23);
+- IMP-03 AC 10 (M13) e IMP-04 AC 3 na página (E2);
+- IMP-05 AC 7 e 9 (M20, N4, N4b);
+- IMP-07 AC 6 (M10) e AC 12 no estado e no reconhecimento (N1, M28);
+- IMP-09 AC 2 (M26, M27).
+
+**Status**: dos três critérios e estados que a rodada 2 deixou abertos, os três fecham. O IMP-07
+AC 12 fecha no lado das despesas e abre no das receitas (N9r).
+
+### Lacuna restante
+
+1. **N9r: o elo do plano no IMP-07 AC 12, lado das receitas (Minor).**
+   - **Task (F12)**: em `planejar-importacao.test.ts`, partir de `abaDaFixture("Novembro")` e
+     acrescentar uma entrada "Salário A" de 30000 depois da última. Acrescentar também
+     `vigente("rec-salario-a-2", "Salário A", CONTA, 30000)` ao fim de
+     `ESTADO_DE_NOVEMBRO.receitasFixasVigentes`. Esperado: as duas linhas "Salário A" de Entradas
+     saem `JA_EXISTE`, e nenhum reajuste de `rec-salario-a*`.
+   - **Done when**: N9r (`[...estado.receitasFixasVigentes].reverse()` em `planejar-importacao.ts:394`)
+     falha o caso.
+   - **Alternativa**: a saída (b) do veredito, que restringe o AC 12 aos Fixos.
+
+**Fora do veredito (processo).** `f8920a8` não compila sozinho, e é a segunda ocorrência do padrão
+na fatia. `a033fef` entrou sem task no `tasks.md`, como conserto da F11. Nenhum dos dois muda o
+código final.
+
+### Lições
+
+- **L-014, nova ocorrência.** N9r é o mesmo padrão de N9: o estado e o reconhecimento provados em
+  separado, e o elo do meio sem um teste que o atravesse. Regravei a L-014 com o texto exato e a
+  fonte N9r, com `lessons.py add`. Como a ocorrência é da mesma feature, a recorrência continua 1 e
+  a L-014 segue candidata.
+- **Commit que não compila sozinho: lição nova, L-016** (`gate_fail`, fontes `f8920a8` e `7fe7552`).
+  O texto é "O gate de cada task precisa incluir `tsc --noEmit`, encadeado com `&&`: o Vitest
+  transpila sem checar tipos, e o commit que não compila passa verde". A L-013 não foi regravada. Ela
+  descreve o caso particular, a port separada da implementação, e `f8920a8` não amplia port nenhuma.
+  A causa comum às duas ocorrências é o gate `quick` sem `tsc`, e é ela que a L-016 nomeia. As duas
+  ocorrências são desta feature, então a L-016 nasce candidata.
+
+### Requirement Traceability — atualização proposta (rodada 3)
+
+O Verificador não edita `spec.md`. Este é o status que a rodada 3 sustenta:
+
+| Requisito | Status da rodada 2 | Novo status |
+| --- | --- | --- |
+| IMP-01 a IMP-04, IMP-06, IMP-09 | ✅ Verified | ✅ Verified |
+| IMP-05 | ⚠️ com ressalva | ✅ Verified: o estado de espera ganhou AC no IMP-08, e N5 e N6 estão mortos |
+| IMP-07 | ❌ Needs Fix | ❌ Needs Fix: o AC 12 está provado nos três elos para as despesas, mas o elo do plano não tem prova para as receitas (N9r). Fica Verified com a F12, ou com a saída (b) |
+| IMP-08 | ✅ Verified | ✅ Verified: AC 9 e AC 10 provados no diálogo |
+
+### Resumo
+
+**Overall**: ❌ Não pronto, por um teste. Nenhum defeito de comportamento e nenhum código de
+produção a mudar.
+
+**Spec-anchored**: os três critérios novos ou alterados batem com a spec. O IMP-07 AC 12 fica
+parcial, com as receitas sem prova no plano (N9r).
+**Sensor**: 20 mutações, 19 mortas e 1 sobrevivente (N9r). N9, N5 e N6 estão mortos, e os dois do
+AD-011 também.
+**Gate**: `pnpm verify` saiu 0 na árvore real, e o e2e deu 59/59 na worktree, com 1.482 provas, 0
+falhas e 0 puladas.
+
+**Próximo passo**: o limite de três iterações acabou, e o caso vai ao dono. Ele escolhe entre a F12,
+que é um caso de teste e é a recomendada, e a saída (b), que restringe o AC 12 aos Fixos. Com a F12
+feita, basta reaplicar N9r para fechar o veredito.
