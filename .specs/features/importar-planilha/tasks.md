@@ -218,12 +218,12 @@ T26 -> T27
 **Interfaces**: produz `MotivoNaoLida`, `ParcelaDaLinha`, `valorDaCelula`, `parcelaDaCelula`, `normalizarNome` (design.md, "celula.ts")
 **Tools**: nenhuma
 **Done when**:
-- [ ] `R$ 1.234,56` → 123456 (IMP-01 AC 13); `R$ 1.398,00` com U+00A0 depois de `R$` → 139800
-- [ ] Review Focus 3: `R$10,00` → 1000; `R$ 1.234.567,89` → 123456789; `10` → 1000; `-R$ 10,00` → `VALOR_INVALIDO`; `R$ 0,00` → `VALOR_ZERO` (IMP-01 AC 18)
-- [ ] `""` e `"   "` → `VALOR_VAZIO` (AC 9); `200*` → `VALOR_INVALIDO` (AC 10)
-- [ ] `7/10` → `{ numero: 7, total: 10 }`; ` 3/3 ` → `{ 3, 3 }`; `12/10`, `0/3`, `3/121`, `3-10`, `""` → `PARCELA_INVALIDA` (AC 11)
-- [ ] `normalizarNome("  Cartão   Roxo ")` → `"cartão roxo"`; `"MERCADO"` e `"Mercado"` dão o mesmo
-- [ ] 100% de branches
+- [x] `R$ 1.234,56` → 123456 (IMP-01 AC 13); `R$ 1.398,00` com U+00A0 depois de `R$` → 139800
+- [x] Review Focus 3: `R$10,00` → 1000; `R$ 1.234.567,89` → 123456789; `10` → 1000; `-R$ 10,00` → `VALOR_INVALIDO`; `R$ 0,00` → `VALOR_ZERO` (IMP-01 AC 18)
+- [x] `""` e `"   "` → `VALOR_VAZIO` (AC 9); `200*` → `VALOR_INVALIDO` (AC 10)
+- [x] `7/10` → `{ numero: 7, total: 10 }`; ` 3/3 ` → `{ 3, 3 }`; `12/10`, `0/3`, `3/121`, `3-10`, `""` → `PARCELA_INVALIDA` (AC 11)
+- [x] `normalizarNome("  Cartão   Roxo ")` → `"cartão roxo"`; `"MERCADO"` e `"Mercado"` dão o mesmo
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): ler valor, parcela e nome normalizado de uma célula`
