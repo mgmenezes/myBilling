@@ -345,13 +345,13 @@ T26 -> T27
 **Interfaces**: produz `TOLERANCIA_DE_RECONHECIMENTO`, `CompraEmCurso`, `LinhaDeCompra`, `DestinoDeCompra`, `ComprasReconhecidas`, `reconhecerCompras` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Sofá 8/10 contra compra com `numeroEmM` 8, `qtdParcelas` 10, mesmo meio → `CONTINUA` (IMP-07 AC 7)
-- [ ] Fone 2/3 de 3333 contra `valorEmM` 3334 → `CONTINUA_COM_NOVO_VALOR` 3334 → 3333
-- [ ] Diferença de 101 centavos → `COMPRA_NOVA`; de 100 → reconhece (AC 8)
-- [ ] Os dois Livros de novembro (3002 e 2000, nessa ordem) contra as compras de 3000 e 2000: a de 3002 fica com a de 3000, a de 2000 com a de 2000; nenhuma compra é usada duas vezes (AC 9)
-- [ ] `numeroEmM` diferente de `n`, ou `qtdParcelas` diferente de `t`, ou meio diferente → `COMPRA_NOVA`
-- [ ] Compra em curso sem linha → em `naoAparecem` (Óculos em dezembro — AC 11)
-- [ ] 100% de branches
+- [x] Sofá 8/10 contra compra com `numeroEmM` 8, `qtdParcelas` 10, mesmo meio → `CONTINUA` (IMP-07 AC 7)
+- [x] Fone 2/3 de 3333 contra `valorEmM` 3334 → `CONTINUA_COM_NOVO_VALOR` 3334 → 3333
+- [x] Diferença de 101 centavos → `COMPRA_NOVA`; de 100 → reconhece (AC 8)
+- [x] Os dois Livros de novembro (3002 e 2000, nessa ordem) contra as compras de 3000 e 2000: a de 3002 fica com a de 3000, a de 2000 com a de 2000; nenhuma compra é usada duas vezes (AC 9)
+- [x] `numeroEmM` diferente de `n`, ou `qtdParcelas` diferente de `t`, ou meio diferente → `COMPRA_NOVA`
+- [x] Compra em curso sem linha → em `naoAparecem` (Óculos em dezembro — AC 11)
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): reconhecer compras parceladas pela sequência das parcelas`
