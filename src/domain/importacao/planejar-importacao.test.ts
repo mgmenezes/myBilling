@@ -839,6 +839,47 @@ describe("planejarImportacao — ordem de aparição (IMP-07 AC 12, IMP-05 AC 5)
     });
   });
 
+  it("homônimos de mesmo meio pareiam na ordem das vigentes do estado, cada um com o seu valor", () => {
+    const novembro = abaDaFixture("Novembro");
+    const aba: AbaLida = {
+      ...novembro,
+      fixos: [
+        ...novembro.fixos,
+        {
+          bloco: "FIXOS",
+          posicao: 4,
+          nome: "Academia",
+          tipo: "Débito",
+          categoria: "Saúde",
+          valor: 13000 as Cents,
+        },
+      ],
+    };
+    const estado: EstadoParaImportacao = {
+      ...ESTADO_DE_NOVEMBRO,
+      despesasFixasVigentes: [
+        ...ESTADO_DE_NOVEMBRO.despesasFixasVigentes,
+        vigente("rec-academia-conta-2", "Academia", CONTA, 13000),
+      ],
+    };
+
+    const plano = planoDe(aba, estado, DECISOES_DE_NOVEMBRO);
+
+    expect(
+      plano.linhas
+        .filter((linha) => linha.bloco === "FIXOS" && linha.nome === "Academia")
+        .map((linha) => [linha.posicao, linha.destino]),
+    ).toEqual([
+      [2, "JA_EXISTE"],
+      [4, "JA_EXISTE"],
+    ]);
+    expect(
+      operacoesDe(plano).reajustes.filter((reajuste) =>
+        reajuste.recorrenciaId.startsWith("rec-academia"),
+      ),
+    ).toEqual([]);
+  });
+
   it("lista as entradas na ordem da aba, com a avulsa antes da fixa", () => {
     const outubro = gradeDaFixture("Outubro");
     const trocada = substituir(

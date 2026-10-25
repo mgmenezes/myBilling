@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Implemented, aguarda a rodada 2 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8)
+**Status**: Implemented, aguarda a rodada 2 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8); a rodada 2 também deu FAIL sem defeito, por três mutantes que só pedem teste, e as correções são a Phase 7 (F9–F11)
 **Total**: 34 tasks em 7 fases (27 da fatia e 7 correções da verificação)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
@@ -192,6 +192,14 @@ T21 -> F6
 T16 -> F7
 T21 -> F7
 T24 -> F8
+```
+
+### Phase 7 — Correções da verificação (rodada 2)
+
+```
+F3 -> F9
+F8 -> F10
+F8 -> F11
 ```
 
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
@@ -877,6 +885,55 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Gate**: quick
 **Commit**: `fix(importacao): separar a leitura da prévia da gravação no diálogo`
 
+### Phase 7 — Correções da verificação (rodada 2)
+
+#### F9: Provar a ordem do pareamento no elo do plano (N9)
+**What**: A rodada 2 provou a ordem no estado (F3) e no reconhecimento, mas inverter as vigentes dentro de `planejarImportacao` sobrevivia. Um caso com dois homônimos de mesmo meio, em ordem, nas duas pontas.
+**Where**: `src/domain/importacao/planejar-importacao.test.ts`
+**Depends on**: F3
+**Reuses**: `abaDaFixture`, `ESTADO_DE_NOVEMBRO`, `vigente`, `DECISOES_DE_NOVEMBRO`
+**Requirement**: IMP-07
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [x] Duas despesas vigentes "Academia" na Conta Corrente (12000 e 13000) e duas linhas "Academia"/Débito na mesma ordem dão `JA_EXISTE` nas posições 2 e 4, e nenhum reajuste de "Academia" (IMP-07 AC 12)
+**Sensor**: N9 (`[...estado.despesasFixasVigentes].reverse()` em `planejar-importacao.ts:362`) falha o caso novo.
+**Tests**: unit
+**Gate**: quick
+**Commit**: `test(importacao): provar a ordem dos homônimos dentro do plano`
+
+#### F10: Provar que "Lendo a aba no servidor…" não aparece na conferência (N5)
+**What**: A guarda que esconde o aviso de leitura na conferência não tinha prova; o IMP-08 ganha o AC que a descreve, e o teste da F8 passa a vigiar também esse aviso.
+**Where**: `src/components/importacao/dialogo-importacao.test.tsx` (+ `spec.md`)
+**Depends on**: F8
+**Reuses**: o `MutationObserver` da F8
+**Requirement**: IMP-08
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [ ] IMP-08 AC 10: WHILE a conferência está na tela, o sistema SHALL não exibir o aviso "Lendo a aba no servidor…"
+- [ ] O teste da F8 falha se, em algum commit, "Lendo a aba no servidor…" e "Conferência de" estiverem na tela juntos
+**Sensor**: N5 (sem `passo.nome !== "CONFERENCIA"` na guarda do aviso) falha o teste.
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(importacao): provar que o aviso de leitura some na conferência`
+
+#### F11: Provar o botão travado durante a gravação, no diálogo (N6)
+**What**: O passo 3 prova o botão com `gravando` injetado; o diálogo não provava que liga a gravação ao botão. O IMP-08 ganha o AC do estado de gravação.
+**Where**: `src/components/importacao/dialogo-importacao.test.tsx` (+ `spec.md`)
+**Depends on**: F8
+**Reuses**: `chegarNaConferenciaDeOutubro`, `resumoDeOutubro`
+**Requirement**: IMP-08
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [ ] IMP-08 AC 9: WHILE a gravação está em andamento, o sistema SHALL manter o botão de importar desabilitado, com o rótulo "Importando…"
+- [ ] Com `importarPlanilha` pendente, o botão vira "Importando…" e fica desabilitado; ao concluir, aparece "16 criados"
+**Sensor**: N6 (`gravando={false}`) falha o teste.
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(importacao): provar o botão travado enquanto a importação grava`
+
 ---
 
 ## Task Granularity Check
@@ -896,6 +953,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F3 | 1 teste de domínio + a ordenação em `carregar-estado.ts` e o teste dela | ⚠️ coeso: a ordem que a spec define é a que o estado entrega |
 | F7 | 1 AC reescrito + os dois casos que distinguem bytes de caracteres | ⚠️ coeso: cada caso prova uma metade do AC novo |
 | F8 | 1 componente e o teste dele | ✅ |
+| F9, F10, F11 | 1 arquivo de teste cada (F10 e F11: + 1 AC na spec) | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -936,6 +994,9 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F6 | T21 | T21→F6 | ✅ |
 | F7 | T16, T21 | T16→F7, T21→F7 | ✅ |
 | F8 | T24 | T24→F8 | ✅ |
+| F9 | F3 | F3→F9 | ✅ |
+| F10 | F8 | F8→F10 | ✅ |
+| F11 | F8 | F8→F11 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -961,3 +1022,5 @@ e F7).
 | F6 | `src/components/**` | componentes | componentes | ✅ |
 | F7 | `src/application/schemas/**` e `src/components/**` | unit e componentes | unit e componentes | ✅ |
 | F8 | `src/components/**` | componentes | componentes | ✅ |
+| F9 | `src/domain/**` | unit | unit | ✅ |
+| F10, F11 | `src/components/**` | componentes | componentes | ✅ |
