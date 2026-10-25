@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import type { importarPlanilha, PreviaParaATela, previaDaPlanilha } from "@/app/actions/importacao";
@@ -279,6 +279,32 @@ describe("DialogoImportacao — gravar (IMP-08, AC 6 e 8)", () => {
       decisoes: DECISOES_DE_OUTUBRO,
       confirmouDivergencia: true,
     });
+  });
+
+  it('enquanto grava, o botão fica desabilitado e diz "Importando…" (AC 10)', async () => {
+    let concluir: (resposta: unknown) => void = () => undefined;
+    const importar = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          concluir = resolve;
+        }),
+    ) as unknown as Importar;
+    montar({
+      previa: previaOk(previaDe("Outubro", { comDecisoes: false }), previaDe("Outubro")),
+      importar,
+    });
+    await chegarNaConferenciaDeOutubro();
+
+    await userEvent.click(screen.getByRole("button", { name: "Importar 16 lançamentos" }));
+
+    const botao = await screen.findByRole("button", { name: "Importando…" });
+    expect(botao.hasAttribute("disabled")).toBe(true);
+
+    const resposta = await resumoDeOutubro();
+    await act(async () => {
+      concluir(resposta);
+    });
+    expect(await screen.findByText("16 criados")).toBeDefined();
   });
 
   it('sucesso mostra "16 criados", o link para o mês importado e o próximo', async () => {

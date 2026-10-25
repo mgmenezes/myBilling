@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Implemented, aguarda a rodada 2 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8); a rodada 2 também deu FAIL sem defeito, por três mutantes que só pedem teste, e as correções são a Phase 7 (F9–F11)
+**Status**: Implemented, aguarda a rodada 3 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8); a rodada 2 também deu FAIL sem defeito, por três mutantes que só pedem teste, e as correções são a Phase 7 (F9–F11)
 **Total**: 34 tasks em 7 fases (27 da fatia e 7 correções da verificação)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
@@ -927,8 +927,8 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] IMP-08 AC 10: WHILE a gravação está em andamento, o sistema SHALL manter o botão de importar desabilitado, com o rótulo "Importando…"
-- [ ] Com `importarPlanilha` pendente, o botão vira "Importando…" e fica desabilitado; ao concluir, aparece "16 criados"
+- [x] IMP-08 AC 10: WHILE a gravação está em andamento, o sistema SHALL manter o botão de importar desabilitado, com o rótulo "Importando…"
+- [x] Com `importarPlanilha` pendente, o botão vira "Importando…" e fica desabilitado; ao concluir, aparece "16 criados"
 **Sensor**: N6 (`gravando={false}`) falha o teste.
 **Tests**: componentes
 **Gate**: quick
