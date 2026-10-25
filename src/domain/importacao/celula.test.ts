@@ -39,11 +39,13 @@ describe("parcelaDaCelula — a coluna Parcelas no formato n/t (IMP-01 AC 11)", 
   it.each([
     ["7/10", { numero: 7, total: 10 }],
     [" 3/3 ", { numero: 3, total: 3 }],
+    ["1/120", { numero: 1, total: 120 }],
+    ["120/120", { numero: 120, total: 120 }],
   ])("lê %p", (texto, parcela) => {
     expect(parcelaDaCelula(texto)).toEqual({ ok: true, value: parcela });
   });
 
-  it.each([["12/10"], ["0/3"], ["3/121"], ["3-10"], [""]])(
+  it.each([["12/10"], ["0/3"], ["3/121"], ["1/121"], ["3-10"], [""]])(
     "recusa %p com PARCELA_INVALIDA",
     (texto) => {
       expect(parcelaDaCelula(texto)).toEqual({ ok: false, error: "PARCELA_INVALIDA" });

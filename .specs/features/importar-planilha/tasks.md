@@ -772,8 +772,8 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Interfaces**: —
 **Tools**: nenhuma
 **Done when**:
-- [ ] `parcelaDaCelula("1/120")` → `{ numero: 1, total: 120 }`; `("120/120")` → `{ numero: 120, total: 120 }`; `("1/121")` → `PARCELA_INVALIDA` (IMP-01 AC 11)
-- [ ] `Planilha 2099 - Outubro.csv` → `{ mes: 10, ano: 2099 }`; `Planilha 2000 - Outubro.csv` → `{ mes: 10, ano: 2000 }`; `Planilha 2100 - Outubro.csv` → `{ mes: 10, ano: null }` (IMP-02 AC 1)
+- [x] `parcelaDaCelula("1/120")` → `{ numero: 1, total: 120 }`; `("120/120")` → `{ numero: 120, total: 120 }`; `("1/121")` → `PARCELA_INVALIDA` (IMP-01 AC 11)
+- [x] `Planilha 2099 - Outubro.csv` → `{ mes: 10, ano: 2099 }`; `Planilha 2000 - Outubro.csv` → `{ mes: 10, ano: 2000 }`; `Planilha 2100 - Outubro.csv` → `{ mes: 10, ano: null }` (IMP-02 AC 1)
 **Tests**: unit
 **Gate**: quick
 **Commit**: `test(importacao): provar os limites de 120 parcelas e do ano 2099`

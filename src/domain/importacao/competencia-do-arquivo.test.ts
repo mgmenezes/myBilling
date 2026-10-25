@@ -47,4 +47,18 @@ describe("competenciaDoNomeDoArquivo — mês e ano pré-selecionados (IMP-02)",
       ano: null,
     });
   });
+
+  it.each([
+    ["Planilha 2000 - Outubro.csv", 2000],
+    ["Planilha 2099 - Outubro.csv", 2099],
+  ])("aceita %p, no limite de 2000 a 2099 (AC 1)", (nome, ano) => {
+    expect(competenciaDoNomeDoArquivo(nome)).toEqual({ mes: 10, ano });
+  });
+
+  it("deixa o ano sem seleção logo acima do limite, em 2100 (AC 1 e 2)", () => {
+    expect(competenciaDoNomeDoArquivo("Planilha 2100 - Outubro.csv")).toEqual({
+      mes: 10,
+      ano: null,
+    });
+  });
 });
