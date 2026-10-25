@@ -482,10 +482,10 @@ T26 -> T27
 **Interfaces**: arquivo SQL executável no SQL Editor do Neon, sem `CASCADE`
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste de integração lê o arquivo e o executa num banco com dados em todas as tabelas
-- [ ] Depois: `movimento`, `compra_parcelada`, `recorrencia_versao`, `recorrencia`, `importacao`, `importacao_decisao` vazias (IMP-09 AC 1)
-- [ ] `usuario`, `meio_pagamento` e `categoria` com as mesmas linhas de antes (AC 2)
-- [ ] `ultimaCompetenciaImportada` → `null` e `haLancamentoCompraOuRecorrencia` → `false` (AC 3)
+- [x] Teste de integração lê o arquivo e o executa num banco com dados em todas as tabelas
+- [x] Depois: `movimento`, `compra_parcelada`, `recorrencia_versao`, `recorrencia`, `importacao`, `importacao_decisao` vazias (IMP-09 AC 1)
+- [x] `usuario`, `meio_pagamento` e `categoria` com as mesmas linhas de antes (AC 2)
+- [x] `ultimaCompetenciaImportada` → `null` e `haLancamentoCompraOuRecorrencia` → `false` (AC 3)
 **Tests**: integration
 **Gate**: build
 **Commit**: `feat(db): script de limpeza para recomeçar a importação`

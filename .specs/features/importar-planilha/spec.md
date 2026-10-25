@@ -423,7 +423,7 @@ outubro com sucesso.
 | IMP-06 | P1: Gravar tudo ou nada | Execute | Implementing: repositórios sobre uma transação de fora, base dos ACs 1 e 2 (T10); port `TransacaoDaImportacao` e fakes (T12); transação com trava e os cinco repositórios, rollback do AC 2 (T14) |
 | IMP-07 | P1: Importar a aba seguinte sem duplicar | Execute | Implementing: AC 10 na reprecificação (T6); ACs 1 a 6 e 12 no reconhecimento de recorrências (T7); ACs 7, 8, 9 e 11 no reconhecimento de compras (T8); reajuste, encerramento e reprecificação compostos no plano (T9); port e fake de `reprecificar` com a conservação (T12); `reprecificar` no banco, com a conservação conferida na transação (T13) |
 | IMP-08 | P1: Abrir a importação pela Visão geral | Tasks | In Tasks |
-| IMP-09 | P2: Recomeçar do zero | Tasks | In Tasks |
+| IMP-09 | P2: Recomeçar do zero | Execute | Implementing: script de limpeza com os ACs 1 a 3 provados contra Postgres; `fatura`, `pagamento_fatura` e `orcamento_categoria` ficam, sem AC que as cubra (T15) |
 
 **ID format:** `IMP-NN`
 
