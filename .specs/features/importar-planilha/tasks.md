@@ -237,19 +237,19 @@ T26 -> T27
 **Interfaces**: produz `Bloco`, `LinhaLida`, `LinhaDeCartao`, `LinhaNaoLida`, `AbaLida`, `TITULOS`, `lerAba` (design.md, "ler-aba.ts"); as fixtures seguem as três tabelas da seção "Fixtures sintéticas" do design, no layout do `context.md`
 **Tools**: nenhuma
 **Done when**:
-- [ ] Outubro: 4 fixos, 6 linhas de cartão, 3 gastos, 3 entradas lidas; 1 não lida (`FIXOS`, "Seguro (casa, carro)", `VALOR_VAZIO`)
-- [ ] Outubro: `totais` = FIXOS 184000, CARTAO 42334, GASTOS 11250, ENTRADAS 1015000, SAIDAS 238784
-- [ ] Outubro: `categoriasDaTabela` = Moradia, Assinaturas, Saúde, Casa, Eletrônicos, Estudo, Mercado, Lazer (a linha vazia no meio não encerra a tabela — AC 14)
-- [ ] A linha residual do Gastos do Mês (sem nome, sem valor, "Tipo" `Débito`) não aparece em lugar nenhum (AC 8)
-- [ ] O `X` em A1, a linha 2, Saídas (exceto o total) e "Gastos por tipo de pagamento" não aparecem (AC 16)
-- [ ] `Gastos do Mês ` com espaço no fim é encontrado (AC 4); remover qualquer título de uma cópia da grade devolve `PLANILHA_BLOCO_AUSENTE` com `detalhes.bloco` igual a esse título, na ordem Fixos, Cartão de Crédito, Gastos do Mês, Entradas (AC 3)
-- [ ] Deslocar a grade inteira duas colunas para a direita produz a mesma `AbaLida` (AC 5)
-- [ ] Linha com valor e nome vazio → `NOME_VAZIO` (AC 12); Dezembro: `Mesa 12/10` → `PARCELA_INVALIDA`, `Bônus 200*` → `VALOR_INVALIDO`
-- [ ] Sem a tabela de categorias, `categoriasDaTabela` é `[]` e não há erro (AC 15)
-- [ ] Review Focus 1: a fixture de outubro com as vírgulas trocadas por `;` devolve `PLANILHA_ARQUIVO_INVALIDO` (AC 17)
-- [ ] `posicao` conta só as linhas não vazias do bloco, a partir de 0
-- [ ] As três fixtures não contêm nenhum nome, valor ou categoria da planilha real (revisão manual registrada no commit)
-- [ ] 100% de branches
+- [x] Outubro: 4 fixos, 6 linhas de cartão, 3 gastos, 3 entradas lidas; 1 não lida (`FIXOS`, "Seguro (casa, carro)", `VALOR_VAZIO`)
+- [x] Outubro: `totais` = FIXOS 184000, CARTAO 42334, GASTOS 11250, ENTRADAS 1015000, SAIDAS 238784
+- [x] Outubro: `categoriasDaTabela` = Moradia, Assinaturas, Saúde, Casa, Eletrônicos, Estudo, Mercado, Lazer (a linha vazia no meio não encerra a tabela — AC 14)
+- [x] A linha residual do Gastos do Mês (sem nome, sem valor, "Tipo" `Débito`) não aparece em lugar nenhum (AC 8)
+- [x] O `X` em A1, a linha 2, Saídas (exceto o total) e "Gastos por tipo de pagamento" não aparecem (AC 16)
+- [x] `Gastos do Mês ` com espaço no fim é encontrado (AC 4); remover qualquer título de uma cópia da grade devolve `PLANILHA_BLOCO_AUSENTE` com `detalhes.bloco` igual a esse título, na ordem Fixos, Cartão de Crédito, Gastos do Mês, Entradas (AC 3)
+- [x] Deslocar a grade inteira duas colunas para a direita produz a mesma `AbaLida` (AC 5)
+- [x] Linha com valor e nome vazio → `NOME_VAZIO` (AC 12); Dezembro: `Mesa 12/10` → `PARCELA_INVALIDA`, `Bônus 200*` → `VALOR_INVALIDO`
+- [x] Sem a tabela de categorias, `categoriasDaTabela` é `[]` e não há erro (AC 15)
+- [x] Review Focus 1: a fixture de outubro com as vírgulas trocadas por `;` devolve `PLANILHA_ARQUIVO_INVALIDO` (AC 17)
+- [x] `posicao` conta só as linhas não vazias do bloco, a partir de 0
+- [x] As três fixtures não contêm nenhum nome, valor ou categoria da planilha real (revisão manual registrada no commit)
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): localizar os blocos e ler a aba exportada`

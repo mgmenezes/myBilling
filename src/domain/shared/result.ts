@@ -39,7 +39,8 @@ export type CodigoErro =
   | "CONSERVACAO_VIOLADA"
   | "COMPETENCIA_INVALIDA"
   | "LANCAMENTO_NAO_CANCELAVEL"
-  | "PLANILHA_ARQUIVO_INVALIDO";
+  | "PLANILHA_ARQUIVO_INVALIDO"
+  | "PLANILHA_BLOCO_AUSENTE";
 
 export type DomainError = {
   readonly code: CodigoErro;

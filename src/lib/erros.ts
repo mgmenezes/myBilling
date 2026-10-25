@@ -67,6 +67,9 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   LANCAMENTO_NAO_CONFIRMAVEL: "Só gasto fixo tem valor a confirmar.",
   PLANILHA_ARQUIVO_INVALIDO:
     "Este arquivo não parece uma aba da planilha exportada em CSV. No Google Sheets: Arquivo → Fazer download → Valores separados por vírgula (.csv).",
+  /* `{bloco}` é composto pela action a partir de `detalhes.bloco`. */
+  PLANILHA_BLOCO_AUSENTE:
+    "O arquivo não tem o bloco “{bloco}”. Exporte a aba de um mês da planilha.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",
