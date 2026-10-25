@@ -322,16 +322,16 @@ T26 -> T27
 **Interfaces**: produz `RecorrenciaVigente`, `LinhaDeRecorrencia`, `DestinoDeRecorrencia`, `RecorrenciasReconhecidas`, `reconhecerRecorrencias` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Mesmo nome normalizado e meio, mesmo valor → `INALTERADA` (IMP-07 AC 1, 3)
-- [ ] Valor diferente → `REAJUSTE` com `de` 10000 e `para` 11000 (AC 4)
-- [ ] Vigente sem linha → em `encerrar` (AC 5); Academia/Cartão Roxo em novembro
-- [ ] Linha reconhecida com `valor = null` → `PRESENTE_SEM_VALOR`, e a vigente **não** vai para `encerrar` (AC 6)
-- [ ] Linha com `valor = null` e sem par → fora de `destinos` e fora de `encerrar`
-- [ ] Mesmo nome em outro meio → `NOVA` (Academia/Cartão Roxo em outubro, ao lado de Academia/Débito)
-- [ ] Entrada (`meioPagamentoId = null`) reconhece só pelo nome (AC 2)
-- [ ] Duas linhas e uma vigente com a mesma chave → a primeira pareia, a segunda é `NOVA` (AC 12)
-- [ ] Review Focus 2: `"Internet "` e `"internet"` reconhecem `"Internet"`
-- [ ] 100% de branches
+- [x] Mesmo nome normalizado e meio, mesmo valor → `INALTERADA` (IMP-07 AC 1, 3)
+- [x] Valor diferente → `REAJUSTE` com `de` 10000 e `para` 11000 (AC 4)
+- [x] Vigente sem linha → em `encerrar` (AC 5); Academia/Cartão Roxo em novembro
+- [x] Linha reconhecida com `valor = null` → `PRESENTE_SEM_VALOR`, e a vigente **não** vai para `encerrar` (AC 6)
+- [x] Linha com `valor = null` e sem par → fora de `destinos` e fora de `encerrar`
+- [x] Mesmo nome em outro meio → `NOVA` (Academia/Cartão Roxo em outubro, ao lado de Academia/Débito)
+- [x] Entrada (`meioPagamentoId = null`) reconhece só pelo nome (AC 2)
+- [x] Duas linhas e uma vigente com a mesma chave → a primeira pareia, a segunda é `NOVA` (AC 12)
+- [x] Review Focus 2: `"Internet "` e `"internet"` reconhecem `"Internet"`
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(importacao): reconhecer fixos e receitas fixas da aba anterior`
