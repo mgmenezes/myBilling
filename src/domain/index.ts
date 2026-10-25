@@ -10,6 +10,48 @@
 export type { CicloFatura } from "./cartao/ciclo-fatura";
 export { diaEfetivo, resolverCicloFatura } from "./cartao/ciclo-fatura";
 export { geraFatura, podeReceberNovaCompra } from "./cartao/regras-cartao";
+export type { MotivoNaoLida, ParcelaDaLinha } from "./importacao/celula";
+export { normalizarNome, parcelaDaCelula, valorDaCelula } from "./importacao/celula";
+export type { MesEAnoDoArquivo } from "./importacao/competencia-do-arquivo";
+export { competenciaDoNomeDoArquivo } from "./importacao/competencia-do-arquivo";
+export type { Conferencia, ConferenciaDeBloco } from "./importacao/conferir-aba";
+export { conferirAba } from "./importacao/conferir-aba";
+export type { Grade } from "./importacao/csv";
+export { lerCsv } from "./importacao/csv";
+export type {
+  AbaLida,
+  Bloco,
+  LinhaDeCartao,
+  LinhaLida,
+  LinhaNaoLida,
+} from "./importacao/ler-aba";
+export { lerAba, TITULOS } from "./importacao/ler-aba";
+export type {
+  ClasseEntrada,
+  DecisaoDeEntrada,
+  DecisoesDaImportacao,
+  DestinoDaLinha,
+  EstadoParaImportacao,
+  LinhaDaPrevia,
+  OperacoesDaImportacao,
+  Pendencias,
+  PlanoDeImportacao,
+} from "./importacao/planejar-importacao";
+export { planejarImportacao } from "./importacao/planejar-importacao";
+export type {
+  CompraEmCurso,
+  ComprasReconhecidas,
+  DestinoDeCompra,
+  LinhaDeCompra,
+} from "./importacao/reconhecer-compras";
+export { reconhecerCompras, TOLERANCIA_DE_RECONHECIMENTO } from "./importacao/reconhecer-compras";
+export type {
+  DestinoDeRecorrencia,
+  LinhaDeRecorrencia,
+  RecorrenciasReconhecidas,
+  RecorrenciaVigente,
+} from "./importacao/reconhecer-recorrencias";
+export { reconhecerRecorrencias } from "./importacao/reconhecer-recorrencias";
 export type { BlocoDoMes } from "./mes/bloco-do-lancamento";
 export { blocoDoLancamento } from "./mes/bloco-do-lancamento";
 export type { ErroCancelamentoProibido } from "./mes/cancelamento-permitido";
@@ -38,6 +80,12 @@ export type {
   PlanoRegeneracao,
 } from "./parcelamento/regenerar-parcelas";
 export { regenerarParcelas } from "./parcelamento/regenerar-parcelas";
+export type {
+  CompraParaReprecificar,
+  ParcelaDaCompra,
+  Reprecificacao,
+} from "./parcelamento/reprecificar-parcelas";
+export { reprecificarAPartirDe } from "./parcelamento/reprecificar-parcelas";
 export type { PeriodoRecorrencia } from "./recorrencia/janela-materializacao";
 export { janelaMaterializacao } from "./recorrencia/janela-materializacao";
 export type { OcorrenciaMaterializada } from "./recorrencia/ocorrencia-protegida";
@@ -51,6 +99,7 @@ export type { Competencia } from "./shared/competencia";
 export {
   addMeses,
   compararCompetencias,
+  competenciaDeAnoEMes,
   criarCompetencia,
   dataParaCompetencia,
   diffMeses,

@@ -365,17 +365,17 @@ T26 -> T27
 **Interfaces**: produz `ClasseEntrada`, `DecisaoDeEntrada`, `DecisoesDaImportacao`, `EstadoParaImportacao`, `Pendencias`, `DestinoDaLinha`, `LinhaDaPrevia`, `OperacoesDaImportacao`, `PlanoDeImportacao`, `planejarImportacao` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Outubro sem decisões: pendências `débito` (linhas 4), `cartão roxo` (8), `cartão verde` (1) — contando só linhas lidas; entradas `salário a`, `salário b`, `reembolso`; `operacoes = null` (IMP-04 AC 1, 3)
-- [ ] Outubro com as decisões completas: 6 recorrências novas (4 despesas, 2 receitas), 6 compras novas, 4 avulsos (3 despesas, 1 receita), `quantidadeAImportar` 16 (IMP-05 AC 9)
-- [ ] Categorias de outubro: CRIAR Moradia, Assinaturas, Saúde, Casa, Eletrônicos, Estudo, Mercado, Lazer — "Mercado" com a grafia da primeira linha, "Seguros" (só na linha não lida) não criada (IMP-03 AC 9-11)
-- [ ] Categoria existente arquivada → `REATIVAR`; existente ativa → `REAPROVEITAR`; célula vazia → `chaveCategoria = null` (AC 12)
-- [ ] Compra nova do Sofá: `qtdParcelas` 10, `parcelaInicial` 7, `valorParcela` 21000 (IMP-03 AC 5)
-- [ ] `chaveDeOrigem` da Padaria em outubro = `2026-10|GASTOS|2` (AC 8)
-- [ ] Novembro com o estado depois de outubro e as decisões lembradas: pendências só `cartão azul` e `presente` (IMP-04 AC 5); com elas resolvidas, os destinos e `quantidadeAImportar` 9 da tabela de novembro do design; `deixamDeValer` = Academia/Cartão Roxo
-- [ ] Dezembro: nenhuma pendência (Bônus ilegível não pede classificação); `naoAparecem` = Óculos parcela 4; `deixamDeValer` = Salário B; `quantidadeAImportar` 2
-- [ ] Review Focus 2: decisão lembrada para `cartão roxo` atende a linha com "Tipo" `"Cartão  Roxo"`
-- [ ] Review Focus 5: `Cartão Laranja` e `cartão laranja ` na mesma aba → uma pendência, com a soma das linhas
-- [ ] 100% de branches
+- [x] Outubro sem decisões: pendências `débito` (linhas 4), `cartão roxo` (8), `cartão verde` (1) — contando só linhas lidas; entradas `salário a`, `salário b`, `reembolso`; `operacoes = null` (IMP-04 AC 1, 3)
+- [x] Outubro com as decisões completas: 6 recorrências novas (4 despesas, 2 receitas), 6 compras novas, 4 avulsos (3 despesas, 1 receita), `quantidadeAImportar` 16 (IMP-05 AC 9)
+- [x] Categorias de outubro: CRIAR Moradia, Assinaturas, Saúde, Casa, Eletrônicos, Estudo, Mercado, Lazer — "Mercado" com a grafia da primeira linha, "Seguros" (só na linha não lida) não criada (IMP-03 AC 9-11)
+- [x] Categoria existente arquivada → `REATIVAR`; existente ativa → `REAPROVEITAR`; célula vazia → `chaveCategoria = null` (AC 12)
+- [x] Compra nova do Sofá: `qtdParcelas` 10, `parcelaInicial` 7, `valorParcela` 21000 (IMP-03 AC 5)
+- [x] `chaveDeOrigem` da Padaria em outubro = `2026-10|GASTOS|2` (AC 8)
+- [x] Novembro com o estado depois de outubro e as decisões lembradas: pendências só `cartão azul` e `presente` (IMP-04 AC 5); com elas resolvidas, os destinos e `quantidadeAImportar` 9 da tabela de novembro do design; `deixamDeValer` = Academia/Cartão Roxo
+- [x] Dezembro: nenhuma pendência (Bônus ilegível não pede classificação); `naoAparecem` = Óculos parcela 4; `deixamDeValer` = Salário B; `quantidadeAImportar` 2
+- [x] Review Focus 2: decisão lembrada para `cartão roxo` atende a linha com "Tipo" `"Cartão  Roxo"`
+- [x] Review Focus 5: `Cartão Laranja` e `cartão laranja ` na mesma aba → uma pendência, com a soma das linhas
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(importacao): montar o plano completo de uma aba`
