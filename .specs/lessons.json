@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 14,
+  "next_id": 16,
   "lessons": [
     {
       "id": "L-001",
@@ -240,6 +240,42 @@
       ],
       "created": "2026-10-25T05:06:38Z",
       "last_seen": "2026-10-25T05:06:38Z"
+    },
+    {
+      "id": "L-014",
+      "key": "surviving_mutant::garantia provada em cada elo separado quem produz e quem consome precisa de um teste que atravesse a composicao sem ele o elo do meio a desfaz com a suite verde",
+      "text": "Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,composicao",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)"
+      ],
+      "created": "2026-10-25T06:12:20Z",
+      "last_seen": "2026-10-25T06:12:20Z"
+    },
+    {
+      "id": "L-015",
+      "key": "surviving_mutant::correcao de estado transitorio na tela precisa observar todo elemento ligado ao mesmo sinal pendente e nao so o que exibiu o defeito",
+      "text": "Correção de estado transitório na tela precisa observar todo elemento ligado ao mesmo sinal pendente, e não só o que exibiu o defeito.",
+      "signal": "surviving_mutant",
+      "scope": "componentes,testes",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 2: N5 (src/components/importacao/dialogo-importacao.tsx:194) (componentes,testes)"
+      ],
+      "created": "2026-10-25T06:12:20Z",
+      "last_seen": "2026-10-25T06:12:20Z"
     }
   ]
 }

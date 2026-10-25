@@ -90,6 +90,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: commit 7fe7552 (T12): tsc --noEmit com 10 erros em 5 arquivos; 0 em 3fca286 (T13) (tasks,ports)
 - last seen: 2026-10-25T05:06:38Z
 
+### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,composicao` · harmful: 0
+- features: importar-planilha
+- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)
+- last seen: 2026-10-25T06:12:20Z
+
+### L-015 - Correção de estado transitório na tela precisa observar todo elemento ligado ao mesmo sinal pendente, e não só o que exibiu o defeito.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: importar-planilha
+- evidence: validation.md rodada 2: N5 (src/components/importacao/dialogo-importacao.tsx:194) (componentes,testes)
+- last seen: 2026-10-25T06:12:20Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

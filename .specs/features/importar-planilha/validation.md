@@ -1,5 +1,20 @@
 # Importar a planilha — Validação
 
+## Validation: importar-planilha — **FAIL** (rodada 2, veredito vigente)
+
+**Result**: FAIL ❌ — rodada 2, 2026-10-25, sobre `8094bb9`. **Nenhum defeito de comportamento.**
+Os sete sobreviventes da rodada 1 morrem, cada um no teste que a sua correção escreveu, e as três
+provas parciais fecharam. O FAIL vem de três mutantes novos que sobrevivem à suíte inteira, e2e
+incluído. N9: o plano reordena as vigentes e quebra o IMP-07 AC 12 reescrito. N5: "Lendo a aba no
+servidor…" aparece na conferência. N6: a gravação não marca o botão como ocupado. N5 e N6 estão no
+estado de espera do diálogo, que a F8 reescreveu e que nenhum AC descreve. O detalhe está na seção
+"Rodada 2", no fim do arquivo. A rodada 1 vem logo abaixo, com o texto original; só o título e a
+linha do veredito dela mudaram de nome, para que o veredito vigente seja um só.
+
+---
+
+## Rodada 1
+
 **Data**: 2026-10-25
 **Spec**: `.specs/features/importar-planilha/spec.md` (IMP-01 a IMP-09, 82 critérios, 6 edge cases)
 **Faixa do diff**: `caa9484^..272bf8d` — 28 commits, de `caa9484` (T1) a `272bf8d` (T27). O
@@ -9,9 +24,9 @@ teste; as 33 mutações rodaram numa `git worktree` descartável em
 `/private/tmp/.../scratchpad/verifier-wt`, **nenhum `git stash`**. Porcelain da árvore real
 gravado antes (vazio) e conferido depois (vazio).
 
-## Validation: importar-planilha — **FAIL**
+### Veredito da rodada 1 — **FAIL**
 
-**Result**: FAIL ❌ — **nenhum defeito de comportamento encontrado**. O veredito vem do sensor:
+**Resultado da rodada 1**: FAIL ❌ — **nenhum defeito de comportamento encontrado**. O veredito vem do sensor:
 **7 de 33 mutantes sobreviveram**, e 4 deles atingem critérios com resultado preciso na spec.
 
 O que a fatia prova, prova bem. Os dois mutantes obrigatórios do AD-011 morreram. O de `addMeses`
@@ -525,3 +540,253 @@ preservação das três tabelas no AC 2 do IMP-09.
 
 **Próximo passo**: Fixes 1 a 5 viram tasks. São só testes e duas linhas de spec, e nenhum toca
 código de produção. Depois disso, outra rodada do Verificador, com as mesmas M13, M26 a M30 e E2.
+
+---
+
+## Rodada 2
+
+**Data**: 2026-10-25
+**Spec**: a mesma, com o IMP-01 AC 1, o IMP-07 AC 12 e o IMP-09 AC 2 reescritos pelas correções;
+`validate_spec.py` sem erro nem aviso
+**Faixa do diff**: correções `3b9268d..8094bb9`, 8 commits, de `854ae12` (F1) a `8094bb9` (F8). Um
+commit por task, cada um com `tasks.md` e `spec.md`; `check_commit.py` sai 0 nos oito. Fatia
+inteira: `caa9484^..8094bb9`.
+**Verificador**: sub-agente independente, que não escreveu a fatia nem as correções. Somente
+leitura sobre código e teste. As mutações rodaram numa `git worktree` descartável em
+`/private/tmp/.../scratchpad/verifier2-wt`, **nenhum `git stash`**.
+
+### Veredito — FAIL ❌
+
+O que a rodada 1 pediu está entregue. Os sete sobreviventes morrem, cada um numa assertion de valor
+do teste que a sua correção escreveu. A ordenação nova de `carregar-estado.ts` está provada por
+três mutantes: sem ela, com o desempate invertido e com o início invertido. A F8 também: o código de
+antes, com uma transição só, falha 5 de 5 vezes no teste com `MutationObserver`. Os 24 mutantes que
+morreram na rodada 1 continuam mortos.
+
+O FAIL vem de três mutantes novos. Os três passam verdes na suíte inteira, e2e incluído:
+
+1. **N9: o elo do plano no IMP-07 AC 12.** O AC reescrito define o resultado: a 1ª linha pareia com
+   a recorrência de menor `competencia_inicio`, e o `id` desempata. As correções provam o primeiro e
+   o último elo. O estado entrega as vigentes nessa ordem (`carregar-estado.test.ts:161`), e o
+   reconhecimento pareia na ordem que recebe (`reconhecer-recorrencias.test.ts:154`). O elo do meio,
+   `planejarImportacao`, repassa as vigentes sem teste que o prenda. Invertê-las em
+   `planejar-importacao.ts:362` deixa verdes 226 testes unitários da fatia e 13 de integração.
+2. **N5: "Lendo a aba no servidor…" na conferência.** Esta mutação foi pedida para a rodada. A
+   conferência nasce dentro da transição da leitura, ainda pendente, que é a janela do defeito da
+   F8. Depois da F8, o que esconde o aviso nessa janela é só a guarda `passo.nome !== "CONFERENCIA"`
+   (`dialogo-importacao.tsx:194`), e o teste da F8 só procura "Importando…". Sem a guarda, o arquivo
+   do diálogo passa verde 5 de 5 vezes, e o e2e também. O mutante não é equivalente. Uma sonda com o
+   mesmo `MutationObserver` viu o aviso ao lado de "Importar 16 lançamentos" em 3 de 3 execuções com
+   N5, e nenhuma vez no `HEAD`.
+3. **N6: a gravação não marca o botão como ocupado.** Com `gravando={false}` (`:184`), o diálogo
+   passa verde 5 de 5 vezes, e o e2e também. O passo prova o botão com `gravando` injetado
+   (`passo-conferencia.test.tsx:271-275`), mas o diálogo não prova de onde vem o valor. A lacuna é
+   anterior à F8, porque o `ocupado` de antes deixava o mesmo vazio, mas foi a F8 que reescreveu a
+   linha. Uma sonda com `importarPlanilha` pendente mata N6.
+
+N5 e N6 não violam AC, porque a spec não descreve o estado de espera. N9 viola o AC 12, e nenhum
+teste percebe. Aplico a régua da rodada 1, em que M26 e M27 também ficavam fora do texto do AC: todo
+mutante vivo vira task. As três tasks são de teste. Nenhuma pede mudança de código de produção.
+
+### Gates
+
+| Gate | Onde | Resultado |
+| --- | --- | --- |
+| `pnpm verify` | árvore real, em `8094bb9`, com `pnpm db:up` de pé | ✅ saída 0 |
+| — `typecheck` | | ✅ `Types generated successfully` |
+| — `lint` | | ✅ `Checked 255 files in 110ms. No fixes applied.` |
+| — `test:unit` | | ✅ **84 arquivos, 1.136 testes**; `src/domain` com 100% de branches (323/323) e de statements (642/642) |
+| — `test:integration` | | ✅ **21 arquivos, 285 testes** |
+| — `build` | | ✅ `Compiled successfully`; `/[competencia]` sai como `ƒ` |
+| `pnpm test:e2e` | árvore real, logo depois do `verify` | ✅ **59 passed** em 1,7 min; o `browserType.launch` subiu sem atraso |
+
+**Total**: 1.480 provas, 0 falhas, 0 puladas. Nenhum `.skip`, `.only` ou `.todo` nos testes.
+
+**Integridade.** Da rodada 1 para a rodada 2, a contagem só subiu. Unit foi de 1.123 para 1.136
+(+13: F1 1, F2 6, F3 2, F6 1, F7 2, F8 1). Integração foi de 284 para 285 (+1: F5). O e2e continua
+em 59, porque a F4 acrescentou três assertions ao teste de outubro, sem criar teste novo. Nos
+arquivos de teste, o diff `3b9268d..8094bb9` remove três linhas, e nenhuma é assertion: um
+comentário do e2e, o título de um `describe` e a lista do `it.each` de `celula.test.ts`, regravada
+com `"1/121"` a mais.
+
+**`next-env.d.ts`.** O `next dev` do e2e reescreveu esse arquivo na árvore real, trocando
+`./.next/types/…` por `./.next/dev/types/…`. A mudança fica registrada aqui, sem reverter, e fora do
+commit.
+
+### Sensor de discriminação
+
+A worktree descartável ficou em `8094bb9`. O Vitest rodou com `node_modules` em symlink para a raiz.
+Para o e2e, usei `pnpm install --frozen-lockfile --offline` dentro da worktree, porque o Turbopack
+recusa o symlink. As mutações da rodada 1 foram reaplicadas com o mesmo texto de substituição, lido
+do script dela sem alteração. As mutações novas foram escritas sobre o código das correções.
+Reverti cada mutante com `git checkout -- <arquivo>` e conferi a worktree limpa antes do seguinte.
+A integração e o e2e rodaram em série, contra o Postgres da porta 5433. Antes do sensor, a linha de
+base passou na worktree: 317 testes unitários dos arquivos tocados, o arquivo do diálogo 5 de 5
+vezes e os 2 e2e da importação.
+
+#### Os sete sobreviventes da rodada 1
+
+| # | Mutação | `file:line` | Morto por (assertion, e o que ela recebeu) | Resultado |
+| --- | --- | --- | --- | --- |
+| M13 | grafia da categoria: a última linha vence | `src/domain/importacao/planejar-importacao.ts:210` | `planejar-importacao.test.ts:500`: `grafia` recebeu `"MERCADO"` e esperava `"Mercado"` (F1) | ✅ Morto |
+| M28 | vigentes de mesma chave pareadas na ordem inversa | `src/domain/importacao/reconhecer-recorrencias.ts:71` | `reconhecer-recorrencias.test.ts:154`: dois `REAJUSTE` cruzados no lugar de duas `INALTERADA` (F3) | ✅ Morto |
+| M29 | ano aceito até 2999 | `src/domain/importacao/competencia-do-arquivo.ts:30` | `competencia-do-arquivo.test.ts:59`: recebeu `{ mes: 10, ano: 2100 }` e esperava `ano: null` (F2) | ✅ Morto |
+| M30 | `t = 120` recusado (`>=` no teto) | `src/domain/importacao/celula.ts:63` | `celula.test.ts:45`, nos casos `1/120` e `120/120` de `:42-43`: `PARCELA_INVALIDA` no lugar de `{ ok: true }` (F2) | ✅ Morto |
+| E2 | página: `geraFatura: false` para todo meio | `src/app/(app)/[competencia]/page.tsx:119` | `e2e/importacao.spec.ts:125`: o `toHaveCount(0)` das opções "Cartão Roxo" em "Cai em" recebeu 1 (F4) | ✅ Morto |
+| M26 | o script também esvazia `orcamento_categoria` | `src/infrastructure/db/sql/limpar-para-importar.sql:33` | `limpar-para-importar.integration.test.ts:246`: `orcamento_categoria` some do retrato (F5) | ✅ Morto |
+| M27 | o script também esvazia `pagamento_fatura` e `fatura` | `limpar-para-importar.sql:33` | `limpar-para-importar.integration.test.ts:246`: recebeu `fatura: []` (F5) | ✅ Morto |
+
+M13 e M28 continuam verdes nos 13 testes de integração. A prova de ambos é de domínio, que é o que
+a rodada 1 pediu.
+
+#### Mutações novas, sobre o código das correções e os ACs reescritos
+
+As três primeiras famílias são as pedidas: a ordenação (N1 e N2), uma transição só (N4) e o aviso
+na conferência (N5). As marcadas "extra" foram acrescentadas por este verificador.
+
+| # | Mutação | `file:line` | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| N1 | sem a ordenação nova, ficando a ordem do repositório | `src/application/importacao/carregar-estado.ts:51` | `carregar-estado.test.ts:161`: recebeu `["rec-a", "rec-c", "rec-b"]` e esperava `["rec-b", "rec-c", "rec-a"]` | ✅ Morto |
+| N2 | desempate por `id` invertido | `carregar-estado.ts:24` | `carregar-estado.test.ts:161`, e também `:27` e `:119` | ✅ Morto |
+| N3 | início em ordem decrescente (extra) | `carregar-estado.ts:23` | `carregar-estado.test.ts:161` e `:125` | ✅ Morto |
+| N4 | uma transição só, com `gravando` ligado à da leitura: o código de antes da F8 | `src/components/importacao/dialogo-importacao.tsx:109` e `:184` | `dialogo-importacao.test.tsx:226`: `viuImportando` deu `true`, 5 de 5. No e2e, morre em `e2e/importacao.spec.ts:131` | ✅ Morto |
+| N4b | duas transições, mas com `gravando={lendo}` (extra) | `dialogo-importacao.tsx:184` | `dialogo-importacao.test.tsx:226`, 5 de 5 | ✅ Morto |
+| **N5** | **"Lendo a aba no servidor…" também na conferência** | `dialogo-importacao.tsx:194` | nenhum: o diálogo passa 11/11 em 5 de 5 execuções, e o e2e 2/2 | ❌ **Sobreviveu** |
+| **N6** | **a gravação nunca marca o botão: `gravando={false}`** (extra) | `dialogo-importacao.tsx:184` | nenhum: 11/11 em 5 de 5 execuções, e o e2e 2/2 | ❌ **Sobreviveu** |
+| N7 | IMP-01 AC 1: o diálogo mede o tamanho em caracteres (extra) | `src/components/importacao/passo-arquivo.tsx:117` | `passo-arquivo.test.tsx:228`: sem o alerta, a aba é lida (F7) | ✅ Morto |
+| N8 | IMP-01 AC 1: o schema mede o tamanho em bytes (extra) | `src/application/schemas/importacao.schema.ts:40` | `importacao.schema.test.ts:79`: `success` deu `false` (F7) | ✅ Morto |
+| **N9** | **IMP-07 AC 12: o plano inverte as despesas vigentes antes do reconhecimento** (extra) | `src/domain/importacao/planejar-importacao.ts:362` | nenhum: 226 testes unitários da fatia e 13 de integração verdes | ❌ **Sobreviveu** |
+
+**Sondas de equivalência.** Para N5 e N6, escrevi dois testes na worktree, rodei e apaguei. Eles
+não entram em commit. A sonda de N5 repete o percurso do teste da F8 e marca qualquer commit do
+React em que "Lendo a aba no servidor…" e "Importar 16 lançamentos" estejam na tela juntos. A sonda
+de N6 dubla `importarPlanilha` com uma promessa que não resolve e espera, depois do clique, o botão
+"Importando…". As duas passam no `HEAD`. Com o mutante, a de N5 falhou 3 de 3 vezes e a de N6
+falhou. Os dois mutantes mudam o que a tela mostra.
+
+#### AD-011
+
+| # | Mutação | `file:line` | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| M01 | (a) rateio por truncamento, sem distribuir o resto | `src/domain/parcelamento/ratear-parcelas.ts:37` | `ratear-parcelas.test.ts:26`, `:30`, `:37`, `:57`, `:61`, `:94` e `:99`; `gerar-parcelas.test.ts:46` (recebeu `33333` e esperava `33334`), `:77` e `:160`, com 9 falhas. A fatia fica verde (170 testes), como na rodada 1, porque a importação grava em `VALOR_PARCELA` | ✅ Morto |
+| M02 | (b) `addMeses` gira o mês e mantém o ano | `src/domain/shared/competencia.ts:45` | `competencia.test.ts:50`, `:54` e `:58`; `gravar-importacao/handler.test.ts:145` e `importacao.integration.test.ts:327`, onde `proxima` recebeu `"2026-01"` e esperava `"2027-01"` | ✅ Morto |
+
+#### Regressão: os 24 mortos da rodada 1
+
+Reapliquei M03 a M12, M14 a M25, M31 e E1. Os 24 morrem de novo, nos mesmos arquivos de teste da
+rodada 1. M14 e M15, que mexem em `carregar-estado.ts`, continuam mortos com a ordenação nova. M23 e
+M24 morrem nos dois arquivos de integração, e E1 morre em `e2e/importacao.spec.ts:163`.
+
+**Contagem**: 43 mutações: os 7 sobreviventes da rodada 1, os 2 do AD-011, os 24 de regressão e 10
+novas. **40 mortas e 3 sobreviventes** (N5, N6 e N9). Sensor ❌.
+
+**Isolamento.** O porcelain da árvore real estava vazio antes de tudo. Depois do e2e do gate, e
+antes de qualquer mutação, mostrava ` M next-env.d.ts`. Depois de `git worktree remove --force` e
+`git worktree prune`, mostrava o mesmo ` M next-env.d.ts`. Recriei a worktree uma vez, para N9, e a
+removi de novo, com o mesmo porcelain no fim. Nenhuma mutação vazou.
+
+**Ambiente.** Na primeira execução do e2e com N5, um `POST` de `importarPlanilha` ficou 15,3 min sem
+resposta e o teste estourou o tempo. Pelo `pmset -g log`, o Mac dormiu de 02:46:15 a 03:01:36, por
+"Idle Sleep" seguido de "Thermal Emergency Sleep". É exatamente essa janela. Repetido, o mesmo
+mutante passou 2 de 2 em 20 s. Tratei o caso como ambiente, e ele não conta como morte. As
+execuções seguintes rodaram sob `caffeinate -i`.
+
+### Evidência dos ACs alterados e das provas parciais
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| IMP-01 AC 1 (reescrito), no diálogo | extensão diferente de `.csv`, ou mais de 1.048.576 **bytes**, leva à mensagem de `PLANILHA_ARQUIVO_INVALIDO`, sem prévia | `passo-arquivo.test.tsx:202-203` (`.xlsx`): `expect((await screen.findByRole("alert")).textContent).toBe(ARQUIVO_INVALIDO)` e `expect(screen.queryByText("4 blocos encontrados")).toBeNull()`. `:210-213`: 1.048.577 bytes. `:223-229`: `conteudo.length` abaixo de 1.048.576 e `grande.size` acima, com o arquivo recusado. `ARQUIVO_INVALIDO` é o texto literal (`:194-195`), e não uma chamada à função de produção | ✅ PASS (N7 morto) |
+| IMP-01 AC 1 (reescrito), no servidor | o mesmo payload é recusado com `VALIDACAO`, e o tamanho é medido em **caracteres** | `importacao.schema.test.ts:52-54`: `.xlsx` dá `["nomeArquivo"]`. `:61-71`: `MAX_CONTEUDO_PLANILHA` vale `1_048_576`, 1.048.577 dá `["conteudo"]` e exatamente 1.048.576 é aceito. `:76-79`: 600.000 `é`, menos de 1 MB em caracteres e mais em bytes, dão `success` `true`. O envelope está em `importacao.integration.test.ts:200-207`: `toEqual({ ok: false, erro: { code: "VALIDACAO", …, campos: { nomeArquivo: … } } })` | ✅ PASS (N8 morto). O tamanho chega à action só pelo schema; o envelope `VALIDACAO` está provado pelo campo da extensão |
+| IMP-01 AC 11 | `1 ≤ n ≤ t ≤ 120`: `t = 120` é aceito e `121` é recusado | `celula.test.ts:42-45`: `"1/120"` e `"120/120"` dão `toEqual({ ok: true, value: parcela })`. `:48-51`: `"1/121"` dá `PARCELA_INVALIDA` | ✅ PASS (M30 morto) |
+| IMP-02 AC 1 | ano entre 2000 e 2099, inclusive | `competencia-do-arquivo.test.ts:51-55`: 2000 e 2099 dão `toEqual({ mes: 10, ano })`. `:58-62`: 2100 dá `ano: null`. `:44-48`: 1999 dá `ano: null` | ✅ PASS (M29 morto) |
+| IMP-03 AC 10 | a categoria é criada uma vez, com a grafia da **primeira** linha | `planejar-importacao.test.ts:480-502`. A pré-condição está em `:487-496`: Feira com `Mercado`, Padaria com `MERCADO`, e nenhum "mercado" em fixos, cartão ou tabela. A assertion está em `:500-502`: `categorias.filter((c) => c.chave === "mercado")).toEqual([{ chave: "mercado", grafia: "Mercado", acao: "CRIAR", categoriaId: null }])` | ✅ PASS (M13 morto) |
+| IMP-04 AC 3, na página | "cai em" só oferece meios sem fatura, entre os meios que a página monta | `e2e/importacao.spec.ts:122-125`: `toHaveCount(1)` para "Conta Corrente" e `toHaveCount(0)` para "Cartão Roxo" | ✅ PASS (E2 morto) |
+| IMP-05 AC 9 (F8) | o botão diz "Importar N lançamentos" quando a conferência é exibida | `dialogo-importacao.test.tsx:204-227`: um `MutationObserver` vê cada commit. `expect(viuImportando).toBe(false)` (`:226`) e o botão "Importar 16 lançamentos" (`:222`) | ✅ PASS (N4 e N4b mortos, 5 de 5) |
+| IMP-07 AC 12 (reescrito) | a 1ª linha pareia com a recorrência de menor `competencia_inicio`; o `id` desempata; as excedentes são novas | Estado: `carregar-estado.test.ts:133-162`. O repositório devolve `rec-a` (2026-11), `rec-c` e `rec-b` (2026-10), e a assertion é `toEqual(["rec-b", "rec-c", "rec-a"])`. Reconhecimento: `reconhecer-recorrencias.test.ts:142-161`, com duas `INALTERADA`, cada linha com a sua vigente. Excedentes: `:131-139`, da rodada 1. Plano: **sem prova** | ⚠️ Parcial: N9 vivo, e o elo em `planejar-importacao.ts:360-363` não tem teste |
+| IMP-08 AC 7 | `Enter` ou espaço no seletor têm o efeito de arrastar | Espaço: `passo-arquivo.test.tsx:103-118`, com `keyboard(" ")` e `expect(abrirSeletor).toHaveBeenCalledTimes(1)` (`:110`); depois vêm o nome, "4 blocos encontrados", o mês `"10"` e o ano `"2026"` (`:114-117`). `Enter`: `:91-100`, da rodada 1 | ✅ PASS |
+| IMP-08, Independent Test | o painel de outubro mostra as receitas e as despesas da fixture | `e2e/importacao.spec.ts:156`: "Receitas do mês" é `1_015_000`. `:159`: "Despesas do mês" é `238_784`, ou seja, 184000 + 42334 + 12450, o Saídas de outubro no `design.md` | ✅ PASS |
+| IMP-09 AC 2 (reescrito) | preserva `usuario`, `meio_pagamento`, `categoria`, `fatura`, `pagamento_fatura` e `orcamento_categoria` | `limpar-para-importar.integration.test.ts:243-246`: antes, uma linha em cada (`toHaveLength(1)`); depois, `expect(await faturasEOrcamentos()).toEqual(antes)`. As três primeiras tabelas estão em `:227-234`, com `expect(await cadastros()).toEqual(antes)` | ✅ PASS (M26 e M27 mortos) |
+
+**Amostragem dos ACs que as correções não tocaram.** A suíte inteira passa (1.480 provas), e os 24
+mutantes mortos na rodada 1 morrem de novo nos mesmos testes. Por amostragem, isso cobre:
+
+- IMP-01 AC 2, 6 e 18 (M12, M31, M09);
+- IMP-02 AC 4, 5, 6 e 7 (E1, M17, M16, M23);
+- IMP-03 AC 8 (M19);
+- IMP-04 AC 3 no componente e AC 4 (M21, M25);
+- IMP-05 AC 3, 7 e 8 (M07, M20, M18);
+- IMP-06 AC 1 (M24);
+- IMP-07 AC 1, 3, 6, 8, 9 e 10 (M15, M14, M10, M03 a M06, M11).
+
+**Status**: dos critérios que a rodada 1 deixou abertos, só um continua aberto. O IMP-07 AC 12 tem
+a ordem escrita na spec e o estado e o reconhecimento provados, mas o plano segue sem prova (N9).
+
+### Lacunas restantes, ranqueadas
+
+1. **N9: o elo do plano no IMP-07 AC 12 (Minor).** É a única que atinge um resultado definido na
+   spec.
+   - **Task**: em `planejar-importacao.test.ts`, montar um estado com duas despesas vigentes
+     homônimas de mesmo meio (12000 e 13000, nessa ordem) e uma aba com duas linhas na mesma ordem.
+     Esperado: duas `INALTERADA`, cada linha com a sua vigente. Vale repetir para as receitas, que
+     passam pelo mesmo caminho em `:392-394`.
+   - **Done when**: N9 morre.
+2. **N5: o aviso de leitura na conferência (Minor).**
+   - **Task**: o teste da F8 (`dialogo-importacao.test.tsx:204`) passa a marcar também "Lendo a aba
+     no servidor…" com a conferência na tela. A sonda desta rodada é esse teste, e matou N5 em 3 de
+     3 execuções.
+   - **Spec**: uma linha no IMP-05 dizendo o que a tela mostra enquanto lê e enquanto grava, para
+     que o estado de espera tenha um AC.
+   - **Done when**: N5 morre.
+3. **N6: "Importando…" durante a gravação (Minor).**
+   - **Task**: no teste do diálogo, `importarPlanilha` dublado com uma promessa pendente. Depois do
+     clique, o botão se chama "Importando…" e está desabilitado. Pode usar o mesmo AC novo do item 2.
+   - **Done when**: N6 morre.
+
+**Fora do veredito (processo).** O commit da F1 (`854ae12`) levou o planejamento inteiro da Phase 6,
+de F1 a F7, junto com o teste da própria F1. A F8 entrou depois, no próprio commit. O código não
+muda por isso.
+
+### Lições
+
+As candidatas L-008 a L-013 não tiveram nova ocorrência. As correções aplicaram cada uma: L-008 na
+F1, L-009 na F2, L-010 e L-011 na F3, L-012 na F5. Os mutantes que elas nomeavam estão mortos. A
+L-013 não tem ocorrência nas correções, porque nenhuma ampliou port.
+
+Os três sobreviventes desta rodada viraram duas lições, gravadas com `lessons.py add`:
+
+| Lição | Sinal | Fonte |
+| --- | --- | --- |
+| L-014: uma garantia provada em cada elo separado precisa de um teste que atravesse a composição | `surviving_mutant` | N9 e N6 |
+| L-015: a correção de um estado transitório observa todo elemento ligado ao mesmo sinal pendente | `surviving_mutant` | N5 |
+
+### Requirement Traceability — atualização proposta (rodada 2)
+
+O Verificador não edita `spec.md`. Este é o status que a rodada 2 sustenta:
+
+| Requisito | Status da rodada 1 | Novo status |
+| --- | --- | --- |
+| IMP-01 | ❌ Needs Fix | ✅ Verified: AC 1 reescrito, com as duas metades, e AC 11 no limite (M30, N7 e N8 mortos) |
+| IMP-02 | ❌ Needs Fix | ✅ Verified: AC 1 no limite (M29 morto) |
+| IMP-03 | ❌ Needs Fix | ✅ Verified: AC 10 com a primeira e a última ocorrência diferentes (M13 morto) |
+| IMP-04 | ⚠️ com ressalva | ✅ Verified: AC 3 na página (E2 morto) |
+| IMP-05 | ✅ Verified | ⚠️ Verified com ressalva: o AC 9 está provado (N4 morto), mas o estado de espera do diálogo não tem AC nem prova (N5, N6) |
+| IMP-06 | ✅ Verified | ✅ Verified |
+| IMP-07 | ⚠️ com lacuna de precisão | ❌ Needs Fix: a ordem do AC 12 está na spec, com o estado e o reconhecimento provados, mas o plano não tem prova (N9) |
+| IMP-08 | ⚠️ com ressalva | ✅ Verified: AC 7 com espaço, e o Independent Test com as despesas |
+| IMP-09 | ⚠️ com lacuna de precisão | ✅ Verified: AC 2 reescrito (M26 e M27 mortos) |
+
+### Resumo
+
+**Overall**: ❌ Não pronto, por três testes. Nenhum defeito de comportamento, nenhum código de
+produção a mudar.
+
+**Spec-anchored**: os 10 critérios e provas que a rodada 1 reabriu fecham, exceto o IMP-07 AC 12,
+que está parcial (N9).
+**Sensor**: 43 mutações, 40 mortas e 3 sobreviventes (N5, N6, N9). Os sete da rodada 1 e os dois do
+AD-011 estão mortos.
+**Gate**: `pnpm verify` saiu 0 e `pnpm test:e2e` deu 59/59 na árvore real, com 1.480 provas, 0
+falhas e 0 puladas.
+
+**Próximo passo**: três tasks de teste, mais uma linha de spec no IMP-05. Depois, a rodada 3 do
+Verificador reaplica N5, N6 e N9. É a última iteração antes de escalar para o dono, pelo limite de
+três do ciclo de correção.
