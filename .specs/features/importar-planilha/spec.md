@@ -421,7 +421,7 @@ outubro com sucesso.
 | IMP-04 | P1: Resolver o que o app não sabe | Tasks | In Tasks |
 | IMP-05 | P1: Conferir antes de gravar | Execute | Implementing: ACs 1 a 4 na conferência (T5) |
 | IMP-06 | P1: Gravar tudo ou nada | Tasks | In Tasks |
-| IMP-07 | P1: Importar a aba seguinte sem duplicar | Tasks | In Tasks |
+| IMP-07 | P1: Importar a aba seguinte sem duplicar | Execute | Implementing: AC 10 na reprecificação (T6) |
 | IMP-08 | P1: Abrir a importação pela Visão geral | Tasks | In Tasks |
 | IMP-09 | P2: Recomeçar do zero | Tasks | In Tasks |
 

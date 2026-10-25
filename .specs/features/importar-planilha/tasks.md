@@ -303,12 +303,12 @@ T26 -> T27
 **Interfaces**: produz `ParcelaDaCompra`, `CompraParaReprecificar`, `Reprecificacao`, `reprecificarAPartirDe` (design.md)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Fone: amortizado 0, parcelas 1–3 de 3334, a partir de 2 com 3333 → parcelas `[{2,3333},{3,3333}]`, total 10000 (IMP-07 AC 10)
-- [ ] Livro de 30: parcelas 1–2 de 3000, a partir de 2 com 3002 → total 6002
-- [ ] Compra em andamento: amortizado 126000, parcelas 7–10 de 21000, a partir de 9 com 21100 → total 126000 + 21000 + 21000 + 21100 + 21100
-- [ ] `aPartirDe` que não é parcela gravada (6 na compra acima) → `PARCELA_INICIAL_INVALIDA`
-- [ ] Conservação: em todos os casos, total = amortizado + soma das parcelas devolvidas e das não alteradas
-- [ ] 100% de branches
+- [x] Fone: amortizado 0, parcelas 1–3 de 3334, a partir de 2 com 3333 → parcelas `[{2,3333},{3,3333}]`, total 10000 (IMP-07 AC 10)
+- [x] Livro de 30: parcelas 1–2 de 3000, a partir de 2 com 3002 → total 6002
+- [x] Compra em andamento: amortizado 126000, parcelas 7–10 de 21000, a partir de 9 com 21100 → total 126000 + 21000 + 21000 + 21100 + 21100
+- [x] `aPartirDe` que não é parcela gravada (6 na compra acima) → `PARCELA_INICIAL_INVALIDA`
+- [x] Conservação: em todos os casos, total = amortizado + soma das parcelas devolvidas e das não alteradas
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(parcelamento): reprecificar as parcelas a partir de uma, conservando a soma`
