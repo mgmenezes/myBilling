@@ -636,13 +636,13 @@ T26 -> T27
 **Interfaces**: produz `PassoConferencia({ previa, gravando, erro, aoImportar })` com `aoImportar(confirmouDivergencia)`
 **Tools**: nenhuma
 **Done when**:
-- [ ] Prévia de outubro: quatro blocos com linhas, soma e total; Gastos do Mês marcado como divergente com "R$ 12,00" de diferença; Saídas conferido (IMP-05 AC 1-4)
-- [ ] Abrir Fixos de novembro mostra "reajuste a partir de Novembro de 2026: R$ 100,00 → R$ 110,00"; abrir Cartão mostra "continua de Outubro de 2026, com valor novo: R$ 33,34 → R$ 33,33" (AC 5)
-- [ ] Lista "Deixa de valer a partir de Novembro de 2026: Academia" e, em dezembro, "Não aparece nesta aba: Óculos"
-- [ ] Linhas não lidas com bloco, nome e motivo em pt-BR ("sem valor", "valor zero", "valor não é dinheiro", "parcela fora do formato n/t", "sem nome") (AC 6)
-- [ ] Com divergência, o botão fica desabilitado até marcar "Entendi a diferença, importar mesmo assim" (AC 7)
-- [ ] Rótulo "Importar 16 lançamentos" em outubro (AC 9)
-- [ ] Erro recebido aparece dentro do passo (IMP-08 AC 8)
+- [x] Prévia de outubro: quatro blocos com linhas, soma e total; Gastos do Mês marcado como divergente com "R$ 12,00" de diferença; Saídas conferido (IMP-05 AC 1-4)
+- [x] Abrir Fixos de novembro mostra "reajuste a partir de Novembro de 2026: R$ 100,00 → R$ 110,00"; abrir Cartão mostra "continua de Outubro de 2026, com valor novo: R$ 33,34 → R$ 33,33" (AC 5)
+- [x] Lista "Deixa de valer a partir de Novembro de 2026: Academia" e, em dezembro, "Não aparece nesta aba: Óculos"
+- [x] Linhas não lidas com bloco, nome e motivo em pt-BR ("sem valor", "valor zero", "valor não é dinheiro", "parcela fora do formato n/t", "sem nome") (AC 6)
+- [x] Com divergência, o botão fica desabilitado até marcar "Entendi a diferença, importar mesmo assim" (AC 7)
+- [x] Rótulo "Importar 16 lançamentos" em outubro (AC 9)
+- [x] Erro recebido aparece dentro do passo (IMP-08 AC 8)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(importacao): conferência da aba antes de gravar`
