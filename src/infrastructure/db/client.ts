@@ -1,4 +1,5 @@
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle, type NodePgDatabase, type NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
+import type { PgDatabase } from "drizzle-orm/pg-core";
 import { Pool } from "pg";
 import { env } from "@/infrastructure/config/env";
 import * as schema from "./schema";
@@ -16,6 +17,18 @@ import * as schema from "./schema";
  */
 
 export type BancoDeDados = NodePgDatabase<typeof schema>;
+
+/**
+ * O que um repositório precisa para consultar e escrever: o banco **ou** uma
+ * transação aberta sobre ele. `NodePgDatabase` e `NodePgTransaction` estendem
+ * os dois este mesmo `PgDatabase`, então qualquer um satisfaz o tipo.
+ *
+ * É o que deixa uma operação de vários repositórios ser tudo ou nada (IMP-06):
+ * quem abre a transação constrói os repositórios sobre o `tx`. Os
+ * `transaction` internos de um repositório viram savepoint, e o rollback de
+ * fora desfaz também o que eles gravaram.
+ */
+export type Executor = PgDatabase<NodePgQueryResultHKT, typeof schema>;
 
 const HOSTS_DE_DESENVOLVIMENTO = new Set(["localhost", "127.0.0.1", "::1", "[::1]", "db"]);
 

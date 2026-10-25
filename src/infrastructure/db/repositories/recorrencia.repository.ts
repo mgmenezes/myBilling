@@ -5,7 +5,7 @@ import type {
   RecorrenciaRepository,
 } from "@/application/ports/repositories";
 import type { Cents, Competencia, Recorrencia } from "@/domain";
-import type { BancoDeDados } from "../client";
+import type { Executor } from "../client";
 import { recorrencia, recorrenciaVersao } from "../schema";
 import { deCompetencia, paraCompetencia } from "./mapeadores";
 
@@ -41,7 +41,7 @@ function paraRecorrencia(linha: typeof recorrencia.$inferSelect): Recorrencia {
 }
 
 export class RecorrenciaRepositoryDrizzle implements RecorrenciaRepository {
-  constructor(private readonly db: BancoDeDados) {}
+  constructor(private readonly db: Executor) {}
 
   async listarComVersoes(): Promise<ReadonlyArray<RecorrenciaComVersoes>> {
     const linhas = await this.db

@@ -5,7 +5,7 @@ import type {
   OcorrenciaParaMaterializar,
 } from "@/application/ports/repositories";
 import type { Cents, Competencia, Lancamento } from "@/domain";
-import type { BancoDeDados } from "../client";
+import type { Executor } from "../client";
 import { movimento } from "../schema";
 import { deCompetencia, paraLancamento } from "./mapeadores";
 
@@ -16,7 +16,7 @@ import { deCompetencia, paraLancamento } from "./mapeadores";
  * acontecer.
  */
 export class MovimentoRepositoryDrizzle implements MovimentoRepository {
-  constructor(private readonly db: BancoDeDados) {}
+  constructor(private readonly db: Executor) {}
 
   async listarPorCompetencia(competencia: Competencia): Promise<ReadonlyArray<Lancamento>> {
     const linhas = await this.db

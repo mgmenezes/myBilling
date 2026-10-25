@@ -420,7 +420,7 @@ outubro com sucesso.
 | IMP-03 | P1: Transformar cada linha no que ela é | Execute | Implementing: ACs 2 a 5 e 7 a 12 no plano (T9) |
 | IMP-04 | P1: Resolver o que o app não sabe | Execute | Implementing: ACs 1, 3 e 5 e as decisões a lembrar do AC 4 no plano (T9) |
 | IMP-05 | P1: Conferir antes de gravar | Execute | Implementing: ACs 1 a 4 na conferência (T5); destinos do AC 5 e contagem do AC 9 no plano (T9) |
-| IMP-06 | P1: Gravar tudo ou nada | Tasks | In Tasks |
+| IMP-06 | P1: Gravar tudo ou nada | Execute | Implementing: repositórios sobre uma transação de fora, base dos ACs 1 e 2 (T10) |
 | IMP-07 | P1: Importar a aba seguinte sem duplicar | Execute | Implementing: AC 10 na reprecificação (T6); ACs 1 a 6 e 12 no reconhecimento de recorrências (T7); ACs 7, 8, 9 e 11 no reconhecimento de compras (T8); reajuste, encerramento e reprecificação compostos no plano (T9) |
 | IMP-08 | P1: Abrir a importação pela Visão geral | Tasks | In Tasks |
 | IMP-09 | P2: Recomeçar do zero | Tasks | In Tasks |

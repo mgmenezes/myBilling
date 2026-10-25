@@ -1,7 +1,7 @@
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import type { CadastroRepository, Usuario } from "@/application/ports/repositories";
 import type { Cartao, Categoria, MeioPagamento, MeioSemFatura } from "@/domain";
-import type { BancoDeDados } from "../client";
+import type { Executor } from "../client";
 import { categoria, meioPagamento, usuario } from "../schema";
 import { paraCategoria, paraMeioPagamento, paraUsuario } from "./mapeadores";
 
@@ -28,7 +28,7 @@ function paraInstante(iso: string | null): Date | null {
 }
 
 export class CadastroRepositoryDrizzle implements CadastroRepository {
-  constructor(private readonly db: BancoDeDados) {}
+  constructor(private readonly db: Executor) {}
 
   async listarUsuarios(): Promise<ReadonlyArray<Usuario>> {
     const linhas = await this.db.select().from(usuario).orderBy(asc(usuario.nome));

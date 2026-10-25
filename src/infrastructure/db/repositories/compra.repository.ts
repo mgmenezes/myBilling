@@ -5,7 +5,7 @@ import type {
   EntradaSalvarCompra,
 } from "@/application/ports/repositories";
 import { type DomainError, err, ok, type Result } from "@/domain";
-import type { BancoDeDados } from "../client";
+import type { Executor } from "../client";
 import { compraParcelada, movimento } from "../schema";
 import { deCompetencia, paraCents, paraCentsOuZero, paraLancamento } from "./mapeadores";
 
@@ -57,7 +57,7 @@ function ehColisaoDeIdempotencia(erro: unknown): boolean {
 }
 
 export class CompraRepositoryDrizzle implements CompraRepository {
-  constructor(private readonly db: BancoDeDados) {}
+  constructor(private readonly db: Executor) {}
 
   async buscarPorIdempotencyKey(idempotencyKey: string): Promise<CompraPersistida | null> {
     const linhas = await this.db

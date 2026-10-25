@@ -391,9 +391,9 @@ T26 -> T27
 **Interfaces**: produz `Executor` (design.md, Decisão 1)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Todos os testes de integração existentes passam sem alteração
-- [ ] Novo teste: `RecorrenciaRepositoryDrizzle` e `CompraRepositoryDrizzle` construídos sobre `tx` dentro de `db.transaction`, seguidos de um `throw`, não deixam linha nenhuma em `recorrencia`, `recorrencia_versao`, `compra_parcelada` e `movimento` (o savepoint interno não escapa do rollback externo)
-- [ ] `pnpm typecheck` sem erro
+- [x] Todos os testes de integração existentes passam sem alteração
+- [x] Novo teste: `RecorrenciaRepositoryDrizzle` e `CompraRepositoryDrizzle` construídos sobre `tx` dentro de `db.transaction`, seguidos de um `throw`, não deixam linha nenhuma em `recorrencia`, `recorrencia_versao`, `compra_parcelada` e `movimento` (o savepoint interno não escapa do rollback externo)
+- [x] `pnpm typecheck` sem erro
 **Tests**: integration
 **Gate**: full
 **Commit**: `refactor(db): deixar os repositórios aceitarem uma transação de fora`
