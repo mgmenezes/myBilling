@@ -1188,10 +1188,10 @@ T26 -> T27
 **Interfaces**: —
 **Tools**: Playwright
 **Done when**:
-- [ ] Pessoa A abre `/2026-10`, importa outubro: resolve três "Tipo" e três entradas, vê Gastos do Mês divergente, confirma e importa; o painel de outubro mostra "Receitas do mês" +R$ 10.150,00 (IMP-08 Independent Test)
-- [ ] Na sequência, o diálogo mostra "Próximo mês esperado: Novembro de 2026"; importar novembro pede só `Cartão Azul` e Presente, não tem divergência e não exige confirmação (IMP-04 Independent Test)
-- [ ] `/2026-11/fixos` mostra Internet com R$ 110,00 e não mostra Academia no Cartão Roxo (IMP-07)
-- [ ] Num banco limpo, depois de importar só outubro, escolher dezembro é recusado com a mensagem que nomeia Novembro de 2026 (IMP-02 Independent Test)
+- [x] Pessoa A abre `/2026-10`, importa outubro: resolve três "Tipo" e três entradas, vê Gastos do Mês divergente, confirma e importa; o painel de outubro mostra "Receitas do mês" +R$ 10.150,00 (IMP-08 Independent Test)
+- [x] Na sequência, o diálogo mostra "Próximo mês esperado: Novembro de 2026"; importar novembro pede só `Cartão Azul` e Presente, não tem divergência e não exige confirmação (IMP-04 Independent Test)
+- [x] `/2026-11/fixos` mostra Internet com R$ 110,00 e não mostra Academia no Cartão Roxo (IMP-07)
+- [x] Num banco limpo, depois de importar só outubro, escolher dezembro é recusado com a mensagem que nomeia Novembro de 2026 (IMP-02 Independent Test)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(e2e): importar outubro e novembro pela Visão geral`
