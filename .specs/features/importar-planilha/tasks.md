@@ -656,11 +656,11 @@ T26 -> T27
 **Interfaces**: produz `DialogoImportacao({ nomeDaPessoa, competenciaEsperada, meios, previaDaPlanilha, importarPlanilha, criarMeioDePagamento })`, com as actions de T19 entrando por props
 **Tools**: nenhuma
 **Done when**:
-- [ ] O botão "Importar planilha" abre um `<dialog>` nativo via `showModal` (IMP-08 AC 2)
-- [ ] Prévia sem pendências vai do passo 1 direto à conferência (IMP-04 AC 6)
-- [ ] Com pendências, o passo 2 aparece e, ao concluir, a prévia é pedida de novo com as decisões
-- [ ] Gravação bem-sucedida mostra "16 criados" (ou as contagens recebidas), o link "Abrir Outubro de 2026" para `/2026-10` e "Próximo: Novembro de 2026" (IMP-08 AC 6)
-- [ ] Recusa do servidor mantém o diálogo aberto com a mensagem (AC 8)
+- [x] O botão "Importar planilha" abre um `<dialog>` nativo via `showModal` (IMP-08 AC 2)
+- [x] Prévia sem pendências vai do passo 1 direto à conferência (IMP-04 AC 6)
+- [x] Com pendências, o passo 2 aparece e, ao concluir, a prévia é pedida de novo com as decisões
+- [x] Gravação bem-sucedida mostra "16 criados" (ou as contagens recebidas), o link "Abrir Outubro de 2026" para `/2026-10` e "Próximo: Novembro de 2026" (IMP-08 AC 6)
+- [x] Recusa do servidor mantém o diálogo aberto com a mensagem (AC 8)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(importacao): diálogo da importação do começo ao resultado`
