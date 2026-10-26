@@ -1,16 +1,15 @@
 # Importar a planilha — Validação
 
-## Validation: importar-planilha — **FAIL** (rodada 3, veredito vigente)
+## Validation: importar-planilha — **PASS** (confirmação depois da decisão do dono, veredito vigente)
 
-**Result**: FAIL ❌ — rodada 3, 2026-10-25, sobre `a033fef`. **Nenhum defeito de comportamento.**
-N9, N5 e N6, os três sobreviventes da rodada 2, morrem, cada um no teste que a sua correção
-escreveu. N5 e N6 morrem 3 de 3 vezes. Os ACs novos, IMP-08 AC 9 e AC 10, têm assertion que bate
-com a spec. Os 13 mortos de regressão e os dois do AD-011 continuam mortos. O FAIL vem de um
-mutante só, N9r, que é o gêmeo de N9 do lado das receitas: o plano inverte as receitas vigentes em
-`planejar-importacao.ts:394`, e a suíte inteira fica verde. A rodada 2 já pedia esse caso ("Vale
-repetir para as receitas"), e a F9 provou só as despesas. É a terceira iteração, então o caso vai
-ao dono, com duas saídas descritas na seção "Rodada 3", no fim do arquivo. O cabeçalho da rodada 2
-resumia a seção "Rodada 2", que continua intacta. A rodada 1 vem logo abaixo, com o texto original.
+**Result**: PASS ✅ — confirmação de 2026-10-26, sobre `d57ef6f`. Nenhum defeito de comportamento.
+A N9r, único mutante vivo da rodada 3, morre no caso da F12
+(`src/domain/importacao/planejar-importacao.test.ts:913`), com dois `REAJUSTE` cruzados no lugar de
+`JA_EXISTE`. N9 e o AD-011 (b) continuam mortos. O gêmeo da N9r no estado (N1r) também morre. O
+IMP-07 AC 12 passa a ter prova no elo do plano para as despesas e para as receitas. O `pnpm verify`
+sai 0 na árvore real, e os dois commits que entraram depois da F12 não tocam domínio nem aplicação.
+O detalhe está na seção "Confirmação depois da decisão do dono", no fim do arquivo. O cabeçalho da
+rodada 3 resumia a seção "Rodada 3", que continua intacta, como as das rodadas 1 e 2.
 
 ---
 
@@ -1026,3 +1025,174 @@ falhas e 0 puladas.
 **Próximo passo**: o limite de três iterações acabou, e o caso vai ao dono. Ele escolhe entre a F12,
 que é um caso de teste e é a recomendada, e a saída (b), que restringe o AC 12 aos Fixos. Com a F12
 feita, basta reaplicar N9r para fechar o veredito.
+
+---
+
+## Confirmação depois da decisão do dono
+
+**Data**: 2026-10-26
+**Decisão**: depois da rodada 3, o dono escolheu a saída (a). A N9r fecha com teste, e o IMP-07
+AC 12 não é estreitado aos Fixos. A correção é a F12 (`ff28621`, Phase 8 do `tasks.md`).
+**Faixa do diff**: `765f6e4..d57ef6f`, três commits. São `ff28621` (F12), `7c5e460` e `d57ef6f`, os
+dois últimos fora da fatia e também por decisão do dono. Fora de `.specs/` e `docs/`, o diff é
+`planejar-importacao.test.ts` (+41, nenhuma linha removida) e `next.config.ts` (+6).
+`check_commit.py` sai 0 nos três.
+**Verificador**: sub-agente independente, que não escreveu a fatia nem as correções. Somente
+leitura sobre código e teste. As mutações rodaram numa `git worktree` descartável em
+`/private/tmp/.../scratchpad/verifier4-wt`, **nenhum `git stash`**.
+**Escopo**: confirmação curta, e não rodada completa. Reaplica N9r, N9 e o AD-011 (b), confere o
+IMP-07 AC 12 nas duas pontas e confere os dois commits de fora da fatia. O e2e não foi rodado. Desde
+a rodada 3, que deu 59/59, nenhum arquivo de `src/` ou `e2e/` mudou além de
+`planejar-importacao.test.ts`, e a única mudança de configuração é o log do `next dev`.
+
+### Veredito — PASS ✅
+
+A N9r morre no caso que a F12 escreveu, na primeira assertion. Uma sonda mostra que a segunda
+assertion também a pega. N9 e M02, o AD-011 (b), morrem nos mesmos testes da rodada 3. Acrescentei
+N1r, o gêmeo da N9r no estado, porque o estado é o outro elo do AC 12 com um ponto próprio das
+receitas. Ele também morre. Nenhum código de produção mudou desde a rodada 3, a não ser o
+`next.config.ts`, e nenhum defeito foi encontrado.
+
+### Gate
+
+| Gate | Onde | Resultado |
+| --- | --- | --- |
+| `pnpm verify` | árvore real, em `d57ef6f`, com o Postgres da porta 5433 de pé | ✅ saída 0 |
+| — `typecheck` | | ✅ `Types generated successfully` |
+| — `lint` | | ✅ `Checked 255 files in 141ms. No fixes applied.` |
+| — `test:unit` | | ✅ **84 arquivos, 1.139 testes**; `src/domain` com 100% de branches (323/323), statements (642/642), funções (154/154) e linhas (607/607) |
+| — `test:integration` | | ✅ **21 arquivos, 285 testes** |
+| — `build` | | ✅ `Compiled successfully`; `/[competencia]` sai como `ƒ` |
+| `pnpm test:e2e` | | não rodado nesta confirmação. Foi 59/59 na rodada 3 |
+
+**Total**: 1.424 provas rodadas, 0 falhas e 0 puladas. Os números batem com o gate do orquestrador
+em `d57ef6f`.
+
+**Integridade.** Unit foi de 1.138 para 1.139. O +1 é o caso da F12. Integração ficou em 285. Em
+`src/`, o diff `a033fef..d57ef6f` é `+41 −0`, todo em `planejar-importacao.test.ts`, e nenhuma
+assertion saiu. Não há `.skip`, `.only` nem `.todo` em `src` ou `e2e`.
+
+### Sensor de discriminação
+
+A worktree descartável ficou em `d57ef6f`, e o Vitest rodou com `node_modules` em symlink para a
+raiz. N9 e N9r usam o mesmo texto de substituição da rodada 3 (`v3/sensor3.py`). M02 usa o da
+rodada 1 (`sensor/mutacoes.py`), e o script confere que a definição é idêntica antes de aplicar.
+Reverti cada mutante com `git checkout -- <arquivo>` e conferi a worktree limpa antes do seguinte.
+Antes do sensor, a linha de base passou na worktree:
+
+- o arquivo do plano, 36/36;
+- a fatia unitária (`src/domain/importacao` e `src/application/importacao`), 168/168;
+- `competencia.test.ts`, 32/32;
+- `importacao.integration.test.ts`, 13/13.
+
+| # | Mutação | `file:line` | Morto por (assertion, e o que ela recebeu) | Resultado |
+| --- | --- | --- | --- | --- |
+| N9r | o plano inverte as receitas vigentes: `[...estado.receitasFixasVigentes].reverse()` | `src/domain/importacao/planejar-importacao.ts:394` | `planejar-importacao.test.ts:913`, o `toEqual` de `:909-916`: recebeu `[[0, "REAJUSTE"], [3, "REAJUSTE"]]` e esperava `[[0, "JA_EXISTE"], [3, "JA_EXISTE"]]` (F12). Na fatia unitária, é a única falha, 1 de 168 | ✅ Morto |
+| N9 | o plano inverte as despesas vigentes: `[...estado.despesasFixasVigentes].reverse()` | `planejar-importacao.ts:362` | `planejar-importacao.test.ts:872`, o `toEqual` de `:868-875`: recebeu `[[2, "REAJUSTE"], [4, "REAJUSTE"]]` e esperava `JA_EXISTE` nas duas (F9). Na fatia unitária, é a única falha, 1 de 168 | ✅ Morto |
+| M02 | AD-011 (b): `addMeses` gira o mês e mantém o ano | `src/domain/shared/competencia.ts:45` | `competencia.test.ts:50` (`'2026-02'` contra `'2027-02'`), `:54` (`'2026-12'` contra `'2025-12'`) e `:58` (`'2026-10'` contra `'2028-10'`). Na fatia, `gravar-importacao/handler.test.ts:145` (parcela do Sofá em `"2026-01"` contra `"2027-01"`) e `importacao.integration.test.ts:327` (`proxima` em `"2026-01"` contra `"2027-01"`) | ✅ Morto |
+| N1r | (extra) o estado entrega as receitas na ordem inversa: `daNatureza("RECEITA").reverse()` | `src/application/importacao/carregar-estado.ts:94` | `carregar-estado.test.ts:33`, o `toEqual` de `:33-36`: recebeu `rec-6` (Salário B) antes de `rec-5` (Salário A). A integração da fatia fica verde (13/13), e a prova é a de aplicação | ✅ Morto |
+
+**A segunda assertion da F12.** Com N9r aplicada, a primeira assertion falha antes da segunda. Para
+saber se a segunda vigia alguma coisa, troquei, na worktree, o `toEqual` de `:913-916` por
+`toBeDefined()` e rodei o caso com N9r. O `toEqual([])` de `:917-921` falhou e recebeu
+`[{ recorrenciaId: "rec-salario-a-2", valor: 600000 }, { recorrenciaId: "rec-salario-a", valor: 650000 }]`.
+São os dois reajustes cruzados que a rodada 3 descreveu. A sonda foi revertida e não entra em
+commit.
+
+**Por que N1r.** O estado ordena as recorrências uma vez só, antes de separar as naturezas
+(`carregar-estado.ts:51` e `:72-73`). Mas a prova da ordenação, `carregar-estado.test.ts:161`, usa só
+despesas, e o retorno tem um ponto próprio para as receitas (`:94`). N1r mostra que esse ponto
+também está preso: o `toEqual` de `:33-36` fixa a ordem das receitas que o estado entrega.
+
+**Contagem**: 4 mutações, 4 mortas e nenhum sobrevivente. Sensor ✅.
+
+**Isolamento.** O porcelain da árvore real estava vazio antes de tudo, às 08:06. Continuou vazio
+depois do `pnpm verify` e depois de `git worktree remove --force` e `git worktree prune`, às
+08:09:12. Às 08:09:55, um `pnpm run dev` de fora desta verificação (PID 33036, aberto por outro
+shell) subiu o `next dev` na árvore real e reescreveu `next-env.d.ts`, trocando `./.next/types/…`
+por `./.next/dev/types/…`. Recriei a worktree para N1r com o porcelain ` M next-env.d.ts` gravado
+antes, e depois da remoção ele continuou igual. Nenhuma mutação vazou. O `next-env.d.ts` fica
+como está, sem reverter, e fora do commit. A integração usa o banco `mybilling_test`
+(`src/infrastructure/db/testing/banco-de-teste.ts:17`), e o `next dev` usa `mybilling`. Por isso,
+rodar a integração com o servidor de pé não tocou a base local do dono.
+
+### IMP-07 AC 12, nas duas pontas
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| AC 12 no plano, despesas | `spec.md:342-344`: as linhas homônimas pareiam, na ordem de aparição, com as recorrências tomadas em ordem de `competencia_inicio` e, no empate, de `id`. Cada linha fica com a sua | `planejar-importacao.test.ts:842-881`. As vigentes são "Academia" na Conta Corrente, de 12000 (`:143`) e 13000 (`:862`), nessa ordem no estado. As linhas estão nas posições 2, da fixture, e 4, com 13000 (`:846-855`). A primeira assertion é `expect(plano.linhas.filter((linha) => linha.bloco === "FIXOS" && linha.nome === "Academia").map((linha) => [linha.posicao, linha.destino])).toEqual([[2, "JA_EXISTE"], [4, "JA_EXISTE"]])` (`:868-875`). A segunda é `expect(operacoesDe(plano).reajustes.filter((reajuste) => reajuste.recorrenciaId.startsWith("rec-academia"))).toEqual([])` (`:876-880`) | ✅ PASS (N9 morto em `:872`) |
+| AC 12 no plano, receitas | o mesmo pareamento para duas entradas fixas homônimas, que o AC alcança porque o "cai em" é decidido por nome (rodada 3, item 2) | `planejar-importacao.test.ts:883-922`. As vigentes são "Salário A" de 600000 (`rec-salario-a`, `:147`) e 650000 (`rec-salario-a-2`, `:903`), nessa ordem no estado. As linhas estão nas posições 0, da fixture, e 3, com 650000 (`:887-896`). A primeira assertion é `expect(plano.linhas.filter((linha) => linha.bloco === "ENTRADAS" && linha.nome === "Salário A").map((linha) => [linha.posicao, linha.destino])).toEqual([[0, "JA_EXISTE"], [3, "JA_EXISTE"]])` (`:909-916`). A segunda é `expect(operacoesDe(plano).reajustes.filter((reajuste) => reajuste.recorrenciaId.startsWith("rec-salario-a"))).toEqual([])` (`:917-921`) | ✅ PASS (N9r morto em `:913`; a sonda prova `:917-921`) |
+| AC 12 no estado | as vigentes saem em ordem de `competencia_inicio` e, no empate, de `id` | despesas: `carregar-estado.test.ts:161`, `toEqual(["rec-b", "rec-c", "rec-a"])` (N1, rodada 3). Receitas: `:33-36` (N1r, aqui) | ✅ PASS |
+| AC 12 no reconhecimento | pareia na ordem que recebe, e as excedentes são novas | `reconhecer-recorrencias.test.ts:154` (M28) e `:131-139`. A função é uma só para as duas naturezas. Não reapliquei M28 aqui; o arquivo passa na linha de base | ✅ PASS (rodadas 2 e 3) |
+
+**Status**: o IMP-07 AC 12 está provado nos três elos e nas duas naturezas. Era o único critério
+aberto depois da rodada 3.
+
+### Os dois commits de fora da fatia
+
+- **Nenhum toca domínio nem aplicação.** `git diff --name-only ff28621 d57ef6f` lista três
+  arquivos: `next.config.ts` e `docs/importacao.md`, de `7c5e460`, e `.specs/HANDOFF.md`, de
+  `d57ef6f`. Nada em `src/`.
+- **`next.config.ts` segue a documentação.** As linhas `:7-9` são `logging: { serverFunctions: false }`,
+  a mesma forma da seção "Server Functions" de
+  `node_modules/next/dist/docs/01-app/03-api-reference/05-config/01-next-config-js/logging.md`:
+  "Server Function invocations are logged by default during development. You can disable this by
+  setting `logging.serverFunctions` to `false`". A chave existe no tipo
+  (`node_modules/next/dist/server/config-shared.d.ts:296`, `serverFunctions?: boolean`) e no schema
+  (`node_modules/next/dist/server/config-schema.js:708`), e o `typecheck` passa. No servidor,
+  `base-server.js:424` liga `logServerFunctions` só se `logging.serverFunctions` for verdadeiro, e
+  `app-render/action-handler.js:822` só registra a chamada em desenvolvimento e com esse sinal
+  ligado. Não subi o `next dev` para ver o terminal: a conferência é pela documentação e pelo código
+  do Next instalado.
+- **`docs/importacao.md`** troca o aviso de "não copie o log" por uma nota que descreve a chave e o
+  que acontece se ela for religada. O texto bate com o `next.config.ts`.
+- **`d57ef6f`** troca uma linha do `HANDOFF.md`, que passa a dizer "para duas pessoas", sem nome.
+
+### Validadores
+
+| Script | Resultado |
+| --- | --- |
+| `validate_spec.py importar-planilha` | ✅ 0 erros, 0 avisos |
+| `validate_tasks.py importar-planilha` | ✅ 0 erros, 11 avisos: 10 de granularidade (T4, T10 a T14, T17, T19, T20, T24) e a T25 sem testes, que a matriz declara `none`. O script só reconhece IDs `T<n>`, e a F12 foi cruzada à mão no próprio `tasks.md` |
+| `check_commit.py` | ✅ saída 0 nas mensagens de `ff28621`, `7c5e460` e `d57ef6f` |
+| `validate_state.py importar-planilha` | antes desta seção, saída 1 ("verdict is FAIL"). Depois, saída 0 |
+
+### Fora do veredito (processo)
+
+- `tasks.md:7` ainda diz "34 tasks em 7 fases (27 da fatia e 7 correções da verificação)". O arquivo
+  tem 39 tasks em 9 fases: T1 a T27, F1 a F12, Phase 0 a Phase 8. O Status de `tasks.md:6` diz
+  "aguarda a confirmação do Verifier depois da F12". Os dois ficam para o autor, porque o
+  Verificador não edita `tasks.md` nem `spec.md`.
+- O gate declarado da F12 é "quick + `pnpm typecheck`", que aplica a L-016. Não medi `tsc` isolado
+  em `ff28621`. De `ff28621` a `d57ef6f`, o que muda é uma chave opcional a mais no `next.config.ts`
+  e dois `.md`, e o `typecheck` passa em `d57ef6f`.
+
+### Lições
+
+Nada a registrar. A confirmação não tem mutante vivo, lacuna de precisão nem desvio, e
+`references/lessons.md` manda não escrever nada num PASS limpo. A L-014 segue candidata, com
+recorrência 1 e só esta feature. A F12 aplica a L-014, mas aplicar uma lição não é ocorrência nova.
+A promoção pede uma segunda feature, e `penalize` só vale para uma lição confirmada que falhou.
+`lessons.py status` continua em 16 lições: 1 confirmada e 15 candidatas.
+
+### Requirement Traceability — atualização proposta (confirmação)
+
+O Verificador não edita `spec.md`. Este é o status que a confirmação sustenta:
+
+| Requisito | Status da rodada 3 | Novo status |
+| --- | --- | --- |
+| IMP-01 a IMP-06, IMP-08, IMP-09 | ✅ Verified | ✅ Verified |
+| IMP-07 | ❌ Needs Fix | ✅ Verified: o AC 12 está provado no estado, no reconhecimento e no plano, para despesas e receitas (N1, N1r, M28, N9 e N9r mortos) |
+
+### Resumo
+
+**Overall**: ✅ Pronto. Nenhum defeito de comportamento. Nenhum critério aberto.
+
+**Spec-anchored**: o IMP-07 AC 12, último critério aberto, tem assertion que bate com a spec no
+plano para as despesas e para as receitas.
+**Sensor**: 4 mutações e 4 mortas: N9r, N9, M02 e a extra N1r.
+**Gate**: `pnpm verify` saiu 0 na árvore real, com 1.424 provas, 0 falhas e 0 puladas. O e2e não foi
+repetido, porque o fluxo de usuário não mudou desde os 59/59 da rodada 3.
+
+**Próximo passo**: o autor passa a traceability do `spec.md` para Verified e atualiza o Status e o
+Total do `tasks.md`. Nenhuma task nova.
