@@ -19,7 +19,7 @@
 
 ## O projeto
 
-App web de finanças domésticas para duas pessoas (Moisés e Adriele), substituindo uma
+App web de finanças domésticas para duas pessoas, substituindo uma
 planilha do Google Sheets com uma aba por mês. **A dor central:** compras parceladas
 precisam ser redigitadas em cada aba futura; esquecer uma corrompe o saldo. O app
 cadastra a compra **uma vez** e distribui as parcelas sozinho.
