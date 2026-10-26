@@ -48,6 +48,9 @@ const CLASSES: ReadonlyArray<readonly [ClasseEntrada, string]> = [
   ["AVULSA", "Avulsa, só neste mês"],
 ];
 
+/** "Débito, NuBank e Bradesco": a enumeração do pt-BR, com "e" antes do último. */
+const LISTA = new Intl.ListFormat("pt-BR", { style: "long", type: "conjunction" });
+
 function quantasLinhas(linhas: number): string {
   return linhas === 1 ? "1 linha" : `${linhas} linhas`;
 }
@@ -67,9 +70,22 @@ export function PassoPendencias({
   const contas = listaMeios.filter((meio) => !meio.geraFatura);
 
   const decisoes = montarDecisoes();
-  const completo =
-    pendencias.tiposSemMeio.every(({ chave }) => chave in decisoes.meios) &&
-    pendencias.entradasSemClasse.every(({ chave }) => chave in decisoes.entradas);
+  /*
+   * O que falta, pelo nome. O botão desabilitado sozinho não diz por quê, e
+   * numa aba real são seis "Tipo" e sete entradas: o que ficou para trás
+   * costuma estar fora da tela.
+   */
+  const semMeio = pendencias.tiposSemMeio
+    .filter(({ chave }) => !(chave in decisoes.meios))
+    .map(({ nome }) => nome);
+  const semClasse = pendencias.entradasSemClasse
+    .filter(({ chave }) => porEntrada[chave]?.classe == null)
+    .map(({ nome }) => nome);
+  const semConta = pendencias.entradasSemClasse
+    .filter(({ chave }) => (porEntrada[chave]?.contaId ?? "") === "")
+    .map(({ nome }) => nome);
+  const completo = semMeio.length === 0 && semClasse.length === 0 && semConta.length === 0;
+  const idDoAviso = `${id}-falta`;
 
   function montarDecisoes(): DecisoesDoPasso {
     const decididosMeios: Record<string, string> = {};
@@ -207,9 +223,29 @@ export function PassoPendencias({
         </section>
       )}
 
+      {completo ? null : (
+        <div
+          id={idDoAviso}
+          role="status"
+          className="flex flex-col gap-1 rounded-lg border border-line px-4 py-3 text-[14px] text-ink-muted"
+        >
+          <p className="font-semibold text-ink">Para continuar, falta:</p>
+          <ul className="list-disc pl-5">
+            {semMeio.length === 0 ? null : <li>{`escolher o meio de ${LISTA.format(semMeio)}`}</li>}
+            {semClasse.length === 0 ? null : (
+              <li>{`dizer se é fixa ou avulsa: ${LISTA.format(semClasse)}`}</li>
+            )}
+            {semConta.length === 0 ? null : (
+              <li>{`escolher onde cai: ${LISTA.format(semConta)}`}</li>
+            )}
+          </ul>
+        </div>
+      )}
+
       <button
         type="button"
         disabled={!completo}
+        aria-describedby={completo ? undefined : idDoAviso}
         onClick={() => aoConcluir(decisoes)}
         className={BOTAO_PRIMARIO}
       >

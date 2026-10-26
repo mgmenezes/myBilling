@@ -151,6 +151,51 @@ describe("PassoPendencias — cada entrada (IMP-04, AC 3)", () => {
   });
 });
 
+describe("PassoPendencias — o que falta para continuar (IMP-04, AC 8)", () => {
+  function itensDoAviso(): Array<string | null> {
+    return within(screen.getByRole("status"))
+      .getAllByRole("listitem")
+      .map((item) => item.textContent);
+  }
+
+  it("de início, lista pelo nome cada Tipo sem meio e cada entrada sem classe e sem conta", () => {
+    montar();
+
+    expect(within(screen.getByRole("status")).getByText("Para continuar, falta:")).toBeDefined();
+    expect(itensDoAviso()).toEqual([
+      "escolher o meio de Débito, Cartão Roxo e Cartão Verde",
+      "dizer se é fixa ou avulsa: Salário A, Salário B e Reembolso",
+      "escolher onde cai: Salário A, Salário B e Reembolso",
+    ]);
+  });
+
+  it("conforme se decide, sobra só o que falta", async () => {
+    montar();
+    await decidirTudo();
+
+    await userEvent.selectOptions(screen.getByLabelText("Cartão Verde (1 linha)"), "");
+    await userEvent.selectOptions(within(entrada("Reembolso")).getByLabelText("Cai em"), "");
+
+    expect(itensDoAviso()).toEqual([
+      "escolher o meio de Cartão Verde",
+      "escolher onde cai: Reembolso",
+    ]);
+  });
+
+  it("o botão aponta para o aviso enquanto falta algo, e o aviso some quando nada falta", async () => {
+    montar();
+    const idDoAviso = continuar().getAttribute("aria-describedby");
+    expect(idDoAviso).not.toBeNull();
+    expect(document.getElementById(idDoAviso ?? "")).toBe(screen.getByRole("status"));
+
+    await decidirTudo();
+
+    expect(screen.queryByRole("status")).toBeNull();
+    expect(continuar().hasAttribute("aria-describedby")).toBe(false);
+    expect(continuar().disabled).toBe(false);
+  });
+});
+
 describe("PassoPendencias — continuar (T22)", () => {
   it("fica desabilitado enquanto houver escolha em aberto", async () => {
     montar();

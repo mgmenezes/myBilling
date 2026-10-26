@@ -4,7 +4,7 @@
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
 **Status**: Done — Verifier PASS em 2026-10-26 (`validation.md`, confirmação depois da decisão do dono). Três rodadas deram FAIL sem defeito de comportamento, por testes que não discriminavam; as correções são as Phases 6 a 8.
-**Total**: 39 tasks em 9 fases (27 da fatia e 12 correções da verificação)
+**Total**: 40 tasks em 10 fases (27 da fatia, 12 correções da verificação e 1 pedido do dono no teste em localhost)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
 > aba errado ou reconhecer errado entre abas, e descobrir só no terceiro mês. Leitura, conferência,
@@ -206,6 +206,12 @@ F8 -> F11
 
 ```
 F9 -> F12
+```
+
+### Phase 9 — Pedido do dono no teste em localhost
+
+```
+T22 -> F13
 ```
 
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
@@ -958,6 +964,26 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Gate**: quick + `pnpm typecheck`
 **Commit**: `test(importacao): provar a ordem das receitas fixas homônimas no plano`
 
+### Phase 9 — Pedido do dono no teste em localhost
+
+#### F13: Dizer o que falta para continuar no passo 2
+**What**: Com a aba real de outubro, o passo 2 pede seis "Tipo" e sete entradas; uma escolha esquecida fora da tela deixava o "Continuar" desabilitado sem dizer por quê. O dono pediu um aviso.
+**Where**: `src/components/importacao/passo-pendencias.tsx` (+ o teste e o `spec.md`)
+**Depends on**: T22
+**Reuses**: `Intl.ListFormat` (`pt-BR`, conjunção) para "a, b e c"
+**Requirement**: IMP-04
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [x] IMP-04 AC 8 na spec
+- [x] De início, o aviso lista "escolher o meio de Débito, Cartão Roxo e Cartão Verde", "dizer se é fixa ou avulsa: Salário A, Salário B e Reembolso" e "escolher onde cai: Salário A, Salário B e Reembolso"
+- [x] Decidido tudo menos o meio de Cartão Verde e a conta de Reembolso, sobram exatamente essas duas linhas
+- [x] Enquanto falta algo, `aria-describedby` do botão aponta para o aviso; sem nada faltando, o aviso some e o botão habilita
+- [x] Os três testes falharam no código anterior; os 64 testes dos componentes da importação passam
+**Tests**: componentes
+**Gate**: quick + `pnpm typecheck` + `pnpm lint`
+**Commit**: `feat(importacao): dizer no passo 2 o que falta para continuar`
+
 ---
 
 ## Task Granularity Check
@@ -979,6 +1005,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F8 | 1 componente e o teste dele | ✅ |
 | F9, F10, F11 | 1 arquivo de teste cada (F10 e F11: + 1 AC na spec) | ✅ |
 | F12 | 1 caso de teste | ✅ |
+| F13 | 1 componente, o teste dele e 1 AC | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -1023,6 +1050,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F10 | F8 | F8→F10 | ✅ |
 | F11 | F8 | F8→F11 | ✅ |
 | F12 | F9 | F9→F12 | ✅ |
+| F13 | T22 | T22→F13 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -1051,3 +1079,4 @@ e F7).
 | F9 | `src/domain/**` | unit | unit | ✅ |
 | F10, F11 | `src/components/**` | componentes | componentes | ✅ |
 | F12 | `src/domain/**` | unit | unit | ✅ |
+| F13 | `src/components/**` | componentes | componentes | ✅ |
