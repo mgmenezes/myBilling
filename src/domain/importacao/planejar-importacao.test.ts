@@ -880,6 +880,47 @@ describe("planejarImportacao — ordem de aparição (IMP-07 AC 12, IMP-05 AC 5)
     ).toEqual([]);
   });
 
+  it("entradas fixas homônimas pareiam na ordem das receitas vigentes, cada uma com o seu valor", () => {
+    const novembro = abaDaFixture("Novembro");
+    const aba: AbaLida = {
+      ...novembro,
+      entradas: [
+        ...novembro.entradas,
+        {
+          bloco: "ENTRADAS",
+          posicao: 3,
+          nome: "Salário A",
+          tipo: "",
+          categoria: "",
+          valor: 650000 as Cents,
+        },
+      ],
+    };
+    const estado: EstadoParaImportacao = {
+      ...ESTADO_DE_NOVEMBRO,
+      receitasFixasVigentes: [
+        ...ESTADO_DE_NOVEMBRO.receitasFixasVigentes,
+        vigente("rec-salario-a-2", "Salário A", CONTA, 650000),
+      ],
+    };
+
+    const plano = planoDe(aba, estado, DECISOES_DE_NOVEMBRO);
+
+    expect(
+      plano.linhas
+        .filter((linha) => linha.bloco === "ENTRADAS" && linha.nome === "Salário A")
+        .map((linha) => [linha.posicao, linha.destino]),
+    ).toEqual([
+      [0, "JA_EXISTE"],
+      [3, "JA_EXISTE"],
+    ]);
+    expect(
+      operacoesDe(plano).reajustes.filter((reajuste) =>
+        reajuste.recorrenciaId.startsWith("rec-salario-a"),
+      ),
+    ).toEqual([]);
+  });
+
   it("lista as entradas na ordem da aba, com a avulsa antes da fixa", () => {
     const outubro = gradeDaFixture("Outubro");
     const trocada = substituir(

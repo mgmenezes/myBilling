@@ -3,7 +3,7 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Implemented, aguarda a rodada 3 do Verifier (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8); a rodada 2 também deu FAIL sem defeito, por três mutantes que só pedem teste, e as correções são a Phase 7 (F9–F11)
+**Status**: Implemented, aguarda a confirmação do Verifier depois da F12 (a rodada 3 deu FAIL só pela N9r, e o dono escolheu fechar com teste) (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8); a rodada 2 também deu FAIL sem defeito, por três mutantes que só pedem teste, e as correções são a Phase 7 (F9–F11)
 **Total**: 34 tasks em 7 fases (27 da fatia e 7 correções da verificação)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
@@ -200,6 +200,12 @@ T24 -> F8
 F3 -> F9
 F8 -> F10
 F8 -> F11
+```
+
+### Phase 8 — Decisão do dono depois da rodada 3
+
+```
+F9 -> F12
 ```
 
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
@@ -933,6 +939,24 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `test(importacao): provar o botão travado enquanto a importação grava`
+**Nota**: o caso chamava o dublê `resumoDeOutubro()` sem o payload que o tipo exige; o Vitest passou e o `pnpm typecheck` não. A correção entrou em `a033fef`, e `f8920a8` sozinho não compila. Origem da lição L-016: o gate de task precisa de `tsc`, encadeado com `&&`.
+
+### Phase 8 — Decisão do dono depois da rodada 3
+
+#### F12: Provar a ordem das receitas fixas homônimas no plano (N9r)
+**What**: A rodada 3, última do ciclo, deixou viva a N9r — o gêmeo da N9 nas receitas: inverter as receitas vigentes dentro de `planejarImportacao` passava verde. O dono escolheu fechar com teste em vez de estreitar o AC 12.
+**Where**: `src/domain/importacao/planejar-importacao.test.ts`
+**Depends on**: F9
+**Reuses**: `abaDaFixture`, `ESTADO_DE_NOVEMBRO`, `vigente`, `DECISOES_DE_NOVEMBRO`
+**Requirement**: IMP-07
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [x] Duas receitas vigentes "Salário A" (600000 e 650000) e duas entradas "Salário A" fixas na mesma ordem dão `JA_EXISTE` nas posições 0 e 3, e nenhum reajuste de "Salário A" (IMP-07 AC 12)
+**Sensor**: N9r (`[...estado.receitasFixasVigentes].reverse()` em `planejar-importacao.ts:394`) falha o caso novo, com dois `REAJUSTE` cruzados.
+**Tests**: unit
+**Gate**: quick + `pnpm typecheck`
+**Commit**: `test(importacao): provar a ordem das receitas fixas homônimas no plano`
 
 ---
 
@@ -954,6 +978,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F7 | 1 AC reescrito + os dois casos que distinguem bytes de caracteres | ⚠️ coeso: cada caso prova uma metade do AC novo |
 | F8 | 1 componente e o teste dele | ✅ |
 | F9, F10, F11 | 1 arquivo de teste cada (F10 e F11: + 1 AC na spec) | ✅ |
+| F12 | 1 caso de teste | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -997,6 +1022,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F9 | F3 | F3→F9 | ✅ |
 | F10 | F8 | F8→F10 | ✅ |
 | F11 | F8 | F8→F11 | ✅ |
+| F12 | F9 | F9→F12 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -1024,3 +1050,4 @@ e F7).
 | F8 | `src/components/**` | componentes | componentes | ✅ |
 | F9 | `src/domain/**` | unit | unit | ✅ |
 | F10, F11 | `src/components/**` | componentes | componentes | ✅ |
+| F12 | `src/domain/**` | unit | unit | ✅ |
