@@ -10,10 +10,12 @@ fora do desenho: nenhuma regra o trata.
 **Nenhum arquivo da planilha entra neste repositório** (AD-009). Os CSVs ficam fora dele, em
 `~/Downloads` ou onde você quiser, e nada deles vai para commit, issue, print ou log colado.
 
-> [!WARNING]
-> **O terminal do `pnpm dev` imprime o conteúdo do arquivo.** Em desenvolvimento, o Next registra
-> cada chamada de Server Action com os argumentos, e o argumento da prévia e da gravação é o texto
-> da aba. Não copie esse log para lugar nenhum. Em produção, na Vercel, esse registro não existe.
+> [!NOTE]
+> **O terminal do `pnpm dev` não imprime o conteúdo do arquivo.** Por padrão, o Next registra em
+> desenvolvimento cada chamada de Server Action com os argumentos — e o argumento da prévia e da
+> gravação é o texto inteiro da aba. O `next.config.ts` desliga esse registro
+> (`logging.serverFunctions: false`). Se um dia ele for religado, o texto da aba real volta a
+> aparecer no terminal. Em produção, na Vercel, esse registro não existe.
 
 ---
 
