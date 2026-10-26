@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/importar-planilha/spec.md`
 **Design**: `.specs/features/importar-planilha/design.md` (interfaces, fixtures e estado final esperado)
 **Contexto**: `.specs/features/importar-planilha/context.md` (layout do arquivo e decisões do dono)
-**Status**: Implemented, aguarda a confirmação do Verifier depois da F12 (a rodada 3 deu FAIL só pela N9r, e o dono escolheu fechar com teste) (aprovado pelo dono em 2026-10-24; execução em 4 lotes: T1–T9, T10–T15, T16–T19, T20–T27, todos commitados). A rodada 1 deu FAIL por teste que não discrimina, e não por defeito; as correções são a Phase 6 (F1–F8); a rodada 2 também deu FAIL sem defeito, por três mutantes que só pedem teste, e as correções são a Phase 7 (F9–F11)
-**Total**: 34 tasks em 7 fases (27 da fatia e 7 correções da verificação)
+**Status**: Done — Verifier PASS em 2026-10-26 (`validation.md`, confirmação depois da decisão do dono). Três rodadas deram FAIL sem defeito de comportamento, por testes que não discriminavam; as correções são as Phases 6 a 8.
+**Total**: 39 tasks em 9 fases (27 da fatia e 12 correções da verificação)
 
 > **Por que o domínio vem inteiro antes do banco.** O risco desta fatia não é gravar linha: é ler a
 > aba errado ou reconhecer errado entre abas, e descobrir só no terceiro mês. Leitura, conferência,

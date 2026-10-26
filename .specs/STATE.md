@@ -143,16 +143,15 @@
 
 ## Handoff
 
-- **Feature**: `importar-planilha`, **implementada e aguardando a verificação independente**. As 27 tasks estão commitadas, de `caa9484` (T1) até o commit da T27, com uma correção de `tasks.md` no meio (`61eede3`: o commit da T25 duplicou o arquivo e deixou a T25 aberta). Traceability do `spec.md` em `Implemented`; `Verified` é do Verifier.
-- **Phase / Task**: Execute concluído pelo autor. Falta o Verifier.
-- **Completed**: T1 a T27. Domínio puro (leitura, conferência, reconhecimento, plano), banco e transação, casos de uso e actions, o diálogo na Visão geral, o e2e de outubro e novembro, e o roteiro `docs/importacao.md`.
+- **Feature**: `importar-planilha`, **concluída e verificada** — Verifier PASS em 2026-10-26 (`.specs/features/importar-planilha/validation.md`), `validate_state.py` exit 0. 39 tasks: T1–T27 da fatia e F1–F12 das três rodadas de verificação, que deram FAIL sem defeito de comportamento, por testes que não discriminavam. Uma correção foi de produção de verdade: F8, o botão da conferência dizia "Importando…" enquanto só a prévia era lida.
+- **Phase / Task**: entre fatias. O próximo passo é humano.
+- **Completed**: a fatia inteira; `logging.serverFunctions: false` no `next.config.ts` (`7c5e460`), para o `next dev` não imprimir o texto da aba real; nomes da família fora do `HANDOFF.md` (`d57ef6f`).
 - **In-progress**: nenhum.
-- **Next step**: (1) o Verifier da fatia, com o sensor de discriminação e o `validation.md`; (2) o teste do dono em localhost com as três abas reais, pelo roteiro `docs/importacao.md`; (3) só então a importação em produção, no Neon, pelo dono.
+- **Next step**: (1) o dono testa em localhost com as três abas reais (outubro, novembro e dezembro de 2026), pelo roteiro `docs/importacao.md`; (2) push e migration `0003` no Neon; (3) limpeza e as três importações em produção, pelo dono; (4) a fatia seguinte, **editar qualquer item lançado, incluindo trocar a categoria** (roadmap).
 - **Blockers**: nenhum. `git push`, a migration `0003` no Neon e o script de limpeza no Neon esperam autorização explícita e separada.
-- **Uncommitted files**: nenhum além de `next-env.d.ts`, que o `next dev` do e2e regrava; é dele, e não entra em commit.
-- **Branch**: `main`, à frente de `origin/main`.
-- **Atenção no teste em localhost**: o `pnpm dev` registra no terminal os argumentos de cada Server Action, e o da importação é o texto da aba real. O log não pode ser copiado para lugar nenhum. `logging.serverFunctions: false` no `next.config.ts` desligaria o registro; não foi ligado, porque mexer na configuração estava fora das tasks.
-- **CI vermelho em `main`**: no run #20 (`af1264f`) o `verify` passou inteiro e o job `migrate` falhou em 1s, sem o secret `NEON_DATABASE_URL_DIRETA`. O job passou a conferir o secret antes e falhar com o nome dele. Criado o secret, "Re-run failed jobs" no #20 resolve. O `gh` não está instalado nesta máquina, então a conferência é pelo painel do GitHub.
-- **Neon**: o branch `production` é arquivado por inatividade no plano gratuito; a primeira consulta desarquiva sozinha. As três primeiras migrations estão aplicadas; a `0003_registro_de_importacao.sql` sobe com o push, pelo job `migrate`, ou pelo `pnpm db:sql` no SQL Editor.
-- **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar 180s, suspeite do navegador antes do teste.
+- **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava; é dele, e não entra em commit.
+- **Branch**: `main`, à frente de `origin/main` desde o push de `6289765`.
+- **Lição nova (L-016)**: o gate de cada task precisa incluir `pnpm typecheck`, encadeado com `&&`. O Vitest transpila sem checar tipos, e dois commits desta fatia (`7fe7552`, `f8920a8`) não compilam sozinhos por isso.
+- **Neon**: o branch `production` é arquivado por inatividade no plano gratuito; a primeira consulta desarquiva sozinha. As migrations `0000`–`0002` estão aplicadas; a `0003_registro_de_importacao.sql` sobe com o push, pelo job `migrate` (que precisa do secret `NEON_DATABASE_URL_DIRETA`), ou pelo `pnpm db:sql` no SQL Editor.
+- **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar o tempo, ou o Mac dormir no meio, suspeite do ambiente antes do teste.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.

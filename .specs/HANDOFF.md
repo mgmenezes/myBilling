@@ -1,9 +1,14 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-10-25, branch `main`.
+> Última atualização: 2026-10-26, branch `main`.
 
 > [!IMPORTANT]
+> **A importação da planilha está pronta e verificada** (Verifier PASS em 2026-10-26). O próximo
+> passo é do dono: testar em localhost com as três abas reais pelo roteiro `docs/importacao.md`, e
+> só então importar em produção. A fatia seguinte é editar qualquer item lançado, incluindo trocar
+> a categoria.
+>
 > **O CI de `main` está vermelho, e só no job `migrate`.** No run #20 (`af1264f`) o `verify`
 > passou inteiro; o `migrate`, novo nesse commit, recebeu a URL vazia porque o secret da migration
 > não existe, e o `drizzle-kit` saiu com código 1 sem dizer por quê. O job passou a conferir o
@@ -114,8 +119,8 @@ virou especificação executável, com teste de concordância que confronta a fu
 .specs/features/lancamento-avulso/               spec (AVUL-01..05, BLOCO-01..02, ENTR-01..03)
                                                  + 28 tasks, todas concluídas
 .specs/features/home-do-ano/                     fatia integrada em paralelo por outra sessão
-.specs/features/importar-planilha/               spec (IMP-01..09) + 27 tasks, todas concluídas;
-                                                 aguarda o Verifier
+.specs/features/importar-planilha/               spec (IMP-01..09) + 27 tasks e 12 correções da
+                                                 verificação, todas concluídas, Verifier PASS
 docs/importacao.md                               roteiro de uso da importação: baixar a aba,
                                                  testar em localhost, limpar e importar no Neon
 docs/qa.md                                       roteiro de QA em modo produção; estágio 1 executado
@@ -157,7 +162,7 @@ schema Zod que o formulário usou, e nada lança para o cliente — todo caminho
 `ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
 correlação. Stack trace não chega ao navegador.
 
-`pnpm verify` sai 0: **1.123 testes unitários, 284 de integração** e **59 e2e** — 1.466 provas.
+`pnpm verify` sai 0: **1.139 testes unitários, 285 de integração** e **59 e2e** — 1.483 provas.
 Os e2e que mais importam provam as re-digitações que a planilha impunha: cadastrar
 1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; cadastrar um
 gasto fixo uma vez e vê-lo em três meses; e agora o avulso no cartão caindo no bloco da fatura em
