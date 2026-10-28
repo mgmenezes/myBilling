@@ -346,9 +346,9 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Reuses**: `entrar`, `limparDados`, `semearCadastroBase`
 **Requirement**: EDF-01 a EDF-04
 **Done when**:
-- [ ] Trocar categoria e descrição em novembro e ver as duas em outubro (EDF-02 Independent Test)
-- [ ] Mudar o valor a partir de novembro e ver outubro com o valor antigo (EDF-03 Independent Test)
-- [ ] Encerrar pelo "Termina em" e reabrir apagando o campo (EDF-04 Independent Test)
+- [x] Trocar categoria e descrição em novembro e ver as duas em outubro (EDF-02 Independent Test)
+- [x] Mudar o valor a partir de novembro e ver outubro com o valor antigo (EDF-03 Independent Test)
+- [x] Encerrar pelo "Termina em" e reabrir apagando o campo (EDF-04 Independent Test)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(e2e): editar um fixo pelo formulário do cadastro`
