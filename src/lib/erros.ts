@@ -5,6 +5,7 @@ import type { CodigoErroConfirmacao } from "@/application/mes/confirmar-valor/ha
 import type { CodigoErroAvulso } from "@/application/mes/criar-lancamento-avulso/handler";
 import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
 import type { CodigoErroRecorrencia } from "@/application/recorrencias/criar-recorrencia/handler";
+import type { CodigoErroEdicaoFixo } from "@/application/recorrencias/editar/handler";
 import type { CodigoErroVersao } from "@/application/recorrencias/registrar-versao/handler";
 
 /**
@@ -35,6 +36,7 @@ export type CodigoErroExibivel =
   | CodigoErroConfirmacao
   | CodigoErroRecorrencia
   | CodigoErroVersao
+  | CodigoErroEdicaoFixo
   | CodigoErroImportacao
   | CodigoErroDeBorda;
 
@@ -66,6 +68,7 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
+  CATEGORIA_NAO_ENCONTRADA: "Escolha uma categoria válida.",
   LANCAMENTO_NAO_CONFIRMAVEL: "Só gasto fixo tem valor a confirmar.",
   PLANILHA_ARQUIVO_INVALIDO:
     "Este arquivo não parece uma aba da planilha exportada em CSV. No Google Sheets: Arquivo → Fazer download → Valores separados por vírgula (.csv).",
@@ -86,6 +89,13 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
 };
 
 /**
+ * Na edição do fixo, `PERIODO_INVALIDO` nasce também do "Vale a partir de"
+ * (EDF-03 AC 5), e a frase do fim não serviria ali.
+ */
+export const MENSAGEM_VIGENCIA_ANTES_DO_INICIO =
+  "O valor novo não pode valer antes do mês de início.";
+
+/**
  * Em qual campo do formulário cada erro aparece. O que não está aqui é erro
  * do formulário inteiro, não de um campo (design: "formulário preservado").
  */
@@ -96,6 +106,7 @@ const CAMPO_DO_ERRO: Partial<Record<CodigoErroExibivel, string>> = {
   PARCELA_INICIAL_INVALIDA: "parcelaInicial",
   MEIO_PAGAMENTO_ARQUIVADO: "meioPagamentoId",
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "meioPagamentoId",
+  CATEGORIA_NAO_ENCONTRADA: "categoriaId",
   COMPETENCIA_INVALIDA: "competenciaInicial",
   PERIODO_INVALIDO: "competenciaFim",
 };
@@ -107,13 +118,14 @@ export function mensagemDoErro(code: CodigoErroExibivel): string {
 /**
  * Monta o envelope de erro. Quando o código tem campo correspondente, o erro
  * já sai endereçado ao campo, e o formulário o exibe ali em vez de num alerta
- * genérico solto no topo.
+ * genérico solto no topo. `campo` substitui o do código quando o mesmo código
+ * nasce de campos diferentes, como `PERIODO_INVALIDO` na edição do fixo.
  */
 export function erroDeAction(
   code: CodigoErroExibivel,
   mensagem: string = mensagemDoErro(code),
+  campo: string | undefined = CAMPO_DO_ERRO[code],
 ): ResultadoAction<never> {
-  const campo = CAMPO_DO_ERRO[code];
   return {
     ok: false,
     erro: campo ? { code, mensagem, campos: { [campo]: mensagem } } : { code, mensagem },

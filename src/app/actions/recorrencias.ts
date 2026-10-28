@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { criarRecorrencia as criarRecorrenciaUso } from "@/application/recorrencias/criar-recorrencia/handler";
+import { editarRecorrencia as editarUso } from "@/application/recorrencias/editar/handler";
 import { encerrarRecorrencia as encerrarUso } from "@/application/recorrencias/encerrar/handler";
 import { registrarVersao as registrarVersaoUso } from "@/application/recorrencias/registrar-versao/handler";
 import {
+  entradaEdicaoRecorrenciaSchema,
   entradaEncerramentoSchema,
   entradaRecorrenciaSchema,
   entradaVigenciaSchema,
@@ -14,7 +16,13 @@ import { ErroDeSessao, requireSession } from "@/infrastructure/auth/sessao";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
-import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros";
+import { TransacaoDrizzle } from "@/infrastructure/db/transacao";
+import {
+  erroDeAction,
+  MENSAGEM_VIGENCIA_ANTES_DO_INICIO,
+  mensagemDoErro,
+  type ResultadoAction,
+} from "@/lib/erros";
 
 /**
  * Server Actions de recorrência.
@@ -23,8 +31,8 @@ import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros"
  * havendo proxy, payload revalidado no servidor com o mesmo schema do
  * formulário, e nada lança para o cliente.
  *
- * **Três rotas são revalidadas, não uma.** Criar, reajustar ou encerrar um
- * gasto fixo muda a área que os administra, a lista de lançamentos do mês e os
+ * **Três rotas são revalidadas, não uma.** Criar, editar, reajustar ou encerrar
+ * um gasto fixo muda a área que os administra, a lista de lançamentos do mês e os
  * indicadores do painel. Revalidar só a primeira deixaria as outras duas
  * mentindo até o próximo carregamento — a divergência entre painel e lista é o
  * que `DASH-04` existe para impedir.
@@ -146,6 +154,52 @@ export async function encerrarRecorrencia(payload: unknown): Promise<ResultadoAc
       return erroDeAction(resultado.error.code);
     }
     return { ok: true as const, data: null };
+  });
+}
+
+/**
+ * Salvar o formulário de edição de um fixo (EDF-02 a EDF-06). Série, valor e fim
+ * são gravados numa transação só, pelo caso de uso; aqui ficam a sessão, a
+ * validação estrita do payload e o endereçamento de cada recusa ao seu campo.
+ */
+export async function editarRecorrencia(
+  payload: unknown,
+): Promise<ResultadoAction<{ mudou: boolean }>> {
+  const sessao = await requireSession().catch(apenasErroDeSessao);
+  if (sessao instanceof ErroDeSessao) {
+    return erroDeAction(sessao.codigo);
+  }
+
+  const validado = entradaEdicaoRecorrenciaSchema.safeParse(payload);
+  if (!validado.success) {
+    const issue = validado.error.issues[0];
+    /* A chave que o schema estrito recusa não tem caminho: o erro vai para ela. */
+    const campo = issue?.code === "unrecognized_keys" ? issue.keys[0] : issue?.path.join(".");
+    return erroDeValidacao(issue?.message ?? mensagemDoErro("VALIDACAO"), campo ?? "descricao");
+  }
+
+  return executar<{ mudou: boolean }>(async () => {
+    const d = validado.data;
+    const resultado = await editarUso(new TransacaoDrizzle(db()), {
+      recorrenciaId: d.recorrenciaId,
+      descricao: d.descricao,
+      diaVencimento: d.diaVencimento,
+      meioPagamentoId: d.meioPagamentoId,
+      categoriaId: d.categoriaId,
+      usuarioId: d.usuarioId,
+      competenciaFim: d.competenciaFim as Competencia | null,
+      valor: d.valorCentavos as Cents,
+      vigenteDesde: d.vigenteDesde as Competencia,
+      competenciaExibida: d.competenciaExibida as Competencia,
+      agora: new Date().toISOString(),
+    });
+    if (!resultado.ok) {
+      const { code, campo } = resultado.error;
+      return code === "PERIODO_INVALIDO" && campo === "vigenteDesde"
+        ? erroDeAction(code, MENSAGEM_VIGENCIA_ANTES_DO_INICIO, "vigenteDesde")
+        : erroDeAction(code);
+    }
+    return { ok: true as const, data: { mudou: resultado.value.mudou } };
   });
 }
 

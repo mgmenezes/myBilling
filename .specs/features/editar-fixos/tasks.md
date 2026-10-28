@@ -291,10 +291,10 @@ T9 -> T10
 **Reuses**: `executar` e o padrão das actions de recorrência; `TransacaoDrizzle`
 **Requirement**: EDF-06
 **Done when**:
-- [ ] `requireSession()` é a primeira instrução; sem sessão → código de sessão, sem banco (EDF-06 AC 3)
-- [ ] Contra Postgres: trocar categoria e descrição em novembro muda também a ocorrência de outubro, paga inclusive, sem mudar o pagamento (EDF-02)
-- [ ] Falha injetada em `atualizarOcorrenciasDaSerie` → fixo e ocorrências como antes (EDF-06 AC 1-2)
-- [ ] Revalida as três rotas (EDF-06 AC 6); erro não previsto → `ERRO_INESPERADO` com referência (AC 4)
+- [x] `requireSession()` é a primeira instrução; sem sessão → código de sessão, sem banco (EDF-06 AC 3)
+- [x] Contra Postgres: trocar categoria e descrição em novembro muda também a ocorrência de outubro, paga inclusive, sem mudar o pagamento (EDF-02)
+- [x] Falha injetada em `atualizarOcorrenciasDaSerie` → fixo e ocorrências como antes (EDF-06 AC 1-2)
+- [x] Revalida as três rotas (EDF-06 AC 6); erro não previsto → `ERRO_INESPERADO` com referência (AC 4)
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(recorrencias): action de edição de fixo`
