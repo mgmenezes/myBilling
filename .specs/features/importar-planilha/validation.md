@@ -1,8 +1,17 @@
 # Importar a planilha — Validação
 
-## Validation: importar-planilha — **PASS** (confirmação depois da decisão do dono, veredito vigente)
+## Validation: importar-planilha — **FAIL** (rodada F13–F15 do passo 2, veredito vigente)
 
-**Result**: PASS ✅ — confirmação de 2026-10-26, sobre `d57ef6f`. Nenhum defeito de comportamento.
+**Result**: FAIL ❌ — rodada F13–F15 de 2026-10-28, sobre `46533b2`. Nenhum defeito de comportamento.
+Os IMP-04 ACs 8 a 12 têm assertion sobre o resultado da spec, mas 3 de 32 mutantes sobreviveram.
+O P28 (Major) põe cartões no seletor "Conta para todas as entradas", e por ali a receita pode cair
+num cartão (AD-015). O P27 e o P29 (Minor) tiram o "+ nova conta", a dica e o aviso do lugar que a
+spec define. As correções são só de teste. O detalhe está na seção "Rodada F13–F15 (passo 2)", no
+fim do arquivo.
+
+Veredito anterior, de 2026-10-26 e sobre `d57ef6f`: a confirmação depois da decisão do dono, sem
+defeito de comportamento. Ele continua valendo para o que cobriu, IMP-01 a IMP-09, com o IMP-04
+até o AC 7.
 A N9r, único mutante vivo da rodada 3, morre no caso da F12
 (`src/domain/importacao/planejar-importacao.test.ts:913`), com dois `REAJUSTE` cruzados no lugar de
 `JA_EXISTE`. N9 e o AD-011 (b) continuam mortos. O gêmeo da N9r no estado (N1r) também morre. O
@@ -1196,3 +1205,221 @@ repetido, porque o fluxo de usuário não mudou desde os 59/59 da rodada 3.
 
 **Próximo passo**: o autor passa a traceability do `spec.md` para Verified e atualiza o Status e o
 Total do `tasks.md`. Nenhuma task nova.
+
+---
+
+## Rodada F13–F15 (passo 2)
+
+**Data**: 2026-10-28
+**Spec**: `.specs/features/importar-planilha/spec.md`, IMP-04 ACs 8 a 12 (`spec.md:241-256`). Os ACs
+1 a 7 já tinham PASS e não foram reverificados. Só procurei o que F14 e F15 pudessem ter quebrado
+neles.
+**Faixa do diff**: `d57ef6f..46533b2`. As tasks são `66fd521` (F13), `edf52eb` (F14) e `46533b2`
+(F15). Os outros três commits da faixa ficam fora do escopo: `63b84af` e `c68d812` só mexem em
+`.specs/`, e `483a4e3` só no `.gitignore`. Fora de `.specs/`, o diff muda 10 arquivos, com +475 e
+−40 linhas.
+**Verificador**: sub-agente independente, autor ≠ verificador. Li código e testes sem alterá-los.
+As mutações rodaram numa `git worktree` descartável em `/private/tmp/.../scratchpad/mut`, com
+`pnpm install --offline` próprio, **sem nenhum `git stash`**. Antes do sensor, o porcelain da
+árvore real era ` M next-env.d.ts`, reescrito pelo `next dev` do e2e. Depois, continuou igual.
+
+### Veredito da rodada — **FAIL**
+
+Não achei defeito de comportamento. Os cinco critérios têm assertion sobre o resultado que a spec
+define, e o código faz o que a spec pede. O FAIL vem do sensor: **3 de 32 mutantes sobreviveram**.
+
+1. **P28, Major.** O seletor "Conta para todas as entradas" pode passar a listar cartões (`contas`
+   → `listaMeios` em `passo-pendencias.tsx:227`) com a suíte verde. "Aplicar a todas" grava a conta
+   escolhida no estado de cada entrada (`:140-144`). O "Cai em" não consegue mostrar um cartão, mas
+   `contaId` fica com o id dele, o aviso não acusa nada e o "Continuar" habilita. A receita cai no
+   cartão, e nada no servidor recusa: o schema só confere que é um uuid (`importacao.schema.ts:28`),
+   e o plano usa o id como meio (`planejar-importacao.ts:375`, `:387`, `:460`). O AD-015 diz que
+   filtrar a exibição não basta. Aqui, o atalho novo escreve por cima do filtro do AC 3, e nenhum
+   teste vê isso.
+2. **P27 e P29, Minor.** A spec diz onde cada coisa fica. O "+ nova conta" e a dica ficam "na seção
+   Entradas" (AC 10 e AC 12), e o aviso fica "junto do botão Continuar" (AC 8). Levar o "+ nova
+   conta" e a dica para o topo do passo, fora de `<section>` e sem a condição das entradas (P27),
+   passa verde. Levar o aviso para o topo, longe do botão (P29), também. Os testes consultam
+   `screen` inteiro, e o `aria-describedby` do AC 8 continua provado (P18 morto).
+
+Os mutantes que a orquestração pediu morreram todos: aplicar só nas entradas sem conta, aplicar
+zerando a classe, o "+ nova conta" ligando um Tipo, `tiposPermitidos` ignorado, a dica sempre e
+nunca visível, `rotuloDoMeio` sem `detalhe`, a página sem `detalhe`, fechamento trocado por
+vencimento e o aviso sem cada uma das três linhas.
+
+### Task Completion
+
+| Task | Status | Notas |
+| --- | --- | --- |
+| F13 | ✅ Done | `tasks.md` com todos os Done-when marcados. `check_commit.py` sai 0 |
+| F14 | ✅ Done | Idem. Conferi que os 6 testes novos ou endurecidos falham contra o produto de `66fd521` |
+| F15 | ✅ Done | Idem. Conferi que 8 dos 9 testes novos falham contra o produto de `edf52eb`. O que passa é "com conta cadastrada, não há dica", e o próprio `tasks.md` declara isso |
+
+### Critérios de aceitação, ancorados na spec
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Mutante | Resultado |
+| --- | --- | --- | --- | --- |
+| AC 8: o que falta, sob "Para continuar, falta:", uma linha por tipo de pendência, com o botão ligado à lista | o título, uma linha por tipo com os nomes, `aria-describedby` → aviso, e o aviso some quando nada falta | `passo-pendencias.test.tsx:334`: `getByText("Para continuar, falta:")` dentro de `role="status"`. `:335-339`: `itensDoAviso()).toEqual([...três linhas...])`. `:349-352`: sobram exatamente "escolher o meio de Cartão Verde" e "escolher onde cai: Reembolso". `:357-359`: `getElementById(aria-describedby)).toBe(getByRole("status"))`. `:363-365`: aviso nulo, sem `aria-describedby`, botão habilitado | P10a, P10b, P10c, P18, P22 e P23 mortos. **P29 vivo** | ⚠️ PASS, sem prova de "junto do botão" |
+| AC 9: o que cada meio é, nos seletores de Tipo e no "Cai em", inclusive o cadastrado no passo | "conta", "rótulo", "cartão, fecha dia D, vence dia V", depois de " · " | `formatar.test.ts:8-9` (o cartão com 25 e 5, valores distintos) e `:14-15`. `passo-pendencias.test.tsx:198-204`: `opcoes(...)).toEqual([..."Conta Corrente · conta", "Cartão Roxo · cartão, fecha dia 25, vence dia 5", "Cartão Verde · cartão, fecha dia 10, vence dia 20"])` e o "Cai em". Cadastrados no passo: `:167` ("Débito · conta") e `:226` ("Conta Nova · conta"). `cadastro-de-meio-inline.test.tsx:87` (cartão) e `:135-142` ("conta"). Página: `e2e/importacao.spec.ts:123-129` (`selectOption` pelos rótulos com o detalhe) e `:186-188` (Cartão Azul cadastrado no passo, com os dias) | P7, P8 (e2e), P9, P15, P16 e P17 mortos | ✅ PASS |
+| AC 10: "+ nova conta" nas Entradas, fora de qualquer Tipo, só com tipos sem fatura. A conta criada aparece em todo "Cai em" e fica escolhida em "Conta para todas", sem ligar Tipo | as opções "Conta corrente" e "Rótulo"; os três "Cai em" com a conta; o seletor "para todas" com o id novo; os três Tipos vazios | `passo-pendencias.test.tsx:214`: `toEqual(["Conta corrente", "Rótulo"])`. `:225`: `toHaveBeenCalledWith({ nome: "Conta Nova", tipo: "CONTA_CORRENTE" })`. `:227-234`: as opções de cada "Cai em" e `value` `""`. `:235`: `getByLabelText(PARA_TODAS).value).toBe(NOVO_MEIO)`. `:236-238`: os três Tipos com `value` `""`. `cadastro-de-meio-inline.test.tsx:69-73`: as duas opções e `value` `CONTA_CORRENTE` | P3, P3b, P4a, P4b, P12, P13, P20 e P21 mortos. **P27 vivo** | ⚠️ PASS, sem prova de "na seção Entradas" |
+| AC 11: "Aplicar a todas" põe a conta em cada "Cai em", inclusive no que tinha outra, sem mudar classe. Desabilitado sem conta escolhida | os três `contaId` iguais à escolhida; as classes FIXA, nenhuma e AVULSA mantidas; `disabled` sem escolha | `passo-pendencias.test.tsx:251` e `:255`: `disabled` `true` e depois `false`. `:267-271`: três `ID.conta`, inclusive o Reembolso, que estava em `POUPANCA`. `:272-276`: `toEqual(["FIXA", undefined, "AVULSA"])`. `:288-292`: o que segue para `aoConcluir` depois de uma troca individual | P1, P2, P11 e P24 mortos. **P28 vivo** | ❌ GAP: a lista do "para todas" não está presa ao "meio sem fatura" |
+| AC 12: sem meio sem fatura, a dica na seção Entradas | o texto exato; some quando a conta nasce; ausente com conta | `passo-pendencias.test.tsx:303`: `getByText(DICA)`, que lança exceção se não achar. `:314`: `queryByText(DICA)).toBeNull()` depois de criar. `:320`: nulo com Conta Corrente | P5 e P6 mortos. **P27 vivo** | ⚠️ PASS, sem prova de "na seção Entradas" |
+
+**ACs 1 a 7 depois de F14 e F15.** Nada quebrou. O AC 2 continua ligando o Tipo:
+`passo-pendencias.test.tsx:166-168` (P14 morto) e `e2e/importacao.spec.ts:186-188`. Restringir o
+"+ cadastrar" dos Tipos a conta e rótulo (P25) passa nos testes de componente e morre no e2e, que
+espera "Dia de fechamento" no cadastro do Cartão Azul. O AC 3 continua filtrado em `:190` e em
+`e2e/importacao.spec.ts:132-133`. O e2e inteiro dá 59/59.
+
+**Rótulo × `getByLabel("Cai em")`.** No Playwright, `getByLabel` com texto casa por substring e
+ignora caixa. "Conta para todas as entradas" não contém "cai em". A guarda existe:
+`e2e/importacao.spec.ts:178` espera exatamente um "Cai em" em novembro. Testei com P26: o rótulo
+trocado por "Cai em, para todas as entradas" morre ali, com 2 recebidos contra 1 esperado. Nos
+testes de componente, `caiEm()` consulta dentro do grupo da entrada (`passo-pendencias.test.tsx:93`).
+
+### Sensor de discriminação
+
+Os mutantes do Vitest rodaram por `mutantes.py`, um por vez, sobre
+`src/components/importacao/`, `cadastro-de-meio-inline.test.tsx`,
+`form-lancamento-avulso.test.tsx` e `formatar.test.ts`. A linha de base foi 117/117 na worktree. Os
+do e2e rodaram `pnpm exec playwright test e2e/importacao.spec.ts` na worktree, com linha de base
+2/2. Cada mutante foi revertido com `git checkout -- <arquivo>`, ou com o texto original no caso dos
+que movem blocos (P27 a P29), e a worktree foi conferida limpa em `src/` antes do seguinte.
+
+| # | Mutação | `file:line` | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| P1 | `aplicarATodas` só preenche a entrada sem conta | `passo-pendencias.tsx:142` | `passo-pendencias.test.tsx:267` (Reembolso ficou em `POUPANCA`) e `:288` | ✅ Morto |
+| P2 | `aplicarATodas` zera a classe (`classe: null`) | `:142` | `:272` e `:288` | ✅ Morto |
+| P3 | o `aoCriado` do "+ nova conta" liga o primeiro Tipo | `:214-217` | `:237` | ✅ Morto |
+| P3b | idem, ligando o último Tipo | `:214-217` | `:237` | ✅ Morto |
+| P4a | `tiposPermitidos` ignorado no filtro do cadastro inline | `cadastro-de-meio-inline.tsx:80` | `cadastro-de-meio-inline.test.tsx:69`, `passo-pendencias.test.tsx:214`, `:225` e `:313` (4 falhas) | ✅ Morto |
+| P4b | o passo 2 não passa `tiposPermitidos` | `passo-pendencias.tsx:212` | `:214`, `:225` e `:313` | ✅ Morto |
+| P5 | dica sempre visível | `:243` | `:314` e `:320` | ✅ Morto |
+| P6 | dica nunca visível | `:243` | `:303` | ✅ Morto |
+| P7 | `rotuloDoMeio` devolve só o nome | `:71` | `:167`, `:198`, `:226` e `:313` | ✅ Morto |
+| P8 | a página monta os meios sem `detalhe` | `src/app/(app)/[competencia]/page.tsx:120` | e2e: `importacao.spec.ts:123`, onde o `selectOption` por "Conta Corrente · conta" não acha a opção | ✅ Morto |
+| P9 | `descreverMeio` troca fechamento por vencimento | `src/lib/formatar.ts:78` | `formatar.test.ts:8` e `cadastro-de-meio-inline.test.tsx:87` | ✅ Morto |
+| P10a | aviso sem a linha "escolher o meio de…" | `passo-pendencias.tsx:307` | `passo-pendencias.test.tsx:335` e `:349` | ✅ Morto |
+| P10b | aviso sem a linha "dizer se é fixa ou avulsa…" | `:309` | `:335` | ✅ Morto |
+| P10c | aviso sem a linha "escolher onde cai…" | `:312` | `:335` e `:349` | ✅ Morto |
+| P11 | "Aplicar a todas" sempre habilitado | `:235` | `:251` | ✅ Morto |
+| P12 | a conta nova não fica escolhida em "Conta para todas" | `:216` | `:235` | ✅ Morto |
+| P13 | a conta nova já entra em todos os "Cai em" | `:216` | `:233` | ✅ Morto |
+| P14 | o "+ cadastrar" do Tipo não liga o Tipo (AC 2) | `:171` | `:168` | ✅ Morto |
+| P15 | o "+ cadastrar" do Tipo perde o `detalhe` | `:170` | `:167` | ✅ Morto |
+| P16 | o "+ nova conta" perde o `detalhe` | `:215` | `:226` e `:313` | ✅ Morto |
+| P17 | o cadastro inline entrega `detalhe: "conta"` fixo | `cadastro-de-meio-inline.tsx:117` | `cadastro-de-meio-inline.test.tsx:87` | ✅ Morto |
+| P18 | "Continuar" sem `aria-describedby` | `passo-pendencias.tsx:321` | `passo-pendencias.test.tsx:358` | ✅ Morto |
+| P20 | o tipo inicial ignora `tiposPermitidos` (sempre cartão) | `cadastro-de-meio-inline.tsx:81` | `passo-pendencias.test.tsx:225` e `:313`: o cadastro tenta um cartão sem dias | ✅ Morto |
+| P21 | as contas vêm da prop, sem o meio cadastrado no passo | `passo-pendencias.tsx:87` | `:228` e `:314` | ✅ Morto |
+| P22 | `semMeio` lê `meioPorTipo` cru, e o `""` conta como decidido | `:96` | `:349` e `:378` | ✅ Morto |
+| P23 | lista com "ou" (`disjunction`) | `:63` | `:335` | ✅ Morto |
+| P24 | `aplicarATodas` pula a última entrada | `:141` | `:267` | ✅ Morto |
+| P25 | o "+ cadastrar" dos Tipos restrito a conta e rótulo | `:167` | e2e: `importacao.spec.ts:183`, sem "Dia de fechamento". Os testes de componente passam (117/117) | ✅ Morto (só no e2e) |
+| P26 | o rótulo "para todas" passa a conter "Cai em" | `:209` | e2e: `importacao.spec.ts:178`, com 2 recebidos e 1 esperado | ✅ Morto |
+| P27 | "+ nova conta" e a dica no topo do passo, fora da seção Entradas e sem a condição | `:207-248` | nenhum (91/91 na fatia) | ❌ Vivo |
+| P28 | o seletor "Conta para todas" lista também cartões | `:227` | nenhum (91/91 na fatia) | ❌ Vivo |
+| P29 | o aviso no topo do passo, longe do "Continuar" | `:299-316` | nenhum (73/73 em `src/components/importacao/`) | ❌ Vivo |
+
+Não existe P19. O número ficou sem uso na numeração.
+
+**Profundidade**: o sensor foi além do leve. A fatia toca o AD-015, porque a receita só pode cair
+em meio sem fatura.
+**Contagem**: 32 mutações, 29 mortas e 3 vivas. Sensor ❌.
+
+### Gate
+
+| Gate | Onde | Resultado |
+| --- | --- | --- |
+| `pnpm test:unit` | árvore real, em `46533b2` | ✅ **84 arquivos, 1.155 testes**. `src/domain` com 100% de branches (323/323), statements (642/642), funções (154/154) e linhas (607/607) |
+| `pnpm typecheck` | | ✅ `Types generated successfully`, `tsc --noEmit` sem erro |
+| `pnpm lint` | | ✅ `Checked 255 files in 293ms. No fixes applied.` |
+| `pnpm exec playwright test e2e/importacao.spec.ts` | | ✅ 2/2 (19,5 s) |
+| `pnpm test:e2e` | | ✅ **59/59** (2,9 min) |
+| `pnpm test:integration` e `pnpm verify` | | não rodados, por instrução: a rodada não muda banco |
+
+**Integridade.** O unitário foi de 1.139 (`d57ef6f`) para 1.142 (`66fd521`), 1.146 (`edf52eb`) e
+1.155 (`46533b2`), +16 sem nenhuma queda. Saiu uma única assertion, o `toHaveBeenCalledWith` de
+T20 (`cadastro-de-meio-inline.test.tsx:135`), trocado por um que exige também o segundo argumento.
+Duas outras foram endurecidas: o T22 esperava "Débito" e passou a esperar "Débito · conta", e o e2e
+esperava "Cartão Azul" e passou a esperar o nome com os dias. Não há `.skip`, `.only` nem `.todo`
+nos arquivos da rodada.
+
+### Validadores
+
+| Script | Resultado |
+| --- | --- |
+| `validate_spec.py importar-planilha` | ✅ 0 erros, 0 avisos |
+| `validate_tasks.py importar-planilha` | ✅ 0 erros, 12 avisos, todos de granularidade ou da T25. O script só reconhece IDs `T<n>`, então F13 a F15 foram cruzadas à mão |
+| `check_commit.py` | ✅ `66fd521`, `edf52eb` e `46533b2` |
+| `validate_state.py importar-planilha` | saída 1 ("verdict is FAIL"), como deve ser até as correções |
+
+### Qualidade
+
+| Princípio | Status |
+| --- | --- |
+| Mínimo de código, mudança cirúrgica, sem escopo a mais | ✅ `tiposPermitidos` é opcional e o padrão mantém o "+ novo" do avulso. `detalhe` é opcional em `OpcaoDeMeio` |
+| Segue os padrões | ✅ Reusa `CadastroDeMeioInline`, `escolherEntrada` e `descreverMeio` em `src/lib/formatar.ts`, e não em `src/domain`. `aoCriado` ganhou argumento sem quebrar o chamador de uma aridade (`form-lancamento-avulso.tsx:317`) |
+| Testes vêm da spec e cada um mapeia para um AC ou Done-when | ✅ Todo `describe` novo cita o AC |
+| Asserções batem com o resultado da spec | ⚠️ Faltam as três âncoras de lugar e de filtro abaixo |
+| Guias do projeto | ✅ `AGENTS.md`. Fixtures sintéticas ("Conta Nova", "Conta Poupança", uuids de teste), sem dado real |
+
+### Lacunas e correções
+
+#### Fix P28 (Major): presa a lista do "Conta para todas as entradas" ao meio sem fatura
+
+- **Causa**: o filtro do AC 3 está provado só no "Cai em" (`passo-pendencias.test.tsx:190`, `:204`).
+  O seletor novo grava no mesmo estado por outro caminho, e nenhum teste lê as opções dele.
+- **Task**: em `passo-pendencias.test.tsx`, no `describe` do AC 11, afirmar
+  `opcoes(screen.getByLabelText(PARA_TODAS))` igual a `["Escolha a conta", "Conta Corrente"]`, com o
+  Cartão Roxo e o Cartão Verde montados. Num caso só, as duas assertions fecham o AC 11 ("escolhe
+  uma conta") e o AC 3 (AD-015). Se o dono quiser uma segunda defesa, recusar no servidor um
+  `contaId` que gere fatura é decisão de produto e sai do escopo deste fix.
+- **Pronto quando**: P28 morre.
+
+#### Fix P27 e P29 (Minor): ancorar o lugar que a spec define
+
+- **Task**: no AC 10, buscar o "+ nova conta" com
+  `within(screen.getByRole("region", { name: "Entradas" }))` e afirmar que ele não aparece em
+  `blocoDoTipo(...)`. No AC 12, buscar a dica dentro da mesma região. No AC 8, afirmar que o aviso
+  vem logo antes do "Continuar", por exemplo `continuar().previousElementSibling).toBe(getByRole("status"))`,
+  ou por `compareDocumentPosition`.
+- **Pronto quando**: P27 e P29 morrem.
+
+Nenhum código de produção precisa mudar. As duas correções são de teste e cabem numa task.
+
+### Lições
+
+Duas candidatas novas, via `lessons.py add`, com o sinal `surviving_mutant`:
+
+- **L-017**, do P28, escopo `componentes,testes`: um controle novo que grava num campo filtrado
+  precisa de teste da própria lista de opções.
+- **L-018**, do P27 e do P29, escopo `componentes,testes`: um AC que situa um elemento precisa de
+  consulta restrita àquela região.
+
+Nenhuma lição confirmada foi carregada para esta rodada, então não há `penalize`. O e2e que mata o
+P8 é a prova que a L-014 pede, a que atravessa a composição, e isso não conta como ocorrência nova.
+`lessons.py status` passa a 18 lições: 1 confirmada e 17 candidatas.
+
+### Requirement Traceability — atualização proposta
+
+O Verificador não edita `spec.md`:
+
+| Requisito | Status atual | Novo status |
+| --- | --- | --- |
+| IMP-04 ACs 8 a 10 e 12 | O AC 8 aparece sob "Verified (`validation.md`, 2026-10-26)", mas a F13 é posterior a essa validação, e esta rodada é a primeira a verificá-lo. Os ACs 9, 10 e 12 estão "implementado, a verificar" | ⚠️ cobertos, com âncora de lugar a fechar (P27, P29) |
+| IMP-04 AC 11 | "implementado, a verificar" | ❌ Needs Fix: P28 |
+| IMP-04 ACs 1 a 7 | ✅ Verified | ✅ Verified. Nada quebrou, e o e2e dá 59/59 |
+
+### Resumo
+
+**Overall**: ❌ Não pronto, por teste. Nenhum defeito de comportamento e nenhum código de produção a
+mudar.
+
+**Spec-anchored**: os 5 ACs têm assertion sobre o resultado da spec. Ficam abertos uma lacuna no AC
+11 (P28) e dois pontos de precisão de lugar nos ACs 8, 10 e 12.
+**Sensor**: 32 mutações, 29 mortas e 3 vivas (P27, P28 e P29).
+**Gate**: 1.155 unitários, `typecheck` e `lint` limpos, e e2e 59/59, sem falha nem teste pulado.
+
+**Próximo passo**: uma task de teste com os dois fixes. Depois, reaplicar P27, P28 e P29. Esta foi
+a iteração 1 de 3 do ciclo de fix e reverificação.

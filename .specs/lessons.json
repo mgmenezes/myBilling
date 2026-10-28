@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 17,
+  "next_id": 19,
   "lessons": [
     {
       "id": "L-001",
@@ -295,6 +295,42 @@
       ],
       "created": "2026-10-25T06:36:08Z",
       "last_seen": "2026-10-25T06:36:08Z"
+    },
+    {
+      "id": "L-017",
+      "key": "surviving_mutant::controle novo que grava num campo de opcoes filtradas como um aplicar a todas precisa de teste da propria lista de opcoes com o mesmo filtro o filtro do campo de destino nao segura o valor posto por codigo",
+      "text": "Controle novo que grava num campo de opções filtradas, como um 'aplicar a todas', precisa de teste da própria lista de opções com o mesmo filtro; o filtro do campo de destino não segura o valor posto por código.",
+      "signal": "surviving_mutant",
+      "scope": "componentes,testes",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md, Rodada F13–F15: P28 em src/components/importacao/passo-pendencias.tsx:227 (componentes,testes)"
+      ],
+      "created": "2026-10-28T20:24:12Z",
+      "last_seen": "2026-10-28T20:24:12Z"
+    },
+    {
+      "id": "L-018",
+      "key": "surviving_mutant::ac que situa um elemento na secao x junto do botao y precisa de consulta restrita aquela regiao com within ou vizinhanca no dom consulta em screen inteiro nao prova o lugar",
+      "text": "AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.",
+      "signal": "surviving_mutant",
+      "scope": "componentes,testes",
+      "status": "candidate",
+      "features": [
+        "importar-planilha"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)"
+      ],
+      "created": "2026-10-28T20:24:12Z",
+      "last_seen": "2026-10-28T20:24:12Z"
     }
   ]
 }

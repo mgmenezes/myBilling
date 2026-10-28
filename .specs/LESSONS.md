@@ -108,6 +108,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: commit f8920a8 (F11): tsc --noEmit com TS2554 em dialogo-importacao.test.tsx:303, 0 em a033fef; antes, 7fe7552 (T12); validation.md, rodada 3 (tasks,gates)
 - last seen: 2026-10-25T06:36:08Z
 
+### L-017 - Controle novo que grava num campo de opções filtradas, como um 'aplicar a todas', precisa de teste da própria lista de opções com o mesmo filtro; o filtro do campo de destino não segura o valor posto por código.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: importar-planilha
+- evidence: validation.md, Rodada F13–F15: P28 em src/components/importacao/passo-pendencias.tsx:227 (componentes,testes)
+- last seen: 2026-10-28T20:24:12Z
+
+### L-018 - AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: importar-planilha
+- evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)
+- last seen: 2026-10-28T20:24:12Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
