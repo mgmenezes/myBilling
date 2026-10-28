@@ -34,3 +34,6 @@ Thumbs.db
 *.log
 npm-debug.log*
 pnpm-debug.log*
+
+# worktrees locais de fatias em andamento
+.worktrees/
