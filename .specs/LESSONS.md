@@ -120,6 +120,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)
 - last seen: 2026-10-28T20:24:12Z
 
+### L-019 - Valor versionado por mês precisa de teste com duas vigências que abra o mês anterior à mais nova; com uma vigência só, a vigente no mês e a última coincidem e a troca passa verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,fixtures,versionamento` · harmful: 0
+- features: editar-fixos
+- evidence: E2, src/app/(app)/[competencia]/fixos/page.tsx:115 (testes,fixtures,versionamento)
+- last seen: 2026-10-28T19:52:49Z
+
+### L-020 - AC que exige o mesmo erro de outro fluxo precisa comparar a mensagem com a dele; afirmar só que houve recusa deixa a mensagem divergir com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
+- features: editar-fixos
+- evidence: S3, src/application/schemas/recorrencia.schema.ts:65 (testes,acceptance-criteria)
+- last seen: 2026-10-28T19:52:49Z
+
+### L-021 - AC que cita uma decisão (AD-NNN) precisa ser relido contra a regra dela; se a regra torna o resultado constante, o AC não tem o que provar.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `specs,acceptance-criteria` · harmful: 0
+- features: editar-fixos
+- evidence: EDF-02 AC 5, src/domain/mes/bloco-do-lancamento.ts:33 (specs,acceptance-criteria)
+- last seen: 2026-10-28T19:52:49Z
+
+### L-022 - Texto que a interface mostra e o teste afirma literalmente precisa estar na spec; senão a assertion fixa uma frase que ninguém aprovou.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `specs,textos` · harmful: 0
+- features: editar-fixos
+- evidence: EDF-06 AC 6, src/components/form-recorrencia.tsx:313 (specs,textos)
+- last seen: 2026-10-28T19:52:50Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

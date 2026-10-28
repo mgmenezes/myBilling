@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 19,
+  "next_id": 23,
   "lessons": [
     {
       "id": "L-001",
@@ -331,6 +331,78 @@
       ],
       "created": "2026-10-28T20:24:12Z",
       "last_seen": "2026-10-28T20:24:12Z"
+    },
+    {
+      "id": "L-019",
+      "key": "surviving_mutant::valor versionado por mes precisa de teste com duas vigencias que abra o mes anterior a mais nova com uma vigencia so a vigente no mes e a ultima coincidem e a troca passa verde",
+      "text": "Valor versionado por mês precisa de teste com duas vigências que abra o mês anterior à mais nova; com uma vigência só, a vigente no mês e a última coincidem e a troca passa verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,fixtures,versionamento",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E2, src/app/(app)/[competencia]/fixos/page.tsx:115 (testes,fixtures,versionamento)"
+      ],
+      "created": "2026-10-28T19:52:49Z",
+      "last_seen": "2026-10-28T19:52:49Z"
+    },
+    {
+      "id": "L-020",
+      "key": "surviving_mutant::ac que exige o mesmo erro de outro fluxo precisa comparar a mensagem com a dele afirmar so que houve recusa deixa a mensagem divergir com a suite verde",
+      "text": "AC que exige o mesmo erro de outro fluxo precisa comparar a mensagem com a dele; afirmar só que houve recusa deixa a mensagem divergir com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S3, src/application/schemas/recorrencia.schema.ts:65 (testes,acceptance-criteria)"
+      ],
+      "created": "2026-10-28T19:52:49Z",
+      "last_seen": "2026-10-28T19:52:49Z"
+    },
+    {
+      "id": "L-021",
+      "key": "spec_precision_gap::ac que cita uma decisao ad nnn precisa ser relido contra a regra dela se a regra torna o resultado constante o ac nao tem o que provar",
+      "text": "AC que cita uma decisão (AD-NNN) precisa ser relido contra a regra dela; se a regra torna o resultado constante, o AC não tem o que provar.",
+      "signal": "spec_precision_gap",
+      "scope": "specs,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "EDF-02 AC 5, src/domain/mes/bloco-do-lancamento.ts:33 (specs,acceptance-criteria)"
+      ],
+      "created": "2026-10-28T19:52:49Z",
+      "last_seen": "2026-10-28T19:52:49Z"
+    },
+    {
+      "id": "L-022",
+      "key": "spec_precision_gap::texto que a interface mostra e o teste afirma literalmente precisa estar na spec senao a assertion fixa uma frase que ninguem aprovou",
+      "text": "Texto que a interface mostra e o teste afirma literalmente precisa estar na spec; senão a assertion fixa uma frase que ninguém aprovou.",
+      "signal": "spec_precision_gap",
+      "scope": "specs,textos",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "EDF-06 AC 6, src/components/form-recorrencia.tsx:313 (specs,textos)"
+      ],
+      "created": "2026-10-28T19:52:50Z",
+      "last_seen": "2026-10-28T19:52:50Z"
     }
   ]
 }
