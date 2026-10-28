@@ -102,8 +102,16 @@ export type CodigoErroEdicaoFixo =
 export interface EntradaEditarFixo extends FixoEditado {
   readonly recorrenciaId: string; readonly competenciaExibida: Competencia; readonly agora: string;
 }
+// SPEC_DEVIATION (T4): o erro carrega `campo` em PERIODO_INVALIDO, porque a recusa nasce de
+// dois campos (EDF-03 AC 5 e EDF-04 AC 4) e a action precisa endereçá-la ao certo.
+export interface ErroEdicaoFixo {
+  readonly code: CodigoErroEdicaoFixo; readonly campo?: "competenciaFim" | "vigenteDesde";
+}
 export async function editarRecorrencia(transacao: Transacao, entrada: EntradaEditarFixo):
-  Promise<Result<{ readonly mudou: boolean }, { readonly code: CodigoErroEdicaoFixo }>>;
+  Promise<Result<{ readonly mudou: boolean }, ErroEdicaoFixo>>;
+// Acréscimo (T4): o valor que o formulário mostra e com que a edição compara. A página usa a
+// mesma função para preencher o campo; num fixo visto antes de começar, vale a primeira vigência.
+export function valorNoMesExibido(versoes: ReadonlyArray<VersaoRecorrencia>, competenciaExibida: Competencia): Cents | null;
 
 // src/application/schemas/recorrencia.schema.ts
 export const entradaEdicaoRecorrenciaSchema; // .strict(): recorrenciaId, descricao, valorCentavos,
@@ -254,10 +262,10 @@ T9 -> T10
 **Reuses**: `planejarEdicaoDoFixo`, `versaoVigente`, `registrarVersao`, `encerrarRecorrencia`
 **Requirement**: EDF-02, EDF-03, EDF-04, EDF-06
 **Done when**:
-- [ ] Fixo inexistente → `RECORRENCIA_NAO_ENCONTRADA`; meio inexistente ou arquivado e categoria inexistente → o código respectivo, nada gravado (EDF-06 AC 5, EDF-05 AC 3)
-- [ ] Série alterada → fixo e ocorrências atualizados; valor alterado → vigência nova pelo `registrarVersao`; fim → `encerrar`, `reabrir` ou `estenderFim` conforme o plano (EDF-02, EDF-03, EDF-04)
-- [ ] Review Focus 1: salvar sem mudança → `mudou: false` e nenhuma escrita nos fakes
-- [ ] Review Focus 3: encurtar o fim com ocorrência paga depois dele → a paga continua
+- [x] Fixo inexistente → `RECORRENCIA_NAO_ENCONTRADA`; meio inexistente ou arquivado e categoria inexistente → o código respectivo, nada gravado (EDF-06 AC 5, EDF-05 AC 3)
+- [x] Série alterada → fixo e ocorrências atualizados; valor alterado → vigência nova pelo `registrarVersao`; fim → `encerrar`, `reabrir` ou `estenderFim` conforme o plano (EDF-02, EDF-03, EDF-04)
+- [x] Review Focus 1: salvar sem mudança → `mudou: false` e nenhuma escrita nos fakes
+- [x] Review Focus 3: encurtar o fim com ocorrência paga depois dele → a paga continua
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(recorrencias): caso de uso de edição de fixo`
