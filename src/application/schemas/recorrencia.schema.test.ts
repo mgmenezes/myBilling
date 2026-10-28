@@ -159,7 +159,8 @@ describe("entrada de edição de recorrência (EDF-05)", () => {
     expect(resultado.data?.descricao).toBe("Conta fixa A");
   });
 
-  it.each([
+  /* Os campos que a edição tem em comum com o cadastro. */
+  const INVALIDOS_COMO_NO_CADASTRO: ReadonlyArray<readonly [string, Record<string, unknown>]> = [
     ["descrição vazia", { descricao: "" }],
     ["descrição só de espaço", { descricao: "   " }],
     ["descrição acima do limite", { descricao: "a".repeat(MAX_NOME_RECORRENCIA + 1) }],
@@ -170,10 +171,29 @@ describe("entrada de edição de recorrência (EDF-05)", () => {
     ["dia fracionário", { diaVencimento: 10.5 }],
     ["meio que não é uuid", { meioPagamentoId: "m1" }],
     ["categoria que não é uuid", { categoriaId: "c1" }],
+  ];
+
+  it.each<readonly [string, Record<string, unknown>]>([
+    ...INVALIDOS_COMO_NO_CADASTRO,
     ["fixo que não é uuid", { recorrenciaId: "r1" }],
   ])("recusa %s, como o cadastro (EDF-05 AC 3)", (_, mudanca) => {
     expect(entradaEdicaoRecorrenciaSchema.safeParse(edicao(mudanca)).success).toBe(false);
   });
+
+  /* "O mesmo erro do cadastro" é a mensagem, e não só a recusa: um limite
+     redefinido na edição recusaria igual e diria outra coisa. */
+  it.each(INVALIDOS_COMO_NO_CADASTRO)(
+    "%s dá a mesma mensagem do cadastro (EDF-05 AC 3)",
+    (_, mudanca) => {
+      const doCadastro = entradaRecorrenciaSchema.safeParse(base(mudanca)).error?.issues[0]
+        ?.message;
+      const daEdicao = entradaEdicaoRecorrenciaSchema.safeParse(edicao(mudanca)).error?.issues[0]
+        ?.message;
+
+      expect(doCadastro).toEqual(expect.any(String));
+      expect(daEdicao).toBe(doCadastro);
+    },
+  );
 
   it("aceita os extremos do dia de vencimento e a descrição no limite", () => {
     for (const mudanca of [

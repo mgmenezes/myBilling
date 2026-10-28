@@ -206,6 +206,15 @@ T8 -> T9
 T9 -> T10
 ```
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+```
+T9 -> F1
+T5 -> F2
+```
+
+As duas são independentes; cada uma fecha um mutante que sobreviveu em `validation.md`.
+
 ---
 
 ## Task Breakdown
@@ -366,6 +375,34 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Gate**: build
 **Commit**: `docs(recorrencias): fechar a fatia de edição de fixo`
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+#### F1: Editar um mês anterior ao reajuste pela página real
+**What**: O único teste que atravessa a página usava um fixo de vigência única, em que "a vigente no mês" e "a última" coincidem. Trocar `valorNoMesExibido` pela última vigência em `fixos/page.tsx` passava na suíte inteira (mutante E2), e a consequência medida é que salvar sem mexer em outubro, depois de um reajuste em novembro, reescrevia outubro.
+**Where**: `e2e/editar-fixo.spec.ts` (+ `spec.md`)
+**Depends on**: T9
+**Reuses**: `abrirEdicao`, `linhaNaLista`
+**Requirement**: EDF-01, EDF-03
+**Done when**:
+- [ ] Depois do reajuste de novembro, a edição aberta em outubro mostra "100,00", salvar sem mexer diz "Nada mudou: já estava tudo assim." e outubro continua em R$ 100,00
+- [ ] O mutante E2 falha o teste em `toHaveValue("100,00")`
+**Tests**: e2e
+**Gate**: `pnpm exec playwright test e2e/editar-fixo.spec.ts`
+**Commit**: `test(e2e): editar um mês anterior ao reajuste sem reescrevê-lo`
+
+#### F2: A mesma mensagem do cadastro na edição
+**What**: `recorrencia.schema.test.ts` só afirmava que a edição recusa os mesmos valores do cadastro. Redefinir valor e dia na edição, com as mensagens padrão do Zod, passava (mutante S3), e "o mesmo erro do cadastro" (EDF-05 AC 3) é a mensagem.
+**Where**: `src/application/schemas/recorrencia.schema.test.ts` (+ `spec.md`)
+**Depends on**: T5
+**Reuses**: `base()` do cadastro e `edicao()` da edição, no mesmo arquivo
+**Requirement**: EDF-05
+**Done when**:
+- [x] Para cada campo em comum com o cadastro, a primeira mensagem da edição é igual à do cadastro, e a do cadastro existe
+- [x] O mutante S3 falha 5 casos: valor zero, valor negativo, dia 0, dia 32 e dia fracionário
+**Tests**: unit
+**Gate**: quick + `pnpm typecheck` + `pnpm lint`
+**Commit**: `test(recorrencias): exigir na edição a mesma mensagem do cadastro`
+
 ---
 
 ## Task Granularity Check
@@ -378,6 +415,7 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | T4–T7 | 1 arquivo de produto cada (T6: + mensagens) | ✅ |
 | T8 | 1 componente + a página que o alimenta | ⚠️ coeso |
 | T9, T10 | e2e; documentação | ✅ |
+| F1, F2 | 1 caso de teste cada | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -393,6 +431,12 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | T8 | T7 | T7→T8 | ✅ |
 | T9 | T8 | T8→T9 | ✅ |
 | T10 | T9 | T9→T10 | ✅ |
+| F1 | T9 | T9→F1 | ✅ |
+| F2 | T5 | T5→F2 | ✅ |
+
+`validate_tasks.py` só reconhece IDs `T<n>` e lê os campos das tasks `F<n>` como se fossem da T10.
+Uma cópia com F1 e F2 trocados por `T101` e `T102` passa com 0 erros; os dois avisos novos são o
+`spec.md` no `Where` de cada uma.
 
 ## Test Co-location Validation
 
@@ -405,3 +449,5 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | T7, T8 | componentes | componentes | componentes | ✅ |
 | T9 | fluxo | e2e | e2e | ✅ |
 | T10 | docs | none | none | ✅ |
+| F1 | fluxo | e2e | e2e | ✅ |
+| F2 | aplicação | unit | unit | ✅ |
