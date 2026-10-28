@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  entradaEdicaoRecorrenciaSchema,
   entradaEncerramentoSchema,
   entradaRecorrenciaSchema,
   entradaVigenciaSchema,
@@ -122,4 +123,107 @@ describe("entrada de encerramento", () => {
       entradaEncerramentoSchema.safeParse({ recorrenciaId: UUID, aPartirDe: "maio" }).success,
     ).toBe(false);
   });
+});
+
+/**
+ * A edição usa os mesmos limites do cadastro (EDF-05 AC 3), mas é estrita:
+ * natureza e início não fazem parte do payload, e um formulário adulterado que
+ * os mande é recusado na validação, antes de qualquer banco (EDF-05 AC 2).
+ */
+describe("entrada de edição de recorrência (EDF-05)", () => {
+  function edicao(overrides: Record<string, unknown> = {}) {
+    return {
+      recorrenciaId: UUID,
+      descricao: "Conta fixa A",
+      valorCentavos: 10000,
+      diaVencimento: 10,
+      competenciaFim: null,
+      categoriaId: null,
+      usuarioId: UUID,
+      meioPagamentoId: UUID,
+      vigenteDesde: "2026-11",
+      competenciaExibida: "2026-11",
+      ...overrides,
+    };
+  }
+
+  it("aceita a edição completa", () => {
+    expect(entradaEdicaoRecorrenciaSchema.safeParse(edicao()).success).toBe(true);
+  });
+
+  it("normaliza a descrição como o cadastro", () => {
+    const resultado = entradaEdicaoRecorrenciaSchema.safeParse(
+      edicao({ descricao: "  Conta  fixa   A " }),
+    );
+
+    expect(resultado.data?.descricao).toBe("Conta fixa A");
+  });
+
+  it.each([
+    ["descrição vazia", { descricao: "" }],
+    ["descrição só de espaço", { descricao: "   " }],
+    ["descrição acima do limite", { descricao: "a".repeat(MAX_NOME_RECORRENCIA + 1) }],
+    ["valor zero", { valorCentavos: 0 }],
+    ["valor negativo", { valorCentavos: -1 }],
+    ["dia 0", { diaVencimento: 0 }],
+    ["dia 32", { diaVencimento: 32 }],
+    ["dia fracionário", { diaVencimento: 10.5 }],
+    ["meio que não é uuid", { meioPagamentoId: "m1" }],
+    ["categoria que não é uuid", { categoriaId: "c1" }],
+    ["fixo que não é uuid", { recorrenciaId: "r1" }],
+  ])("recusa %s, como o cadastro (EDF-05 AC 3)", (_, mudanca) => {
+    expect(entradaEdicaoRecorrenciaSchema.safeParse(edicao(mudanca)).success).toBe(false);
+  });
+
+  it("aceita os extremos do dia de vencimento e a descrição no limite", () => {
+    for (const mudanca of [
+      { diaVencimento: 1 },
+      { diaVencimento: 31 },
+      { descricao: "a".repeat(MAX_NOME_RECORRENCIA) },
+    ]) {
+      expect(entradaEdicaoRecorrenciaSchema.safeParse(edicao(mudanca)).success).toBe(true);
+    }
+  });
+
+  it.each([
+    ["natureza", { natureza: "RECEITA" }],
+    ["início", { competenciaInicio: "2026-01" }],
+  ])("recusa payload com %s, que não muda na edição (Review Focus 5)", (_, extra) => {
+    const resultado = entradaEdicaoRecorrenciaSchema.safeParse(edicao(extra));
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues).toEqual([
+      expect.objectContaining({
+        code: "unrecognized_keys",
+        message:
+          "Natureza e início não mudam na edição. Para mudar, encerre este e cadastre de novo.",
+      }),
+    ]);
+  });
+
+  it("fim nulo é aceito e significa sem fim; um mês também", () => {
+    expect(entradaEdicaoRecorrenciaSchema.safeParse(edicao({ competenciaFim: null })).success).toBe(
+      true,
+    );
+    expect(
+      entradaEdicaoRecorrenciaSchema.safeParse(edicao({ competenciaFim: "2027-01" })).success,
+    ).toBe(true);
+  });
+
+  it.each(["competenciaFim", "vigenteDesde", "competenciaExibida"])(
+    "%s ausente NÃO é aceito",
+    (campo) => {
+      const { [campo as keyof ReturnType<typeof edicao>]: _, ...semCampo } = edicao();
+      expect(entradaEdicaoRecorrenciaSchema.safeParse(semCampo).success).toBe(false);
+    },
+  );
+
+  it.each(["competenciaFim", "vigenteDesde", "competenciaExibida"])(
+    "%s fora de AAAA-MM é recusado",
+    (campo) => {
+      expect(entradaEdicaoRecorrenciaSchema.safeParse(edicao({ [campo]: "2026-13" })).success).toBe(
+        false,
+      );
+    },
+  );
 });

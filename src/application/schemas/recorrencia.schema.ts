@@ -49,6 +49,34 @@ export const entradaRecorrenciaSchema = z.object({
 
 export type EntradaRecorrenciaValidada = z.infer<typeof entradaRecorrenciaSchema>;
 
+/**
+ * Editar um fixo (EDF-05). Os campos editáveis são os do cadastro, com os
+ * mesmos limites, e o schema é **estrito**: natureza e início não mudam na
+ * edição, e um payload que os traga é recusado aqui, antes de qualquer banco
+ * (EDF-05 AC 2). O formulário mostra os dois travados; quem os manda adulterou
+ * o formulário.
+ *
+ * `vigenteDesde` só conta quando o valor muda, mas é obrigatório: o formulário
+ * sempre o envia, preenchido com o mês exibido (EDF-03 AC 1).
+ */
+export const entradaEdicaoRecorrenciaSchema = z.strictObject(
+  {
+    recorrenciaId: z.uuid("Gasto fixo inválido."),
+    ...entradaRecorrenciaSchema.omit({ natureza: true, competenciaInicio: true }).shape,
+    vigenteDesde: competencia,
+    /** O mês que a pessoa está vendo: o valor do formulário é o vigente nele. */
+    competenciaExibida: competencia,
+  },
+  {
+    error: (issue) =>
+      issue.code === "unrecognized_keys"
+        ? "Natureza e início não mudam na edição. Para mudar, encerre este e cadastre de novo."
+        : undefined,
+  },
+);
+
+export type EntradaEdicaoRecorrenciaValidada = z.infer<typeof entradaEdicaoRecorrenciaSchema>;
+
 /** Registrar um valor novo a partir de um mês. */
 export const entradaVigenciaSchema = z.object({
   recorrenciaId: z.uuid("Gasto fixo inválido."),

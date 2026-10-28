@@ -277,9 +277,9 @@ T9 -> T10
 **Reuses**: os campos de `entradaRecorrenciaSchema`
 **Requirement**: EDF-05
 **Done when**:
-- [ ] Os mesmos limites do cadastro para descrição, valor e dia (EDF-05 AC 3)
-- [ ] Review Focus 5: payload com `natureza` ou `competenciaInicio` é recusado (EDF-05 AC 2)
-- [ ] `competenciaFim` aceita `null`; `vigenteDesde` e `competenciaExibida` são obrigatórios
+- [x] Os mesmos limites do cadastro para descrição, valor e dia (EDF-05 AC 3)
+- [x] Review Focus 5: payload com `natureza` ou `competenciaInicio` é recusado (EDF-05 AC 2)
+- [x] `competenciaFim` aceita `null`; `vigenteDesde` e `competenciaExibida` são obrigatórios
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(recorrencias): validar o payload da edição de fixo`
