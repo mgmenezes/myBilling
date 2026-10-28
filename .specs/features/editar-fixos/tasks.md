@@ -209,12 +209,12 @@ T9 -> T10
 **Reuses**: `diaEfetivo`, `addMeses`, `compararCompetencias`
 **Requirement**: EDF-02, EDF-03, EDF-04
 **Done when**:
-- [ ] Série: mudar qualquer um dos cinco campos → `serie` com os cinco valores editados; nenhum mudou → `serie = null` (EDF-02 AC 1, 4)
-- [ ] Valor diferente do vigente → `vigencia` com o mês e o valor escolhidos; igual → `null` (EDF-03 AC 2, 3)
-- [ ] As seis linhas da tabela do fim, uma por teste (EDF-04 AC 1-3)
-- [ ] Fim anterior ao início e "vale a partir de" anterior ao início → `PERIODO_INVALIDO` (EDF-04 AC 4, EDF-03 AC 5)
-- [ ] `dataDeVencimento("2027-02", 31)` → `"2027-02-28"`; `("2028-02", 31)` → `"2028-02-29"`; os testes da materialização passam sem alteração
-- [ ] 100% de branches
+- [x] Série: mudar qualquer um dos cinco campos → `serie` com os cinco valores editados; nenhum mudou → `serie = null` (EDF-02 AC 1, 4)
+- [x] Valor diferente do vigente → `vigencia` com o mês e o valor escolhidos; igual → `null` (EDF-03 AC 2, 3)
+- [x] As seis linhas da tabela do fim, uma por teste (EDF-04 AC 1-3)
+- [x] Fim anterior ao início e "vale a partir de" anterior ao início → `PERIODO_INVALIDO` (EDF-04 AC 4, EDF-03 AC 5)
+- [x] `dataDeVencimento("2027-02", 31)` → `"2027-02-28"`; `("2028-02", 31)` → `"2028-02-29"`; os testes da materialização passam sem alteração
+- [x] 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(recorrencias): decidir no domínio o que a edição de um fixo faz`

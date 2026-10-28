@@ -86,6 +86,15 @@ export type {
   Reprecificacao,
 } from "./parcelamento/reprecificar-parcelas";
 export { reprecificarAPartirDe } from "./parcelamento/reprecificar-parcelas";
+export { dataDeVencimento } from "./recorrencia/data-de-vencimento";
+export type {
+  CamposDaSerie,
+  FixoAtual,
+  FixoEditado,
+  MudancaDoFim,
+  PlanoDeEdicao,
+} from "./recorrencia/edicao-do-fixo";
+export { planejarEdicaoDoFixo } from "./recorrencia/edicao-do-fixo";
 export type { PeriodoRecorrencia } from "./recorrencia/janela-materializacao";
 export { janelaMaterializacao } from "./recorrencia/janela-materializacao";
 export type { OcorrenciaMaterializada } from "./recorrencia/ocorrencia-protegida";

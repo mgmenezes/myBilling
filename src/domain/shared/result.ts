@@ -40,7 +40,8 @@ export type CodigoErro =
   | "COMPETENCIA_INVALIDA"
   | "LANCAMENTO_NAO_CANCELAVEL"
   | "PLANILHA_ARQUIVO_INVALIDO"
-  | "PLANILHA_BLOCO_AUSENTE";
+  | "PLANILHA_BLOCO_AUSENTE"
+  | "PERIODO_INVALIDO";
 
 export type DomainError = {
   readonly code: CodigoErro;

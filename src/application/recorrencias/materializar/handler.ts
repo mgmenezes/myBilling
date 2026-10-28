@@ -6,7 +6,7 @@ import type {
 import {
   addMeses,
   type Competencia,
-  diaEfetivo,
+  dataDeVencimento,
   janelaMaterializacao,
   versaoVigente,
 } from "@/domain";
@@ -16,7 +16,7 @@ import {
  *
  * **Este caso de uso não decide nada por conta própria.** Quais competências
  * vêm de `janelaMaterializacao`, qual valor vem de `versaoVigente`, e qual dia
- * vem de `diaEfetivo`. Ele pergunta às três e grava o que elas responderem. Foi
+ * vem de `dataDeVencimento`. Ele pergunta às três e grava o que elas responderem. Foi
  * de propósito: cada regra que ele reimplementasse aqui viraria uma segunda
  * definição, e a primeira divergência apareceria como valor errado no mês.
  *
@@ -78,18 +78,6 @@ export async function materializarRecorrencias(
    * ocorrência multiplicaria por vinte o custo de abrir um mês (AD-008).
    */
   return deps.movimentos.materializarOcorrencias(aCriar);
-}
-
-/**
- * O dia de vencimento aplicado à competência, reduzido ao último dia do mês
- * quando ele não existe (FIXO-01, AC 5). Vencimento dia 31 em fevereiro é 28 —
- * e `diaEfetivo` já resolvia isso para o ciclo de fatura.
- */
-function dataDeVencimento(competencia: Competencia, diaVencimento: number): string {
-  const ano = Number.parseInt(competencia.slice(0, 4), 10);
-  const mes = Number.parseInt(competencia.slice(5, 7), 10);
-  const dia = diaEfetivo(diaVencimento, ano, mes);
-  return `${competencia}-${String(dia).padStart(2, "0")}`;
 }
 
 /**
