@@ -143,15 +143,17 @@
 
 ## Handoff
 
-- **Feature**: `importar-planilha`, **concluída e verificada** — Verifier PASS em 2026-10-26 (`.specs/features/importar-planilha/validation.md`), `validate_state.py` exit 0. 39 tasks: T1–T27 da fatia e F1–F12 das três rodadas de verificação, que deram FAIL sem defeito de comportamento, por testes que não discriminavam. Uma correção foi de produção de verdade: F8, o botão da conferência dizia "Importando…" enquanto só a prévia era lida.
-- **Phase / Task**: entre fatias. O próximo passo é humano.
-- **Completed**: a fatia inteira; `logging.serverFunctions: false` no `next.config.ts` (`7c5e460`), para o `next dev` não imprimir o texto da aba real; nomes da família fora do `HANDOFF.md` (`d57ef6f`).
+- **Feature**: `editar-fixos`, **implementada, à espera do Verifier**. As 10 tasks estão commitadas no branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`: regra pura, repositórios, transação genérica, caso de uso, schema e action (T1–T6), o formulário do cadastro em modo de edição e o "Editar" em cada cartão de "Todo mês" (T7–T8), o e2e (T9) e este fechamento (T10). Spec, tasks e traceability em `.specs/features/editar-fixos/`.
+- **Phase / Task**: fim do Execute. O próximo passo é o Verifier independente, que escreve `validation.md`.
+- **Completed**: T1 `bee4dd7` a T9 `8e88a7c`, e o commit da T10. `pnpm verify` e `pnpm test:e2e` saem 0 na worktree: 1.243 unitários, 307 de integração e 62 e2e.
 - **In-progress**: nenhum.
-- **Next step**: (1) o dono testa em localhost com as três abas reais (outubro, novembro e dezembro de 2026), pelo roteiro `docs/importacao.md`; (2) push e migration `0003` no Neon; (3) limpeza e as três importações em produção, pelo dono; (4) a fatia seguinte, **editar qualquer item lançado, incluindo trocar a categoria** (roadmap).
-- **Blockers**: nenhum. `git push`, a migration `0003` no Neon e o script de limpeza no Neon esperam autorização explícita e separada.
+- **Ordem de entrada no ar (decisão do dono)**: a fatia só entra no `main` **depois das três importações em produção**. Editar um fixo importado entre uma aba e a seguinte faria a importação seguinte criar outro. Até lá o branch espera, sem merge.
+- **Next step**: (1) Verifier da fatia; (2) o dono confere que o deploy da importação saiu na Vercel e que a migration `0003` está no Neon; (3) limpeza e as três importações em produção, pelo dono, pelo roteiro `docs/importacao.md`; (4) só então o merge de `feat/editar-fixos` no `main` e o push; (5) a fatia seguinte, editar avulso, entrada avulsa e compra parcelada, a partir do rascunho em `.specs/features/editar-lancamentos/context.md`.
+- **Blockers**: nenhum de código. `git push`, merge no `main`, a migration `0003` e o script de limpeza no Neon esperam autorização explícita e separada.
+- **Deploy**: o deploy automático da Vercel pode não estar disparando nos pushes. O app da Vercel no GitHub tem um pedido de permissão pendente, e o dono está resolvendo. Depois de um push, confira na Vercel se o deploy saiu antes de testar em produção.
 - **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava; é dele, e não entra em commit.
-- **Branch**: `main`, à frente de `origin/main` desde o push de `6289765`.
-- **Lição nova (L-016)**: o gate de cada task precisa incluir `pnpm typecheck`, encadeado com `&&`. O Vitest transpila sem checar tipos, e dois commits desta fatia (`7fe7552`, `f8920a8`) não compilam sozinhos por isso.
-- **Neon**: o branch `production` é arquivado por inatividade no plano gratuito; a primeira consulta desarquiva sozinha. As migrations `0000`–`0002` estão aplicadas; a `0003_registro_de_importacao.sql` sobe com o push, pelo job `migrate` (que precisa do secret `NEON_DATABASE_URL_DIRETA`), ou pelo `pnpm db:sql` no SQL Editor.
+- **Branch**: `feat/editar-fixos` (worktree). Na última leitura local, `main` e `origin/main` estavam iguais, em `483a4e3`.
+- **Lição L-016**: o gate de cada task inclui `pnpm typecheck`, encadeado com `&&`. O Vitest transpila sem checar tipos.
+- **Neon**: o branch `production` é arquivado por inatividade no plano gratuito; a primeira consulta desarquiva sozinha. As migrations `0000`–`0002` estão aplicadas; a `0003_registro_de_importacao.sql` sobe com o push, pelo job `migrate` (que precisa do secret `NEON_DATABASE_URL_DIRETA`), ou pelo `pnpm db:sql` no SQL Editor. A edição de fixo não traz migration.
 - **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar o tempo, ou o Mac dormir no meio, suspeite do ambiente antes do teste.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.

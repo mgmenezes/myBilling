@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/editar-fixos/spec.md`
 **Design**: inline, na seção "Design" abaixo (fatia pequena, sem `design.md`)
-**Status**: In Progress (aprovado pelo dono em 2026-10-28; branch `feat/editar-fixos`, em worktree; 2 lotes: T1–T6 e T7–T10)
+**Status**: Implemented, à espera do Verifier (aprovado pelo dono em 2026-10-28; branch `feat/editar-fixos`, em worktree; 2 lotes: T1–T6 e T7–T10; entra no `main` só depois das três importações em produção)
 **Total**: 10 tasks em 5 fases
 
 ---
@@ -359,9 +359,9 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Depends on**: T9
 **Requirement**: EDF-06
 **Done when**:
-- [ ] Roadmap: edição de fixo em "Pronto"; a de avulso e compra continua como fatia seguinte, apontando para o rascunho em `editar-lancamentos/context.md`
-- [ ] Handoff com a ordem de entrada no ar: depois das três importações em produção
-- [ ] Traceability com cada requisito implementado
+- [x] Roadmap: edição de fixo em "Pronto"; a de avulso e compra continua como fatia seguinte, apontando para o rascunho em `editar-lancamentos/context.md`
+- [x] Handoff com a ordem de entrada no ar: depois das três importações em produção
+- [x] Traceability com cada requisito implementado
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(recorrencias): fechar a fatia de edição de fixo`

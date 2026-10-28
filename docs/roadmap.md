@@ -26,6 +26,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Blocos por meio de pagamento | "Cartão de Crédito" passou a significar "vai cair na fatura", e não "veio de compra parcelada" (AD-012). Painel e lista usam a mesma função, com teste de concordância |
 | Entradas visíveis | O bloco subiu para o topo e aparece sempre, mesmo vazio. Com receita marcada, os formulários trocam o vocabulário e não oferecem cartão como destino (AD-015) |
 | Importar a planilha | As abas mensais exportadas em CSV entram pela Visão geral, em sequência: arquivo e mês, o que a planilha não diz, conferência contra os totais da própria planilha, e gravação tudo ou nada. A aba seguinte reconhece os fixos e as compras da anterior em vez de duplicar. Roteiro de uso em `docs/importacao.md`; spec, design e tasks em `.specs/features/importar-planilha/` |
+| Editar gasto fixo e entrada fixa | Na área "Todo mês", "Editar" em cada cartão abre o formulário do cadastro com o que está gravado. Descrição, categoria, meio, pessoa e dia valem para todos os meses do fixo, inclusive os passados, sem mexer em pagamento marcado nem em valor confirmado. O valor muda a partir de um mês, e "Termina em" encerra ou reabre. Natureza e início ficam travados. Tudo numa transação. Spec e tasks em `.specs/features/editar-fixos/` |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -50,12 +51,14 @@ concordância: a primeira contra o total que o painel exibe, a segunda contra o 
 leitura da lista, mas a confirmação em lote que a outra modela não tem tela — e fabricar um chamador
 para ela seria a encenação que esta fatia recusou três vezes.
 
-## Fatia seguinte: editar qualquer item lançado
+## Fatia seguinte: editar avulso, entrada avulsa e compra parcelada
 
-Pedido do dono em 2026-10-24. Editar o que já foi lançado — avulso, parcelado, gasto fixo e entrada
-—, **incluindo trocar a categoria**. Absorve o item 3 da fatia abaixo (editar e excluir compra com
-escopo). Ganha peso com a importação: as entradas chegam sem categoria, porque a planilha não tem
-essa coluna, e um erro pontual depois de importar passa a ter conserto sem recomeçar.
+Pedido do dono em 2026-10-24: editar o que já foi lançado, **incluindo trocar a categoria**. O gasto
+fixo e a entrada fixa saíram primeiro, na fatia `editar-fixos`. Falta o resto: avulso, entrada
+avulsa e compra parcelada. Absorve o item 3 da fatia abaixo (editar e excluir compra com escopo).
+Ganha peso com a importação: as entradas chegam sem categoria, porque a planilha não tem essa
+coluna, e um erro pontual depois de importar passa a ter conserto sem recomeçar. A análise desses
+tipos está em rascunho em `.specs/features/editar-lancamentos/context.md`.
 
 ## Fatia 1: orçamento e cartões
 

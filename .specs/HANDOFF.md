@@ -1,9 +1,18 @@
 # myBilling — contexto para continuar
 
 > Documento de retomada. Cole ou aponte este arquivo ao iniciar uma nova sessão.
-> Última atualização: 2026-10-26, branch `main`.
+> Última atualização: 2026-10-28, branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`.
 
 > [!IMPORTANT]
+> **A edição de gasto fixo e entrada fixa está implementada no branch `feat/editar-fixos`**, à
+> espera do Verifier. Ela **só entra no `main` depois das três importações em produção**, por
+> decisão do dono: editar um fixo importado entre uma aba e a seguinte faria a importação seguinte
+> criar outro. Spec, tasks e traceability em `.specs/features/editar-fixos/`.
+>
+> **O deploy automático da Vercel pode não estar disparando nos pushes.** O app da Vercel no GitHub
+> tem um pedido de permissão pendente, e o dono está resolvendo. Depois de um push, confira na
+> Vercel se o deploy saiu antes de testar em produção.
+>
 > **A importação da planilha está pronta e verificada** (Verifier PASS em 2026-10-26). O próximo
 > passo é do dono: testar em localhost com as três abas reais pelo roteiro `docs/importacao.md`, e
 > só então importar em produção. A fatia seguinte é editar qualquer item lançado, incluindo trocar
@@ -121,6 +130,10 @@ virou especificação executável, com teste de concordância que confronta a fu
 .specs/features/home-do-ano/                     fatia integrada em paralelo por outra sessão
 .specs/features/importar-planilha/               spec (IMP-01..09) + 27 tasks e 12 correções da
                                                  verificação, todas concluídas, Verifier PASS
+.specs/features/editar-fixos/                    spec (EDF-01..06) + 10 tasks, todas concluídas,
+                                                 à espera do Verifier; só entra no main depois
+                                                 das três importações em produção
+.specs/features/editar-lancamentos/context.md    rascunho da edição de avulso e compra
 docs/importacao.md                               roteiro de uso da importação: baixar a aba,
                                                  testar em localhost, limpar e importar no Neon
 docs/qa.md                                       roteiro de QA em modo produção; estágio 1 executado
@@ -138,12 +151,14 @@ src/domain/importacao/                           leitura da aba, conferência, r
 src/components/importacao/                       o diálogo da importação e os três passos
 src/components/cadastro-de-meio-inline.tsx       o cadastro de meio, extraído do avulso para reuso
 src/infrastructure/db/sql/limpar-para-importar.sql  o script de limpeza para recomeçar a importação
-src/application/recorrencias/                    materializar · criar · registrar-versao · encerrar
+src/application/recorrencias/                    materializar · criar · registrar-versao · encerrar ·
+                                                 editar
 src/application/schemas/nome.ts                  normalização de nome compartilhada pelos cadastros
 src/components/cadastro-inline.tsx               o padrão "criar sem sair do formulário"
 src/components/botao-pago.tsx                    o selo de situação que é botão
 src/components/botao-excluir.tsx                 excluir em dois toques, sem modal
-src/components/dialogo-de-cadastro.tsx           o <dialog> nativo que abre o cadastro
+src/components/dialogo-de-cadastro.tsx           o <dialog> nativo que abre o cadastro, e o
+                                                 `Dialogo` sem botão, que a edição de fixo usa
 src/components/seletor-de-formulario.tsx         as abas Avulso ┊ Parcelado, montadas juntas
 src/domain/mes/bloco-do-lancamento.ts            a cascata: Fixos → Cartão → Gastos do Mês
 src/domain/mes/cancelamento-permitido.ts         só o avulso é cancelável
@@ -162,7 +177,8 @@ schema Zod que o formulário usou, e nada lança para o cliente — todo caminho
 `ResultadoAction`, e falha não prevista vira `ERRO_INESPERADO` com identificador de
 correlação. Stack trace não chega ao navegador.
 
-`pnpm verify` sai 0: **1.139 testes unitários, 285 de integração** e **59 e2e** — 1.483 provas.
+`pnpm verify` sai 0 na worktree da edição de fixo: **1.243 testes unitários, 307 de integração**,
+e `pnpm test:e2e` passa **62 e2e**.
 Os e2e que mais importam provam as re-digitações que a planilha impunha: cadastrar
 1.000,00 em 3x em `2026-03` e achar as parcelas em abril e maio sem ação nenhuma; cadastrar um
 gasto fixo uma vez e vê-lo em três meses; e agora o avulso no cartão caindo no bloco da fatura em
@@ -206,6 +222,10 @@ precisa ser escopada ao formulário, ou casa dois nós.
 - Lista com **pílula de categoria** em todo bloco; a coluna "Parcela" existe **só** no bloco de
   compra parcelada, onde carrega informação. Fora dele ela era coluna permanentemente vazia,
   empurrando descrição e valor para pontas opostas da tela
+- **Editar um fixo**, pelo "Editar" de cada cartão de "Todo mês" (branch `feat/editar-fixos`). Abre
+  o formulário do cadastro num diálogo só, da lista inteira: a lista é ordenada pela descrição, e um
+  `<dialog>` modal movido no DOM perde o modo modal. Natureza e início travados; "Vale a partir de"
+  só aparece quando o valor deixa de ser o vigente no mês exibido
 - **Gastos fixos e receita recorrente**, na área "Todo mês". Cadastrar uma vez e aparecer em todo mês;
   reajustar a partir de um mês **sem reescrever o passado** (versionamento por vigência); confirmar o
   valor real quando a conta chega, com a previsão ainda visível ao lado; encerrar preservando o que
