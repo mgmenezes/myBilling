@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { descreverMeio, formatarBRL, formatarData } from "./formatar";
+import { parseBRL } from "@/domain";
+import { descreverMeio, formatarBRL, formatarData, formatarValorParaCampo } from "./formatar";
 
 describe("descreverMeio (IMP-04, AC 9)", () => {
   it("cartão diz os dois dias do ciclo", () => {
@@ -35,6 +36,27 @@ describe("formatarBRL", () => {
 
   it("formata valor negativo preservando o sinal", () => {
     expect(formatarBRL(-123456)).toBe("-R$ 1.234,56");
+  });
+});
+
+/*
+ * O campo do valor na edição de um fixo vem preenchido por esta função e é lido
+ * de volta por `parseBRL`. Se as duas discordassem, salvar sem mexer no valor
+ * registraria uma vigência nova (EDF-01 AC 3, EDF-03 AC 3).
+ */
+describe("formatarValorParaCampo", () => {
+  it("formata 123456 centavos como 1.234,56, sem o símbolo da moeda", () => {
+    expect(formatarValorParaCampo(123456)).toBe("1.234,56");
+  });
+
+  it("formata 5 centavos como 0,05", () => {
+    expect(formatarValorParaCampo(5)).toBe("0,05");
+  });
+
+  it("devolve um texto que parseBRL lê como o mesmo número de centavos", () => {
+    for (const centavos of [1, 5, 99, 100, 18000, 123456, 9999999]) {
+      expect(parseBRL(formatarValorParaCampo(centavos))).toEqual({ ok: true, value: centavos });
+    }
   });
 });
 

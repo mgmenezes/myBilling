@@ -5,15 +5,22 @@ import { useRouter } from "next/navigation";
 import { useId, useState, useTransition } from "react";
 import type { criarCategoria as criarCategoriaAction } from "@/app/actions/categorias";
 import type { criarMeioDePagamento as criarMeioAction } from "@/app/actions/meios-de-pagamento";
-import type { criarRecorrencia as criarRecorrenciaAction } from "@/app/actions/recorrencias";
+import type {
+  criarRecorrencia as criarRecorrenciaAction,
+  editarRecorrencia as editarRecorrenciaAction,
+} from "@/app/actions/recorrencias";
 import { entradaCategoriaSchema, MAX_NOME_CATEGORIA } from "@/application/schemas/categoria.schema";
 import {
   entradaMeioPagamentoSchema,
   MAX_NOME_MEIO,
   TIPOS_DE_MEIO,
 } from "@/application/schemas/meio-pagamento.schema";
-import { entradaRecorrenciaSchema } from "@/application/schemas/recorrencia.schema";
+import {
+  entradaEdicaoRecorrenciaSchema,
+  entradaRecorrenciaSchema,
+} from "@/application/schemas/recorrencia.schema";
 import { parseBRL } from "@/domain";
+import { formatarCompetencia, formatarValorParaCampo } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
 
 /**
@@ -27,6 +34,11 @@ import { CadastroInline } from "./cadastro-inline";
  *
  * O mês de fim é opcional e quase sempre vazio: água e luz não acabam. Ele
  * existe para o caso que acaba, como um consórcio.
+ *
+ * **Editar é este mesmo formulário, aberto com o que está gravado** (EDF-01).
+ * Os campos, as validações e os textos são os do cadastro; mudam o botão, os
+ * dois campos travados e o "Vale a partir de", que só aparece quando o valor
+ * deixa de ser o vigente no mês exibido (EDF-03 AC 1).
  */
 
 interface Opcao {
@@ -43,6 +55,38 @@ interface OpcaoDeMeio extends Opcao {
   readonly geraFatura: boolean;
 }
 
+/**
+ * O fixo gravado, como a edição precisa dele. `valorCentavos` é o vigente no
+ * mês exibido, calculado pela página com `valorNoMesExibido`, a mesma função
+ * com que o caso de uso decide se o valor mudou. Se o campo mostrasse outro
+ * número, salvar sem mexer registraria uma vigência (EDF-03 AC 3).
+ */
+export interface FixoEmEdicao {
+  readonly recorrenciaId: string;
+  readonly descricao: string;
+  readonly natureza: "DESPESA" | "RECEITA" | "INVESTIMENTO";
+  readonly valorCentavos: number | null;
+  readonly diaVencimento: number;
+  readonly competenciaInicio: string;
+  readonly competenciaFim: string | null;
+  readonly meioPagamentoId: string;
+  readonly categoriaId: string | null;
+  readonly usuarioId: string;
+}
+
+/** Cadastrar ou editar: cada modo traz a sua action, e nunca as duas. */
+type Modo =
+  | { readonly criar: typeof criarRecorrenciaAction; readonly edicao?: undefined }
+  | {
+      readonly edicao: {
+        readonly fixo: FixoEmEdicao;
+        readonly editar: typeof editarRecorrenciaAction;
+      };
+      readonly criar?: undefined;
+    };
+
+const TRAVADO = "Para mudar, encerre este e cadastre de novo.";
+
 const ROTULO = "text-[14px] font-medium text-ink";
 const CAMPO =
   "w-full rounded-md border border-line bg-surface px-4 py-2.5 text-[15px] text-ink " +
@@ -55,24 +99,28 @@ export function FormRecorrencia({
   meios,
   categorias,
   usuarios,
-  criar,
   criarCategoria,
   criarMeioDePagamento,
+  ...modo
 }: {
+  /** O mês exibido: início sugerido no cadastro, mês do valor na edição. */
   readonly competencia: string;
   readonly meios: ReadonlyArray<OpcaoDeMeio>;
   readonly categorias: ReadonlyArray<Opcao>;
   readonly usuarios: ReadonlyArray<Opcao>;
-  readonly criar: typeof criarRecorrenciaAction;
   readonly criarCategoria: typeof criarCategoriaAction;
   readonly criarMeioDePagamento: typeof criarMeioAction;
-}) {
+} & Modo) {
   const id = useId();
   const router = useRouter();
   const [pendente, iniciar] = useTransition();
+  const fixo = modo.edicao?.fixo;
+  const editando = fixo !== undefined;
 
-  const [descricao, setDescricao] = useState("");
-  const [natureza, setNatureza] = useState<"DESPESA" | "RECEITA">("DESPESA");
+  const [descricao, setDescricao] = useState(fixo?.descricao ?? "");
+  const [naturezaEscolhida, setNatureza] = useState<"DESPESA" | "RECEITA">("DESPESA");
+  /* Na edição a natureza é a gravada e não muda (EDF-05 AC 1). */
+  const natureza = fixo?.natureza ?? naturezaEscolhida;
   const ehReceita = natureza === "RECEITA";
 
   /*
@@ -96,13 +144,31 @@ export function FormRecorrencia({
         meio: "Meio de pagamento",
         ajudaDoMeio: "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram.",
       };
-  const [valor, setValor] = useState("");
-  const [diaVencimento, setDiaVencimento] = useState("10");
-  const [inicio, setInicio] = useState(competencia);
-  const [fim, setFim] = useState("");
-  const [categoriaId, setCategoriaId] = useState("");
-  const [usuarioId, setUsuarioId] = useState(usuarios[0]?.id ?? "");
-  const [meioPagamentoId, setMeioPagamentoId] = useState(meios[0]?.id ?? "");
+  const [valor, setValor] = useState(
+    fixo === undefined || fixo.valorCentavos === null
+      ? ""
+      : formatarValorParaCampo(fixo.valorCentavos),
+  );
+  const [diaVencimento, setDiaVencimento] = useState(
+    fixo === undefined ? "10" : String(fixo.diaVencimento),
+  );
+  const [inicio, setInicio] = useState(fixo?.competenciaInicio ?? competencia);
+  const [fim, setFim] = useState(fixo?.competenciaFim ?? "");
+  const [categoriaId, setCategoriaId] = useState(fixo?.categoriaId ?? "");
+  const [usuarioId, setUsuarioId] = useState(fixo?.usuarioId ?? usuarios[0]?.id ?? "");
+  const [meioPagamentoId, setMeioPagamentoId] = useState(
+    fixo?.meioPagamentoId ?? meios[0]?.id ?? "",
+  );
+  const [vigenteDesde, setVigenteDesde] = useState(competencia);
+
+  /*
+   * O valor mudou quando o campo deixa de valer o vigente no mês exibido. A
+   * comparação é em centavos, e não em texto: "1234,56" é o mesmo valor que
+   * "1.234,56" e não abre vigência nova (EDF-03 AC 1 e 3).
+   */
+  const valorDigitado = parseBRL(valor);
+  const valorMudou =
+    fixo !== undefined && !(valorDigitado.ok && valorDigitado.value === fixo.valorCentavos);
 
   /* As listas crescem localmente quando um cadastro nasce aqui dentro, para o
      item novo já vir selecionado sem esperar o round-trip. */
@@ -177,45 +243,90 @@ export function FormRecorrencia({
     };
   }
 
+  /** Valida no navegador com o schema do servidor; `false` se algum campo reprovou. */
+  function aprovado(validado: {
+    success: boolean;
+    error?: { issues: ReadonlyArray<{ path: PropertyKey[]; message: string }> };
+  }): boolean {
+    if (validado.success) {
+      setCampos({});
+      return true;
+    }
+    const novos: Record<string, string> = {};
+    for (const issue of validado.error?.issues ?? []) {
+      novos[issue.path.join(".")] ??= issue.message;
+    }
+    setCampos(novos);
+    return false;
+  }
+
+  function mostrarRecusa(erro: {
+    readonly mensagem: string;
+    readonly campos?: Record<string, string>;
+  }): void {
+    setCampos(erro.campos ?? {});
+    if (erro.campos === undefined) {
+      setErroGeral(erro.mensagem);
+    }
+  }
+
   function enviar(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setErroGeral("");
     setConfirmacao("");
 
     const centavos = parseBRL(valor);
-    const payload = {
+    const comuns = {
       descricao,
-      natureza,
       // Texto que não é valor em reais entra como zero: o schema o rejeita com
       // a mesma mensagem de "valor não positivo", em vez de um NaN que viraria
       // erro de tipo em vez de erro de campo.
       valorCentavos: centavos.ok ? centavos.value : 0,
       diaVencimento: Number.parseInt(diaVencimento, 10),
-      competenciaInicio: inicio,
       competenciaFim: fim === "" ? null : fim,
       categoriaId: categoriaId === "" ? null : categoriaId,
       usuarioId,
       meioPagamentoId,
     };
 
-    const validado = entradaRecorrenciaSchema.safeParse(payload);
-    if (!validado.success) {
-      const novos: Record<string, string> = {};
-      for (const issue of validado.error.issues) {
-        novos[issue.path.join(".")] ??= issue.message;
+    if (modo.edicao !== undefined) {
+      const { fixo: gravado, editar } = modo.edicao;
+      /* Natureza e início ficam fora: o schema da edição os recusa (EDF-05 AC 2).
+         `vigenteDesde` vai sempre e só conta quando o valor muda. */
+      const payload = {
+        recorrenciaId: gravado.recorrenciaId,
+        ...comuns,
+        vigenteDesde,
+        competenciaExibida: competencia,
+      };
+      if (!aprovado(entradaEdicaoRecorrenciaSchema.safeParse(payload))) {
+        return;
       }
-      setCampos(novos);
+      iniciar(async () => {
+        const resposta = await editar(payload);
+        if (!resposta.ok) {
+          mostrarRecusa(resposta.erro);
+          return;
+        }
+        /* Os campos ficam como estão: agora são o que está gravado. */
+        setConfirmacao(
+          resposta.data.mudou ? "Alterações salvas." : "Nada mudou: já estava tudo assim.",
+        );
+        router.refresh();
+      });
       return;
     }
-    setCampos({});
+
+    const criar = modo.criar;
+    const payload = { ...comuns, natureza: naturezaEscolhida, competenciaInicio: inicio };
+    if (!aprovado(entradaRecorrenciaSchema.safeParse(payload))) {
+      return;
+    }
 
     iniciar(async () => {
       const resposta = await criar(payload);
       if (!resposta.ok) {
-        setCampos(resposta.erro.campos ?? {});
-        if (resposta.erro.campos === undefined) {
-          setErroGeral(resposta.erro.mensagem);
-        }
+        mostrarRecusa(resposta.erro);
         return;
       }
       setConfirmacao(`${resposta.data.descricao} passa a aparecer em todo mês.`);
@@ -230,6 +341,9 @@ export function FormRecorrencia({
   const erroValor = erroDe("valorCentavos");
   const erroDia = erroDe("diaVencimento");
   const erroFim = erroDe("competenciaFim");
+  const erroVigencia = erroDe("vigenteDesde");
+  const erroMeio = erroDe("meioPagamentoId");
+  const erroCategoria = erroDe("categoriaId");
 
   return (
     <form
@@ -256,7 +370,10 @@ export function FormRecorrencia({
         {erroDescricao.no}
       </div>
 
-      <fieldset className="flex flex-col gap-1">
+      <fieldset
+        className="flex flex-col gap-1"
+        aria-describedby={editando ? `${id}-natureza-travada` : undefined}
+      >
         <legend className={ROTULO}>O que é</legend>
         <div className="mt-1 flex flex-wrap gap-4">
           {(
@@ -270,12 +387,18 @@ export function FormRecorrencia({
                 type="radio"
                 name={`${id}-natureza`}
                 checked={natureza === valorOpcao}
+                disabled={editando}
                 onChange={() => trocarNatureza(valorOpcao)}
               />
               {rotulo}
             </label>
           ))}
         </div>
+        {editando ? (
+          <p id={`${id}-natureza-travada`} className="text-[13px] text-ink-muted">
+            {TRAVADO}
+          </p>
+        ) : null}
       </fieldset>
 
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -313,6 +436,27 @@ export function FormRecorrencia({
         </div>
       </div>
 
+      {valorMudou ? (
+        <div className="flex w-full flex-col gap-1 sm:w-1/2 sm:pr-2">
+          <label className={ROTULO} htmlFor={`${id}-vigencia`}>
+            Vale a partir de
+          </label>
+          <input
+            id={`${id}-vigencia`}
+            className={`${CAMPO} tabular`}
+            type="month"
+            value={vigenteDesde}
+            onChange={(e) => setVigenteDesde(e.target.value)}
+            {...erroVigencia.props}
+          />
+          <p className="text-[13px] text-ink-muted">
+            Vem preenchido com {formatarCompetencia(competencia)}, o mês que você está vendo. Os
+            meses anteriores continuam com o valor que tinham.
+          </p>
+          {erroVigencia.no}
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO} htmlFor={`${id}-inicio`}>
@@ -323,8 +467,15 @@ export function FormRecorrencia({
             className={`${CAMPO} tabular`}
             type="month"
             value={inicio}
+            disabled={editando}
+            aria-describedby={editando ? `${id}-inicio-travado` : undefined}
             onChange={(e) => setInicio(e.target.value)}
           />
+          {editando ? (
+            <p id={`${id}-inicio-travado`} className="text-[13px] text-ink-muted">
+              {TRAVADO}
+            </p>
+          ) : null}
         </div>
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO} htmlFor={`${id}-fim`}>
@@ -442,6 +593,7 @@ export function FormRecorrencia({
             className={CAMPO}
             value={meioPagamentoId}
             onChange={(e) => setMeioPagamentoId(e.target.value)}
+            {...erroMeio.props}
           >
             {meiosDisponiveis.map((meio) => (
               <option key={meio.id} value={meio.id}>
@@ -449,6 +601,7 @@ export function FormRecorrencia({
               </option>
             ))}
           </select>
+          {erroMeio.no}
         </CadastroInline>
 
         <CadastroInline
@@ -496,6 +649,7 @@ export function FormRecorrencia({
             className={CAMPO}
             value={categoriaId}
             onChange={(e) => setCategoriaId(e.target.value)}
+            {...erroCategoria.props}
           >
             <option value="">Sem categoria</option>
             {listaCategorias.map((categoria) => (
@@ -504,6 +658,7 @@ export function FormRecorrencia({
               </option>
             ))}
           </select>
+          {erroCategoria.no}
         </CadastroInline>
       </div>
 
@@ -548,7 +703,7 @@ export function FormRecorrencia({
         aria-busy={pendente}
         className="inline-flex min-h-14 items-center justify-center rounded-pill bg-primary px-8 text-[16px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97] disabled:pointer-events-none disabled:bg-primary-inativo"
       >
-        {pendente ? "Gravando…" : palavras.botao}
+        {pendente ? "Gravando…" : editando ? "Salvar alterações" : palavras.botao}
       </button>
     </form>
   );

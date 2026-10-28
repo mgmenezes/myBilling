@@ -34,6 +34,20 @@ export function formatarBRL(centavos: Cents | number): string {
   return espacoNormal(MOEDA.format(centavos / 100));
 }
 
+const NUMERO_DE_CAMPO = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/**
+ * `123456` → `'1.234,56'`: o valor como a pessoa o digitaria, sem `R$`, para
+ * preencher um campo que `parseBRL` vai ler de volta. É o que o formulário de
+ * edição de um fixo mostra no campo do valor.
+ */
+export function formatarValorParaCampo(centavos: Cents | number): string {
+  return NUMERO_DE_CAMPO.format(centavos / 100);
+}
+
 /** `'2026-03-05'` ou `'2026-03-05T12:00:00Z'` → `'05/03/2026'`. */
 export function formatarData(iso: string): string {
   return DATA.format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));

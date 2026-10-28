@@ -306,11 +306,16 @@ T9 -> T10
 **Reuses**: o próprio formulário; `CadastroInline`
 **Requirement**: EDF-01, EDF-03, EDF-05
 **Done when**:
-- [ ] Em edição, os nove campos vêm preenchidos; o botão diz "Salvar alterações" (EDF-01 AC 3, 4)
-- [ ] "O que é" e "Começa em" desabilitados, com "Para mudar, encerre este e cadastre de novo" (EDF-05 AC 1)
-- [ ] "Vale a partir de" aparece só quando o valor difere do vigente, preenchido com o mês exibido (EDF-03 AC 1)
-- [ ] Entrada usa o vocabulário de receita (EDF-01 AC 5)
-- [ ] Os testes existentes de `form-recorrencia.test.tsx` passam sem alteração
+- [x] Em edição, os nove campos vêm preenchidos; o botão diz "Salvar alterações" (EDF-01 AC 3, 4)
+- [x] "O que é" e "Começa em" desabilitados, com "Para mudar, encerre este e cadastre de novo" (EDF-05 AC 1)
+- [x] "Vale a partir de" aparece só quando o valor difere do vigente, preenchido com o mês exibido (EDF-03 AC 1)
+- [x] Entrada usa o vocabulário de receita (EDF-01 AC 5)
+- [x] Os testes existentes de `form-recorrencia.test.tsx` passam sem alteração
+
+Acréscimo (T7): `formatarValorParaCampo` em `src/lib/formatar.ts`, a fronteira única de centavos para
+texto (AD-001), preenche o campo do valor num formato que `parseBRL` lê de volta. O formulário passa a
+mostrar no próprio campo as recusas endereçadas ao meio, à categoria e ao "Vale a partir de", que
+antes não tinham onde aparecer.
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(recorrencias): abrir o formulário de fixo em modo de edição`
