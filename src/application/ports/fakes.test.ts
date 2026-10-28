@@ -7,7 +7,7 @@ import {
   gerarParcelas,
   type PlanoParcelamento,
 } from "@/domain";
-import { criarFakes, ViolacaoDeUnicidade } from "./fakes";
+import { criarFakes, FakeTransacao, ViolacaoDeUnicidade } from "./fakes";
 import type { DadosCompra, EntradaSalvarCompra } from "./repositories";
 
 /**
@@ -414,5 +414,24 @@ describe("fronteira dos fakes (DADO-01)", () => {
     const imports = [...fonte.matchAll(/from\s+"([^"]+)"/g)].map((m) => m[1]);
 
     expect(imports).toEqual(["@/domain", "./repositories"]);
+  });
+});
+
+describe("FakeTransacao (EDF-06)", () => {
+  it("executar roda a operação sobre os repositórios do mesmo estado e devolve o resultado", async () => {
+    const fakes = criarFakes();
+    const transacao = new FakeTransacao(fakes);
+
+    const devolvido = await transacao.executar(async (repos) => {
+      expect(repos.compras).toBe(fakes.compras);
+      expect(repos.movimentos).toBe(fakes.movimentos);
+      expect(repos.recorrencias).toBe(fakes.recorrencias);
+      expect(repos.cadastros).toBe(fakes.cadastros);
+      await repos.compras.salvarComParcelas(entrada("chave-1"));
+      return "feito";
+    });
+
+    expect(devolvido).toBe("feito");
+    expect(fakes.estado.compras.size).toBe(1);
   });
 });

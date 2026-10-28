@@ -33,6 +33,8 @@ import {
   type RecorrenciaComVersoes,
   type RecorrenciaRepository,
   type RepositoriosDaImportacao,
+  type RepositoriosTransacionais,
+  type Transacao,
   type TransacaoDaImportacao,
   type Usuario,
   ViolacaoDeConservacao,
@@ -514,6 +516,18 @@ export class FakeTransacaoDaImportacao implements TransacaoDaImportacao {
   constructor(private readonly repos: RepositoriosDaImportacao) {}
 
   executar<T>(operacao: (repos: RepositoriosDaImportacao) => Promise<T>): Promise<T> {
+    return operacao(this.repos);
+  }
+}
+
+/**
+ * A transação genérica sobre os fakes, também **sem rollback**, pela mesma
+ * razão da importação: desfazer é prova de integração, em `transacao.integration.test.ts`.
+ */
+export class FakeTransacao implements Transacao {
+  constructor(private readonly repos: RepositoriosTransacionais) {}
+
+  executar<T>(operacao: (repos: RepositoriosTransacionais) => Promise<T>): Promise<T> {
     return operacao(this.repos);
   }
 }

@@ -369,12 +369,25 @@ export interface ImportacaoRepository {
   registrar(importacao: ImportacaoRegistrada, decisoes: DecisoesDaImportacao): Promise<void>;
 }
 
-/** Os repositórios que uma importação usa, todos sobre a mesma transação. */
-export interface RepositoriosDaImportacao {
+/** Os repositórios de uma transação, todos sobre o mesmo `tx`. */
+export interface RepositoriosTransacionais {
   readonly compras: CompraRepository;
   readonly movimentos: MovimentoRepository;
   readonly recorrencias: RecorrenciaRepository;
   readonly cadastros: CadastroRepository;
+}
+
+/**
+ * Executa a operação com repositórios de uma transação só (EDF-06 AC 1 e 2): ou
+ * tudo o que ela grava fica, ou nada fica. Qualquer exceção dentro de `operacao`
+ * desfaz todas as escritas e é relançada.
+ */
+export interface Transacao {
+  executar<T>(operacao: (repos: RepositoriosTransacionais) => Promise<T>): Promise<T>;
+}
+
+/** Os repositórios que uma importação usa, todos sobre a mesma transação. */
+export interface RepositoriosDaImportacao extends RepositoriosTransacionais {
   readonly importacoes: ImportacaoRepository;
 }
 

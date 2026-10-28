@@ -230,7 +230,7 @@ estava.
 | EDF-03 | P1: Mudar o valor a partir de um mês | Execute | Implementing: vigência no plano, ACs 2 e 3, e recusa da vigência antes do início, AC 5 (T1) |
 | EDF-04 | P1: Encerrar e reabrir pelo "Termina em" | Execute | Implementing: as seis linhas do fim no plano, ACs 1 a 3, e recusa do fim antes do início, AC 4 (T1); reabrir e estender o fim no banco e nos fakes, ACs 2 e 3 (T2) |
 | EDF-05 | P1: Natureza e início travados | Tasks | In Tasks |
-| EDF-06 | P1: Gravar tudo ou nada | Tasks | In Tasks |
+| EDF-06 | P1: Gravar tudo ou nada | Execute | Implementing: transação genérica com os quatro repositórios sobre o mesmo `tx`, rollback de todos numa exceção, ACs 1 e 2, e a da importação composta sobre ela (T3) |
 
 **ID format:** `EDF-NN`
 

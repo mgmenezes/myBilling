@@ -241,8 +241,8 @@ T9 -> T10
 **Reuses**: o `Executor` e os repositórios sobre `tx`
 **Requirement**: EDF-06
 **Done when**:
-- [ ] Exceção dentro de `executar` desfaz escritas de todos os repositórios recebidos (EDF-06 AC 2)
-- [ ] Todos os testes da importação passam sem alteração (refatoração pura do lado dela)
+- [x] Exceção dentro de `executar` desfaz escritas de todos os repositórios recebidos (EDF-06 AC 2)
+- [x] Todos os testes da importação passam sem alteração (refatoração pura do lado dela)
 **Tests**: integration
 **Gate**: full
 **Commit**: `refactor(db): extrair a transação genérica da transação da importação`
