@@ -47,6 +47,33 @@ function montar(
   return { criar, aoCriado };
 }
 
+describe("CadastroDeMeioInline — só os tipos permitidos (IMP-04, AC 10)", () => {
+  it("com tiposPermitidos, o seletor de tipo oferece só eles e começa no primeiro", async () => {
+    render(
+      <CadastroDeMeioInline
+        rotulo="Cai em"
+        idDoControle="controle-conta"
+        tiposPermitidos={["CONTA_CORRENTE", "ROTULO"]}
+        criarMeioDePagamento={criarMeioOk()}
+        aoCriado={vi.fn()}
+      >
+        <select id="controle-conta">
+          <option value="">Escolha</option>
+        </select>
+      </CadastroDeMeioInline>,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "+ novo" }));
+    const tipo = screen.getByLabelText("Tipo") as HTMLSelectElement;
+
+    expect(Array.from(tipo.options).map((opcao) => opcao.textContent)).toEqual([
+      "Conta corrente",
+      "Rótulo",
+    ]);
+    expect(tipo.value).toBe("CONTA_CORRENTE");
+  });
+});
+
 describe("CadastroDeMeioInline — o que o meio criado é (IMP-04, AC 9)", () => {
   it("aoCriado recebe também a descrição do meio, com os dias do cartão", async () => {
     const { aoCriado } = montar(criarMeioOk(), "Cartão Azul");

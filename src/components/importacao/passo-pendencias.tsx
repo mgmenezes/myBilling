@@ -3,7 +3,7 @@
 import { useId, useState } from "react";
 import type { criarMeioDePagamento as criarMeioAction } from "@/app/actions/meios-de-pagamento";
 import type { ClasseEntrada, Pendencias } from "@/domain";
-import { CadastroDeMeioInline } from "../cadastro-de-meio-inline";
+import { CadastroDeMeioInline, type TipoDeMeio } from "../cadastro-de-meio-inline";
 import type { OpcaoDeMeio } from "../form-lancamento-avulso";
 
 /**
@@ -17,6 +17,11 @@ import type { OpcaoDeMeio } from "../form-lancamento-avulso";
  *
  * O que sai daqui são registros simples, pelas chaves normalizadas que vieram
  * nas pendências, porque é o que a prévia e a gravação recebem.
+ *
+ * A conta das entradas se cadastra nas próprias Entradas, em "+ nova conta".
+ * O "+ cadastrar" de um Tipo liga o meio criado àquele Tipo, e era por ali que
+ * se acabava criando a conta de uma entrada, ligando-a sem querer a um Tipo
+ * de gasto (AC 10).
  */
 
 export interface DecisoesDoPasso {
@@ -42,6 +47,12 @@ const CONTROLE_CLASSE =
   "transition-colors duration-200 hover:border-line-strong";
 const BOTAO_PRIMARIO =
   "inline-flex min-h-11 w-fit items-center justify-center rounded-pill bg-primary px-6 text-[15px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97] disabled:pointer-events-none disabled:bg-primary-inativo";
+
+const BOTAO_SECUNDARIO =
+  "inline-flex min-h-11 shrink-0 items-center justify-center rounded-pill border border-line px-4 text-[14px] font-semibold text-ink transition-colors duration-200 hover:border-line-strong hover:bg-canvas disabled:pointer-events-none disabled:text-ink-muted";
+
+/* Receita só cai em meio sem fatura (AD-015). */
+const TIPOS_DE_CONTA: ReadonlyArray<TipoDeMeio> = ["CONTA_CORRENTE", "ROTULO"];
 
 const CLASSES: ReadonlyArray<readonly [ClasseEntrada, string]> = [
   ["FIXA", "Fixa, entra todo mês"],
@@ -70,6 +81,7 @@ export function PassoPendencias({
   const [listaMeios, setListaMeios] = useState<ReadonlyArray<OpcaoDeMeio>>(meios);
   const [meioPorTipo, setMeioPorTipo] = useState<Record<string, string>>({});
   const [porEntrada, setPorEntrada] = useState<Record<string, EscolhaDeEntrada>>({});
+  const [contaParaTodas, setContaParaTodas] = useState("");
 
   /* Receita só cai em meio sem fatura (AD-015). */
   const contas = listaMeios.filter((meio) => !meio.geraFatura);
@@ -91,6 +103,7 @@ export function PassoPendencias({
     .map(({ nome }) => nome);
   const completo = semMeio.length === 0 && semClasse.length === 0 && semConta.length === 0;
   const idDoAviso = `${id}-falta`;
+  const idParaTodas = `${id}-conta-todas`;
 
   function montarDecisoes(): DecisoesDoPasso {
     const decididosMeios: Record<string, string> = {};
@@ -119,6 +132,15 @@ export function PassoPendencias({
 
   function acrescentarMeio(meio: OpcaoDeMeio): void {
     setListaMeios((atual) => (atual.some(({ id }) => id === meio.id) ? atual : [...atual, meio]));
+  }
+
+  /* Sobrescreve a conta de todas e não toca na classe: aplicar e depois
+     ajustar uma ou outra é o caminho mais curto quando quase tudo cai no mesmo
+     lugar (AC 11). */
+  function aplicarATodas(): void {
+    for (const { chave } of pendencias.entradasSemClasse) {
+      escolherEntrada(chave, { contaId: contaParaTodas });
+    }
   }
 
   return (
@@ -177,8 +199,52 @@ export function PassoPendencias({
               Entradas
             </h3>
             <p className="text-[14px] text-ink-muted">
-              Diga se cada entrada se repete todo mês e em que conta o dinheiro cai.
+              Diga se cada entrada se repete todo mês e em que conta o dinheiro cai. Uma conta
+              criada aqui não muda a ligação de nenhum Tipo.
             </p>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <CadastroDeMeioInline
+              rotulo="Conta para todas as entradas"
+              idDoControle={idParaTodas}
+              rotuloDoAtalho="+ nova conta"
+              tiposPermitidos={TIPOS_DE_CONTA}
+              criarMeioDePagamento={criarMeioDePagamento}
+              aoCriado={(criado, detalhe) => {
+                acrescentarMeio({ ...criado, detalhe });
+                setContaParaTodas(criado.id);
+              }}
+            >
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <select
+                  id={idParaTodas}
+                  className={CONTROLE_CLASSE}
+                  value={contaParaTodas}
+                  onChange={(evento) => setContaParaTodas(evento.target.value)}
+                >
+                  <option value="">Escolha a conta</option>
+                  {contas.map((meio) => (
+                    <option key={meio.id} value={meio.id}>
+                      {rotuloDoMeio(meio)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  disabled={contaParaTodas === ""}
+                  onClick={aplicarATodas}
+                  className={BOTAO_SECUNDARIO}
+                >
+                  Aplicar a todas
+                </button>
+              </div>
+            </CadastroDeMeioInline>
+            {contas.length === 0 ? (
+              <p className="text-[14px] text-ink-muted">
+                Nenhuma conta cadastrada ainda. Crie uma em “+ nova conta”.
+              </p>
+            ) : null}
           </div>
 
           {pendencias.entradasSemClasse.map((item, indice) => {

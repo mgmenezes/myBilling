@@ -42,6 +42,8 @@ export interface CadastroDeMeioInlineProps {
   readonly rotuloDoAtalho?: string;
   /** Substitui o texto de apoio, que por padrão depende do tipo escolhido. */
   readonly ajuda?: string;
+  /** Os tipos que o seletor oferece, todos quando não informado. Abre no primeiro. */
+  readonly tiposPermitidos?: ReadonlyArray<TipoDeMeio>;
   readonly criarMeioDePagamento: typeof criarMeioAction;
   /** `detalhe` é o `descreverMeio` do que foi cadastrado. */
   readonly aoCriado: (criado: MeioPagamentoGravado, detalhe: string) => void;
@@ -49,7 +51,9 @@ export interface CadastroDeMeioInlineProps {
   readonly children: ReactNode;
 }
 
-type TipoDeMeio = (typeof TIPOS_DE_MEIO)[number]["valor"];
+export type TipoDeMeio = (typeof TIPOS_DE_MEIO)[number]["valor"];
+
+const TODOS_OS_TIPOS = TIPOS_DE_MEIO.map((opcao) => opcao.valor);
 
 const ROTULO_CLASSE = "text-[14px] font-medium text-ink";
 const CONTROLE_CLASSE =
@@ -68,12 +72,15 @@ export function CadastroDeMeioInline({
   nomeInicial = "",
   rotuloDoAtalho = "+ novo",
   ajuda,
+  tiposPermitidos = TODOS_OS_TIPOS,
   criarMeioDePagamento,
   aoCriado,
   children,
 }: CadastroDeMeioInlineProps) {
+  const tipos = TIPOS_DE_MEIO.filter((opcao) => tiposPermitidos.includes(opcao.valor));
+  const tipoInicial = tipos[0]?.valor ?? "CARTAO_CREDITO";
   const [nomeMeio, setNomeMeio] = useState("");
-  const [tipoMeio, setTipoMeio] = useState<TipoDeMeio>("CARTAO_CREDITO");
+  const [tipoMeio, setTipoMeio] = useState<TipoDeMeio>(tipoInicial);
   const [diaFechamento, setDiaFechamento] = useState("");
   const [diaVencimento, setDiaVencimento] = useState("");
 
@@ -113,7 +120,7 @@ export function CadastroDeMeioInline({
       aoCriado={({ criado, detalhe }) => aoCriado(criado, detalhe)}
       aoLimpar={() => {
         setNomeMeio(nomeInicial);
-        setTipoMeio("CARTAO_CREDITO");
+        setTipoMeio(tipoInicial);
         setDiaFechamento("");
         setDiaVencimento("");
       }}
@@ -147,7 +154,7 @@ export function CadastroDeMeioInline({
               value={tipoMeio}
               onChange={(e) => setTipoMeio(e.target.value as TipoDeMeio)}
             >
-              {TIPOS_DE_MEIO.map((opcao) => (
+              {tipos.map((opcao) => (
                 <option key={opcao.valor} value={opcao.valor}>
                   {opcao.rotulo}
                 </option>

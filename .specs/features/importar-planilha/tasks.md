@@ -218,6 +218,7 @@ T22 -> F13
 
 ```
 F13 -> F14
+F14 -> F15
 ```
 
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
@@ -1012,6 +1013,27 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Gate**: quick + `pnpm typecheck` + `pnpm lint` + `pnpm exec playwright test e2e/importacao.spec.ts`
 **Commit**: `feat(importacao): dizer no passo 2 o que cada meio é`
 
+#### F15: Cadastrar a conta das entradas sem passar por um Tipo
+**What**: No passo 2, o único cadastro de meio era o "+ cadastrar" de cada Tipo, e ele liga o meio criado àquele Tipo. Para dar uma conta às entradas, o dono cadastrou a conta pelo Tipo de um gasto, e as linhas daquele Tipo foram para a conta nova. As Entradas ganham "+ nova conta", que não liga Tipo nenhum, e um "Aplicar a todas"; sem nenhuma conta, uma dica diz onde criar.
+**Where**: `src/components/cadastro-de-meio-inline.tsx` (`tiposPermitidos`), `src/components/importacao/passo-pendencias.tsx` (+ os testes e o `spec.md`)
+**Depends on**: F14
+**Reuses**: `CadastroDeMeioInline` (T20) e `escolherEntrada`
+**Requirement**: IMP-04
+**Interfaces**: `tiposPermitidos?: ReadonlyArray<TipoDeMeio>` em `CadastroDeMeioInline`
+**Tools**: nenhuma
+**Done when**:
+- [x] IMP-04 ACs 10 a 12 na spec
+- [x] Com `tiposPermitidos` de conta e rótulo, o seletor de tipo oferece só "Conta corrente" e "Rótulo", e abre em conta corrente
+- [x] "+ nova conta" fica nas Entradas e oferece só os dois tipos sem fatura
+- [x] A conta criada ali aparece nos três "Cai em" sem ser escolhida em nenhum, fica escolhida em "Conta para todas as entradas", e os três Tipos continuam sem meio
+- [x] "Aplicar a todas" fica desabilitado até haver conta escolhida; aplicado, põe a conta nas três entradas, inclusive no Reembolso que tinha outra, e mantém Fixa, nenhuma e Avulsa
+- [x] Depois de aplicar, trocar a conta de uma entrada vale, e é o que segue para `aoConcluir`
+- [x] Sem meio sem fatura, a dica aparece e some quando a conta é criada; com conta, não aparece
+- [x] Os testes novos falharam no código anterior, menos o "com conta cadastrada, não há dica", que guarda contra a dica sempre visível
+**Tests**: componentes
+**Gate**: quick + `pnpm typecheck` + `pnpm lint` + `pnpm exec playwright test e2e/importacao.spec.ts`
+**Commit**: `feat(importacao): cadastrar a conta das entradas sem passar por um Tipo`
+
 ---
 
 ## Task Granularity Check
@@ -1035,6 +1057,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F12 | 1 caso de teste | ✅ |
 | F13 | 1 componente, o teste dele e 1 AC | ✅ |
 | F14 | 1 função de formatação, a prop que a leva, o componente que a mostra, a página e o e2e | ⚠️ coeso: o detalhe nasce na página e só vale se chega à opção |
+| F15 | 1 prop no cadastro inline e 1 componente, com os testes e 3 ACs | ⚠️ coeso: a prop existe para o atalho das Entradas |
 
 ## Diagram-Definition Cross-Check
 
@@ -1081,6 +1104,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F12 | F9 | F9→F12 | ✅ |
 | F13 | T22 | T22→F13 | ✅ |
 | F14 | F13 | F13→F14 | ✅ |
+| F15 | F14 | F14→F15 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -1111,3 +1135,4 @@ e F7).
 | F12 | `src/domain/**` | unit | unit | ✅ |
 | F13 | `src/components/**` | componentes | componentes | ✅ |
 | F14 | `src/lib/**`, `src/components/**` e composição de página | unit, componentes e e2e | unit, componentes e e2e | ✅ |
+| F15 | `src/components/**` | componentes | componentes | ✅ |

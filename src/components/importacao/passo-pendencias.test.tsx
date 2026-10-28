@@ -7,7 +7,7 @@ import { PassoPendencias } from "./passo-pendencias";
 import { ID, previaDe } from "./previas-de-teste";
 
 /**
- * Testes derivados de IMP-04 (AC 1 a 3, 8 e 9) e do Done-when de T22, sobre
+ * Testes derivados de IMP-04 (AC 1 a 3 e 8 a 12) e do Done-when de T22, sobre
  * as pendências que a prévia de outubro traz antes do passo 2: três "Tipo" e
  * três entradas (fixture sintética, AD-009).
  */
@@ -36,6 +36,8 @@ const MEIOS_DESCRITOS = [
     detalhe: "cartão, fecha dia 10, vence dia 20",
   },
 ];
+
+const POUPANCA = "66666666-6666-4666-8666-666666666666";
 
 const PENDENCIAS_DE_OUTUBRO = previaDe("Outubro", { comDecisoes: false }).pendencias;
 
@@ -90,6 +92,13 @@ function opcoes(seletor: HTMLElement): Array<string | null> {
 function caiEm(nome: string): HTMLSelectElement {
   return within(entrada(nome)).getByLabelText("Cai em") as HTMLSelectElement;
 }
+
+function classeMarcada(nome: string): string | undefined {
+  return (within(entrada(nome)).getAllByRole("radio") as HTMLInputElement[]).find((r) => r.checked)
+    ?.value;
+}
+
+const PARA_TODAS = "Conta para todas as entradas";
 
 function continuar(): HTMLButtonElement {
   return screen.getByRole("button", { name: "Continuar" }) as HTMLButtonElement;
@@ -193,6 +202,122 @@ describe("PassoPendencias — o que cada meio é (IMP-04, AC 9)", () => {
       "Cartão Verde · cartão, fecha dia 10, vence dia 20",
     ]);
     expect(opcoes(caiEm("Salário A"))).toEqual(["Escolha a conta", "Conta Corrente · conta"]);
+  });
+});
+
+describe("PassoPendencias — uma conta nova sem passar por um Tipo (IMP-04, AC 10)", () => {
+  it('"+ nova conta" fica nas Entradas e só oferece tipos sem fatura', async () => {
+    montar();
+
+    await userEvent.click(screen.getByRole("button", { name: "+ nova conta" }));
+
+    expect(opcoes(screen.getByLabelText("Tipo"))).toEqual(["Conta corrente", "Rótulo"]);
+  });
+
+  it('a conta criada aparece em todo "Cai em", fica escolhida para todas, e nenhum Tipo muda', async () => {
+    const criar = criarMeioOk();
+    montar(criar);
+
+    await userEvent.click(screen.getByRole("button", { name: "+ nova conta" }));
+    await userEvent.type(screen.getByLabelText("Nome do novo meio de pagamento"), "Conta Nova");
+    await userEvent.click(screen.getByRole("button", { name: "Criar" }));
+
+    expect(criar).toHaveBeenCalledWith({ nome: "Conta Nova", tipo: "CONTA_CORRENTE" });
+    await screen.findAllByRole("option", { name: "Conta Nova · conta" });
+    for (const nome of ["Salário A", "Salário B", "Reembolso"]) {
+      expect(opcoes(caiEm(nome))).toEqual([
+        "Escolha a conta",
+        "Conta Corrente",
+        "Conta Nova · conta",
+      ]);
+      expect(caiEm(nome).value).toBe("");
+    }
+    expect((screen.getByLabelText(PARA_TODAS) as HTMLSelectElement).value).toBe(NOVO_MEIO);
+    for (const tipo of ["Débito (4 linhas)", "Cartão Roxo (8 linhas)", "Cartão Verde (1 linha)"]) {
+      expect((screen.getByLabelText(tipo) as HTMLSelectElement).value).toBe("");
+    }
+  });
+});
+
+describe("PassoPendencias — a mesma conta para todas as entradas (IMP-04, AC 11)", () => {
+  const DUAS_CONTAS = [...MEIOS, { id: POUPANCA, nome: "Conta Poupança", geraFatura: false }];
+
+  function aplicar(): HTMLButtonElement {
+    return screen.getByRole("button", { name: "Aplicar a todas" }) as HTMLButtonElement;
+  }
+
+  it('"Aplicar a todas" fica desabilitado até haver uma conta escolhida', async () => {
+    montar();
+    expect(aplicar().disabled).toBe(true);
+
+    await userEvent.selectOptions(screen.getByLabelText(PARA_TODAS), ID.conta);
+
+    expect(aplicar().disabled).toBe(false);
+  });
+
+  it("preenche o Cai em de todas, inclusive a que já tinha outra conta, e não mexe na classe", async () => {
+    montar(criarMeioOk(), DUAS_CONTAS);
+    await userEvent.click(within(entrada("Salário A")).getByRole("radio", { name: /^Fixa/ }));
+    await userEvent.click(within(entrada("Reembolso")).getByRole("radio", { name: /^Avulsa/ }));
+    await userEvent.selectOptions(caiEm("Reembolso"), POUPANCA);
+
+    await userEvent.selectOptions(screen.getByLabelText(PARA_TODAS), ID.conta);
+    await userEvent.click(aplicar());
+
+    expect(["Salário A", "Salário B", "Reembolso"].map((nome) => caiEm(nome).value)).toEqual([
+      ID.conta,
+      ID.conta,
+      ID.conta,
+    ]);
+    expect(["Salário A", "Salário B", "Reembolso"].map(classeMarcada)).toEqual([
+      "FIXA",
+      undefined,
+      "AVULSA",
+    ]);
+  });
+
+  it("depois de aplicar, cada entrada ainda escolhe a sua, e é o que segue para a gravação", async () => {
+    const aoConcluir = montar(criarMeioOk(), DUAS_CONTAS);
+    await decidirTudo();
+
+    await userEvent.selectOptions(screen.getByLabelText(PARA_TODAS), POUPANCA);
+    await userEvent.click(aplicar());
+    await userEvent.selectOptions(caiEm("Reembolso"), ID.conta);
+    await userEvent.click(continuar());
+
+    expect(aoConcluir.mock.calls[0]?.[0].entradas).toEqual({
+      "salário a": { classe: "FIXA", contaId: POUPANCA },
+      "salário b": { classe: "FIXA", contaId: POUPANCA },
+      reembolso: { classe: "AVULSA", contaId: ID.conta },
+    });
+  });
+});
+
+describe("PassoPendencias — nenhuma conta ainda (IMP-04, AC 12)", () => {
+  const SO_CARTOES = MEIOS.filter((meio) => meio.geraFatura);
+  const DICA = "Nenhuma conta cadastrada ainda. Crie uma em “+ nova conta”.";
+
+  it("sem meio sem fatura, diz onde criar a conta", () => {
+    montar(criarMeioOk(), SO_CARTOES);
+
+    expect(screen.getByText(DICA)).toBeDefined();
+  });
+
+  it("a dica some quando a conta é criada", async () => {
+    montar(criarMeioOk(), SO_CARTOES);
+
+    await userEvent.click(screen.getByRole("button", { name: "+ nova conta" }));
+    await userEvent.type(screen.getByLabelText("Nome do novo meio de pagamento"), "Conta Nova");
+    await userEvent.click(screen.getByRole("button", { name: "Criar" }));
+
+    await screen.findAllByRole("option", { name: "Conta Nova · conta" });
+    expect(screen.queryByText(DICA)).toBeNull();
+  });
+
+  it("com conta cadastrada, não há dica", () => {
+    montar();
+
+    expect(screen.queryByText(DICA)).toBeNull();
   });
 });
 
