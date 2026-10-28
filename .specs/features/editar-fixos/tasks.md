@@ -327,9 +327,14 @@ antes não tinham onde aparecer.
 **Reuses**: o padrão de `<dialog>` de `DialogoDeCadastro`
 **Requirement**: EDF-01, EDF-06
 **Done when**:
-- [ ] Cada cartão mostra "Editar" ao lado de "Mudar valor" e "Encerrar", inclusive o de um fixo encerrado (EDF-01 AC 1)
-- [ ] "Editar" abre o diálogo com o título certo para conta e para entrada (EDF-01 AC 2)
-- [ ] Salvar mostra a confirmação dentro do diálogo, sem fechá-lo (EDF-06 AC 6)
+- [x] Cada cartão mostra "Editar" ao lado de "Mudar valor" e "Encerrar", inclusive o de um fixo encerrado (EDF-01 AC 1)
+- [x] "Editar" abre o diálogo com o título certo para conta e para entrada (EDF-01 AC 2)
+- [x] Salvar mostra a confirmação dentro do diálogo, sem fechá-lo (EDF-06 AC 6)
+
+Acréscimo (T8): o diálogo é um só, da lista inteira, e não um por cartão. A lista é ordenada pela
+descrição: renomear move o `<li>` no DOM, e um `<dialog>` modal movido perde o modo modal e o
+backdrop. Para reaproveitar o elemento, `DialogoDeCadastro` passa a compor `Dialogo`, o `<dialog>` sem
+o botão que o abre. O formulário nasce a cada abertura, com o que está gravado (EDF-01 AC 3).
 **Tests**: componentes
 **Gate**: build
 **Commit**: `feat(recorrencias): editar cada fixo a partir de Todo mês`

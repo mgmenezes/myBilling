@@ -1,9 +1,17 @@
 "use client";
 
 import { WarningCircleIcon } from "@phosphor-icons/react";
-import { useId, useState, useTransition } from "react";
-import type { encerrarRecorrencia, registrarNovaVigencia } from "@/app/actions/recorrencias";
+import { useId, useRef, useState, useTransition } from "react";
+import type { criarCategoria } from "@/app/actions/categorias";
+import type { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
+import type {
+  editarRecorrencia,
+  encerrarRecorrencia,
+  registrarNovaVigencia,
+} from "@/app/actions/recorrencias";
 import { parseBRL } from "@/domain";
+import { Dialogo } from "./dialogo-de-cadastro";
+import { FormRecorrencia } from "./form-recorrencia";
 import { Chip } from "./ui";
 
 /**
@@ -17,6 +25,14 @@ import { Chip } from "./ui";
  *
  * O campo de competência vem pré-preenchido com o mês aberto, que é o palpite
  * certo quase sempre, e continua editável.
+ *
+ * **"Editar" abre o formulário do cadastro num diálogo só, da lista inteira**,
+ * e não num por cartão (EDF-01). A lista é ordenada pela descrição, e renomear
+ * um fixo pode mudar a posição do cartão depois de salvar: o React move o
+ * `<li>` no DOM, e um `<dialog>` modal tirado do lugar perde o modo modal e o
+ * backdrop. Fora da lista, o diálogo nunca se move. O formulário nasce a cada
+ * abertura, com o que está gravado (EDF-01 AC 3), e continua montado depois
+ * de salvar, com a confirmação (EDF-06 AC 6).
  */
 
 const ROTULO = "text-[14px] font-medium text-ink";
@@ -35,6 +51,28 @@ export interface ItemFixo {
   readonly inicio: string;
   readonly fim: string | null;
   readonly encerrada: boolean;
+  /* O que a edição preenche: os ids e meses gravados, não os nomes exibidos. */
+  readonly competenciaInicio: string;
+  readonly competenciaFim: string | null;
+  readonly meioPagamentoId: string;
+  readonly categoriaId: string | null;
+  readonly usuarioId: string;
+  /** O vigente no mês exibido, por `valorNoMesExibido`: o número com que a edição compara. */
+  readonly valorNoMesCentavos: number | null;
+}
+
+/** As listas e as actions que o formulário de edição usa, as mesmas do cadastro. */
+export interface ContextoDaEdicao {
+  readonly meios: ReadonlyArray<{
+    readonly id: string;
+    readonly nome: string;
+    readonly geraFatura: boolean;
+  }>;
+  readonly categorias: ReadonlyArray<{ readonly id: string; readonly nome: string }>;
+  readonly usuarios: ReadonlyArray<{ readonly id: string; readonly nome: string }>;
+  readonly editar: typeof editarRecorrencia;
+  readonly criarCategoria: typeof criarCategoria;
+  readonly criarMeioDePagamento: typeof criarMeioDePagamento;
 }
 
 export function ListaDeFixos({
@@ -43,35 +81,83 @@ export function ListaDeFixos({
   itens,
   registrarVigencia,
   encerrar,
+  edicao,
 }: {
   readonly competencia: string;
   readonly rotuloDaCompetencia: string;
   readonly itens: ReadonlyArray<ItemFixo>;
   readonly registrarVigencia: typeof registrarNovaVigencia;
   readonly encerrar: typeof encerrarRecorrencia;
+  readonly edicao: ContextoDaEdicao;
 }) {
-  if (itens.length === 0) {
-    return (
-      <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
-        Nenhum gasto fixo cadastrado ainda. Cadastre abaixo: ele passa a aparecer em todo mês, sem
-        você precisar repetir nada.
-      </p>
-    );
+  const dialogo = useRef<HTMLDialogElement>(null);
+  const [emEdicao, setEmEdicao] = useState<ItemFixo | null>(null);
+  /* Depois de salvar, a página recarrega a lista: vale a versão nova do fixo.
+     Se ele saiu do mês exibido, fica a que foi aberta. */
+  const atual = itens.find((item) => item.id === emEdicao?.id) ?? emEdicao;
+
+  function abrirEdicao(item: ItemFixo): void {
+    setEmEdicao(item);
+    dialogo.current?.showModal();
   }
 
   return (
-    <ul className="flex flex-col gap-3">
-      {itens.map((item) => (
-        <LinhaDeFixo
-          key={item.id}
-          item={item}
-          competencia={competencia}
-          rotuloDaCompetencia={rotuloDaCompetencia}
-          registrarVigencia={registrarVigencia}
-          encerrar={encerrar}
-        />
-      ))}
-    </ul>
+    <>
+      {itens.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
+          Nenhum gasto fixo cadastrado ainda. Cadastre abaixo: ele passa a aparecer em todo mês, sem
+          você precisar repetir nada.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {itens.map((item) => (
+            <LinhaDeFixo
+              key={item.id}
+              item={item}
+              competencia={competencia}
+              rotuloDaCompetencia={rotuloDaCompetencia}
+              registrarVigencia={registrarVigencia}
+              encerrar={encerrar}
+              emEdicao={emEdicao?.id === item.id}
+              aoEditar={() => abrirEdicao(item)}
+            />
+          ))}
+        </ul>
+      )}
+
+      <Dialogo
+        ref={dialogo}
+        titulo={atual?.natureza === "RECEITA" ? "Editar entrada" : "Editar gasto fixo"}
+        aoFechar={() => setEmEdicao(null)}
+      >
+        {atual === null ? null : (
+          <FormRecorrencia
+            key={atual.id}
+            competencia={competencia}
+            meios={edicao.meios}
+            categorias={edicao.categorias}
+            usuarios={edicao.usuarios}
+            criarCategoria={edicao.criarCategoria}
+            criarMeioDePagamento={edicao.criarMeioDePagamento}
+            edicao={{
+              fixo: {
+                recorrenciaId: atual.id,
+                descricao: atual.descricao,
+                natureza: atual.natureza,
+                valorCentavos: atual.valorNoMesCentavos,
+                diaVencimento: atual.diaVencimento,
+                competenciaInicio: atual.competenciaInicio,
+                competenciaFim: atual.competenciaFim,
+                meioPagamentoId: atual.meioPagamentoId,
+                categoriaId: atual.categoriaId,
+                usuarioId: atual.usuarioId,
+              },
+              editar: edicao.editar,
+            }}
+          />
+        )}
+      </Dialogo>
+    </>
   );
 }
 
@@ -83,12 +169,16 @@ function LinhaDeFixo({
   rotuloDaCompetencia,
   registrarVigencia,
   encerrar,
+  emEdicao,
+  aoEditar,
 }: {
   readonly item: ItemFixo;
   readonly competencia: string;
   readonly rotuloDaCompetencia: string;
   readonly registrarVigencia: typeof registrarNovaVigencia;
   readonly encerrar: typeof encerrarRecorrencia;
+  readonly emEdicao: boolean;
+  readonly aoEditar: () => void;
 }) {
   const id = useId();
   const [aberto, setAberto] = useState<Aberto>("nenhum");
@@ -158,22 +248,36 @@ function LinhaDeFixo({
         {item.fim === null ? "" : ` · até ${item.fim}`}
       </p>
 
-      {aberto === "nenhum" && !item.encerrada ? (
+      {aberto === "nenhum" ? (
         <div className="flex flex-wrap gap-2">
+          {/* Também num fixo encerrado: é por aqui que ele reabre (EDF-01 AC 1). */}
           <button
             type="button"
-            onClick={() => setAberto("valor")}
+            onClick={aoEditar}
+            aria-haspopup="dialog"
+            aria-expanded={emEdicao}
             className="min-h-9 rounded-pill bg-surface-strong px-4 text-[14px] font-semibold text-ink transition-colors duration-200 hover:bg-line"
           >
-            Mudar valor
+            Editar
           </button>
-          <button
-            type="button"
-            onClick={() => setAberto("encerrar")}
-            className="min-h-9 rounded-pill px-4 text-[14px] font-semibold text-ink-muted transition-colors duration-200 hover:text-negativo"
-          >
-            Encerrar
-          </button>
+          {item.encerrada ? null : (
+            <>
+              <button
+                type="button"
+                onClick={() => setAberto("valor")}
+                className="min-h-9 rounded-pill bg-surface-strong px-4 text-[14px] font-semibold text-ink transition-colors duration-200 hover:bg-line"
+              >
+                Mudar valor
+              </button>
+              <button
+                type="button"
+                onClick={() => setAberto("encerrar")}
+                className="min-h-9 rounded-pill px-4 text-[14px] font-semibold text-ink-muted transition-colors duration-200 hover:text-negativo"
+              >
+                Encerrar
+              </button>
+            </>
+          )}
         </div>
       ) : null}
 

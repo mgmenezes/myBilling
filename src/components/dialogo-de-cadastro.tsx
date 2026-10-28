@@ -38,7 +38,6 @@ export function DialogoDeCadastro({
   readonly titulo: string;
   readonly children: React.ReactNode;
 }) {
-  const id = useId();
   const dialogo = useRef<HTMLDialogElement>(null);
   const [aberto, setAberto] = useState(false);
 
@@ -46,25 +45,6 @@ export function DialogoDeCadastro({
     dialogo.current?.showModal();
     setAberto(true);
   }
-
-  function fechar(): void {
-    dialogo.current?.close();
-  }
-
-  /*
-   * O estado acompanha o elemento, e não o contrário. `Escape` fecha o
-   * `<dialog>` sem passar pelo nosso código; sem ouvir `close`, o React
-   * continuaria achando que está aberto.
-   */
-  useEffect(() => {
-    const elemento = dialogo.current;
-    if (!elemento) {
-      return;
-    }
-    const aoFechar = () => setAberto(false);
-    elemento.addEventListener("close", aoFechar);
-    return () => elemento.removeEventListener("close", aoFechar);
-  }, []);
 
   return (
     <>
@@ -78,15 +58,61 @@ export function DialogoDeCadastro({
         {rotuloDoBotao}
       </button>
 
+      <Dialogo ref={dialogo} titulo={titulo} aoFechar={() => setAberto(false)}>
+        {children}
+      </Dialogo>
+    </>
+  );
+}
+
+/**
+ * O `<dialog>` em si, sem o botão que o abre. Quem o usa abre pela `ref`, com
+ * `showModal()`, e fica sabendo do fechamento por `aoFechar`, que cobre o
+ * botão de fechar, o backdrop e o `Escape`. Existe separado porque a lista de
+ * "Todo mês" abre um diálogo só, a partir do botão de cada cartão.
+ */
+export function Dialogo({
+  ref,
+  titulo,
+  aoFechar,
+  children,
+}: {
+  readonly ref: React.RefObject<HTMLDialogElement | null>;
+  readonly titulo: string;
+  readonly aoFechar: () => void;
+  readonly children: React.ReactNode;
+}) {
+  const id = useId();
+
+  function fechar(): void {
+    ref.current?.close();
+  }
+
+  /*
+   * O estado acompanha o elemento, e não o contrário. `Escape` fecha o
+   * `<dialog>` sem passar pelo nosso código; sem ouvir `close`, o React
+   * continuaria achando que está aberto.
+   */
+  useEffect(() => {
+    const elemento = ref.current;
+    if (!elemento) {
+      return;
+    }
+    elemento.addEventListener("close", aoFechar);
+    return () => elemento.removeEventListener("close", aoFechar);
+  }, [ref, aoFechar]);
+
+  return (
+    <>
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: o alvo do clique é o
           backdrop, que não é foco de teclado; `Escape` já fecha pelo nativo. */}
       <dialog
-        ref={dialogo}
+        ref={ref}
         aria-labelledby={`${id}-titulo`}
         /* Clique no backdrop fecha. O evento chega no próprio `<dialog>`
-           quando cai fora do conteúdo, que é o que distingue um do outro. */
+         quando cai fora do conteúdo, que é o que distingue um do outro. */
         onClick={(evento) => {
-          if (evento.target === dialogo.current) {
+          if (evento.target === ref.current) {
             fechar();
           }
         }}

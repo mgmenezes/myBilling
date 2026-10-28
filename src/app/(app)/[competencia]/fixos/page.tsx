@@ -3,9 +3,11 @@ import { criarCategoria } from "@/app/actions/categorias";
 import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import {
   criarRecorrencia,
+  editarRecorrencia,
   encerrarRecorrencia,
   registrarNovaVigencia,
 } from "@/app/actions/recorrencias";
+import { valorNoMesExibido } from "@/application/recorrencias/editar/handler";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FormRecorrencia } from "@/components/form-recorrencia";
 import { ListaDeFixos } from "@/components/lista-de-fixos";
@@ -32,6 +34,10 @@ import { sessaoDaUI } from "../../sessao";
  * Abrir março depois de reajustar em outubro precisa mostrar o que valia em
  * março — é a razão de existir versionamento, e mostrar o valor de hoje aqui
  * desmentiria a lista de lançamentos logo ao lado.
+ *
+ * O formulário de edição recebe o valor por `valorNoMesExibido`, a mesma
+ * função com que o caso de uso decide se o valor mudou. Calculado de outro
+ * jeito, salvar sem mexer registraria uma vigência (EDF-03 AC 3).
  */
 
 export const dynamic = "force-dynamic";
@@ -55,6 +61,16 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
 
   const nomePorCategoria = new Map(categorias.map((c) => [c.id, c.nome]));
   const nomePorMeio = new Map(meios.map((m) => [m.id, m.nome]));
+
+  /* As mesmas listas no cadastro e na edição. `geraFatura` restringe o
+     destino quando a natureza é receita. */
+  const opcoesDeMeio = meios.map((m) => ({
+    id: m.id,
+    nome: m.nome,
+    geraFatura: m.tipo === "CARTAO_CREDITO",
+  }));
+  const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
+  const opcoesDeUsuario = usuarios.map((u) => ({ id: u.id, nome: u.nome }));
 
   /*
    * A lista é do **mês aberto**, então ela mostra o que vale nele. Um fixo
@@ -91,6 +107,12 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
             ? null
             : formatarCompetencia(recorrencia.competenciaFim),
         encerrada: recorrencia.encerradaEm !== null,
+        competenciaInicio: recorrencia.competenciaInicio,
+        competenciaFim: recorrencia.competenciaFim,
+        meioPagamentoId: recorrencia.meioPagamentoId,
+        categoriaId: recorrencia.categoriaId,
+        usuarioId: recorrencia.usuarioId,
+        valorNoMesCentavos: valorNoMesExibido(versoes, resultado.value),
       };
     });
 
@@ -103,14 +125,9 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
         <DialogoDeCadastro rotuloDoBotao="+ Novo fixo" titulo="Novo gasto fixo ou entrada">
           <FormRecorrencia
             competencia={resultado.value}
-            /* `geraFatura` restringe o destino quando a natureza é receita. */
-            meios={meios.map((m) => ({
-              id: m.id,
-              nome: m.nome,
-              geraFatura: m.tipo === "CARTAO_CREDITO",
-            }))}
-            categorias={categorias.map((c) => ({ id: c.id, nome: c.nome }))}
-            usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
+            meios={opcoesDeMeio}
+            categorias={opcoesDeCategoria}
+            usuarios={opcoesDeUsuario}
             criar={criarRecorrencia}
             criarCategoria={criarCategoria}
             criarMeioDePagamento={criarMeioDePagamento}
@@ -132,6 +149,14 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
         itens={itens}
         registrarVigencia={registrarNovaVigencia}
         encerrar={encerrarRecorrencia}
+        edicao={{
+          meios: opcoesDeMeio,
+          categorias: opcoesDeCategoria,
+          usuarios: opcoesDeUsuario,
+          editar: editarRecorrencia,
+          criarCategoria,
+          criarMeioDePagamento,
+        }}
       />
     </div>
   );
