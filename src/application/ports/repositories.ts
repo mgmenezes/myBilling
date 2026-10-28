@@ -1,4 +1,5 @@
 import type {
+  CamposDaSerie,
   Categoria,
   Cents,
   CodigoErro,
@@ -239,6 +240,17 @@ export interface MovimentoRepository {
    * não pode apagar o que já foi pago por ela.
    */
   removerNaoPagasDaRecorrencia(recorrenciaId: string, desde: Competencia): Promise<void>;
+  /**
+   * Grava os cinco campos da série em **todas** as ocorrências do fixo, das
+   * competências passadas inclusive (EDF-02 AC 1). A data de cada uma é
+   * recalculada por `dataDeVencimento` com o dia novo, limitado ao fim do mês
+   * dela (EDF-02 AC 2).
+   *
+   * Nunca toca em valor, valor previsto, `pago_em` nem `cancelado_em`: o que
+   * foi pago continua pago, na mesma data, e o valor confirmado continua o da
+   * conta que chegou (EDF-02 AC 3). Devolve quantas ocorrências foram escritas.
+   */
+  atualizarOcorrenciasDaSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<number>;
 }
 
 /** Os campos descritivos da recorrência. O valor vem separado, na versão. */
@@ -284,6 +296,17 @@ export interface RecorrenciaRepository {
    * este contrato não ter duas leituras possíveis.
    */
   encerrar(recorrenciaId: string, competenciaFim: Competencia, encerradaEm: string): Promise<void>;
+  /** A recorrência com as versões em ordem de vigência; `null` se não existe. */
+  buscarComVersoes(recorrenciaId: string): Promise<RecorrenciaComVersoes | null>;
+  /** Grava os cinco campos da série e mais nada: natureza, início e fim ficam. */
+  atualizarSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<void>;
+  /** Fim e `encerrada_em` voltam a nulo: a recorrência deixa de ter fim (EDF-04 AC 2). */
+  reabrir(recorrenciaId: string): Promise<void>;
+  /**
+   * Move o fim para depois do atual (EDF-04 AC 3). `encerrada_em` fica como
+   * está: estender não é reabrir, e o fixo continua tendo um último mês.
+   */
+  estenderFim(recorrenciaId: string, competenciaFim: Competencia): Promise<void>;
 }
 
 export interface CadastroRepository {

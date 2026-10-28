@@ -1,10 +1,10 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, type SQL } from "drizzle-orm";
 import type {
   EntradaCriarRecorrencia,
   RecorrenciaComVersoes,
   RecorrenciaRepository,
 } from "@/application/ports/repositories";
-import type { Cents, Competencia, Recorrencia } from "@/domain";
+import type { CamposDaSerie, Cents, Competencia, Recorrencia } from "@/domain";
 import type { Executor } from "../client";
 import { recorrencia, recorrenciaVersao } from "../schema";
 import { deCompetencia, paraCompetencia } from "./mapeadores";
@@ -44,10 +44,21 @@ export class RecorrenciaRepositoryDrizzle implements RecorrenciaRepository {
   constructor(private readonly db: Executor) {}
 
   async listarComVersoes(): Promise<ReadonlyArray<RecorrenciaComVersoes>> {
+    return this.comVersoes();
+  }
+
+  async buscarComVersoes(recorrenciaId: string): Promise<RecorrenciaComVersoes | null> {
+    const [encontrada] = await this.comVersoes(eq(recorrencia.id, recorrenciaId));
+    return encontrada ?? null;
+  }
+
+  /** A mesma consulta para todas ou para uma: o filtro é o único que muda. */
+  private async comVersoes(filtro?: SQL): Promise<RecorrenciaComVersoes[]> {
     const linhas = await this.db
       .select()
       .from(recorrencia)
       .leftJoin(recorrenciaVersao, eq(recorrenciaVersao.recorrenciaId, recorrencia.id))
+      .where(filtro)
       .orderBy(asc(recorrencia.descricao), asc(recorrenciaVersao.vigenteDesde));
 
     /*
@@ -146,6 +157,33 @@ export class RecorrenciaRepositoryDrizzle implements RecorrenciaRepository {
     await this.db
       .update(recorrencia)
       .set({ competenciaFim: deCompetencia(competenciaFim), encerradaEm: new Date(encerradaEm) })
+      .where(eq(recorrencia.id, recorrenciaId));
+  }
+
+  async atualizarSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<void> {
+    await this.db
+      .update(recorrencia)
+      .set({
+        descricao: campos.descricao,
+        diaVencimento: campos.diaVencimento,
+        meioPagamentoId: campos.meioPagamentoId,
+        categoriaId: campos.categoriaId,
+        usuarioId: campos.usuarioId,
+      })
+      .where(eq(recorrencia.id, recorrenciaId));
+  }
+
+  async reabrir(recorrenciaId: string): Promise<void> {
+    await this.db
+      .update(recorrencia)
+      .set({ competenciaFim: null, encerradaEm: null })
+      .where(eq(recorrencia.id, recorrenciaId));
+  }
+
+  async estenderFim(recorrenciaId: string, competenciaFim: Competencia): Promise<void> {
+    await this.db
+      .update(recorrencia)
+      .set({ competenciaFim: deCompetencia(competenciaFim) })
       .where(eq(recorrencia.id, recorrenciaId));
   }
 }

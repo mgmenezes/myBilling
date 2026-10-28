@@ -226,10 +226,10 @@ T9 -> T10
 **Reuses**: `deCompetencia`, `paraCompetencia`, `dataDeVencimento`
 **Requirement**: EDF-02, EDF-04
 **Done when**:
-- [ ] `atualizarOcorrenciasDaSerie` muda descrição, categoria, meio, pessoa e `data_evento` de **todas** as ocorrências do fixo, passadas inclusive; uma paga mantém `pago_em`; uma com valor confirmado mantém `valor_centavos` e `valor_previsto_centavos`; ocorrência de **outro** fixo não muda (EDF-02 AC 1-3)
-- [ ] Dia 31 e ocorrência de fevereiro → `data_evento` no último dia do mês (EDF-02 AC 2)
-- [ ] `atualizarSerie`, `reabrir` (fim e `encerrada_em` nulos) e `estenderFim` gravam o que dizem e nada mais; `buscarComVersoes` devolve o fixo com as vigências, ou `null`
-- [ ] Os fakes reproduzem as mesmas regras
+- [x] `atualizarOcorrenciasDaSerie` muda descrição, categoria, meio, pessoa e `data_evento` de **todas** as ocorrências do fixo, passadas inclusive; uma paga mantém `pago_em`; uma com valor confirmado mantém `valor_centavos` e `valor_previsto_centavos`; ocorrência de **outro** fixo não muda (EDF-02 AC 1-3)
+- [x] Dia 31 e ocorrência de fevereiro → `data_evento` no último dia do mês (EDF-02 AC 2)
+- [x] `atualizarSerie`, `reabrir` (fim e `encerrada_em` nulos) e `estenderFim` gravam o que dizem e nada mais; `buscarComVersoes` devolve o fixo com as vigências, ou `null`
+- [x] Os fakes reproduzem as mesmas regras
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(db): atualizar a série de um fixo e as suas ocorrências`

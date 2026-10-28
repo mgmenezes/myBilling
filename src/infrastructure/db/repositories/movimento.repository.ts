@@ -4,10 +4,16 @@ import type {
   MovimentoRepository,
   OcorrenciaParaMaterializar,
 } from "@/application/ports/repositories";
-import type { Cents, Competencia, Lancamento } from "@/domain";
+import {
+  type CamposDaSerie,
+  type Cents,
+  type Competencia,
+  dataDeVencimento,
+  type Lancamento,
+} from "@/domain";
 import type { Executor } from "../client";
 import { movimento } from "../schema";
-import { deCompetencia, paraLancamento } from "./mapeadores";
+import { deCompetencia, paraCompetencia, paraLancamento } from "./mapeadores";
 
 /**
  * Leitura e marcação de pagamento sobre o razão (AD-003). A consulta por
@@ -211,5 +217,49 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
           isNull(movimento.pagoEm),
         ),
       );
+  }
+
+  /**
+   * Duas idas ao banco, seja qual for o número de ocorrências: uma lê as
+   * competências, outra grava tudo com a data de cada uma num `CASE`.
+   *
+   * A data vem de `dataDeVencimento`, a mesma função da materialização, e não
+   * de uma conta em SQL: duas definições do dia limitado ao fim do mês
+   * divergiriam no primeiro fevereiro que ninguém testou. O `ELSE` cobre a
+   * ocorrência que outra requisição materialize entre as duas idas: ela recebe
+   * a série nova e fica com a data que já tinha, em vez de derrubar a edição
+   * com uma data nula.
+   *
+   * O `SET` não menciona valor, previsto, `pago_em` nem `cancelado_em`: é isso
+   * que mantém pagamento e valor confirmado como estavam (EDF-02 AC 3).
+   */
+  async atualizarOcorrenciasDaSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<number> {
+    const competencias = await this.db
+      .select({ competencia: movimento.competencia })
+      .from(movimento)
+      .where(eq(movimento.recorrenciaId, recorrenciaId));
+    if (competencias.length === 0) {
+      return 0;
+    }
+
+    const datas = competencias.map(({ competencia }) => {
+      const data = dataDeVencimento(
+        paraCompetencia(competencia, "movimento.competencia"),
+        campos.diaVencimento,
+      );
+      return sql`WHEN ${competencia}::date THEN ${data}::date`;
+    });
+    const alteradas = await this.db
+      .update(movimento)
+      .set({
+        descricao: campos.descricao,
+        categoriaId: campos.categoriaId,
+        meioPagamentoId: campos.meioPagamentoId,
+        usuarioId: campos.usuarioId,
+        dataEvento: sql`CASE ${movimento.competencia} ${sql.join(datas, sql` `)} ELSE ${movimento.dataEvento} END`,
+      })
+      .where(eq(movimento.recorrenciaId, recorrenciaId))
+      .returning({ id: movimento.id });
+    return alteradas.length;
   }
 }

@@ -1,4 +1,5 @@
 import {
+  type CamposDaSerie,
   type Categoria,
   type Cents,
   type Competencia,
@@ -6,6 +7,7 @@ import {
   type DecisaoDeEntrada,
   type DecisoesDaImportacao,
   type DomainError,
+  dataDeVencimento,
   err,
   type Lancamento,
   type MeioPagamento,
@@ -366,6 +368,26 @@ export class FakeMovimentoRepository implements MovimentoRepository {
       }
     }
   }
+
+  /** Os cinco campos e a data, nada de valor nem de pagamento, como o Drizzle. */
+  async atualizarOcorrenciasDaSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<number> {
+    let alteradas = 0;
+    for (const [id, atual] of this.estado.movimentos) {
+      if (atual.recorrenciaId !== recorrenciaId) {
+        continue;
+      }
+      this.estado.movimentos.set(id, {
+        ...atual,
+        descricao: campos.descricao,
+        categoriaId: campos.categoriaId,
+        meioPagamentoId: campos.meioPagamentoId,
+        usuarioId: campos.usuarioId,
+        dataEvento: dataDeVencimento(atual.competencia, campos.diaVencimento),
+      });
+      alteradas += 1;
+    }
+    return alteradas;
+  }
 }
 
 export class FakeCadastroRepository implements CadastroRepository {
@@ -581,6 +603,40 @@ export class FakeRecorrenciaRepository implements RecorrenciaRepository {
     this.estado.recorrencias.set(recorrenciaId, {
       ...atual,
       recorrencia: { ...atual.recorrencia, competenciaFim, encerradaEm },
+    });
+  }
+
+  async buscarComVersoes(recorrenciaId: string): Promise<RecorrenciaComVersoes | null> {
+    return this.estado.recorrencias.get(recorrenciaId) ?? null;
+  }
+
+  async atualizarSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<void> {
+    this.alterar(recorrenciaId, {
+      descricao: campos.descricao,
+      diaVencimento: campos.diaVencimento,
+      meioPagamentoId: campos.meioPagamentoId,
+      categoriaId: campos.categoriaId,
+      usuarioId: campos.usuarioId,
+    });
+  }
+
+  async reabrir(recorrenciaId: string): Promise<void> {
+    this.alterar(recorrenciaId, { competenciaFim: null, encerradaEm: null });
+  }
+
+  async estenderFim(recorrenciaId: string, competenciaFim: Competencia): Promise<void> {
+    this.alterar(recorrenciaId, { competenciaFim });
+  }
+
+  /** Silencioso para id inexistente, como o `UPDATE ... WHERE id` do Drizzle. */
+  private alterar(recorrenciaId: string, campos: Partial<Recorrencia>): void {
+    const atual = this.estado.recorrencias.get(recorrenciaId);
+    if (!atual) {
+      return;
+    }
+    this.estado.recorrencias.set(recorrenciaId, {
+      ...atual,
+      recorrencia: { ...atual.recorrencia, ...campos },
     });
   }
 }

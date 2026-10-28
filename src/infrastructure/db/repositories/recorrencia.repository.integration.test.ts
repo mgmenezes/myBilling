@@ -160,3 +160,125 @@ describe("encerrar", () => {
     expect(outra?.recorrencia.encerradaEm).toBeNull();
   });
 });
+
+/**
+ * O que a edição do fixo grava na própria recorrência (EDF-02 e EDF-04). Cada
+ * escrita é conferida contra o registro inteiro: gravar o que diz **e nada
+ * mais** é o contrato, e um campo vizinho alterado por engano só aparece
+ * comparando tudo.
+ */
+describe("buscar uma recorrência com as versões", () => {
+  it("devolve a recorrência pedida com as versões dela, em ordem de vigência", async () => {
+    const a = await repo.criar({ dados: dados(), valorInicial: 18000 as Cents });
+    const b = await repo.criar({
+      dados: { ...dados(), descricao: "Conta fixa B" },
+      valorInicial: 12456 as Cents,
+    });
+    await repo.registrarVersao(a.id, c("2026-08"), 30000 as Cents);
+    await repo.registrarVersao(a.id, c("2026-05"), 24000 as Cents);
+    await repo.registrarVersao(b.id, c("2026-06"), 13000 as Cents);
+
+    expect(await repo.buscarComVersoes(a.id)).toEqual({
+      recorrencia: a,
+      versoes: [
+        { vigenteDesde: "2026-03", valorPrevisto: 18000 },
+        { vigenteDesde: "2026-05", valorPrevisto: 24000 },
+        { vigenteDesde: "2026-08", valorPrevisto: 30000 },
+      ],
+    });
+  });
+
+  it("devolve null para id que não existe", async () => {
+    await repo.criar({ dados: dados(), valorInicial: 18000 as Cents });
+
+    expect(await repo.buscarComVersoes("11111111-1111-4111-8111-111111111111")).toBeNull();
+  });
+});
+
+describe("escritas da edição do fixo", () => {
+  async function outraPessoaECategoria() {
+    const pessoa = await pool.query<{ id: string }>(
+      "INSERT INTO usuario (nome, email) VALUES ('Pessoa B', 'pessoa-b@example.com') RETURNING id",
+    );
+    const categoria = await pool.query<{ id: string }>(
+      "INSERT INTO categoria (nome) VALUES ('Categoria Dois') RETURNING id",
+    );
+    return { pessoaB: pessoa.rows[0]?.id ?? "", categoriaDois: categoria.rows[0]?.id ?? "" };
+  }
+
+  async function registro(id: string) {
+    return (await repo.buscarComVersoes(id))?.recorrencia;
+  }
+
+  it("atualizarSerie grava os cinco campos e mais nada (EDF-02 AC 1)", async () => {
+    const { pessoaB, categoriaDois } = await outraPessoaECategoria();
+    const criada = await repo.criar({
+      dados: { ...dados(), competenciaFim: c("2026-12") },
+      valorInicial: 18000 as Cents,
+    });
+    const outra = await repo.criar({
+      dados: { ...dados(), descricao: "Conta fixa C" },
+      valorInicial: 12456 as Cents,
+    });
+
+    await repo.atualizarSerie(criada.id, {
+      descricao: "Conta fixa B",
+      diaVencimento: 31,
+      meioPagamentoId: base.cartaoId,
+      categoriaId: categoriaDois,
+      usuarioId: pessoaB,
+    });
+
+    expect(await registro(criada.id)).toEqual({
+      ...criada,
+      descricao: "Conta fixa B",
+      diaVencimento: 31,
+      meioPagamentoId: base.cartaoId,
+      categoriaId: categoriaDois,
+      usuarioId: pessoaB,
+    });
+    expect(await registro(outra.id)).toEqual(outra);
+  });
+
+  it("atualizarSerie aceita categoria nula", async () => {
+    const criada = await repo.criar({ dados: dados(), valorInicial: 18000 as Cents });
+
+    await repo.atualizarSerie(criada.id, {
+      descricao: criada.descricao,
+      diaVencimento: criada.diaVencimento,
+      meioPagamentoId: criada.meioPagamentoId,
+      categoriaId: null,
+      usuarioId: criada.usuarioId,
+    });
+
+    expect((await registro(criada.id))?.categoriaId).toBeNull();
+  });
+
+  it("reabrir limpa o fim e o instante do encerramento, e mais nada (EDF-04 AC 2)", async () => {
+    const criada = await repo.criar({ dados: dados(), valorInicial: 18000 as Cents });
+    const outra = await repo.criar({
+      dados: { ...dados(), descricao: "Conta fixa C" },
+      valorInicial: 12456 as Cents,
+    });
+    await repo.encerrar(criada.id, c("2026-06"), "2026-09-14T12:00:00.000Z");
+    await repo.encerrar(outra.id, c("2026-07"), "2026-09-14T12:00:00.000Z");
+
+    await repo.reabrir(criada.id);
+
+    expect(await registro(criada.id)).toEqual(criada);
+    expect((await registro(outra.id))?.competenciaFim).toBe("2026-07");
+  });
+
+  it("estenderFim move o fim e deixa o instante do encerramento como está (EDF-04 AC 3)", async () => {
+    const criada = await repo.criar({ dados: dados(), valorInicial: 18000 as Cents });
+    await repo.encerrar(criada.id, c("2026-06"), "2026-09-14T12:00:00.000Z");
+
+    await repo.estenderFim(criada.id, c("2027-02"));
+
+    expect(await registro(criada.id)).toEqual({
+      ...criada,
+      competenciaFim: "2027-02",
+      encerradaEm: "2026-09-14T12:00:00.000Z",
+    });
+  });
+});

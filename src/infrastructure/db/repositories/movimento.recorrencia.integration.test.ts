@@ -380,3 +380,151 @@ describe("remover ocorrências não pagas (FIXO-06, AC 2)", () => {
     expect(await linhas()).toHaveLength(4);
   });
 });
+
+/**
+ * A edição corrige o fixo inteiro (EDF-02): os cinco campos da série chegam a
+ * todas as ocorrências, passadas inclusive, e a data é recalculada com o dia
+ * novo. O que a escrita **não** toca é a metade do contrato: pagamento, valor
+ * confirmado e o previsto continuam como estavam.
+ */
+describe("atualizar as ocorrências da série (EDF-02 AC 1 a 3)", () => {
+  let pessoaB: string;
+  let categoriaDois: string;
+
+  beforeEach(async () => {
+    pessoaB =
+      (
+        await pool.query<{ id: string }>(
+          "INSERT INTO usuario (nome, email) VALUES ('Pessoa B', 'pessoa-b@example.com') RETURNING id",
+        )
+      ).rows[0]?.id ?? "";
+    categoriaDois =
+      (
+        await pool.query<{ id: string }>(
+          "INSERT INTO categoria (nome) VALUES ('Categoria Dois') RETURNING id",
+        )
+      ).rows[0]?.id ?? "";
+    await repo.materializarOcorrencias([
+      ocorrencia("2026-10"),
+      ocorrencia("2026-11"),
+      ocorrencia("2026-12"),
+      ocorrencia("2027-02"),
+    ]);
+  });
+
+  async function idDe(competencia: string): Promise<string> {
+    const { rows } = await pool.query<{ id: string }>(
+      "SELECT id FROM movimento WHERE recorrencia_id = $1 AND competencia = $2::date",
+      [recorrenciaId, `${competencia}-01`],
+    );
+    return rows[0]?.id ?? "";
+  }
+
+  async function ocorrenciasDe(id: string) {
+    const { rows } = await pool.query(
+      `SELECT competencia::text, natureza, descricao, data_evento::text, categoria_id,
+              meio_pagamento_id, usuario_id, valor_centavos::text, valor_previsto_centavos::text,
+              pago_em::text, cancelado_em
+       FROM movimento WHERE recorrencia_id = $1 ORDER BY competencia`,
+      [id],
+    );
+    return rows;
+  }
+
+  function campos() {
+    return {
+      descricao: "Conta fixa B",
+      diaVencimento: 31,
+      meioPagamentoId: base.cartaoId,
+      categoriaId: categoriaDois,
+      usuarioId: pessoaB,
+    };
+  }
+
+  it("grava os cinco campos em todas as ocorrências e devolve quantas mudaram", async () => {
+    const alteradas = await repo.atualizarOcorrenciasDaSerie(recorrenciaId, campos());
+
+    expect(alteradas).toBe(4);
+    const series = (await ocorrenciasDe(recorrenciaId)).map((o) => [
+      o.descricao,
+      o.categoria_id,
+      o.meio_pagamento_id,
+      o.usuario_id,
+    ]);
+    expect(series).toEqual(
+      Array.from({ length: 4 }, () => ["Conta fixa B", categoriaDois, base.cartaoId, pessoaB]),
+    );
+  });
+
+  it("recalcula a data de cada uma com o dia novo, limitado ao fim do mês", async () => {
+    await repo.atualizarOcorrenciasDaSerie(recorrenciaId, campos());
+
+    expect((await ocorrenciasDe(recorrenciaId)).map((o) => [o.competencia, o.data_evento])).toEqual(
+      [
+        ["2026-10-01", "2026-10-31"],
+        ["2026-11-01", "2026-11-30"],
+        ["2026-12-01", "2026-12-31"],
+        ["2027-02-01", "2027-02-28"],
+      ],
+    );
+  });
+
+  it("não toca no pagamento, no valor confirmado, no previsto nem na natureza", async () => {
+    await repo.marcarPagamento(await idDe("2026-10"), "2026-10-10");
+    await repo.confirmarValorReal(await idDe("2026-11"), 19240 as Cents);
+
+    await repo.atualizarOcorrenciasDaSerie(recorrenciaId, campos());
+
+    expect(
+      (await ocorrenciasDe(recorrenciaId)).map((o) => [
+        o.competencia,
+        o.natureza,
+        o.valor_centavos,
+        o.valor_previsto_centavos,
+        o.pago_em,
+        o.cancelado_em,
+      ]),
+    ).toEqual([
+      ["2026-10-01", "DESPESA", "18000", "18000", "2026-10-10", null],
+      ["2026-11-01", "DESPESA", "19240", "18000", null, null],
+      ["2026-12-01", "DESPESA", "18000", "18000", null, null],
+      ["2027-02-01", "DESPESA", "18000", "18000", null, null],
+    ]);
+  });
+
+  it("não alcança ocorrência de outro fixo", async () => {
+    const outra = await new RecorrenciaRepositoryDrizzle(db).criar({
+      dados: {
+        descricao: "Conta fixa C",
+        natureza: "DESPESA",
+        categoriaId: base.categoriaId,
+        usuarioId: base.usuarioId,
+        meioPagamentoId: base.contaId,
+        competenciaInicio: c("2026-03"),
+        competenciaFim: null,
+        diaVencimento: 20,
+      },
+      valorInicial: 12456 as Cents,
+    });
+    await repo.materializarOcorrencias([
+      {
+        ...ocorrencia("2026-10", 12456),
+        recorrenciaId: outra.id,
+        descricao: "Conta fixa C",
+        dataEvento: "2026-10-20",
+      },
+    ]);
+    const antes = await ocorrenciasDe(outra.id);
+
+    await repo.atualizarOcorrenciasDaSerie(recorrenciaId, campos());
+
+    expect(await ocorrenciasDe(outra.id)).toEqual(antes);
+    expect(antes[0]?.descricao).toBe("Conta fixa C");
+  });
+
+  it("fixo sem ocorrência devolve zero e não lança", async () => {
+    await pool.query("DELETE FROM movimento WHERE recorrencia_id = $1", [recorrenciaId]);
+
+    expect(await repo.atualizarOcorrenciasDaSerie(recorrenciaId, campos())).toBe(0);
+  });
+});

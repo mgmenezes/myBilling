@@ -226,9 +226,9 @@ estava.
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | EDF-01 | P1: Abrir o fixo no formulário do cadastro | Tasks | In Tasks |
-| EDF-02 | P1: Corrigir o fixo inteiro | Execute | Implementing: série no plano, ACs 1 e 4, e data recalculada com o dia limitado ao fim do mês, AC 2 (T1) |
+| EDF-02 | P1: Corrigir o fixo inteiro | Execute | Implementing: série no plano, ACs 1 e 4, e data recalculada com o dia limitado ao fim do mês, AC 2 (T1); série gravada no fixo e em todas as ocorrências, com a data recalculada e pagamento e valor confirmado intactos, ACs 1 a 3, no banco e nos fakes (T2) |
 | EDF-03 | P1: Mudar o valor a partir de um mês | Execute | Implementing: vigência no plano, ACs 2 e 3, e recusa da vigência antes do início, AC 5 (T1) |
-| EDF-04 | P1: Encerrar e reabrir pelo "Termina em" | Execute | Implementing: as seis linhas do fim no plano, ACs 1 a 3, e recusa do fim antes do início, AC 4 (T1) |
+| EDF-04 | P1: Encerrar e reabrir pelo "Termina em" | Execute | Implementing: as seis linhas do fim no plano, ACs 1 a 3, e recusa do fim antes do início, AC 4 (T1); reabrir e estender o fim no banco e nos fakes, ACs 2 e 3 (T2) |
 | EDF-05 | P1: Natureza e início travados | Tasks | In Tasks |
 | EDF-06 | P1: Gravar tudo ou nada | Tasks | In Tasks |
 
