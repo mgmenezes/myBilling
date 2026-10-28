@@ -56,6 +56,33 @@ export function nomeDoMes(competencia: string): string {
   return formatarCompetencia(competencia).split(" de ")[0] ?? "";
 }
 
+/** O meio pelo que ele é, sem o nome: o cartão vem com os dias do ciclo. */
+type MeioDescritivel =
+  | {
+      readonly tipo: "CARTAO_CREDITO";
+      readonly diaFechamento: number;
+      readonly diaVencimento: number;
+    }
+  | { readonly tipo: "CONTA_CORRENTE" | "ROTULO" };
+
+/**
+ * `{ tipo: 'CARTAO_CREDITO', diaFechamento: 25, diaVencimento: 5 }` →
+ * `'cartão, fecha dia 25, vence dia 5'`; conta → `'conta'`; rótulo → `'rótulo'`.
+ *
+ * Um nome como "NuBank" não diz se é o cartão ou a conta, e é isso que a
+ * pessoa precisa saber para escolher onde uma entrada cai (IMP-04, AC 9).
+ */
+export function descreverMeio(meio: MeioDescritivel): string {
+  switch (meio.tipo) {
+    case "CARTAO_CREDITO":
+      return `cartão, fecha dia ${meio.diaFechamento}, vence dia ${meio.diaVencimento}`;
+    case "CONTA_CORRENTE":
+      return "conta";
+    case "ROTULO":
+      return "rótulo";
+  }
+}
+
 /**
  * Porcentagem em centésimos de ponto percentual: `2183` vira `"21,83%"`.
  *

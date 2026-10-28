@@ -44,6 +44,8 @@ export interface OpcaoDeCadastro {
 /** O meio precisa dizer se gera fatura: é o que decide o padrão da caixa. */
 export interface OpcaoDeMeio extends OpcaoDeCadastro {
   readonly geraFatura: boolean;
+  /** O que o meio é, de `descreverMeio`. Quem o recebe mostra junto do nome. */
+  readonly detalhe?: string;
 }
 
 export interface FormLancamentoAvulsoProps {

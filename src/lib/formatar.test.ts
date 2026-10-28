@@ -1,7 +1,20 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { formatarBRL, formatarData } from "./formatar";
+import { descreverMeio, formatarBRL, formatarData } from "./formatar";
+
+describe("descreverMeio (IMP-04, AC 9)", () => {
+  it("cartão diz os dois dias do ciclo", () => {
+    expect(descreverMeio({ tipo: "CARTAO_CREDITO", diaFechamento: 25, diaVencimento: 5 })).toBe(
+      "cartão, fecha dia 25, vence dia 5",
+    );
+  });
+
+  it("conta e rótulo dizem o que são", () => {
+    expect(descreverMeio({ tipo: "CONTA_CORRENTE" })).toBe("conta");
+    expect(descreverMeio({ tipo: "ROTULO" })).toBe("rótulo");
+  });
+});
 
 describe("formatarBRL", () => {
   it("formata 123456 centavos como R$ 1.234,56", () => {

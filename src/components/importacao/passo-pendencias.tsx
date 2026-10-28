@@ -55,6 +55,11 @@ function quantasLinhas(linhas: number): string {
   return linhas === 1 ? "1 linha" : `${linhas} linhas`;
 }
 
+/** "NuBank · cartão, fecha dia 25, vence dia 5": o nome sozinho não diz o que o meio é (AC 9). */
+function rotuloDoMeio(meio: OpcaoDeMeio): string {
+  return meio.detalhe === undefined ? meio.nome : `${meio.nome} · ${meio.detalhe}`;
+}
+
 export function PassoPendencias({
   pendencias,
   meios,
@@ -112,6 +117,10 @@ export function PassoPendencias({
     }));
   }
 
+  function acrescentarMeio(meio: OpcaoDeMeio): void {
+    setListaMeios((atual) => (atual.some(({ id }) => id === meio.id) ? atual : [...atual, meio]));
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {pendencias.tiposSemMeio.length === 0 ? null : (
@@ -135,10 +144,8 @@ export function PassoPendencias({
                 nomeInicial={tipo.nome}
                 rotuloDoAtalho="+ cadastrar"
                 criarMeioDePagamento={criarMeioDePagamento}
-                aoCriado={(criado) => {
-                  setListaMeios((atual) =>
-                    atual.some((meio) => meio.id === criado.id) ? atual : [...atual, criado],
-                  );
+                aoCriado={(criado, detalhe) => {
+                  acrescentarMeio({ ...criado, detalhe });
                   setMeioPorTipo((atual) => ({ ...atual, [tipo.chave]: criado.id }));
                 }}
               >
@@ -153,7 +160,7 @@ export function PassoPendencias({
                   <option value="">Escolha o meio</option>
                   {listaMeios.map((meio) => (
                     <option key={meio.id} value={meio.id}>
-                      {meio.nome}
+                      {rotuloDoMeio(meio)}
                     </option>
                   ))}
                 </select>
@@ -212,7 +219,7 @@ export function PassoPendencias({
                     <option value="">Escolha a conta</option>
                     {contas.map((meio) => (
                       <option key={meio.id} value={meio.id}>
-                        {meio.nome}
+                        {rotuloDoMeio(meio)}
                       </option>
                     ))}
                   </select>

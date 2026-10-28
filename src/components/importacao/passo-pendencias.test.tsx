@@ -2,13 +2,14 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
+import type { OpcaoDeMeio } from "../form-lancamento-avulso";
 import { PassoPendencias } from "./passo-pendencias";
 import { ID, previaDe } from "./previas-de-teste";
 
 /**
- * Testes derivados de IMP-04 (AC 1 a 3) e do Done-when de T22, sobre as
- * pendências que a prévia de outubro traz antes do passo 2: três "Tipo" e três
- * entradas (fixture sintética, AD-009).
+ * Testes derivados de IMP-04 (AC 1 a 3, 8 e 9) e do Done-when de T22, sobre
+ * as pendências que a prévia de outubro traz antes do passo 2: três "Tipo" e
+ * três entradas (fixture sintética, AD-009).
  */
 
 afterEach(cleanup);
@@ -17,6 +18,23 @@ const MEIOS = [
   { id: ID.conta, nome: "Conta Corrente", geraFatura: false },
   { id: ID.roxo, nome: "Cartão Roxo", geraFatura: true },
   { id: ID.verde, nome: "Cartão Verde", geraFatura: true },
+];
+
+/* Os mesmos meios, com o que a página diz de cada um (AC 9). */
+const MEIOS_DESCRITOS = [
+  { id: ID.conta, nome: "Conta Corrente", geraFatura: false, detalhe: "conta" },
+  {
+    id: ID.roxo,
+    nome: "Cartão Roxo",
+    geraFatura: true,
+    detalhe: "cartão, fecha dia 25, vence dia 5",
+  },
+  {
+    id: ID.verde,
+    nome: "Cartão Verde",
+    geraFatura: true,
+    detalhe: "cartão, fecha dia 10, vence dia 20",
+  },
 ];
 
 const PENDENCIAS_DE_OUTUBRO = previaDe("Outubro", { comDecisoes: false }).pendencias;
@@ -34,12 +52,15 @@ function criarMeioOk(): typeof criarMeioDePagamento {
   })) as unknown as typeof criarMeioDePagamento;
 }
 
-function montar(criar: typeof criarMeioDePagamento = criarMeioOk()) {
+function montar(
+  criar: typeof criarMeioDePagamento = criarMeioOk(),
+  meios: ReadonlyArray<OpcaoDeMeio> = MEIOS,
+) {
   const aoConcluir = vi.fn();
   render(
     <PassoPendencias
       pendencias={PENDENCIAS_DE_OUTUBRO}
-      meios={MEIOS}
+      meios={meios}
       criarMeioDePagamento={criar}
       aoConcluir={aoConcluir}
     />,
@@ -58,6 +79,16 @@ function blocoDoTipo(rotulo: string): HTMLElement {
 
 function entrada(nome: string): HTMLElement {
   return screen.getByRole("group", { name: nome });
+}
+
+function opcoes(seletor: HTMLElement): Array<string | null> {
+  return within(seletor)
+    .getAllByRole("option")
+    .map((o) => o.textContent);
+}
+
+function caiEm(nome: string): HTMLSelectElement {
+  return within(entrada(nome)).getByLabelText("Cai em") as HTMLSelectElement;
 }
 
 function continuar(): HTMLButtonElement {
@@ -124,7 +155,7 @@ describe("PassoPendencias — cadastrar o meio que falta (IMP-04, AC 2)", () => 
     await userEvent.click(screen.getByRole("button", { name: "Criar" }));
 
     expect(criar).toHaveBeenCalledWith({ nome: "Débito", tipo: "CONTA_CORRENTE" });
-    await screen.findAllByRole("option", { name: "Débito" });
+    await screen.findAllByRole("option", { name: "Débito · conta" });
     expect((screen.getByLabelText("Débito (4 linhas)") as HTMLSelectElement).value).toBe(NOVO_MEIO);
   });
 });
@@ -148,6 +179,20 @@ describe("PassoPendencias — cada entrada (IMP-04, AC 3)", () => {
       .map((o) => o.textContent);
 
     expect(opcoes).toEqual(["Escolha a conta", "Conta Corrente"]);
+  });
+});
+
+describe("PassoPendencias — o que cada meio é (IMP-04, AC 9)", () => {
+  it("cada opção diz o tipo do meio e, no cartão, os dias do ciclo", () => {
+    montar(criarMeioOk(), MEIOS_DESCRITOS);
+
+    expect(opcoes(screen.getByLabelText("Débito (4 linhas)"))).toEqual([
+      "Escolha o meio",
+      "Conta Corrente · conta",
+      "Cartão Roxo · cartão, fecha dia 25, vence dia 5",
+      "Cartão Verde · cartão, fecha dia 10, vence dia 20",
+    ]);
+    expect(opcoes(caiEm("Salário A"))).toEqual(["Escolha a conta", "Conta Corrente · conta"]);
   });
 });
 

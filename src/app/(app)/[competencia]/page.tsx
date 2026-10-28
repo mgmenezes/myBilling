@@ -17,7 +17,7 @@ import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { ImportacaoRepositoryDrizzle } from "@/infrastructure/db/repositories/importacao.repository";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
-import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
+import { descreverMeio, formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../sessao";
 
@@ -117,6 +117,7 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
                   id: meio.id,
                   nome: meio.nome,
                   geraFatura: meio.tipo === "CARTAO_CREDITO",
+                  detalhe: descreverMeio(meio),
                 }))}
                 previaDaPlanilha={previaDaPlanilha}
                 importarPlanilha={importarPlanilha}

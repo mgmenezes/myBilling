@@ -214,6 +214,12 @@ F9 -> F12
 T22 -> F13
 ```
 
+### Phase 10 — Pedido do dono depois da importação em produção
+
+```
+F13 -> F14
+```
+
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
 `tasks.md` e atualiza a traceability do `spec.md`.
 
@@ -984,6 +990,28 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Gate**: quick + `pnpm typecheck` + `pnpm lint`
 **Commit**: `feat(importacao): dizer no passo 2 o que falta para continuar`
 
+### Phase 10 — Pedido do dono depois da importação em produção
+
+#### F14: Dizer o que cada meio é no passo 2
+**What**: Na importação em produção, os seletores do passo 2 mostravam só nomes. Um nome de banco não diz se é o cartão ou a conta, e o dono não sabia o que estava escolhendo. Cada opção passa a dizer o tipo e, no cartão, os dias do ciclo.
+**Where**: `src/lib/formatar.ts`, `src/components/form-lancamento-avulso.tsx` (`OpcaoDeMeio`), `src/components/cadastro-de-meio-inline.tsx`, `src/components/importacao/passo-pendencias.tsx`, `src/app/(app)/[competencia]/page.tsx`, `e2e/importacao.spec.ts` (+ os testes e o `spec.md`)
+**Depends on**: F13
+**Reuses**: `CadastroDeMeioInline` (T20), cujo `aoCriado` ganha um segundo argumento
+**Requirement**: IMP-04
+**Interfaces**: `descreverMeio(meio)`; `OpcaoDeMeio.detalhe?`; `aoCriado(criado, detalhe)`
+**Tools**: nenhuma
+**Done when**:
+- [x] IMP-04 AC 9 na spec
+- [x] `descreverMeio` dá "cartão, fecha dia 25, vence dia 5", "conta" e "rótulo"
+- [x] O cadastro inline entrega a `aoCriado` o meio e o que ele é; a assertion de T20 passou a exigir o segundo argumento
+- [x] Com os meios descritos, o seletor de Débito lista "Conta Corrente · conta", "Cartão Roxo · cartão, fecha dia 25, vence dia 5" e "Cartão Verde · cartão, fecha dia 10, vence dia 20", e o "Cai em" só "Conta Corrente · conta"
+- [x] O meio cadastrado pelo "+ cadastrar" de um Tipo aparece como "Débito · conta"; o teste de T22 esperava "Débito"
+- [x] No e2e, a página monta os meios com o que eles são: os `selectOption` escolhem "Conta Corrente · conta" e "Cartão Roxo · cartão, fecha dia 25, vence dia 5", e o Cartão Azul cadastrado no passo aparece com os dias
+- [x] Os testes de unidade e de componente novos falharam no código anterior
+**Tests**: unit, componentes e e2e
+**Gate**: quick + `pnpm typecheck` + `pnpm lint` + `pnpm exec playwright test e2e/importacao.spec.ts`
+**Commit**: `feat(importacao): dizer no passo 2 o que cada meio é`
+
 ---
 
 ## Task Granularity Check
@@ -1006,6 +1034,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F9, F10, F11 | 1 arquivo de teste cada (F10 e F11: + 1 AC na spec) | ✅ |
 | F12 | 1 caso de teste | ✅ |
 | F13 | 1 componente, o teste dele e 1 AC | ✅ |
+| F14 | 1 função de formatação, a prop que a leva, o componente que a mostra, a página e o e2e | ⚠️ coeso: o detalhe nasce na página e só vale se chega à opção |
 
 ## Diagram-Definition Cross-Check
 
@@ -1051,6 +1080,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F11 | F8 | F8→F11 | ✅ |
 | F12 | F9 | F9→F12 | ✅ |
 | F13 | T22 | T22→F13 | ✅ |
+| F14 | F13 | F13→F14 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -1080,3 +1110,4 @@ e F7).
 | F10, F11 | `src/components/**` | componentes | componentes | ✅ |
 | F12 | `src/domain/**` | unit | unit | ✅ |
 | F13 | `src/components/**` | componentes | componentes | ✅ |
+| F14 | `src/lib/**`, `src/components/**` e composição de página | unit, componentes e e2e | unit, componentes e e2e | ✅ |

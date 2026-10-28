@@ -47,6 +47,20 @@ function montar(
   return { criar, aoCriado };
 }
 
+describe("CadastroDeMeioInline — o que o meio criado é (IMP-04, AC 9)", () => {
+  it("aoCriado recebe também a descrição do meio, com os dias do cartão", async () => {
+    const { aoCriado } = montar(criarMeioOk(), "Cartão Azul");
+
+    await userEvent.click(screen.getByRole("button", { name: "+ novo" }));
+    await userEvent.type(screen.getByLabelText("Dia de fechamento"), "25");
+    await userEvent.type(screen.getByLabelText("Dia de vencimento"), "5");
+    await userEvent.click(screen.getByRole("button", { name: "Criar" }));
+
+    await vi.waitFor(() => expect(aoCriado).toHaveBeenCalled());
+    expect(aoCriado.mock.calls[0]?.[1]).toBe("cartão, fecha dia 25, vence dia 5");
+  });
+});
+
 describe("CadastroDeMeioInline — nome pré-preenchido (IMP-04, AC 2)", () => {
   it('abre com o nome que recebeu, "Cartão Azul"', async () => {
     montar(criarMeioOk(), "Cartão Azul");
@@ -84,18 +98,21 @@ describe("CadastroDeMeioInline — nome pré-preenchido (IMP-04, AC 2)", () => {
 });
 
 describe("CadastroDeMeioInline — o meio criado volta para quem usa (T20)", () => {
-  it("aoCriado recebe { id, nome, geraFatura } do meio criado", async () => {
+  it("aoCriado recebe { id, nome, geraFatura } do meio criado e o que ele é", async () => {
     const { aoCriado } = montar(criarMeioOk(), "Débito");
 
     await userEvent.click(screen.getByRole("button", { name: "+ novo" }));
     await userEvent.selectOptions(screen.getByLabelText("Tipo"), "CONTA_CORRENTE");
     await userEvent.click(screen.getByRole("button", { name: "Criar" }));
 
-    expect(aoCriado).toHaveBeenCalledWith({
-      id: "55555555-5555-4555-8555-555555555555",
-      nome: "Débito",
-      geraFatura: false,
-    });
+    expect(aoCriado).toHaveBeenCalledWith(
+      {
+        id: "55555555-5555-4555-8555-555555555555",
+        nome: "Débito",
+        geraFatura: false,
+      },
+      "conta",
+    );
   });
 
   it("não chama aoCriado quando o servidor recusa, e mostra a mensagem", async () => {

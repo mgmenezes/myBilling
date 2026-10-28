@@ -80,6 +80,10 @@ async function escolherArquivo(dialogoAberto: Locator, mes: Mes): Promise<void> 
   await expect(dialogoAberto.getByText("4 blocos encontrados")).toBeVisible();
 }
 
+/* A página diz o que cada meio é junto do nome (IMP-04, AC 9). */
+const CONTA_CORRENTE = "Conta Corrente · conta";
+const CICLO_25_5 = "cartão, fecha dia 25, vence dia 5";
+
 async function decidirEntrada(
   dialogoAberto: Locator,
   nome: string,
@@ -87,7 +91,7 @@ async function decidirEntrada(
 ): Promise<void> {
   const grupo = dialogoAberto.getByRole("group", { name: nome });
   await grupo.getByRole("radio", { name: new RegExp(`^${classe}`) }).check();
-  await grupo.getByLabel("Cai em").selectOption({ label: "Conta Corrente" });
+  await grupo.getByLabel("Cai em").selectOption({ label: CONTA_CORRENTE });
 }
 
 /** O valor de um indicador do painel, em centavos. */
@@ -116,9 +120,13 @@ async function importarOutubro(page: Page): Promise<Locator> {
   await expect(aberto.getByText("Tudo entra em nome de Pessoa A")).toBeVisible();
   await aberto.getByRole("button", { name: "Continuar" }).click();
 
-  await aberto.getByLabel("Débito (4 linhas)").selectOption({ label: "Conta Corrente" });
-  await aberto.getByLabel("Cartão Roxo (8 linhas)").selectOption({ label: "Cartão Roxo" });
-  await aberto.getByLabel("Cartão Verde (1 linha)").selectOption({ label: "Cartão Verde" });
+  await aberto.getByLabel("Débito (4 linhas)").selectOption({ label: CONTA_CORRENTE });
+  await aberto
+    .getByLabel("Cartão Roxo (8 linhas)")
+    .selectOption({ label: `Cartão Roxo · ${CICLO_25_5}` });
+  await aberto
+    .getByLabel("Cartão Verde (1 linha)")
+    .selectOption({ label: `Cartão Verde · ${CICLO_25_5}` });
   /* "Cai em" só oferece meio sem fatura, com os meios que a página monta (IMP-04, AC 3). */
   const caiEm = aberto.getByRole("group", { name: "Salário A" }).getByLabel("Cai em");
   await expect(caiEm.locator("option", { hasText: "Conta Corrente" })).toHaveCount(1);
@@ -176,7 +184,7 @@ test("importa outubro e novembro pela Visão geral, e o mês mostra o que entrou
   await novembro.getByLabel("Dia de vencimento").fill("5");
   await novembro.getByRole("button", { name: "Criar" }).click();
   await expect(novembro.getByLabel("Cartão Azul (1 linha)").locator("option:checked")).toHaveText(
-    "Cartão Azul",
+    `Cartão Azul · ${CICLO_25_5}`,
   );
   await decidirEntrada(novembro, "Presente", "Avulsa");
   await novembro.getByRole("button", { name: "Continuar" }).click();

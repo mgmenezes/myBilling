@@ -10,6 +10,7 @@ import {
   MAX_NOME_MEIO,
   TIPOS_DE_MEIO,
 } from "@/application/schemas/meio-pagamento.schema";
+import { descreverMeio } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
 
 /**
@@ -21,9 +22,10 @@ import { CadastroInline } from "./cadastro-inline";
  * action. Os campos de `form-compra.tsx` e `form-recorrencia.tsx` continuam
  * duplicados; é dívida registrada no design da importação.
  *
- * O componente guarda o estado dos campos do cadastro. Quem o usa recebe só o
- * meio criado, em `aoCriado`, e decide o que fazer com ele: selecioná-lo,
- * acrescentá-lo à lista.
+ * O componente guarda o estado dos campos do cadastro. Quem o usa recebe o
+ * meio criado e o que ele é, em `aoCriado`, e decide o que fazer com eles:
+ * selecioná-lo, acrescentá-lo à lista. O que ele é sai do que foi enviado,
+ * porque a action devolve só id, nome e se gera fatura.
  */
 
 // SPEC_DEVIATION: a interface do design não lista `rotuloDoAtalho` nem `ajuda`.
@@ -41,7 +43,8 @@ export interface CadastroDeMeioInlineProps {
   /** Substitui o texto de apoio, que por padrão depende do tipo escolhido. */
   readonly ajuda?: string;
   readonly criarMeioDePagamento: typeof criarMeioAction;
-  readonly aoCriado: (criado: MeioPagamentoGravado) => void;
+  /** `detalhe` é o `descreverMeio` do que foi cadastrado. */
+  readonly aoCriado: (criado: MeioPagamentoGravado, detalhe: string) => void;
   /** O seletor de meio, renderizado abaixo do rótulo. */
   readonly children: ReactNode;
 }
@@ -102,9 +105,12 @@ export function CadastroDeMeioInline({
         if (!validado.success) {
           throw new Error("payload inválido chegou ao envio");
         }
-        return criarMeioDePagamento(validado.data);
+        const resposta = await criarMeioDePagamento(validado.data);
+        return resposta.ok
+          ? { ok: true, data: { criado: resposta.data, detalhe: descreverMeio(validado.data) } }
+          : resposta;
       }}
-      aoCriado={aoCriado}
+      aoCriado={({ criado, detalhe }) => aoCriado(criado, detalhe)}
       aoLimpar={() => {
         setNomeMeio(nomeInicial);
         setTipoMeio("CARTAO_CREDITO");
