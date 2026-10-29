@@ -2,7 +2,13 @@
 
 ## Validation: editar-fixos — **FAIL**
 
-**Result**: FAIL ❌ — dois mutantes vivos, nenhum defeito de comportamento no código de `48c79da`.
+**Result**: FAIL ❌ — rodada 2 (2026-10-29, `bfc38f6`): E2 e S3 morrem, as duas lacunas de
+precisão estão fechadas e o gate está verde, mas dois mutantes novos sobrevivem no mesmo elo da
+página com o formulário (E2b, E3p). Uma fix task de e2e, já verificada numa sonda. Detalhe na seção
+[Rodada 2](#rodada-2), no fim do arquivo. A rodada 1 segue abaixo como foi escrita.
+
+**Rodada 1** (2026-10-28): FAIL ❌ — dois mutantes vivos, nenhum defeito de comportamento no código
+de `48c79da`.
 
 O código faz o que a spec pede em cada camada, e a rede é forte: 44 dos 46 mutantes morreram, cada
 um no teste que o declara. O veredito vem dos dois que sobreviveram:
@@ -411,3 +417,227 @@ compara o valor em centavos; o diálogo único sobrevive à mudança de posiçã
 não regrediu.
 
 **Próximo passo**: Fix 1 e Fix 2 por um implementador, e nova verificação com E2 e S3 reaplicados.
+
+---
+
+## Rodada 2
+
+**Data**: 2026-10-29
+**Verificado em**: `bfc38f6`, branch `feat/editar-fixos` rebaseada sobre `main` (`b29e138`).
+**Faixa**: o plano em `63f407d`; T1 a T10 de `ea765de` a `3cd55a2` (antes `bee4dd7..48c79da`); o
+relatório da rodada 1 em `944c898` (antes `1ac1d02`); as correções em `082c4db` (F2), `ac34691` (F1)
+e `bfc38f6` (F3).
+**Verificador**: sub-agente independente, que não escreveu F1, F2 nem F3. As mutações rodaram numa
+`git worktree` descartável, em modo detached no `bfc38f6`, com `pnpm install --frozen-lockfile
+--offline`. **Nenhum `git stash`.** O porcelain da worktree da fatia estava vazio antes e está vazio
+no fim. O `next dev` do e2e reescreveu `next-env.d.ts`, que voltou ao commitado com `git checkout`.
+
+### Veredito
+
+**FAIL ❌.** As três correções fazem o que prometem: E2 e S3 morrem no teste que cada uma
+acrescentou, o EDF-02 AC 5 reescrito tem assertion sobre o resultado novo e quatro mutantes mortos, e
+o EDF-06 AC 6 tem as duas frases na spec e nos testes. O rebase não quebrou nada.
+
+O sensor achou dois mutantes novos vivos no ponto em que a página monta o formulário de edição. O
+F1 abriu o mês **anterior** à vigência mais nova, e isso mata quem lê a **última** vigência (E2). Ler
+a **primeira** vigência (E2b) passa, porque em outubro a primeira e a vigente são o mesmo número. A
+consequência foi medida: depois do reajuste de novembro, abrir "Editar" em novembro e salvar sem
+mexer diz "Alterações salvas." e volta novembro e dezembro para R$ 100,00. O reajuste é desfeito. Com
+uma pessoa só no seed do e2e, a pessoa errada no formulário (E3p) também passa. As duas caem com um
+acréscimo de 13 linhas no e2e do EDF-03 (Fix 4), já rodado: passa no código commitado e falha com
+E2b, E3p e E2.
+
+### O rebase
+
+- **Código de produto da fatia idêntico ao da rodada 1.** As linhas alteradas de `b29e138..bfc38f6`
+  em `src` e `e2e` são as de `483a4e3..1ac1d02`, uma a uma. Só diferem as linhas de teste de F1 a F3
+  e o import fundido em `src/lib/formatar.test.ts`. Nos dois casos são 20 arquivos de produto, +1.106
+  e −133. Os 46 mutantes da rodada 1 valem por isso sobre o código de hoje, e o gate abaixo confirma
+  que os testes que os mataram continuam verdes.
+- **O `main` entrou inteiro.** Os quatro arquivos de teste e os cinco de produto que o `main`
+  alterou estão byte a byte iguais a `b29e138`, exceto `src/lib/formatar.test.ts`. Esse é a união
+  dos dois lados: importa `descreverMeio` e `formatarValorParaCampo`, e mantém o `describe` de cada um
+  (`formatar.test.ts:5`, `:7-18`, `:47-61`). `pnpm-lock.yaml` e `package.json` são iguais aos de `b29e138`.
+- **As lições.** L-019 a L-022 são as antigas L-017 a L-020, com `key`, `text`, `evidence`,
+  `signal`, `status` e datas iguais. Só o `id` mudou. As L-001 a L-018 são as do `main`, sem
+  alteração, e `next_id` é 23. `.specs/LESSONS.md` mostra as quatro com os números novos
+  (`LESSONS.md:123`, `:129`, `:135`, `:141`). A mensagem do commit `944c898` ainda diz "L-017 a
+  L-020". É só texto de commit, e reescrever o histórico não vale a pena.
+
+### Mutantes da rodada 2
+
+Cada mutante rodou isolado. O log confere que ele morreu numa assertion, e não por erro de
+compilação.
+
+| # | `file:line` | Mutação | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| E2 | `src/app/(app)/[competencia]/fixos/page.tsx:115` | `valorNoMesCentavos: versoes.at(-1)?.valorPrevisto ?? null` (a última vigência) | `e2e/editar-fixo.spec.ts:168` — `toHaveValue("100,00")`, `Received: "110,00"` (F1) | ✅ Morto |
+| S3 | `src/application/schemas/recorrencia.schema.ts:65` | `valorCentavos: z.number().refine(...)` e `diaVencimento: z.int().min(1).max(31)` na edição, com as mensagens padrão do Zod | `recorrencia.schema.test.ts:194` — `expect(daEdicao).toBe(doCadastro)` falha 5 casos: valor zero e negativo (`"Invalid input"` contra `"O valor precisa ser maior que zero."`), dia 0, dia 32 e dia fracionário (F2) | ✅ Morto |
+| S3′ | `recorrencia.schema.ts:65` | `descricao` com outra mensagem, `meioPagamentoId` e `categoriaId` com a mensagem padrão | `recorrencia.schema.test.ts:194` (4 casos) e `form-recorrencia.test.tsx:494` | ✅ Morto |
+| M5a | `src/domain/mes/bloco-do-lancamento.ts:33-38` | o meio decide antes da origem | `src/application/recorrencias/editar/handler.test.ts:275` (F3), além de `bloco-do-lancamento.test.ts:39`, `resumo-mensal.test.ts`, `obter-visao-mensal/handler.test.ts` e `obter-visao-anual/handler.test.ts` (8 testes) | ✅ Morto |
+| M5b | `src/application/ports/fakes.ts:385` | o fake de `atualizarOcorrenciasDaSerie` mantém o meio antigo | `handler.test.ts:275` (F3), `handler.test.ts:198` e `recorrencia.fake.test.ts:217` | ✅ Morto |
+| M5c | `src/infrastructure/db/repositories/movimento.repository.ts:257` | o `SET` do Drizzle não grava o meio | `movimento.recorrencia.integration.test.ts:444` — `meio_pagamento_id` igual a `base.cartaoId` nas quatro | ✅ Morto |
+| M5d | `src/domain/recorrencia/edicao-do-fixo.ts:63` | `meioPagamentoId` fora de `CAMPOS_DA_SERIE`: trocar só o meio vira "nada mudou" | `handler.test.ts:275` (F3) e `edicao-do-fixo.test.ts:63` ("o meio de pagamento") | ✅ Morto |
+| M6 | `src/components/form-recorrencia.tsx:313` | as duas frases da confirmação trocadas | `form-recorrencia.test.tsx:441`, `:454` e `lista-de-fixos.test.tsx:372` | ✅ Morto |
+| E3m | `fixos/page.tsx:112` | o formulário recebe outro meio, e não o gravado | `e2e/editar-fixo.spec.ts:170` — `toHaveText("Nada mudou: já estava tudo assim.")`, `Received: "Alterações salvas."` (F1) | ✅ Morto |
+| E2b | `fixos/page.tsx:115` | `valorNoMesCentavos: versoes[0]?.valorPrevisto ?? null` (a primeira vigência) | nenhum: `e2e/editar-fixo.spec.ts` 3/3. A página não tem outro teste | ❌ **Sobreviveu** → Fix 4 |
+| E3p | `fixos/page.tsx:114` | o formulário recebe a outra pessoa, e não a gravada | nenhum: 3/3. O seed do e2e tem uma pessoa só (`src/infrastructure/db/testing/banco-de-teste.ts:55-58`), e a pessoa errada coincide com a certa | ❌ **Sobreviveu** → Fix 4 |
+
+**Resultado da rodada 2**: 11 mutantes, 9 mortos e 2 vivos.
+
+O E3m mostra o alcance do F1. A edição de outubro salva sem mexer e exige "Nada mudou" (`:170`), e
+isso derruba qualquer campo da série que a página entregue errado, **desde que o errado seja
+distinguível**. O E2b e o E3p escapam pelo mesmo motivo: o valor errado coincide com o certo no
+cenário do teste. No E2b, a primeira vigência é a vigente em outubro. No E3p, existe uma pessoa só.
+
+**Consequência do E2b, medida numa sonda.** Na worktree descartável, com o E2b aplicado, depois do
+reajuste de novembro: abrir "Editar" em novembro mostra `100,00`; salvar sem mexer mostra
+"Alterações salvas."; a lista passa a mostrar `−R$ 100,00` em outubro, novembro **e dezembro**. Isso
+fere o EDF-01 AC 3, o EDF-03 AC 3 e o segundo Goal da spec.
+
+### Critérios que mudaram desde a rodada 1
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| EDF-01 AC 3 — valor vigente no mês exibido | o valor da vigência que vale no mês aberto | `e2e/editar-fixo.spec.ts:168` — `toHaveValue("100,00")` em outubro, depois do reajuste de novembro (E2 morto). Nenhum teste abre o mês da vigência mais nova (E2b vivo), e a pessoa coincide por fixture (E3p vivo) | ❌ GAP → Fix 4 |
+| EDF-03 AC 3 — valor igual ao vigente não registra vigência | nenhuma vigência; o mês continua com o valor que tinha | `e2e/editar-fixo.spec.ts:170-171` — "Nada mudou: já estava tudo assim." e outubro em R$ 100,00. As camadas seguem como na rodada 1 | ❌ GAP: com o E2b, salvar em novembro registra uma vigência de R$ 100,00 → Fix 4 |
+| EDF-05 AC 3 — o mesmo erro do cadastro | a mensagem do cadastro | `src/application/schemas/recorrencia.schema.test.ts:193-194` — `expect(doCadastro).toEqual(expect.any(String))` e `expect(daEdicao).toBe(doCadastro)` nos 10 casos em comum (`:164-173`); a recusa continua em `:176-181` | ✅ PASS (S3, S3′ mortos) |
+| EDF-02 AC 5 (reescrito) — com o meio novo, as ocorrências continuam em Fixos e passam a ter o meio novo | `meioPagamentoId` novo e bloco `FIXOS` em todas | `src/application/recorrencias/editar/handler.test.ts:274` — `cartoes.has("cartao")).toBe(true)`, que garante que o meio novo é um cartão; `:275-286` — `toEqual([["2026-10", "cartao", "FIXOS"], …, ["2027-01", "cartao", "FIXOS"]])`. No banco, o meio chega pelo `movimento.recorrencia.integration.test.ts:454-456` | ✅ PASS (M5a, M5b, M5c, M5d mortos) |
+| EDF-06 AC 6 (reescrito) — "Alterações salvas." ou "Nada mudou: já estava tudo assim.", dentro do diálogo, sem fechá-lo | as duas frases, pelo `mudou` | `src/components/form-recorrencia.test.tsx:441-444` — `"Nada mudou: já estava tudo assim."`; `:454` — `"Alterações salvas."`; `src/components/lista-de-fixos.test.tsx:372-376` — a frase dentro do diálogo e `dialogo.open).toBe(true)`; página: `e2e/editar-fixo.spec.ts:91` e `:170` | ✅ PASS (M6 morto) |
+
+**Status**: 26 dos 28 critérios têm assertion sobre o resultado da spec e mutante morto. Os dois GAPs
+(EDF-01 AC 3, EDF-03 AC 3) são o mesmo elo, `fixos/page.tsx:112-115`, e fecham com uma fix task. Não
+resta lacuna de precisão: o dono decidiu as duas da rodada 1, e o caso dos arquivados está no Out of
+Scope da spec e em `docs/roadmap.md:85-86`.
+
+Uma observação, que não é gap: o teste do EDF-02 AC 5 chama `blocoDoLancamento` sobre as ocorrências
+do fake, e não passa por `obterVisaoMensal` (`obter-visao-mensal/handler.ts:114`), que é quem monta a
+lista. A lista usa a mesma função, e o M5a prova que é ela quem decide. Por isso a prova vale.
+
+### Gate
+
+Rodado na worktree da fatia, em `bfc38f6`, com o Postgres `mybilling-db` já de pé e o banco de teste
+padrão (`DATABASE_URL_TEST` não definido).
+
+- `pnpm verify` — ✅ saída 0
+  - `pnpm typecheck` — `Types generated successfully`
+  - `pnpm lint` — `Checked 264 files in 104ms. No fixes applied.`
+  - `pnpm test:unit` — **87 arquivos, 1.268 testes**, 0 falhas. `src/domain`: 100% de branches
+    (345/345), statements (662/662), funções (158/158) e linhas (626/626)
+  - `pnpm test:integration` — **22 arquivos, 307 testes**, 0 falhas
+  - `pnpm build` — compilado, 7 rotas
+- `pnpm test:e2e` — ✅ **62 passed (2.6m)**, saída 0, a suíte inteira. A edição passa em
+  `e2e/editar-fixo.spec.ts:102`, `:148` e `:174`. A importação, que o `main` trouxe, passa em
+  `e2e/importacao.spec.ts:152` e `:211`
+
+**Total**: **1.637 provas**, 0 falhas, 0 puladas.
+
+**Integridade dos testes.** As contagens do `main` foram medidas agora, na worktree descartável, em
+`b29e138`. O `main` não alterou nenhum `*.integration.test.ts` desde `483a4e3`, por isso as 285 de
+integração da rodada 1 continuam valendo para ele.
+
+| | `main` (`b29e138`) | Rodada 1 (`1ac1d02`) | Agora (`bfc38f6`) | Delta sobre o `main` |
+| --- | --- | --- | --- | --- |
+| unit + componentes | 1.156 (84 arquivos) | 1.243 (87) | 1.268 (87) | +112 = 101 da fatia + 10 do F2 + 1 do F3 |
+| integration | 285 (21) | 307 (22) | 307 (22) | +22 |
+| e2e | 59 | 62 | 62 | +3 (o F1 estende um teste existente) |
+
+De `1ac1d02` para `bfc38f6`, as únicas linhas removidas de arquivos de teste são de estrutura, e
+nenhuma assertion saiu:
+
+- o `import type { Cents, Competencia }` de `handler.test.ts`, que passa a importar também
+  `blocoDoLancamento`;
+- o `it.each([` de `recorrencia.schema.test.ts`, cujos 10 primeiros casos viraram a constante
+  `INVALIDOS_COMO_NO_CADASTRO`, espalhada de volta no mesmo `it.each`, com o 11º caso;
+- o import de `formatar.test.ts`, fundido no rebase.
+
+Nenhum `skip`, `only` ou `todo` em `src` nem em `e2e`.
+
+### Validadores
+
+- `validate_spec.py .specs/features/editar-fixos/spec.md` — 0 erros, 0 avisos.
+- `validate_tasks.py` sobre uma cópia do `tasks.md` com F1, F2 e F3 trocados por T101, T102 e T103
+  (troca por regex com borda de palavra; o `sed` do macOS não tem `\b`) — 0 erros, 10 avisos. São
+  nove de granularidade (o `Where` com mais de um arquivo, inclusive o `spec.md` de T101 a T103) e um
+  de `Tests: none` na T10, que a matriz declara.
+- `validate_state.py editar-fixos` — sai com 1, como deve: o veredito é FAIL.
+- `check_commit.py` — OK nas mensagens de `082c4db`, `ac34691` e `bfc38f6`. Os três commits trazem
+  `tasks.md` e `spec.md` (`git show --stat`), e o `tasks.md` tem 45 itens marcados e nenhum aberto.
+
+### Code Quality das correções
+
+| Princípio | Status |
+| --- | --- |
+| Código mínimo | ✅ F1 a F3 só acrescentam teste e texto de spec; nenhum arquivo de produto mudou |
+| Segue os padrões | ✅ O F2 reaproveita `base()` e `edicao()`, e o F3 reaproveita `cenario`, `semMudanca` e `ocorrencias` |
+| Assertion bate com a spec | ⚠️ 26/28; os dois GAPs são o Fix 4 |
+| Todo teste mapeia para AC | ✅ F1 → EDF-01 AC 3 e EDF-03 AC 3; F2 → EDF-05 AC 3; F3 → EDF-02 AC 5 |
+| Regras invioláveis (`AGENTS.md`) | ✅ Fixtures genéricas ("Conta de luz", "Pessoa B", R$ 100,00 → R$ 110,00, "cartao"). Nenhum dado real. Nenhuma operação remota |
+
+### Fix 4: abrir a edição no mês da vigência mais nova, com duas pessoas (EDF-01 AC 3, EDF-03 AC 3) — Major
+
+- **Causa**: `fixos/page.tsx:112-115` é o elo entre o gravado e o formulário, e só o e2e o
+  atravessa. O F1 cobre um lado da vigência mais nova, o mês anterior, e o seed tem uma pessoa. A
+  primeira vigência (E2b) e a pessoa errada (E3p) coincidem com as certas nesse cenário.
+- **Fix task**: no teste do EDF-03 em `e2e/editar-fixo.spec.ts`, semear uma segunda pessoa antes de
+  `cadastrarFixo` e, depois do bloco de outubro, abrir a edição em novembro:
+  ```ts
+  /* Uma segunda pessoa: sem ela, a pessoa errada no formulário coincide com a certa. */
+  await pool.query("INSERT INTO usuario (nome, email) VALUES ($1, $2)", [
+    "Pessoa B",
+    "pessoa-b@example.com",
+  ]);
+  // ... depois do bloco de outubro:
+  /* No mês da vigência nova, a edição abre com ela, e não com a primeira:
+     salvar sem mexer não desfaz o reajuste (EDF-01 AC 3, EDF-03 AC 3). */
+  const novembro = await abrirEdicao(page, "2026-11", "Conta de luz");
+  await expect(novembro.getByLabel(/De quanto costuma ser/)).toHaveValue("110,00");
+  await novembro.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(novembro.getByRole("status")).toHaveText("Nada mudou: já estava tudo assim.");
+  await expect(await linhaNaLista(page, "2026-11", "Conta de luz")).toContainText("R$ 110,00");
+  ```
+- **Verificado** na worktree descartável. A sonda com esse trecho passa em `bfc38f6`
+  (`e2e/editar-fixo.spec.ts` 3/3) e falha:
+  - com o E2b, em `toHaveValue("110,00")`, com `Received: "100,00"`;
+  - com o E3p, no "Nada mudou" de outubro, com `Received: "Alterações salvas."`;
+  - com o E2, em `toHaveValue("100,00")`, com `Received: "110,00"`.
+- **Pronto quando**: E2b, E3p e E2 morrem no e2e da fatia, e a traceability do EDF-01 e do EDF-03
+  cita o Fix 4.
+- **Prioridade**: Major pelo E2b, porque desfaz um reajuste. Minor pelo E3p.
+
+### Lições destiladas
+
+Gravadas com `lessons.py add`, uma por sinal novo, ambas `candidate` (x1). As L-019 a L-022 não se
+repetem nesta rodada: os sinais delas foram corrigidos.
+
+| Sinal | Fonte | Lição |
+| --- | --- | --- |
+| `surviving_mutant` | E2b, `fixos/page.tsx:115` | L-023: valor versionado por mês precisa de teste nos dois lados da vigência mais nova |
+| `surviving_mutant` | E3p, `fixos/page.tsx:114` | L-024: fixture de e2e precisa de pelo menos duas opções em cada campo que a tela preenche com o gravado |
+
+### Requirement Traceability: atualização proposta
+
+| Requisito | Antes | Proposto |
+| --- | --- | --- |
+| EDF-01 | Implemented | ❌ Needs Fix (Fix 4) |
+| EDF-02 | Implemented | ✅ Verified |
+| EDF-03 | Implemented | ❌ Needs Fix (Fix 4: a consequência cai no AC 3) |
+| EDF-04 | Implemented | ✅ Verified |
+| EDF-05 | Implemented | ✅ Verified |
+| EDF-06 | Implemented | ✅ Verified |
+
+O verificador não edita `spec.md`: a atualização entra com a fix task.
+
+### Resumo da rodada 2
+
+**Overall**: ❌ Not Ready. Falta uma fix task de teste e nenhuma de código. Esta é a 2ª de no máximo 3
+iterações de correção e reverificação. Se a rodada 3 não fechar, o caso escala para o dono.
+
+**Spec-anchored check**: 26/28 critérios. Os 2 GAPs estão no mesmo elo da página, e não resta
+lacuna de precisão.
+**Sensor**: 11 mutantes nesta rodada, 9 mortos e 2 vivos (E2b, E3p). Os 46 da rodada 1 continuam
+valendo sobre o mesmo código de produto.
+**Gate**: `pnpm verify` saiu com 0 (1.268 unit, 307 integração, 100% de branches no domínio, build).
+`pnpm test:e2e` passou 62/62.
+
+**Próximo passo**: um implementador faz o Fix 4. Depois, a rodada 3 reaplica E2, E2b e E3p.

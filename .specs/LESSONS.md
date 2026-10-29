@@ -144,6 +144,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: EDF-06 AC 6, src/components/form-recorrencia.tsx:313 (specs,textos)
 - last seen: 2026-10-28T19:52:50Z
 
+### L-023 - Valor versionado por mês precisa de teste nos dois lados da vigência mais nova; abrir só o mês anterior a ela deixa passar quem lê a primeira vigência, e abrir só o mês dela deixa passar quem lê a última.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e, app/page, recorrencia` · harmful: 0
+- features: editar-fixos
+- evidence: E2b, src/app/(app)/[competencia]/fixos/page.tsx:115 (validation.md, Rodada 2) (e2e, app/page, recorrencia)
+- last seen: 2026-10-29T14:48:44Z
+
+### L-024 - Fixture de e2e precisa de pelo menos duas opções em cada campo que a tela preenche com o gravado; com uma só, o valor errado coincide com o certo e o mutante passa.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e, fixtures` · harmful: 0
+- features: editar-fixos
+- evidence: E3p, src/app/(app)/[competencia]/fixos/page.tsx:114; src/infrastructure/db/testing/banco-de-teste.ts:55 (validation.md, Rodada 2) (e2e, fixtures)
+- last seen: 2026-10-29T14:48:44Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

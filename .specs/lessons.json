@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 23,
+  "next_id": 25,
   "lessons": [
     {
       "id": "L-001",
@@ -403,6 +403,42 @@
       ],
       "created": "2026-10-28T19:52:50Z",
       "last_seen": "2026-10-28T19:52:50Z"
+    },
+    {
+      "id": "L-023",
+      "key": "surviving_mutant::valor versionado por mes precisa de teste nos dois lados da vigencia mais nova abrir so o mes anterior a ela deixa passar quem le a primeira vigencia e abrir so o mes dela deixa passar quem le a ultima",
+      "text": "Valor versionado por mês precisa de teste nos dois lados da vigência mais nova; abrir só o mês anterior a ela deixa passar quem lê a primeira vigência, e abrir só o mês dela deixa passar quem lê a última.",
+      "signal": "surviving_mutant",
+      "scope": "e2e, app/page, recorrencia",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E2b, src/app/(app)/[competencia]/fixos/page.tsx:115 (validation.md, Rodada 2) (e2e, app/page, recorrencia)"
+      ],
+      "created": "2026-10-29T14:48:44Z",
+      "last_seen": "2026-10-29T14:48:44Z"
+    },
+    {
+      "id": "L-024",
+      "key": "surviving_mutant::fixture de e2e precisa de pelo menos duas opcoes em cada campo que a tela preenche com o gravado com uma so o valor errado coincide com o certo e o mutante passa",
+      "text": "Fixture de e2e precisa de pelo menos duas opções em cada campo que a tela preenche com o gravado; com uma só, o valor errado coincide com o certo e o mutante passa.",
+      "signal": "surviving_mutant",
+      "scope": "e2e, fixtures",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E3p, src/app/(app)/[competencia]/fixos/page.tsx:114; src/infrastructure/db/testing/banco-de-teste.ts:55 (validation.md, Rodada 2) (e2e, fixtures)"
+      ],
+      "created": "2026-10-29T14:48:44Z",
+      "last_seen": "2026-10-29T14:48:44Z"
     }
   ]
 }
