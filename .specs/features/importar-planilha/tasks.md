@@ -221,6 +221,12 @@ F13 -> F14
 F14 -> F15
 ```
 
+### Phase 11 — Correções da verificação do passo 2
+
+```
+F15 -> F16
+```
+
 As sete são independentes entre si e entram em sequência só porque cada commit marca a sua no
 `tasks.md` e atualiza a traceability do `spec.md`.
 
@@ -1034,6 +1040,25 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 **Gate**: quick + `pnpm typecheck` + `pnpm lint` + `pnpm exec playwright test e2e/importacao.spec.ts`
 **Commit**: `feat(importacao): cadastrar a conta das entradas sem passar por um Tipo`
 
+### Phase 11 — Correções da verificação do passo 2
+
+#### F16: Prender a lista do "para todas" e o lugar de cada elemento novo
+**What**: A verificação de F13 a F15 deixou três mutantes vivos. Pôr cartões no seletor "Conta para todas as entradas" passava verde, e por ali uma receita cairia num cartão (P28, AD-015). Levar o "+ nova conta" e a dica para fora das Entradas (P27), ou o aviso para longe do "Continuar" (P29), também passava, porque os testes consultavam a tela inteira.
+**Where**: `src/components/importacao/passo-pendencias.test.tsx` (+ o `spec.md`)
+**Depends on**: F15
+**Reuses**: `opcoes`, `continuar`; a seção pelo título, como `region`
+**Requirement**: IMP-04
+**Interfaces**: —
+**Tools**: nenhuma
+**Done when**:
+- [x] "Conta para todas as entradas" oferece só "Escolha a conta" e "Conta Corrente", com os dois cartões montados
+- [x] O "+ nova conta" é buscado dentro da seção Entradas e não existe na seção Meios de pagamento; a dica é buscada dentro das Entradas
+- [x] O aviso é o elemento logo antes do "Continuar"
+- [x] P27, P28 e P29 morrem, cada um no teste novo dele
+**Tests**: componentes
+**Gate**: quick + `pnpm typecheck` + `pnpm lint`
+**Commit**: `test(importacao): prender os controles novos do passo 2`
+
 ---
 
 ## Task Granularity Check
@@ -1058,6 +1083,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F13 | 1 componente, o teste dele e 1 AC | ✅ |
 | F14 | 1 função de formatação, a prop que a leva, o componente que a mostra, a página e o e2e | ⚠️ coeso: o detalhe nasce na página e só vale se chega à opção |
 | F15 | 1 prop no cadastro inline e 1 componente, com os testes e 3 ACs | ⚠️ coeso: a prop existe para o atalho das Entradas |
+| F16 | 1 arquivo de teste | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -1105,6 +1131,7 @@ As sete são independentes entre si e entram em sequência só porque cada commi
 | F13 | T22 | T22→F13 | ✅ |
 | F14 | F13 | F13→F14 | ✅ |
 | F15 | F14 | F14→F15 | ✅ |
+| F16 | F15 | F15→F16 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Sobre este arquivo, ele não vê as tasks `F<n>` e lê os
 campos delas como se fossem da T27. O cruzamento acima foi feito à mão, e uma cópia com os IDs
@@ -1136,3 +1163,4 @@ e F7).
 | F13 | `src/components/**` | componentes | componentes | ✅ |
 | F14 | `src/lib/**`, `src/components/**` e composição de página | unit, componentes e e2e | unit, componentes e e2e | ✅ |
 | F15 | `src/components/**` | componentes | componentes | ✅ |
+| F16 | `src/components/**` | componentes | componentes | ✅ |

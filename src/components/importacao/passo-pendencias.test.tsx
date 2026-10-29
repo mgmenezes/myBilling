@@ -83,6 +83,11 @@ function entrada(nome: string): HTMLElement {
   return screen.getByRole("group", { name: nome });
 }
 
+/** A seção do passo pelo título: "Meios de pagamento" ou "Entradas". */
+function secao(nome: string): HTMLElement {
+  return screen.getByRole("region", { name: nome });
+}
+
 function opcoes(seletor: HTMLElement): Array<string | null> {
   return within(seletor)
     .getAllByRole("option")
@@ -209,7 +214,10 @@ describe("PassoPendencias — uma conta nova sem passar por um Tipo (IMP-04, AC 
   it('"+ nova conta" fica nas Entradas e só oferece tipos sem fatura', async () => {
     montar();
 
-    await userEvent.click(screen.getByRole("button", { name: "+ nova conta" }));
+    expect(
+      within(secao("Meios de pagamento")).queryByRole("button", { name: "+ nova conta" }),
+    ).toBeNull();
+    await userEvent.click(within(secao("Entradas")).getByRole("button", { name: "+ nova conta" }));
 
     expect(opcoes(screen.getByLabelText("Tipo"))).toEqual(["Conta corrente", "Rótulo"]);
   });
@@ -245,6 +253,17 @@ describe("PassoPendencias — a mesma conta para todas as entradas (IMP-04, AC 1
   function aplicar(): HTMLButtonElement {
     return screen.getByRole("button", { name: "Aplicar a todas" }) as HTMLButtonElement;
   }
+
+  /* "Aplicar a todas" grava no mesmo campo que o "Cai em": a lista dele também
+     só tem meio sem fatura (AC 3, AD-015). */
+  it('"Conta para todas as entradas" só oferece meio sem fatura', () => {
+    montar();
+
+    expect(opcoes(screen.getByLabelText(PARA_TODAS))).toEqual([
+      "Escolha a conta",
+      "Conta Corrente",
+    ]);
+  });
 
   it('"Aplicar a todas" fica desabilitado até haver uma conta escolhida', async () => {
     montar();
@@ -300,7 +319,7 @@ describe("PassoPendencias — nenhuma conta ainda (IMP-04, AC 12)", () => {
   it("sem meio sem fatura, diz onde criar a conta", () => {
     montar(criarMeioOk(), SO_CARTOES);
 
-    expect(screen.getByText(DICA)).toBeDefined();
+    expect(within(secao("Entradas")).getByText(DICA)).toBeDefined();
   });
 
   it("a dica some quando a conta é criada", async () => {
@@ -357,6 +376,8 @@ describe("PassoPendencias — o que falta para continuar (IMP-04, AC 8)", () => 
     const idDoAviso = continuar().getAttribute("aria-describedby");
     expect(idDoAviso).not.toBeNull();
     expect(document.getElementById(idDoAviso ?? "")).toBe(screen.getByRole("status"));
+    /* Junto do botão: é o que vem logo antes dele. */
+    expect(continuar().previousElementSibling).toBe(screen.getByRole("status"));
 
     await decidirTudo();
 
