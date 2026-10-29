@@ -163,6 +163,7 @@ T8 -> T9
 ```
 T8 -> F1
 T6 -> F2
+T8 -> F3
 ```
 
 Cada uma fecha uma lacuna de `validation.md` (rodada 1, FAIL). A lacuna 2, o possível dado real
@@ -354,6 +355,20 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 **Gate**: quick + `pnpm lint`
 **Commit**: `test(lancamentos): penúltima parcela ainda diz quantas faltam`
 
+#### F3: A margem medida em todas as tabelas da lista
+**What**: O LST-05 AC 3 diz "nenhuma tabela da lista", mas o e2e media só a do Cartão. Com a tabela de Fixos 16 px mais larga que a coluna (mutante E5), ele passava nas três larguras (lacuna 4). O seletor da linha só tinha prova de classe para os 36 px do ponteiro fino e a largura fixa de `md` (lacuna 7): tirar `md:w-44` e manter `w-full` (E4a) passava no e2e.
+**Where**: `e2e/lista-enxuta.spec.ts` (+ `spec.md`)
+**Depends on**: T8
+**Reuses**: `cartaoDeFiltros`, `transbordoHorizontal`, `FIXOS`, `GASTOS`
+**Requirement**: LST-05
+**Done when**:
+- [x] A 1024, 1280 e 1440 px, cada `getByRole("table")` da lista, as três de março (Fixos, Cartão de Crédito e Gastos do Mês), começa e termina dentro da coluna de conteúdo (LST-05 AC 3)
+- [x] Com ponteiro fino, confirmado por `matchMedia("(pointer: fine)")`, os 19 seletores da lista têm 36 px de altura (`pointer-fine:min-h-9`) e 176 px de largura (`md:w-44`) nas três larguras (LST-05 ACs 4 e 5)
+- [x] E5 falha em "fim da tabela Fixos" nas três larguras: 1016 contra 1000,5, 1144 contra 1128,5 e 1224 contra 1208,5. Sem `md:w-44` (E4a), falha com largura 228,25; sem `pointer-fine:min-h-9` (U32), com altura 44
+**Tests**: e2e
+**Gate**: quick + `pnpm lint` + e2e
+**Commit**: `test(e2e): medir a margem de todas as tabelas da lista`
+
 ---
 
 ## Task Granularity Check
@@ -370,6 +385,7 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 | T8, T9 | e2e; documentação | ✅ |
 | F1 | 1 componente + 1 medição no e2e | ⚠️ coeso: a medição prova a correção, e só o navegador a vê |
 | F2 | 1 caso de teste | ✅ |
+| F3 | 1 caso de teste estendido | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -386,6 +402,7 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 | T9 | T8 | T8→T9 | ✅ |
 | F1 | T8 | T8→F1 | ✅ |
 | F2 | T6 | T6→F2 | ✅ |
+| F3 | T8 | T8→F3 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Uma cópia com as tasks `F<n>` trocadas por `T10<n>`
 passa com 0 erros; os avisos novos são os vários arquivos no `Where`. O validador atribui cada task
@@ -401,3 +418,4 @@ ao último título de fase que vê, por isso o Task Breakdown repete os títulos
 | T9 | docs | none | none | ✅ |
 | F1 | componentes + fluxo | componentes, e2e | e2e | ✅ |
 | F2 | componentes | componentes | componentes | ✅ |
+| F3 | fluxo | e2e | e2e | ✅ |

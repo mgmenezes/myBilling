@@ -399,28 +399,56 @@ test.describe("em 400 pixels", () => {
 
 /**
  * A coluna de conteúdo é a largura do cartão de filtros, que a ocupa inteira.
- * A tabela do Cartão terminar dentro dela é o que o dono pediu (LST-05, AC 3).
+ * Nenhuma tabela da lista passar dela é o que o dono pediu (LST-05, AC 3), e
+ * não só a do Cartão, onde ele viu o defeito: cada bloco tem a sua tabela.
  */
 for (const largura of [1024, 1280, 1440]) {
   test.describe(`em ${largura} pixels`, () => {
     test.use({ viewport: { width: largura, height: 900 } });
 
-    test("a tabela do Cartão termina dentro da coluna de conteúdo, com a parcela sob a descrição (LST-05, ACs 1 e 3)", async ({
+    test("as tabelas terminam dentro da coluna de conteúdo, com a parcela sob a descrição e o seletor de 36 por 176 px (LST-05, ACs 1, 3, 4 e 5)", async ({
       page,
     }) => {
       await page.goto(`/${MARCO}/lancamentos`);
 
       const coluna = await cartaoDeFiltros(page).boundingBox();
-      const tabela = await page
-        .getByRole("region", { name: "Cartão de Crédito" })
-        .getByRole("table")
-        .boundingBox();
-      if (coluna === null || tabela === null) {
-        throw new Error("a coluna de conteúdo ou a tabela do Cartão não foi desenhada");
+      if (coluna === null) {
+        throw new Error("a coluna de conteúdo não foi desenhada");
       }
-      expect(tabela.x).toBeGreaterThanOrEqual(coluna.x - 0.5);
-      expect(tabela.x + tabela.width).toBeLessThanOrEqual(coluna.x + coluna.width + 0.5);
+      /* Fixos, Cartão de Crédito e Gastos do Mês; Entradas está vazio em março. */
+      const tabelas = page.getByRole("table");
+      await expect(tabelas).toHaveCount(3);
+      for (const tabela of await tabelas.all()) {
+        const nome = await tabela.locator("caption").textContent();
+        const caixa = await tabela.boundingBox();
+        if (caixa === null) {
+          throw new Error(`a tabela ${nome} não foi desenhada`);
+        }
+        expect(caixa.x, `começo da tabela ${nome}`).toBeGreaterThanOrEqual(coluna.x - 0.5);
+        expect(caixa.x + caixa.width, `fim da tabela ${nome}`).toBeLessThanOrEqual(
+          coluna.x + coluna.width + 0.5,
+        );
+      }
       expect(await transbordoHorizontal(page)).toBe(0);
+
+      /* O projeto do Playwright é um computador, com ponteiro fino: o seletor
+         da linha tem 36 px de altura e, a partir de `md`, a mesma largura em
+         toda linha, qualquer que seja o nome escolhido (LST-05, ACs 4 e 5). */
+      expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+      const seletores = await page
+        .getByRole("combobox", { name: /^Categoria de / })
+        .evaluateAll((elementos) =>
+          elementos.map((elemento) => {
+            const { height, width } = elemento.getBoundingClientRect();
+            return { nome: elemento.getAttribute("title"), altura: height, largura: width };
+          }),
+        );
+      /* Os dez fixos, Compra B e os oito gastos avulsos. */
+      expect(seletores).toHaveLength(FIXOS + 1 + GASTOS.length);
+      for (const { nome, altura, largura: larguraDoSeletor } of seletores) {
+        expect(altura, `altura do seletor com ${nome}`).toBeCloseTo(36, 0);
+        expect(larguraDoSeletor, `largura do seletor com ${nome}`).toBeCloseTo(176, 0);
+      }
 
       /* A parcela é a segunda linha da célula da descrição, e não outra coluna. */
       const descricao = linha(page, "Compra B").getByRole("cell").first();
