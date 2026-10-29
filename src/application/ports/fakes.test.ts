@@ -435,3 +435,119 @@ describe("FakeTransacao (EDF-06)", () => {
     expect(fakes.estado.compras.size).toBe(1);
   });
 });
+
+/* Espelham os testes de `trocarCategoria` nos repositórios Drizzle: fake e banco
+   discordarem aqui faria o caso de uso da troca passar no unitário e gravar errado. */
+describe("FakeMovimentoRepository: trocar a categoria (TRC-03 AC 4 e 5)", () => {
+  async function doisGastosIguais() {
+    const fakes = criarFakes();
+    const gasto = {
+      natureza: "DESPESA" as const,
+      descricao: "Gasto do mês",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: cents(5000),
+      pagoEm: "2026-03-11",
+      categoriaId: "cat-1",
+      usuarioId: "usuario-a",
+      meioPagamentoId: "conta",
+    };
+    const escolhido = await fakes.movimentos.criarAvulso(gasto);
+    const vizinho = await fakes.movimentos.criarAvulso(gasto);
+    return { fakes, escolhido, vizinho };
+  }
+
+  it("grava a categoria só no lançamento dado, sem tocar no resto dele nem no vizinho igual", async () => {
+    const { fakes, escolhido, vizinho } = await doisGastosIguais();
+
+    await fakes.movimentos.trocarCategoria(escolhido.id, "cat-2");
+
+    expect(await fakes.movimentos.buscarPorId(escolhido.id)).toEqual({
+      ...escolhido,
+      categoriaId: "cat-2",
+    });
+    expect(await fakes.movimentos.buscarPorId(vizinho.id)).toEqual(vizinho);
+  });
+
+  it("null grava a ausência de categoria", async () => {
+    const { fakes, escolhido } = await doisGastosIguais();
+
+    await fakes.movimentos.trocarCategoria(escolhido.id, null);
+
+    expect((await fakes.movimentos.buscarPorId(escolhido.id))?.categoriaId).toBeNull();
+  });
+
+  it("id inexistente não cria nada, como o UPDATE sem linha", async () => {
+    const { fakes } = await doisGastosIguais();
+    const antes = structuredClone([...fakes.estado.movimentos.entries()]);
+
+    await fakes.movimentos.trocarCategoria("fantasma", "cat-2");
+
+    expect([...fakes.estado.movimentos.entries()]).toEqual(antes);
+  });
+});
+
+describe("FakeCompraRepository: trocar a categoria (TRC-03 AC 3 e 5)", () => {
+  async function duasCompras() {
+    const fakes = criarFakes();
+    const comCategoria = (idempotencyKey: string): EntradaSalvarCompra => ({
+      idempotencyKey,
+      dados: { ...DADOS, categoriaId: "cat-1" },
+      plano: planoDeMilReaisEmTres(),
+    });
+    await fakes.compras.salvarComParcelas(comCategoria("chave-1"));
+    await fakes.compras.salvarComParcelas(comCategoria("chave-2"));
+    await fakes.movimentos.marcarPagamento("compra-1#1", "2026-03-18");
+    const parcelasDe = (compraId: string) =>
+      [...fakes.estado.movimentos.values()].filter((m) => m.compraId === compraId);
+    return { fakes, parcelasDe };
+  }
+
+  it("grava a categoria em todas as parcelas, da primeira à última, sem tocar em valor, número, data nem pagamento", async () => {
+    const { fakes, parcelasDe } = await duasCompras();
+    const antes = parcelasDe("compra-1");
+
+    await fakes.compras.trocarCategoria("compra-1", "cat-2");
+
+    const esperadas = antes.map((p) => ({ ...p, categoriaId: "cat-2" }));
+    expect(parcelasDe("compra-1")).toEqual(esperadas);
+    expect(esperadas.map((p) => p.numeroParcela)).toEqual([1, 2, 3]);
+    expect(
+      (await fakes.compras.buscarPorId("compra-1"))?.parcelas.map((p) => p.categoriaId),
+    ).toEqual(["cat-2", "cat-2", "cat-2"]);
+  });
+
+  it("outra compra e as parcelas dela ficam iguais", async () => {
+    const { fakes, parcelasDe } = await duasCompras();
+    const outra = await fakes.compras.buscarPorId("compra-2");
+    const parcelasDaOutra = parcelasDe("compra-2");
+
+    await fakes.compras.trocarCategoria("compra-1", "cat-2");
+
+    expect(await fakes.compras.buscarPorId("compra-2")).toEqual(outra);
+    expect(parcelasDe("compra-2")).toEqual(parcelasDaOutra);
+  });
+
+  it("null grava a ausência de categoria em todas as parcelas", async () => {
+    const { fakes, parcelasDe } = await duasCompras();
+
+    await fakes.compras.trocarCategoria("compra-1", null);
+
+    expect(parcelasDe("compra-1").map((p) => p.categoriaId)).toEqual([null, null, null]);
+  });
+
+  it("id inexistente não cria nada, como o UPDATE sem linha", async () => {
+    const { fakes } = await duasCompras();
+    const antes = structuredClone({
+      compras: [...fakes.estado.compras.entries()],
+      movimentos: [...fakes.estado.movimentos.entries()],
+    });
+
+    await fakes.compras.trocarCategoria("fantasma", "cat-2");
+
+    expect({
+      compras: [...fakes.estado.compras.entries()],
+      movimentos: [...fakes.estado.movimentos.entries()],
+    }).toEqual(antes);
+  });
+});

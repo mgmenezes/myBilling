@@ -193,11 +193,11 @@ T9 -> T10
 **Reuses**: `Executor`; o padrão de `atualizarOcorrenciasDaSerie`
 **Requirement**: TRC-03
 **Done when**:
-- [ ] `movimentos.trocarCategoria`: grava a categoria (ou `null`) só no lançamento dado; um segundo lançamento com a mesma descrição na mesma competência fica igual (TRC-03 AC 4, 5)
-- [ ] `compras.trocarCategoria`: grava a categoria na compra e em todas as parcelas, da primeira à última (TRC-03 AC 3)
-- [ ] Nenhuma das duas toca em valor, valor previsto, número da parcela, data, `pago_em` nem `cancelado_em` (TRC-03 AC 3)
-- [ ] Outra compra e as parcelas dela ficam iguais
-- [ ] Os fakes fazem o mesmo, com teste próprio
+- [x] `movimentos.trocarCategoria`: grava a categoria (ou `null`) só no lançamento dado; um segundo lançamento com a mesma descrição na mesma competência fica igual (TRC-03 AC 4, 5)
+- [x] `compras.trocarCategoria`: grava a categoria na compra e em todas as parcelas, da primeira à última (TRC-03 AC 3)
+- [x] Nenhuma das duas toca em valor, valor previsto, número da parcela, data, `pago_em` nem `cancelado_em` (TRC-03 AC 3)
+- [x] Outra compra e as parcelas dela ficam iguais
+- [x] Os fakes fazem o mesmo, com teste próprio
 **Tests**: integration (+ unit dos fakes)
 **Gate**: full
 **Commit**: `feat(categorias): trocar a categoria de um lançamento e de uma compra no banco`

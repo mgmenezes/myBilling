@@ -127,6 +127,12 @@ export interface CompraRepository {
     parcelas: ReadonlyArray<ParcelaDaCompra>,
     valorTotal: Cents,
   ): Promise<void>;
+  /**
+   * Grava a categoria (ou a ausência dela) na compra e em **todas** as parcelas,
+   * da primeira à última, numa transação (TRC-03 AC 3 e 5). Não toca em valor,
+   * número, data nem pagamento de nenhuma.
+   */
+  trocarCategoria(compraId: string, categoriaId: string | null): Promise<void>;
 }
 
 /** Uma ocorrência de recorrência pronta para virar linha de `movimento`. */
@@ -251,6 +257,12 @@ export interface MovimentoRepository {
    * conta que chegou (EDF-02 AC 3). Devolve quantas ocorrências foram escritas.
    */
   atualizarOcorrenciasDaSerie(recorrenciaId: string, campos: CamposDaSerie): Promise<number>;
+  /**
+   * Grava a categoria (ou a ausência dela) **só** neste lançamento, pelo id: um
+   * gasto de mesma descrição no mesmo mês fica como estava (TRC-03 AC 4 e 5).
+   * Não toca em valor, previsto, data, pagamento nem cancelamento.
+   */
+  trocarCategoria(id: string, categoriaId: string | null): Promise<void>;
 }
 
 /** Os campos descritivos da recorrência. O valor vem separado, na versão. */

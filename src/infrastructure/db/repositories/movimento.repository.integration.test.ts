@@ -446,3 +446,84 @@ describe("MovimentoRepository: cancelar (AVUL-03)", () => {
     }
   });
 });
+
+describe("MovimentoRepository: trocar a categoria (TRC-03 AC 4 e 5)", () => {
+  let categoriaDois: string;
+
+  beforeEach(async () => {
+    const { rows } = await pool.query<{ id: string }>(
+      "INSERT INTO categoria (nome) VALUES ('Categoria Dois') RETURNING id",
+    );
+    categoriaDois = rows[0]?.id ?? "";
+  });
+
+  /** Dois gastos iguais no mesmo mês: só o id distingue um do outro. */
+  async function doisGastosIguais(): Promise<{ escolhido: string; vizinho: string }> {
+    const gasto = {
+      natureza: "DESPESA" as const,
+      descricao: "Gasto do mês",
+      competencia: competencia("2026-03"),
+      dataEvento: "2026-03-10",
+      valor: 5000 as Cents,
+      pagoEm: "2026-03-11",
+      categoriaId: base.categoriaId,
+      usuarioId: base.usuarioId,
+      meioPagamentoId: base.contaId,
+    };
+    const escolhido = await repo.criarAvulso(gasto);
+    const vizinho = await repo.criarAvulso(gasto);
+    return { escolhido: escolhido.id, vizinho: vizinho.id };
+  }
+
+  async function linha(id: string): Promise<Record<string, unknown>> {
+    const { rows } = await pool.query("SELECT * FROM movimento WHERE id = $1", [id]);
+    return rows[0] ?? {};
+  }
+
+  it("grava a categoria só no lançamento dado, e o vizinho igual fica como estava — AC 4", async () => {
+    const { escolhido, vizinho } = await doisGastosIguais();
+    const antes = { escolhido: await linha(escolhido), vizinho: await linha(vizinho) };
+
+    await repo.trocarCategoria(escolhido, categoriaDois);
+
+    expect(await linha(escolhido)).toEqual({ ...antes.escolhido, categoria_id: categoriaDois });
+    expect(await linha(vizinho)).toEqual(antes.vizinho);
+  });
+
+  it("não toca em valor, previsto, data, pagamento nem cancelamento — AC 4", async () => {
+    const { escolhido } = await doisGastosIguais();
+    await pool.query(
+      "UPDATE movimento SET cancelado_em = '2026-03-12T12:00:00Z', valor_previsto_centavos = 4000 WHERE id = $1",
+      [escolhido],
+    );
+    const antes = await linha(escolhido);
+
+    await repo.trocarCategoria(escolhido, categoriaDois);
+
+    const { categoria_id: _categoria, ...depois } = await linha(escolhido);
+    const { categoria_id: _anterior, ...esperado } = antes;
+    expect(depois).toEqual(esperado);
+    const { rows } = await pool.query(
+      `SELECT valor_centavos::text AS valor, valor_previsto_centavos::text AS previsto,
+              data_evento::text AS data, pago_em::text AS pago,
+              cancelado_em = '2026-03-12T12:00:00Z' AS cancelado
+       FROM movimento WHERE id = $1`,
+      [escolhido],
+    );
+    expect(rows[0]).toEqual({
+      valor: "5000",
+      previsto: "4000",
+      data: "2026-03-10",
+      pago: "2026-03-11",
+      cancelado: true,
+    });
+  });
+
+  it("null grava a ausência de categoria — AC 5", async () => {
+    const { escolhido } = await doisGastosIguais();
+
+    await repo.trocarCategoria(escolhido, null);
+
+    expect((await repo.buscarPorId(escolhido))?.categoriaId).toBeNull();
+  });
+});

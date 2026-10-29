@@ -141,6 +141,26 @@ export class FakeCompraRepository implements CompraRepository {
     this.estado.compras.set(compraId, { ...compra, valorTotal, parcelas: atualizadas });
   }
 
+  /**
+   * As parcelas da compra mudam no estado e na cópia que a compra guarda. A
+   * categoria da compra em si não tem onde morar aqui: `CompraPersistida` não a
+   * expõe, e nenhum consumidor a lê. Silencioso para id inexistente.
+   */
+  async trocarCategoria(compraId: string, categoriaId: string | null): Promise<void> {
+    for (const [id, atual] of this.estado.movimentos) {
+      if (atual.compraId === compraId) {
+        this.estado.movimentos.set(id, { ...atual, categoriaId });
+      }
+    }
+    const compra = this.estado.compras.get(compraId);
+    if (compra) {
+      this.estado.compras.set(compraId, {
+        ...compra,
+        parcelas: compra.parcelas.map((parcela) => ({ ...parcela, categoriaId })),
+      });
+    }
+  }
+
   async totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>> {
     const totais = new Map<string, number>();
     for (const id of compraIds) {
@@ -389,6 +409,15 @@ export class FakeMovimentoRepository implements MovimentoRepository {
       alteradas += 1;
     }
     return alteradas;
+  }
+
+  /** Só a categoria, e só deste id, como o `UPDATE ... WHERE id` do Drizzle. */
+  async trocarCategoria(id: string, categoriaId: string | null): Promise<void> {
+    const atual = this.estado.movimentos.get(id);
+    if (!atual) {
+      return;
+    }
+    this.estado.movimentos.set(id, { ...atual, categoriaId });
   }
 }
 

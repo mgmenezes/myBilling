@@ -111,6 +111,18 @@ export class CompraRepositoryDrizzle implements CompraRepository {
     });
   }
 
+  /**
+   * A compra e as parcelas numa transação: dentro da troca de categoria, ela
+   * vira savepoint e cai junto com a de fora (TRC-03 AC 6). O `SET` é só a
+   * categoria, e o `WHERE` das parcelas é a compra, sem filtro de número.
+   */
+  async trocarCategoria(compraId: string, categoriaId: string | null): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx.update(compraParcelada).set({ categoriaId }).where(eq(compraParcelada.id, compraId));
+      await tx.update(movimento).set({ categoriaId }).where(eq(movimento.compraId, compraId));
+    });
+  }
+
   private async buscarUma(filtro: SQL): Promise<CompraPersistida | null> {
     const linhas = await this.db.select().from(compraParcelada).where(filtro).limit(1);
     const compra = linhas[0];

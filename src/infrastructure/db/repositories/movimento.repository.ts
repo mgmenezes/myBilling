@@ -262,4 +262,9 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
       .returning({ id: movimento.id });
     return alteradas.length;
   }
+
+  /** O `WHERE` é o id e o `SET` é só a categoria (TRC-03 AC 4). */
+  async trocarCategoria(id: string, categoriaId: string | null): Promise<void> {
+    await this.db.update(movimento).set({ categoriaId }).where(eq(movimento.id, id));
+  }
 }

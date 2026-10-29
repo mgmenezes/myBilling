@@ -401,3 +401,115 @@ describe("totaisDeParcelas (T51, PARC-08, AC 7)", () => {
     expect((await repo.totaisDeParcelas([])).size).toBe(0);
   });
 });
+
+describe("trocarCategoria (TRC-03 AC 3 e 5)", () => {
+  let categoriaDois: string;
+  let escolhida: string;
+  let outra: string;
+
+  beforeEach(async () => {
+    const { rows } = await pool.query<{ id: string }>(
+      "INSERT INTO categoria (nome) VALUES ('Categoria Dois') RETURNING id",
+    );
+    categoriaDois = rows[0]?.id ?? "";
+    const a = await repo.salvarComParcelas(entrada("chave-escolhida"));
+    const b = await repo.salvarComParcelas(entrada("chave-outra"));
+    if (!a.ok || !b.ok) {
+      throw new Error("fixture inválida");
+    }
+    escolhida = a.value.id;
+    outra = b.value.id;
+    await pool.query(
+      "UPDATE movimento SET pago_em = '2026-03-12' WHERE compra_id = $1 AND numero_parcela = 1",
+      [escolhida],
+    );
+  });
+
+  async function compraGravada(compraId: string): Promise<Record<string, unknown>> {
+    const { rows } = await pool.query("SELECT * FROM compra_parcelada WHERE id = $1", [compraId]);
+    return rows[0] ?? {};
+  }
+
+  async function parcelasGravadas(compraId: string): Promise<Record<string, unknown>[]> {
+    const { rows } = await pool.query(
+      "SELECT * FROM movimento WHERE compra_id = $1 ORDER BY numero_parcela",
+      [compraId],
+    );
+    return rows;
+  }
+
+  it("grava a categoria na compra e em todas as parcelas, da primeira à última — AC 3", async () => {
+    const antes = {
+      compra: await compraGravada(escolhida),
+      parcelas: await parcelasGravadas(escolhida),
+    };
+    expect(antes.parcelas.map((p) => p.numero_parcela)).toEqual([1, 2, 3]);
+
+    await repo.trocarCategoria(escolhida, categoriaDois);
+
+    expect(await compraGravada(escolhida)).toEqual({
+      ...antes.compra,
+      categoria_id: categoriaDois,
+    });
+    expect(await parcelasGravadas(escolhida)).toEqual(
+      antes.parcelas.map((p) => ({ ...p, categoria_id: categoriaDois })),
+    );
+  });
+
+  it("não toca em valor, número, data nem pagamento de nenhuma parcela — AC 3", async () => {
+    await repo.trocarCategoria(escolhida, categoriaDois);
+
+    const { rows } = await pool.query(
+      `SELECT numero_parcela, valor_centavos::text AS valor, competencia::text, data_evento::text AS data,
+              pago_em::text AS pago, cancelado_em::text AS cancelado
+       FROM movimento WHERE compra_id = $1 ORDER BY numero_parcela`,
+      [escolhida],
+    );
+    expect(rows).toEqual([
+      {
+        numero_parcela: 1,
+        valor: "33334",
+        competencia: "2026-03-01",
+        data: "2026-03-10",
+        pago: "2026-03-12",
+        cancelado: null,
+      },
+      {
+        numero_parcela: 2,
+        valor: "33333",
+        competencia: "2026-04-01",
+        data: "2026-03-10",
+        pago: null,
+        cancelado: null,
+      },
+      {
+        numero_parcela: 3,
+        valor: "33333",
+        competencia: "2026-05-01",
+        data: "2026-03-10",
+        pago: null,
+        cancelado: null,
+      },
+    ]);
+  });
+
+  it("outra compra e as parcelas dela ficam iguais", async () => {
+    const antes = { compra: await compraGravada(outra), parcelas: await parcelasGravadas(outra) };
+
+    await repo.trocarCategoria(escolhida, categoriaDois);
+
+    expect(await compraGravada(outra)).toEqual(antes.compra);
+    expect(await parcelasGravadas(outra)).toEqual(antes.parcelas);
+  });
+
+  it("null grava a ausência de categoria na compra e em todas as parcelas — AC 5", async () => {
+    await repo.trocarCategoria(escolhida, null);
+
+    expect((await compraGravada(escolhida)).categoria_id).toBeNull();
+    expect((await parcelasGravadas(escolhida)).map((p) => p.categoria_id)).toEqual([
+      null,
+      null,
+      null,
+    ]);
+  });
+});
