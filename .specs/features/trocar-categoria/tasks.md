@@ -259,10 +259,10 @@ T9 -> T10
 **Reuses**: tokens de cor e raio de `ui.tsx`
 **Requirement**: TRC-04
 **Done when**:
-- [ ] `avisar(texto)` mostra o texto numa região `role="status"` (TRC-04 AC 4)
-- [ ] O aviso sai da tela 4 segundos depois de aparecer, com relógio falso (TRC-04 AC 4)
-- [ ] Um aviso novo substitui o anterior e reinicia os 4 segundos
-- [ ] `useAvisos` fora do provedor lança um erro que nomeia o provedor
+- [x] `avisar(texto)` mostra o texto numa região `role="status"` (TRC-04 AC 4)
+- [x] O aviso sai da tela 4 segundos depois de aparecer, com relógio falso (TRC-04 AC 4)
+- [x] Um aviso novo substitui o anterior e reinicia os 4 segundos
+- [x] `useAvisos` fora do provedor lança um erro que nomeia o provedor
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(ui): avisar em toast o que acabou de acontecer`

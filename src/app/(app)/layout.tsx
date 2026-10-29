@@ -1,6 +1,7 @@
 import { WalletIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { AlternadorDeTema } from "@/components/alternador-de-tema";
+import { ProvedorDeAvisos } from "@/components/avisos";
 import { sessaoDaUI } from "./sessao";
 
 /**
@@ -15,33 +16,43 @@ import { sessaoDaUI } from "./sessao";
  * Em 400 pixels o cabeçalho quebra em linhas e a página não rola na
  * horizontal (UI-03, AC 9). Sem `overflow-x: hidden` em lugar nenhum:
  * esconder a barra faria a medição passar sem significar nada.
+ *
+ * Os avisos em toast moram aqui, uma vez para o app inteiro: quem avisa só
+ * chama `useAvisos()`, e o layout continua sendo de servidor.
  */
 export default async function LayoutDoApp({ children }: LayoutProps<"/">) {
   const usuario = await sessaoDaUI();
 
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="px-4 pt-6 sm:px-6">
-        <div className="mx-auto flex w-full max-w-conteudo flex-wrap items-center justify-between gap-3 rounded-pill border border-line bg-surface px-5 py-3 sm:px-7">
-          {/* A marca leva para a home do ano, que é a porta de entrada do app.
-              É o gesto que todo mundo já tenta; não atender era só frustração. */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 rounded-pill text-[17px] font-medium tracking-[-0.02em] transition-colors duration-200 hover:text-primary-texto"
-          >
-            <WalletIcon size={22} weight="fill" aria-hidden="true" className="text-primary-texto" />
-            myBilling
-          </Link>
-          <div className="flex items-center gap-3">
-            <AlternadorDeTema />
-            <p className="text-[15px] text-ink-muted">{usuario.nome}</p>
+    <ProvedorDeAvisos>
+      <div className="flex min-h-full flex-col">
+        <header className="px-4 pt-6 sm:px-6">
+          <div className="mx-auto flex w-full max-w-conteudo flex-wrap items-center justify-between gap-3 rounded-pill border border-line bg-surface px-5 py-3 sm:px-7">
+            {/* A marca leva para a home do ano, que é a porta de entrada do app.
+                É o gesto que todo mundo já tenta; não atender era só frustração. */}
+            <Link
+              href="/"
+              className="flex items-center gap-2 rounded-pill text-[17px] font-medium tracking-[-0.02em] transition-colors duration-200 hover:text-primary-texto"
+            >
+              <WalletIcon
+                size={22}
+                weight="fill"
+                aria-hidden="true"
+                className="text-primary-texto"
+              />
+              myBilling
+            </Link>
+            <div className="flex items-center gap-3">
+              <AlternadorDeTema />
+              <p className="text-[15px] text-ink-muted">{usuario.nome}</p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="mx-auto w-full max-w-conteudo flex-1 px-4 py-8 sm:px-6 sm:py-10">
-        {children}
-      </main>
-    </div>
+        <main className="mx-auto w-full max-w-conteudo flex-1 px-4 py-8 sm:px-6 sm:py-10">
+          {children}
+        </main>
+      </div>
+    </ProvedorDeAvisos>
   );
 }
