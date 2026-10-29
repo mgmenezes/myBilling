@@ -1,15 +1,18 @@
 # Importar a planilha — Validação
 
-## Validation: importar-planilha — **FAIL** (rodada F13–F15 do passo 2, veredito vigente)
+## Validation: importar-planilha — **PASS** (rodada 2 do passo 2, F16, veredito vigente)
 
-**Result**: FAIL ❌ — rodada F13–F15 de 2026-10-28, sobre `46533b2`. Nenhum defeito de comportamento.
-Os IMP-04 ACs 8 a 12 têm assertion sobre o resultado da spec, mas 3 de 32 mutantes sobreviveram.
-O P28 (Major) põe cartões no seletor "Conta para todas as entradas", e por ali a receita pode cair
-num cartão (AD-015). O P27 e o P29 (Minor) tiram o "+ nova conta", a dica e o aviso do lugar que a
-spec define. As correções são só de teste. O detalhe está na seção "Rodada F13–F15 (passo 2)", no
-fim do arquivo.
+**Result**: PASS ✅ — rodada 2 do passo 2, de 2026-10-29, sobre `7694c32`. Os três mutantes vivos
+da rodada F13–F15 morrem agora, cada um num teste da F16: o P28 em
+`src/components/importacao/passo-pendencias.test.tsx:262`, o P27 em `:220` e `:322`, e o P29 em
+`:380`. A F16 só mexe em teste. Endurece duas consultas e não apaga nenhuma. O `pnpm test:unit` dá
+1.156 testes, e o `typecheck` e o `lint` saem limpos. Com isso, o IMP-04 fecha os ACs 8 a 12. O
+detalhe está na seção "Rodada 2 do passo 2 (F16)", no fim do arquivo.
 
-Veredito anterior, de 2026-10-26 e sobre `d57ef6f`: a confirmação depois da decisão do dono, sem
+Veredito da rodada F13–F15, de 2026-10-28 e sobre `46533b2`: FAIL por 3 de 32 mutantes vivos (P27,
+P28 e P29), sem defeito de comportamento. A seção "Rodada F13–F15 (passo 2)" continua intacta.
+
+Veredito de 2026-10-26, sobre `d57ef6f`: a confirmação depois da decisão do dono, sem
 defeito de comportamento. Ele continua valendo para o que cobriu, IMP-01 a IMP-09, com o IMP-04
 até o AC 7.
 A N9r, único mutante vivo da rodada 3, morre no caso da F12
@@ -1423,3 +1426,98 @@ mudar.
 
 **Próximo passo**: uma task de teste com os dois fixes. Depois, reaplicar P27, P28 e P29. Esta foi
 a iteração 1 de 3 do ciclo de fix e reverificação.
+
+---
+
+## Rodada 2 do passo 2 (F16)
+
+**Data**: 2026-10-29
+**Spec**: `.specs/features/importar-planilha/spec.md`, IMP-04 ACs 8, 10, 11 e 12 (`spec.md:241-256`)
+**Faixa do diff**: `46533b2..7694c32`. A task é `7694c32` (F16). O `220f4d4` só traz o relatório
+da rodada anterior e as lições. Fora de `.specs/`, a faixa muda um único arquivo,
+`src/components/importacao/passo-pendencias.test.tsx`, com +23 e −2 linhas. `src/` sem os testes e
+`e2e/` são idênticos entre `46533b2` e `7694c32` (`git diff --quiet` sai 0).
+**Verificador**: sub-agente independente, autor ≠ verificador. Os mutantes rodaram na própria
+worktree, um por vez, cada um revertido com `git checkout -- <arquivo>`, **sem nenhum `git stash`**.
+O porcelain estava vazio antes do sensor e continuou vazio depois de cada reversão e do gate.
+
+### Veredito da rodada — **PASS**
+
+Os três mutantes vivos da rodada F13–F15 morrem, cada um num teste novo ou endurecido da F16. O
+`7694c32` não apaga nem afrouxa nenhuma assertion. Nada no produto mudou desde a rodada F13–F15,
+então o que ela provou continua valendo, inclusive o e2e 59/59.
+
+### Sensor: os três mutantes reaplicados
+
+Linha de base: `pnpm vitest run src/components/importacao/passo-pendencias.test.tsx` dá 22/22.
+
+| # | Mutação reaplicada em `passo-pendencias.tsx` | Morto por | Saída |
+| --- | --- | --- | --- |
+| P28 | o seletor "Conta para todas as entradas" lista `listaMeios` no lugar de `contas` (`:227`) | `passo-pendencias.test.tsx:262`: `opcoes(getByLabelText(PARA_TODAS))).toEqual(["Escolha a conta", "Conta Corrente"])` recebe também "Cartão Roxo" e "Cartão Verde" | ✅ Morto, 1 falha, 21 passam |
+| P27 | o bloco do "+ nova conta" com a dica (`:207-248`) sai da seção Entradas para o topo do passo, sem a condição das entradas | `:220`: `within(secao("Entradas")).getByRole("button", { name: "+ nova conta" })` não acha o botão. `:322`: `within(secao("Entradas")).getByText(DICA)` não acha a dica | ✅ Morto, 2 falhas, 20 passam |
+| P29 | o aviso "Para continuar, falta:" (`:299-316`) vai para o topo do passo, longe do "Continuar" | `:380`: `continuar().previousElementSibling).toBe(getByRole("status"))` | ✅ Morto, 1 falha, 21 passam |
+
+**Contagem**: 3 de 3 mortos. Somados aos 29 mortos da rodada F13–F15, os 32 mutantes da fatia estão
+mortos.
+
+### Testes da F16 contra a spec
+
+| AC | Resultado definido na spec | Assertion | Resultado |
+| --- | --- | --- | --- |
+| AC 11, com o AC 3 e o AD-015 | "Aplicar a todas" põe uma conta no "Cai em", e o "Cai em" só aceita meio sem fatura | `:262-265`, com o Cartão Roxo e o Cartão Verde montados: só "Escolha a conta" e "Conta Corrente" | ✅ PASS |
+| AC 10 | "+ nova conta" na seção Entradas, fora de qualquer "Tipo" | `:217-219`: nenhum "+ nova conta" na região "Meios de pagamento". `:220`: o atalho achado na região "Entradas" | ✅ PASS |
+| AC 12 | a dica, com o texto exato, na seção Entradas | `:322`: `getByText(DICA)` dentro da região "Entradas" | ✅ PASS |
+| AC 8 | o aviso junto do botão "Continuar" | `:380`: o aviso é o irmão imediatamente anterior ao botão | ✅ PASS |
+
+As regiões vêm de `getByRole("region", { name })` (`:87-89`). Cada `<section>` tem nome pelo
+`aria-labelledby` do título, o mesmo que a pessoa lê. O teste do AC 8 escolhe um lado: "junto" da
+spec também admitiria o aviso logo depois do botão, e esse layout derrubaria `:380`. A F16 declara
+"logo antes" no Done-when (`tasks.md:1056`). Se o layout mudar de lado, o teste muda com ele. Fica
+como observação, sem lacuna.
+
+**Integridade** (`git show 7694c32`): no arquivo de teste, os `it(` foram de 21 a 22 e os `expect(`
+de 40 a 43. As duas linhas removidas são consultas a `screen` inteiro, trocadas pela mesma consulta
+dentro da região "Entradas", que é mais estrita. Não há `.skip`, `.only` nem `.todo`.
+
+### Gate
+
+| Gate | Resultado |
+| --- | --- |
+| `pnpm test:unit` | ✅ **84 arquivos, 1.156 testes**, +1 sobre os 1.155 de `46533b2`. `src/domain` com 100% de branches (323/323), statements (642/642), funções (154/154) e linhas (607/607) |
+| `pnpm typecheck` | ✅ `Types generated successfully`, `tsc --noEmit` sem erro |
+| `pnpm lint` | ✅ `Checked 255 files in 312ms. No fixes applied.` |
+| e2e, `pnpm test:integration` e `pnpm verify` | não rodados, por instrução: outro processo usava o banco de teste, e a F16 não muda nada que o e2e veja |
+
+### Validadores
+
+| Script | Resultado |
+| --- | --- |
+| `validate_spec.py importar-planilha` | ✅ 0 erros, 0 avisos |
+| `validate_tasks.py importar-planilha` | ✅ 0 erros, 12 avisos, os mesmos da rodada anterior. A F16 foi cruzada à mão no `tasks.md` |
+| `check_commit.py` | ✅ `7694c32` |
+| `validate_state.py importar-planilha` | ✅ saída 0 com este relatório. Antes dele, saía 1 com "verdict is FAIL" |
+
+### Lições
+
+Nenhuma. A rodada não tem mutante vivo, lacuna de AC, ponto de precisão nem desvio. As candidatas
+L-017 e L-018, da rodada F13–F15, ficam como estão. `lessons.py status` continua em 18 lições, com
+1 confirmada e 17 candidatas.
+
+### Requirement Traceability — atualização proposta
+
+O Verificador não edita `spec.md`:
+
+| Requisito | Status atual | Novo status |
+| --- | --- | --- |
+| IMP-04 ACs 8 a 12 | "implementado, a verificar", com a correção da F16 | ✅ Verified (`validation.md`, 2026-10-29) |
+| IMP-04 ACs 1 a 7 | ✅ Verified | ✅ Verified. Nenhum código de produto mudou desde a rodada F13–F15 |
+
+### Resumo
+
+**Overall**: ✅ Pronto.
+
+**Spec-anchored**: os 4 ACs que a F16 toca têm assertion sobre o lugar ou a lista que a spec define.
+**Sensor**: P27, P28 e P29 reaplicados, os 3 mortos.
+**Gate**: 1.156 unitários, `typecheck` e `lint` limpos, sem falha nem teste pulado.
+
+O ciclo de fix e reverificação fechou na iteração 2 de 3.
