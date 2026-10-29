@@ -222,15 +222,15 @@ T9 -> T10
 **Reuses**: `alcanceDaTroca` (T1), `trocarCategoria` dos repositórios (T2), `buscarComVersoes`, `atualizarSerie`, `atualizarOcorrenciasDaSerie`, o fake de `Transacao`
 **Requirement**: TRC-03, TRC-05
 **Done when**:
-- [ ] Ocorrência de fixo: o fixo e todas as ocorrências, de outubro a dezembro, ficam com a categoria nova; outubro continua pago; valor, dia e meio do fixo não mudam; devolve `FIXO` (TRC-03 AC 1)
-- [ ] Depois da troca, a ocorrência que o fixo materializa num mês novo nasce com a categoria nova (TRC-03 AC 2)
-- [ ] Parcela 2 de 4: as quatro parcelas e a compra trocam; devolve `COMPRA` (TRC-03 AC 3)
-- [ ] Gasto do mês: só ele troca; devolve `LANCAMENTO` (TRC-03 AC 4)
-- [ ] `categoriaId: null` grava a ausência com o mesmo alcance (TRC-03 AC 5)
-- [ ] Lançamento inexistente ou cancelado → `LANCAMENTO_NAO_ENCONTRADO`, sem escrita (TRC-05 AC 2)
-- [ ] Categoria inexistente ou arquivada → `CATEGORIA_NAO_ENCONTRADA`, sem escrita (TRC-05 AC 3)
-- [ ] Entrada → `CATEGORIA_EM_RECEITA`, sem escrita (TRC-05 AC 4)
-- [ ] Falha injetada em `atualizarOcorrenciasDaSerie` depois de `atualizarSerie` → a exceção sobe e o fixo continua com a categoria antiga no fake (TRC-03 AC 6)
+- [x] Ocorrência de fixo: o fixo e todas as ocorrências, de outubro a dezembro, ficam com a categoria nova; outubro continua pago; valor, dia e meio do fixo não mudam; devolve `FIXO` (TRC-03 AC 1)
+- [x] Depois da troca, a ocorrência que o fixo materializa num mês novo nasce com a categoria nova (TRC-03 AC 2)
+- [x] Parcela 2 de 4: as quatro parcelas e a compra trocam; devolve `COMPRA` (TRC-03 AC 3)
+- [x] Gasto do mês: só ele troca; devolve `LANCAMENTO` (TRC-03 AC 4)
+- [x] `categoriaId: null` grava a ausência com o mesmo alcance (TRC-03 AC 5)
+- [x] Lançamento inexistente ou cancelado → `LANCAMENTO_NAO_ENCONTRADO`, sem escrita (TRC-05 AC 2)
+- [x] Categoria inexistente ou arquivada → `CATEGORIA_NAO_ENCONTRADA`, sem escrita (TRC-05 AC 3)
+- [x] Entrada → `CATEGORIA_EM_RECEITA`, sem escrita (TRC-05 AC 4)
+- [x] Falha injetada em `atualizarOcorrenciasDaSerie` depois de `atualizarSerie` → a exceção sobe e o fixo continua com a categoria antiga no fake (TRC-03 AC 6)
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(categorias): trocar a categoria com o alcance de cada lançamento`
