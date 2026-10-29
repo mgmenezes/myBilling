@@ -252,3 +252,54 @@ describe("o servidor recusa (TRC-05, AC 1)", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 });
+
+/**
+ * Testes derivados de LST-05 (ACs 4 e 5) e do Done-when de T6. O seletor era
+ * tão largo quanto a opção mais longa, e era ele que empurrava a tabela do
+ * Cartão para fora da margem. Agora tem largura fixa no computador, corta o
+ * nome com reticências e guarda o nome inteiro no `title`.
+ */
+describe("o seletor dentro da margem (LST-05)", () => {
+  const LONGA = "44444444-4444-4444-8444-444444444444";
+  const NOME_LONGO = "Categoria de nome comprido que não cabe na coluna";
+
+  function classes(): ReadonlyArray<string> {
+    return seletor().className.split(" ");
+  }
+
+  it("o title tem o nome inteiro da categoria escolhida (AC 5)", () => {
+    montar({ categoriaId: LONGA, nomeDaGravada: NOME_LONGO });
+
+    expect(seletor().title).toBe(NOME_LONGO);
+  });
+
+  it("o title diz Sem categoria quando não há categoria, e a da lista quando há (AC 5)", () => {
+    montar({ categoriaId: null });
+    expect(seletor().title).toBe("Sem categoria");
+    cleanup();
+
+    montar({ categoriaId: CATEGORIA_UM });
+    expect(seletor().title).toBe("Categoria Um");
+  });
+
+  it("o title acompanha a escolha enquanto ela grava, e não só a categoria recebida (AC 5)", async () => {
+    const nuncaResponde = vi.fn(() => new Promise(() => {}));
+    const { usuario } = montar({ categoriaId: CATEGORIA_UM, acao: nuncaResponde });
+
+    await usuario.selectOptions(seletor(), "Categoria Dois");
+
+    expect(seletor().title).toBe("Categoria Dois");
+  });
+
+  it("tem largura fixa a partir de md e corta o nome longo com reticências (AC 5)", () => {
+    montar();
+
+    expect(classes()).toEqual(expect.arrayContaining(["md:w-44", "truncate"]));
+  });
+
+  it("tem 36 px de altura sob ponteiro fino e 44 px no toque (AC 4)", () => {
+    montar();
+
+    expect(classes()).toEqual(expect.arrayContaining(["min-h-11", "pointer-fine:min-h-9"]));
+  });
+});

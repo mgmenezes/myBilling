@@ -32,6 +32,29 @@ function categoriaSelecionada(escopo: HTMLElement, descricao: string): string | 
   }).selectedOptions[0]?.textContent;
 }
 
+/**
+ * A segunda linha da célula de descrição (LST-05, AC 1). Procurada **dentro
+ * da célula** da descrição, e depois dela: achar o texto em qualquer lugar da
+ * linha da tabela não provaria que ele está sob a descrição (lição L-018).
+ */
+function linhaDaParcela(escopo: HTMLElement, descricao: string): HTMLElement {
+  const celula = within(escopo).getByText(descricao).closest("td");
+  if (celula === null) {
+    throw new Error(`"${descricao}" não está numa célula`);
+  }
+  expect(celula.firstChild?.textContent).toBe(descricao);
+  const linha = celula.lastElementChild;
+  if (!(linha instanceof HTMLElement) || linha === celula.firstChild) {
+    throw new Error(`a célula de "${descricao}" não tem segunda linha`);
+  }
+  /* Segunda linha, e não continuação da mesma: um bloco próprio, menor e
+     apagado, como a Design da fatia pede. */
+  expect(linha.className.split(" ")).toEqual(
+    expect.arrayContaining(["block", "text-[13px]", "text-ink-muted"]),
+  );
+  return linha;
+}
+
 /** O mês aberto nestes testes. Igual à competência corrente, salvo onde o
  *  caso diz o contrário: aí o não pago é vencido. */
 const MARCO = "2026-03" as Competencia;
@@ -348,6 +371,70 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
   });
 });
 
+/**
+ * Testes derivados de LST-05 (ACs 1 e 2) e do Done-when de T6. A coluna
+ * Parcela apertava "(faltam 3 depois desta)" até quebrar palavra por palavra;
+ * a parcela passou para baixo da descrição, com os textos de PARC-08 iguais.
+ */
+describe("parcela sob a descrição (LST-05)", () => {
+  function montar(itens: ReadonlyArray<LancamentoDoMes>) {
+    return render(
+      <TabelaLancamentos
+        competenciaCorrente={MARCO}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
+        lancamentos={itens}
+      />,
+    );
+  }
+
+  function parcelaDaCompraB(numero: number, restantes: number): LancamentoDoMes {
+    return item(
+      {
+        id: `p${numero}`,
+        origem: "PARCELA",
+        descricao: "Compra B",
+        compraId: "c1",
+        numeroParcela: numero,
+      },
+      { numero, total: 4, restantes },
+    );
+  }
+
+  it("sob Compra B, na mesma célula, a linha 2/4 · (faltam 2 depois desta), com o número tabular (AC 1)", () => {
+    montar([parcelaDaCompraB(2, 2)]);
+
+    const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
+    const linha = linhaDaParcela(cartao, "Compra B");
+    expect(linha.textContent).toBe("2/4 · (faltam 2 depois desta)");
+    expect(within(linha).getByText("2/4").className).toContain("tabular");
+  });
+
+  it("na última, 4/4 · (última) (AC 1)", () => {
+    montar([parcelaDaCompraB(4, 0)]);
+
+    const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
+    expect(linhaDaParcela(cartao, "Compra B").textContent).toBe("4/4 · (última)");
+  });
+
+  it("nenhum bloco tem a coluna Parcela, nem o do Cartão (AC 2)", () => {
+    montar([
+      item({ id: "e", natureza: "RECEITA", descricao: "Entrada A" }),
+      item({ id: "f", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
+      parcelaDaCompraB(2, 2),
+      item({ id: "a", origem: "AVULSO", descricao: "Lançamento avulso A" }),
+    ]);
+
+    expect(screen.getAllByRole("table")).toHaveLength(4);
+    expect(screen.getAllByRole("columnheader", { name: "Descrição" })).toHaveLength(4);
+    expect(screen.queryByRole("columnheader", { name: "Parcela" })).toBeNull();
+  });
+});
+
 describe("valores e situação", () => {
   it("formata o valor em reais e distingue previsto de pago", () => {
     render(
@@ -401,11 +488,12 @@ describe("estado vazio (UI-02, AC 6)", () => {
 
 /**
  * A coluna de categoria substituiu a de parcela onde esta era sempre vazia.
- * O que se prende aqui é que a substituição é **por bloco**: a compra
- * parcelada mantém as duas, porque lá a parcela carrega informação.
+ * No Cartão a parcela continua informando, mas sob a descrição, e a coluna
+ * Parcela não existe em bloco nenhum (LST-05, AC 2, que substitui o BLOCO-01
+ * AC 7).
  */
 describe("categoria na lista", () => {
-  it("o bloco de cartão mostra categoria e parcela", () => {
+  it("o bloco de cartão mostra categoria e a parcela sob a descrição, sem coluna Parcela (LST-05, ACs 1 e 2)", () => {
     render(
       <TabelaLancamentos
         competenciaCorrente={MARCO}
@@ -426,7 +514,10 @@ describe("categoria na lista", () => {
 
     const bloco = screen.getByRole("region", { name: "Cartão de Crédito" });
     expect(within(bloco).getByRole("columnheader", { name: "Categoria" })).toBeTruthy();
-    expect(within(bloco).getByRole("columnheader", { name: "Parcela" })).toBeTruthy();
+    expect(within(bloco).queryByRole("columnheader", { name: "Parcela" })).toBeNull();
+    expect(linhaDaParcela(bloco, "Lançamento avulso A").textContent).toBe(
+      "1/3 · (faltam 2 depois desta)",
+    );
     expect(categoriaSelecionada(bloco, "Lançamento avulso A")).toBe("Categoria Um");
   });
 

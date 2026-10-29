@@ -177,6 +177,12 @@ um formulário que produz dado confuso.
 7. WHERE a despesa está no bloco Cartão de Crédito e é parcela de compra parcelada THEN o sistema
    SHALL exibir a coluna "Parcela"; nos demais blocos SHALL omiti-la
 
+> **AC 7 substituído pelo LST-05** (`.specs/features/lista-enxuta/spec.md`), por decisão do dono em
+> 2026-10-29. A coluna "Parcela" apertava "(faltam 3 depois desta)" até quebrar palavra por palavra
+> e levava a tabela do Cartão para fora da margem. A parcela passou para uma segunda linha sob a
+> descrição, com os textos de PARC-08 iguais, e a coluna não existe em bloco nenhum (LST-05, ACs 1
+> e 2). O texto acima fica como registro do que valia até então.
+
 **Independent Test**: cadastrar um avulso num cartão e conferir que ele aparece sob "Cartão de
 Crédito" e não em "Gastos do Mês". O painel do mês não tem indicador por bloco — os quatro são
 Receitas, Despesas, Ainda não pago e Saldo —, então a concordância do AC 5 é afirmada na camada de
@@ -342,7 +348,7 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | AVUL-02 | P1: Registrar dinheiro que entra | Verified | Verified |
 | AVUL-03 | P2: Excluir um lançamento avulso — ACs 1, 2, 6, 7 e 8 (exclusão lógica e o gesto) | Verified | Verified |
 | AVUL-04 | P2: Excluir um lançamento avulso — ACs 3, 4 e 5 (integridade de transição: nem recancela, nem marca pago) | Verified | Verified |
-| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 1 a 4 e 7 (a cascata e a coluna Parcela) | Verified | Verified |
+| BLOCO-01 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 1 a 4 e 7 (a cascata e a coluna Parcela) | Verified | Verified; AC 7 substituído pelo LST-05 em 2026-10-29 |
 | BLOCO-02 | P1: Ler no bloco do cartão tudo que vai na fatura — ACs 5 e 6 (concordância painel↔lista, e arquivados) | Verified | Verified |
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Verified | Verified |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Verified | Verified |

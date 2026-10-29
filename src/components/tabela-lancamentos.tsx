@@ -73,11 +73,13 @@ import { ValorConfirmavel } from "./valor-confirmavel";
  * já está montado, de modo que a posição do cadastro deixa de ser uma
  * informação que o texto precisa acertar (VAZIO-01, ACs 1 e 4).
  *
- * **A coluna "Parcela" só existe no bloco de compra parcelada.** Fora dele ela
- * era uma coluna permanentemente vazia, e coluna vazia não é neutra: ela
- * empurra descrição e valor para as pontas opostas da tela e obriga o olho a
- * atravessar um vão sem informação. No lugar dela entra a categoria, que é o
- * dado que faltava para saber o que foi cada gasto sem abrir nada.
+ * **A parcela fica sob a descrição, e não numa coluna** (LST-05, que
+ * substitui o BLOCO-01 AC 7). A coluna "Parcela" existia só no bloco do
+ * Cartão, e lá era a mais estreita de seis: "(faltam 3 depois desta)" quebrava
+ * palavra por palavra e a tabela passava da margem. Como segunda linha da
+ * descrição ela ocupa a largura que a descrição já tem, com os textos de
+ * PARC-08 iguais. No lugar da coluna fica a categoria, que é o dado que
+ * faltava para saber o que foi cada gasto sem abrir nada.
  *
  * **Na entrada a categoria é "Receita"; no gasto, um seletor.** A entrada é
  * sempre receita, e o "Sem categoria" que ela mostrava parecia erro da
@@ -113,7 +115,9 @@ const BLOCOS_DE_DESPESA: ReadonlyArray<BlocoDeDespesa> = [
   { id: "avulsos", titulo: "Gastos do Mês", bloco: "AVULSOS" },
 ];
 
-const CELULA = "block md:table-cell md:px-4 md:py-3.5 md:align-top";
+/* Com ponteiro fino a linha baixa: o seletor também baixa para 36 px, e
+   não há dedo para errar o alvo. No toque, 44 px e o respiro de antes. */
+const CELULA = "block md:table-cell md:px-4 md:py-3.5 md:pointer-fine:py-2.5 md:align-top";
 const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-muted";
 
 export function TabelaLancamentos({
@@ -180,7 +184,6 @@ export function TabelaLancamentos({
         excluir={excluir}
         opcoesDeCategoria={opcoesDeCategoria}
         trocarCategoria={trocarCategoria}
-        comParcela={false}
         itens={entradas}
       />
       {BLOCOS_DE_DESPESA.map((bloco) => (
@@ -197,8 +200,6 @@ export function TabelaLancamentos({
           excluir={excluir}
           opcoesDeCategoria={opcoesDeCategoria}
           trocarCategoria={trocarCategoria}
-          /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
-          comParcela={bloco.bloco === "CARTAO"}
           itens={despesas.filter((item) => item.bloco === bloco.bloco)}
         />
       ))}
@@ -230,7 +231,6 @@ function BlocoDeLancamentos({
   itens,
   categorias,
   competenciaCorrente,
-  comParcela,
   alternarPagamento,
   confirmarValor,
   excluir,
@@ -245,7 +245,6 @@ function BlocoDeLancamentos({
   readonly itens: ReadonlyArray<LancamentoDoMes>;
   readonly categorias: ReadonlyMap<string, string>;
   readonly competenciaCorrente: Competencia;
-  readonly comParcela: boolean;
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
   readonly excluir: typeof cancelarAction;
@@ -273,11 +272,6 @@ function BlocoDeLancamentos({
               <th scope="col" className={CABECALHO}>
                 Categoria
               </th>
-              {comParcela ? (
-                <th scope="col" className={CABECALHO}>
-                  Parcela
-                </th>
-              ) : null}
               <th scope="col" className={CABECALHO}>
                 Data
               </th>
@@ -302,7 +296,22 @@ function BlocoDeLancamentos({
                    */
                   className="mb-3 block rounded-xl border border-line bg-surface p-4 md:mb-0 md:table-row md:rounded-none md:border-0 md:bg-transparent md:p-0 md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line"
                 >
-                  <td className={`${CELULA} font-medium`}>{lancamento.descricao}</td>
+                  <td className={`${CELULA} font-medium`}>
+                    {lancamento.descricao}
+                    {parcela === null ? null : (
+                      <span className="block text-[13px] font-normal text-ink-muted">
+                        <span className="tabular">
+                          {parcela.numero}/{parcela.total}
+                        </span>{" "}
+                        ·{" "}
+                        <span>
+                          {parcela.restantes === 0
+                            ? "(última)"
+                            : `(faltam ${parcela.restantes} depois desta)`}
+                        </span>
+                      </span>
+                    )}
+                  </td>
                   <td className={CELULA}>
                     {lancamento.natureza === "RECEITA" ? (
                       <Chip tom="positivo">Receita</Chip>
@@ -321,22 +330,6 @@ function BlocoDeLancamentos({
                       />
                     )}
                   </td>
-                  {comParcela ? (
-                    <td className={`${CELULA} text-ink-muted`}>
-                      {parcela === null ? (
-                        <span className="sr-only">sem parcelamento</span>
-                      ) : (
-                        <>
-                          <span className="tabular">
-                            {parcela.numero}/{parcela.total}
-                          </span>{" "}
-                          {parcela.restantes === 0
-                            ? "(última)"
-                            : `(faltam ${parcela.restantes} depois desta)`}
-                        </>
-                      )}
-                    </td>
-                  ) : null}
                   <td className={`${CELULA} tabular text-ink-muted`}>
                     {formatarData(lancamento.dataEvento)}
                   </td>

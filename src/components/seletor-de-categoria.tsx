@@ -28,6 +28,12 @@ import { useAvisos } from "./avisos";
  * **A gravada fora da lista vira uma opção a mais**, no fim. Uma categoria
  * arquivada não está entre as ativas, e sem essa opção o seletor diria "Sem
  * categoria" para um gasto que tem categoria (TRC-02, AC 3).
+ *
+ * **Largura fixa no computador** (LST-05, AC 5). Sem ela o `<select>` tem a
+ * largura da opção mais longa, e era ele que empurrava a tabela do Cartão para
+ * fora da margem. O nome que não cabe termina em reticências, e o nome inteiro
+ * fica no `title`. A altura é de 36 px com ponteiro fino e de 44 px no toque
+ * (LST-05, AC 4; UI-03).
  */
 
 const AVISO: Record<AlcanceDaTroca, string> = {
@@ -67,6 +73,13 @@ export function SeletorDeCategoria({
 
   const gravadaForaDaLista =
     categoriaId !== null && !categorias.some((categoria) => categoria.id === categoriaId);
+  const nomeDaGravadaForaDaLista = nomeDaGravada ?? "Categoria removida";
+  /* O nome da opção que o seletor mostra agora, a otimista inclusive. */
+  const nomeEscolhido =
+    escolhida === SEM_CATEGORIA
+      ? "Sem categoria"
+      : (categorias.find((categoria) => categoria.id === escolhida)?.nome ??
+        nomeDaGravadaForaDaLista);
 
   function escolher(valor: string) {
     setErro("");
@@ -93,8 +106,9 @@ export function SeletorDeCategoria({
         id={id}
         value={escolhida}
         disabled={pendente}
+        title={nomeEscolhido}
         onChange={(evento) => escolher(evento.target.value)}
-        className="min-h-11 max-w-full rounded-pill border border-line bg-surface px-3.5 text-[13px] text-ink transition-[border-color,opacity] duration-200 hover:border-line-strong disabled:cursor-progress disabled:opacity-60"
+        className="min-h-11 max-w-full truncate rounded-pill border border-line bg-surface px-3.5 text-[13px] text-ink transition-[border-color,opacity] duration-200 hover:border-line-strong disabled:cursor-progress disabled:opacity-60 md:w-44 pointer-fine:min-h-9"
       >
         <option value={SEM_CATEGORIA}>Sem categoria</option>
         {categorias.map((categoria) => (
@@ -103,7 +117,7 @@ export function SeletorDeCategoria({
           </option>
         ))}
         {gravadaForaDaLista ? (
-          <option value={categoriaId}>{nomeDaGravada ?? "Categoria removida"}</option>
+          <option value={categoriaId}>{nomeDaGravadaForaDaLista}</option>
         ) : null}
       </select>
       {erro === "" ? null : (

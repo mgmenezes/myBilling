@@ -253,11 +253,11 @@ T8 -> T9
 **Reuses**: `identificarParcela`; textos de PARC-08
 **Requirement**: LST-05
 **Done when**:
-- [ ] No Cartão, sob "Compra B", a linha "2/4 · (faltam 2 depois desta)"; na última, "· (última)" (LST-05 AC 1)
-- [ ] Nenhum bloco tem `columnheader` "Parcela"; os testes de `tabela-lancamentos.test.tsx` que afirmavam a coluna passam a afirmar LST-05, sem apagar assertion (LST-05 AC 2)
-- [ ] O BLOCO-01 AC 7 em `lancamento-avulso/spec.md` fica marcado como substituído por LST-05, com a decisão do dono
-- [ ] O seletor tem largura fixa a partir de `md` e `title` com o nome da categoria escolhida (LST-05 AC 5)
-- [ ] Classe de 36 px sob `pointer: fine` e 44 px fora dele (LST-05 AC 4)
+- [x] No Cartão, sob "Compra B", a linha "2/4 · (faltam 2 depois desta)"; na última, "· (última)" (LST-05 AC 1)
+- [x] Nenhum bloco tem `columnheader` "Parcela"; os testes de `tabela-lancamentos.test.tsx` que afirmavam a coluna passam a afirmar LST-05, sem apagar assertion (LST-05 AC 2)
+- [x] O BLOCO-01 AC 7 em `lancamento-avulso/spec.md` fica marcado como substituído por LST-05, com a decisão do dono
+- [x] O seletor tem largura fixa a partir de `md` e `title` com o nome da categoria escolhida (LST-05 AC 5)
+- [x] Classe de 36 px sob `pointer: fine` e 44 px fora dele (LST-05 AC 4)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `fix(lancamentos): parcela sob a descrição e tabela na margem`
