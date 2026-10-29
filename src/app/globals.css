@@ -300,6 +300,43 @@ h3 {
 }
 
 /*
+ * O chevron de todo `<select>` é desenhado pelo app, e não pelo navegador. O
+ * nativo fica colado na borda direita (na pílula, em cima da curva) e cada
+ * navegador o põe num lugar. Aqui ele fica a 14px da borda, centralizado, com
+ * o CaretDown do Phosphor que o resto da interface usa.
+ *
+ * É uma imagem de fundo, e não um ícone ao lado do campo, para não mudar o
+ * HTML de nenhum formulário. Imagem não aceita `light-dark()` nem
+ * `currentColor`, então a cor vem do `--ink-muted` de cada tema, copiada aqui:
+ * quem mudar o token muda as duas linhas abaixo também.
+ *
+ * Sem camada, de propósito, ao contrário do bloco acima: o espaço do chevron
+ * precisa vencer o `px-*` de cada campo, senão o texto passa por baixo dele.
+ */
+:root {
+  --chevron-do-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%235b616e' d='M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --chevron-do-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23a8acb3' d='M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E");
+  }
+}
+
+:root[data-tema="escuro"] {
+  --chevron-do-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23a8acb3' d='M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E");
+}
+
+select:not([multiple], [size]) {
+  appearance: none;
+  background-image: var(--chevron-do-select);
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 0.875rem;
+  padding-inline-end: 2.25rem;
+}
+
+/*
  * Foco em azul e 2px, como o campo de formulário do documento faz no estado
  * de foco. É a única aparição do azul que não é ação — e é justificada: o anel
  * de foco precisa ser a coisa mais visível da tela quando existe.
