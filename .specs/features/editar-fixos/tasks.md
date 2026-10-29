@@ -384,8 +384,8 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Reuses**: `abrirEdicao`, `linhaNaLista`
 **Requirement**: EDF-01, EDF-03
 **Done when**:
-- [ ] Depois do reajuste de novembro, a edição aberta em outubro mostra "100,00", salvar sem mexer diz "Nada mudou: já estava tudo assim." e outubro continua em R$ 100,00
-- [ ] O mutante E2 falha o teste em `toHaveValue("100,00")`
+- [x] Depois do reajuste de novembro, a edição aberta em outubro mostra "100,00", salvar sem mexer diz "Nada mudou: já estava tudo assim." e outubro continua em R$ 100,00
+- [x] O mutante E2 falha o teste em `toHaveValue("100,00")`, com `Received: "110,00"`
 **Tests**: e2e
 **Gate**: `pnpm exec playwright test e2e/editar-fixo.spec.ts`
 **Commit**: `test(e2e): editar um mês anterior ao reajuste sem reescrevê-lo`

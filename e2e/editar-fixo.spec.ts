@@ -161,6 +161,14 @@ test("mudar o valor a partir de novembro mantém outubro com o valor antigo (EDF
   await expect(await linhaNaLista(page, "2026-10", "Conta de luz")).toContainText("R$ 100,00");
   await expect(await linhaNaLista(page, "2026-11", "Conta de luz")).toContainText("R$ 110,00");
   await expect(await linhaNaLista(page, "2026-12", "Conta de luz")).toContainText("R$ 110,00");
+
+  /* Em outubro, a edição abre com o valor vigente em outubro, e não com o
+     último: salvar sem mexer não reescreve o mês passado (EDF-01 AC 3, EDF-03 AC 3). */
+  const outubro = await abrirEdicao(page, "2026-10", "Conta de luz");
+  await expect(outubro.getByLabel(/De quanto costuma ser/)).toHaveValue("100,00");
+  await outubro.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(outubro.getByRole("status")).toHaveText("Nada mudou: já estava tudo assim.");
+  await expect(await linhaNaLista(page, "2026-10", "Conta de luz")).toContainText("R$ 100,00");
 });
 
 test('encerrar pelo "Termina em" e reabrir apagando o campo (EDF-04)', async ({ page }) => {
