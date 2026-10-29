@@ -170,6 +170,7 @@ T9 -> T10
 
 ```
 T9 -> F1
+T8 -> F2
 ```
 
 Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com teste.
@@ -361,6 +362,19 @@ Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com 
 **Gate**: `pnpm typecheck && pnpm exec playwright test e2e/trocar-categoria.spec.ts`
 **Commit**: `test(e2e): arquivar uma categoria e ver a lista pela página real`
 
+#### F2: "Receita" presa à coluna Categoria
+**What**: O teste da tabela procurava "Receita" na linha inteira da entrada. Mover a pílula para a célula da descrição, com a célula Categoria vazia (mutante TB6), passava, e o TRC-01 AC 1 diz "na coluna Categoria".
+**Where**: `src/components/tabela-lancamentos.test.tsx` (+ `spec.md`)
+**Depends on**: T8
+**Reuses**: `montar` do bloco "Receita na entrada e seletor no gasto"
+**Requirement**: TRC-01
+**Done when**:
+- [x] Na região Entradas, a célula de cada entrada no índice do cabeçalho "Categoria" diz exatamente "Receita", com e sem categoria gravada (TRC-01 AC 1)
+- [x] TB6 falha o teste na célula da coluna Categoria, com `expected '' to be 'Receita'`
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(categorias): prender Receita à coluna Categoria da entrada`
+
 ---
 
 ## Task Granularity Check
@@ -374,6 +388,7 @@ Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com 
 | T8 | 1 componente + a página que o alimenta | ⚠️ coeso: a tabela só recebe o que a página passa |
 | T9, T10 | e2e; documentação | ✅ |
 | F1 | 1 caso de teste | ✅ |
+| F2 | 1 assertion num caso de teste | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -390,6 +405,7 @@ Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com 
 | T9 | T8 | T8→T9 | ✅ |
 | T10 | T9 | T9→T10 | ✅ |
 | F1 | T9 | T9→F1 | ✅ |
+| F2 | T8 | T8→F2 | ✅ |
 
 T4 também usa T1 e T2, de fases anteriores; o diagrama só liga tasks da mesma fase.
 
@@ -409,3 +425,4 @@ título de fase que vê, por isso o Task Breakdown repete os títulos das fases.
 | T9 | fluxo | e2e | e2e | ✅ |
 | T10 | docs | none | none | ✅ |
 | F1 | fluxo | e2e | e2e | ✅ |
+| F2 | componentes | componentes | componentes | ✅ |

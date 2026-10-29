@@ -519,12 +519,17 @@ describe("Receita na entrada e seletor no gasto (TRC-01, TRC-02)", () => {
       }),
     ]);
 
+    const entradas = screen.getByRole("region", { name: "Entradas" });
+    /* "Na coluna Categoria": a célula sob aquele cabeçalho, e não a linha. */
+    const colunaCategoria = within(entradas)
+      .getAllByRole("columnheader")
+      .indexOf(within(entradas).getByRole("columnheader", { name: "Categoria" }));
     for (const descricao of ["Entrada A", "Entrada B"]) {
-      const linha = screen.getByRole("row", { name: new RegExp(descricao) });
-      expect(within(linha).getByText("Receita")).toBeTruthy();
+      const linha = within(entradas).getByRole("row", { name: new RegExp(descricao) });
+      const celulas = within(linha).getAllByRole("cell");
+      expect(celulas[colunaCategoria]?.textContent).toBe("Receita");
       expect(within(linha).queryByRole("combobox")).toBeNull();
     }
-    const entradas = screen.getByRole("region", { name: "Entradas" });
     expect(within(entradas).queryByText("Categoria Um")).toBeNull();
     expect(within(entradas).queryByText("Sem categoria")).toBeNull();
   });
