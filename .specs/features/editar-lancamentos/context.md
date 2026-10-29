@@ -186,3 +186,19 @@ migration `0003` no Neon, push da importação, outubro, novembro e dezembro. Ne
    desse valor; no modo "valor total", o restante se redistribui.
 9. Com parcelas não pagas de valores diferentes, o campo mostra o valor da próxima a pagar.
 10. Sem parcela paga, editar uma compra equivale a recadastrá-la.
+
+## Nota da troca de categoria (verificação de `trocar-categoria`, 2026-10-29)
+
+> Registrada a pedido do relatório da rodada 1 (`.specs/features/trocar-categoria/validation.md`,
+> Notas, item 2). Não é decisão do dono nem do autor desta fatia.
+
+A troca de categoria de um fixo (TRC-03 AC 1) reusa `atualizarOcorrenciasDaSerie`, a mesma escrita
+da edição de fixo (`trocarNoFixo` em `src/application/mes/trocar-categoria/handler.ts:105-125`). Ela
+regrava **descrição, meio, pessoa e data** de todas as ocorrências do fixo com os valores do fixo, e
+não só a categoria.
+
+Hoje isso não muda nada: só a materialização e a edição de fixo escrevem numa ocorrência, e as duas
+usam os campos do fixo. Este rascunho também diz que "Editar" numa ocorrência edita o fixo (decisão
+6 do autor). Se esta fatia passar a editar **uma ocorrência sozinha**, a troca de categoria do fixo
+vai apagar essa edição e quebrar o "sem mudar data" do TRC-03 AC 1. Nesse caso, a troca no fixo
+precisa mudar junto, para gravar só a categoria nas ocorrências.
