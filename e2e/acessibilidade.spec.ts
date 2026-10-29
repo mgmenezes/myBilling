@@ -86,7 +86,8 @@ async function cadastrarGastoAvulso(page: Page, descricao: string): Promise<void
   await form.getByLabel("Valor (R$)").fill("10,00");
   await form.getByLabel("Meio de pagamento").selectOption({ label: "Cartão Roxo" });
   await form.getByRole("button", { name: "Cadastrar lançamento" }).click();
-  await expect(page.getByRole("status")).toContainText(descricao);
+  /* A confirmação do formulário: a contagem do cartão de filtros também é `status`. */
+  await expect(form.getByRole("status")).toContainText(descricao);
   await page.keyboard.press("Escape");
 }
 

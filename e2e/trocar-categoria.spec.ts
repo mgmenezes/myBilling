@@ -160,9 +160,13 @@ function categoriaEscolhida(page: Page, descricao: string): Locator {
   return seletor(page, descricao).locator("option:checked");
 }
 
-/** O toast. O diálogo de cadastro está fechado, então é a única `status` da página. */
+/**
+ * O toast: a `status` dentro da região `aria-live` do layout. A contagem do
+ * cartão de filtros também é `status` (LST-01, AC 8), então a busca solta
+ * casaria as duas.
+ */
 function aviso(page: Page): Locator {
-  return page.getByRole("status");
+  return page.locator('[aria-live="polite"]').getByRole("status");
 }
 
 test("trocar em novembro a categoria de um fixo troca outubro e dezembro, e outubro continua pago (TRC-03 AC 1, TRC-04 ACs 1 e 5)", async ({
@@ -270,7 +274,11 @@ test("com a lista filtrada pela categoria antiga, o gasto trocado sai dela (TRC-
   });
 
   await page.goto("/2026-03/lancamentos");
-  await page.locator("search").getByLabel("Categoria").selectOption({ label: "Categoria Um" });
+  /* A categoria é um chip do cartão, com o total do mês (LST-01). */
+  await page
+    .locator("#cartao-de-filtros")
+    .getByRole("button", { name: "Categoria Um · R$ 30,00" })
+    .click();
   await expect(page).toHaveURL(/categoriaId=/);
   await expect(linha(page, "Gastos do Mês", "Farmácia")).toBeVisible();
 

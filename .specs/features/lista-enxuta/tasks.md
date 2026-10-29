@@ -286,13 +286,13 @@ T8 -> T9
 **Reuses**: `limparDados`, `semearCadastroBase`, `entrar` e os helpers de cadastro de `e2e/trocar-categoria.spec.ts`
 **Requirement**: LST-01 a LST-05
 **Done when**:
-- [ ] Chip filtra a lista, e o total dele é igual ao da barra da mesma categoria na Visão geral (LST-01 AC 1, 2, 5)
-- [ ] "+N categorias" revela as outras quando há mais de 6 (LST-01 AC 4)
-- [ ] Recolher Fixos, recarregar, e Fixos continua recolhido com o resumo (LST-02 AC 1–4)
-- [ ] Rolar até o fim mostra a barra compacta com o filtro ativo; o "×" tira o filtro; voltar ao topo esconde a barra (LST-03 AC 1, 2, 4)
-- [ ] A 1024, 1280 e 1440 px, a tabela do Cartão termina dentro da coluna de conteúdo (`boundingBox`), e "(faltam N depois desta)" está sob a descrição (LST-05 AC 1, 3)
-- [ ] Tocar na barra de uma categoria na Visão geral abre a lista com o chip dela ativo (LST-04 AC 1)
-- [ ] A suíte e2e inteira passa, inclusive as medições de 400 px e de 44×44
+- [x] Chip filtra a lista, e o total dele é igual ao da barra da mesma categoria na Visão geral (LST-01 AC 1, 2, 5)
+- [x] "+N categorias" revela as outras quando há mais de 6 (LST-01 AC 4)
+- [x] Recolher Fixos, recarregar, e Fixos continua recolhido com o resumo (LST-02 AC 1–4)
+- [x] Rolar até o fim mostra a barra compacta com o filtro ativo; o "×" tira o filtro; voltar ao topo esconde a barra (LST-03 AC 1, 2, 4)
+- [x] A 1024, 1280 e 1440 px, a tabela do Cartão termina dentro da coluna de conteúdo (`boundingBox`), e "(faltam N depois desta)" está sob a descrição (LST-05 AC 1, 3)
+- [x] Tocar na barra de uma categoria na Visão geral abre a lista com o chip dela ativo (LST-04 AC 1)
+- [x] A suíte e2e inteira passa, inclusive as medições de 400 px e de 44×44
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(e2e): a lista enxuta de ponta a ponta`

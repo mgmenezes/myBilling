@@ -98,7 +98,8 @@ async function cadastrar(page: Page, dados: Compra): Promise<void> {
     await form.getByLabel("Já estou na parcela").fill(dados.parcelaInicial);
   }
   await form.getByRole("button", { name: "Cadastrar compra" }).click();
-  await expect(page.getByRole("status")).toContainText(dados.descricao);
+  /* A confirmação do formulário: a contagem do cartão de filtros também é `status`. */
+  await expect(form.getByRole("status")).toContainText(dados.descricao);
 }
 
 /** A linha do bloco "Cartão de Crédito" daquela descrição, na área de Lançamentos. */
@@ -106,6 +107,11 @@ function linhaDaParcela(page: Page, descricao: string) {
   return page.getByRole("region", { name: "Cartão de Crédito" }).getByRole("row", {
     name: new RegExp(descricao),
   });
+}
+
+/** A célula da descrição: a parcela é a segunda linha dela, e não uma coluna (LST-05). */
+function descricaoDaParcela(page: Page, descricao: string) {
+  return linhaDaParcela(page, descricao).getByRole("cell").first();
 }
 
 async function contarMovimentosAntesDe(competencia: string): Promise<number> {
@@ -132,7 +138,7 @@ test("cadastrar R$ 1.000,00 em 3x em março e achar as parcelas em abril e maio 
   await expect(previa.getByRole("listitem").nth(2)).toContainText("R$ 333,33");
 
   await compra(page).getByRole("button", { name: "Cadastrar compra" }).click();
-  await expect(page.getByRole("status")).toContainText("Compra parcelada A");
+  await expect(compra(page).getByRole("status")).toContainText("Compra parcelada A");
 
   // Março: parcela 1/3, já nesta mesma página.
   await expect(linhaDaParcela(page, "Compra parcelada A")).toContainText("1/3");
@@ -167,13 +173,15 @@ test("cadastrar uma compra 8/10 cria 3 parcelas e nenhum lançamento em competê
   });
 
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("8/10");
-  await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("faltam 2 depois desta");
+  await expect(descricaoDaParcela(page, "Compra parcelada B")).toContainText(
+    "8/10 · (faltam 2 depois desta)",
+  );
 
   await page.goto("/2026-04/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("9/10");
   await page.goto("/2026-05/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("10/10");
-  await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("(última)");
+  await expect(descricaoDaParcela(page, "Compra parcelada B")).toContainText("10/10 · (última)");
 
   // Os sete meses anteriores não ganharam despesa nenhuma (AD-005).
   await page.goto("/2026-02");

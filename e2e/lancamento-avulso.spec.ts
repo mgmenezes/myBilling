@@ -96,7 +96,8 @@ async function cadastrarAvulso(page: Page, dados: Avulso): Promise<void> {
     await form.getByLabel(rotulo).selectOption({ label: dados.meio });
   }
   await form.getByRole("button", { name: "Cadastrar lançamento" }).click();
-  await expect(page.getByRole("status")).toContainText(dados.descricao);
+  /* A confirmação do formulário: a contagem do cartão de filtros também é `status`. */
+  await expect(form.getByRole("status")).toContainText(dados.descricao);
 }
 
 /** A linha daquela descrição dentro do bloco informado. */
@@ -282,7 +283,7 @@ test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 6)", asy
   await compra.getByLabel("Valor total (R$)").fill("300,00");
   await compra.getByLabel("Quantidade de parcelas").fill("3");
   await compra.getByRole("button", { name: "Cadastrar compra" }).click();
-  await expect(page.getByRole("status")).toContainText("Compra parcelada A");
+  await expect(compra.getByRole("status")).toContainText("Compra parcelada A");
   await page.keyboard.press("Escape");
 
   const linha = linhaNoBloco(page, "Cartão de Crédito", "Compra parcelada A");

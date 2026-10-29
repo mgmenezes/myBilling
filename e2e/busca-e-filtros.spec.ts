@@ -86,9 +86,13 @@ async function entrar(page: Page, email: string): Promise<void> {
   });
 }
 
-/** O painel de busca e filtros. Escopo obrigatório: ver o cabeçalho. */
+/**
+ * O painel de busca e filtros. Escopo obrigatório: ver o cabeçalho. É o
+ * `search` do cartão, e não qualquer um: ao rolar, a barra compacta também é
+ * `search` e também tem "Buscar por descrição" (LST-03).
+ */
 function filtros(page: Page): Locator {
-  return page.locator("search");
+  return page.locator("#cartao-de-filtros search");
 }
 
 async function abrirAvulso(page: Page): Promise<Locator> {
@@ -127,7 +131,8 @@ async function cadastrarAvulso(page: Page, dados: Avulso): Promise<void> {
     await form.getByLabel("De quem é o lançamento").selectOption({ label: dados.pessoa });
   }
   await form.getByRole("button", { name: "Cadastrar lançamento" }).click();
-  await expect(page.getByRole("status")).toContainText(dados.descricao);
+  /* A confirmação do formulário: a contagem do cartão também é `status`. */
+  await expect(form.getByRole("status")).toContainText(dados.descricao);
 }
 
 /**
@@ -208,7 +213,8 @@ test("filtrar por categoria, meio e pessoa funciona pela tela (REDE-01, AC 2)", 
 }) => {
   await semearTresGastos(page);
 
-  await filtros(page).getByLabel("Categoria").selectOption({ label: "Categoria Dois" });
+  /* A categoria é um chip, com o total do mês, no lugar do select (LST-01). */
+  await filtros(page).getByRole("button", { name: "Categoria Dois · R$ 20,00" }).click();
   await expect(page).toHaveURL(/categoriaId=/);
   await expect(linha(page, "Farmácia")).toBeVisible();
   await expect(linha(page, "Mercado da semana")).toHaveCount(0);
