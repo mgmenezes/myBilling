@@ -1,8 +1,14 @@
 # Editar gasto fixo e entrada fixa — Validação
 
-## Validation: editar-fixos — **FAIL**
+## Validation: editar-fixos — **PASS**
 
-**Result**: FAIL ❌ — rodada 3 (2026-10-29, `df1a2de`), a última do laço. O F4 mata E2, E2b e
+**Result**: PASS ✅ — reverificação depois do F5 (2026-10-29, `e913f24`), autorizada pelo dono
+depois da rodada 3. P4, C1, C2, E2, E2b e E3p morrem no `e2e/editar-fixo.spec.ts`, e o gate está
+verde. Os 28 critérios têm assertion sobre o resultado da spec e mutante morto. Detalhe na seção
+[Reverificação depois do F5](#reverificação-depois-do-f5), no fim do arquivo. As rodadas 1 a 3
+seguem abaixo como foram escritas.
+
+**Rodada 3** (2026-10-29, `df1a2de`): FAIL ❌ — a última do laço. O F4 mata E2, E2b e
 E3p, e o gate está verde. A varredura dos demais campos que a página entrega ao formulário achou um
 mutante vivo no mesmo elo: `categoriaId: null` (P4). Duas sondas mostram que a pessoa e o meio
 constantes também passam (C1, C2). O código de produto está certo, e a correção é uma fix task de
@@ -850,3 +856,99 @@ mortos da rodada 2 valem sobre o mesmo código de produto.
 3/3.
 
 **Próximo passo**: o dono escolhe entre o Fix 5 com reverificação curta e o risco aceito.
+
+---
+
+## Reverificação depois do F5
+
+**Data**: 2026-10-29
+**Verificado em**: `e913f24` (F5), autorizado pelo dono como a saída 1 da rodada 3.
+**Faixa**: desde `a46943a`, um commit. Ele acrescenta 5 linhas a `e2e/editar-fixo.spec.ts`
+(`:160-164`), estende a linha do EDF-01 na traceability de `spec.md` e acrescenta a F5 (Phase 8) a
+`tasks.md`. Nenhum arquivo de `src` mudou.
+**Verificador**: o mesmo sub-agente da rodada 3, que não escreveu o F5. Os mutantes rodaram como na
+rodada 3: um por vez na worktree da fatia, revertidos com `git checkout --`. Porcelain vazio antes e
+no fim, sem `git stash`, `next-env.d.ts` devolvido ao commitado. Banco de teste padrão.
+
+### Veredito
+
+**PASS ✅.** Os seis mutantes reaplicados morrem, cada um numa assertion. O F5 não removeu nem
+enfraqueceu nada. O gate está verde.
+
+### O F5 não removeu nem enfraqueceu assertion
+
+`git show e913f24`: o diff do e2e só tem linhas `+` (5). As duas linhas `−` do commit são texto:
+- a linha do EDF-01 em `spec.md`, que mantém o texto anterior inteiro e ganha no fim o trecho do F5;
+- a nota do `tasks.md`, que passou de "F1 a F4" para "F1 a F5".
+
+Nenhum `skip`, `only` ou `todo` em `src` nem em `e2e`. `tasks.md` tem 50 itens marcados e nenhum
+aberto. `check_commit.py` dá OK na mensagem do `e913f24`.
+
+### Mutantes reaplicados
+
+| # | `file:line` | Mutação | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| P4 | `src/app/(app)/[competencia]/fixos/page.tsx:113` | `categoriaId: null` | `e2e/editar-fixo.spec.ts:164` — `toHaveText("Nada mudou: já estava tudo assim.")`, `Received: "Alterações salvas."` (F5) | ✅ Morto |
+| C1 | `fixos/page.tsx:114` | pessoa constante, `opcoesDeUsuario.at(-1)?.id ?? …` | `:164`, `Received: "Alterações salvas."` (F5) | ✅ Morto |
+| C2 | `fixos/page.tsx:112` | meio constante, `opcoesDeMeio.at(-1)?.id ?? …` | `:164`, `Received: "Alterações salvas."` (F5) | ✅ Morto |
+| E2 | `fixos/page.tsx:115` | `versoes.at(-1)?.valorPrevisto ?? null` (a última vigência) | `:178` — `toHaveValue("100,00")`, `Received: "110,00"` | ✅ Morto |
+| E2b | `fixos/page.tsx:115` | `versoes[0]?.valorPrevisto ?? null` (a primeira vigência) | `:186` — `toHaveValue("110,00")`, `Received: "100,00"` | ✅ Morto |
+| E3p | `fixos/page.tsx:114` | a outra pessoa | `:164`, `Received: "Alterações salvas."`. Antes do F5 morria em `:175`, e agora cai na linha nova, que vem antes | ✅ Morto |
+
+**Resultado**: 6 de 6 mortos. Os 46 mutantes da rodada 1, os 11 da rodada 2 e os 12 mortos da
+rodada 3 valem sobre o mesmo código de produto.
+
+### Critério que mudou
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| EDF-01 AC 3: o formulário abre com o que está gravado | descrição, natureza, valor vigente no mês exibido, dia, início, fim, meio, categoria e pessoa gravados | Formulário: `src/components/form-recorrencia.test.tsx:382-396`, os nove campos (FP1 a FP4 mortos). Página: `e2e/editar-fixo.spec.ts:163-164`, onde salvar sem mexer antes de qualquer gravação dá "Nada mudou" e prova cada campo que a página entrega (P4, C1, C2, E3p mortos). Ainda descrição em `:119`, valor em `:178` e `:186`, início em `:121` e fim em `:205` | ✅ PASS |
+
+**Status**: 28 de 28 critérios com assertion sobre o resultado da spec e mutante morto. Não há
+lacuna de precisão.
+
+O que ficou de fora na rodada 3 continua sem ser gap. Uma constante igual ao padrão do cadastro só
+morre no formulário (FP1 a FP4). `natureza` e `id` não entraram na varredura.
+
+### Gate
+
+- `pnpm typecheck`: ✅ `Types generated successfully`, `tsc` saída 0.
+- `pnpm lint`: ✅ `Checked 264 files in 146ms. No fixes applied.`
+- `pnpm exec playwright test e2e/editar-fixo.spec.ts`: ✅ **3 passed (20.7s)**, saída 0.
+
+Unit, integração e build não rodaram de novo, porque nenhum arquivo de `src` mudou desde `bfc38f6`.
+Na rodada 3, `pnpm test:unit` deu 1.268 testes e 100% de branches no domínio. Na rodada 2,
+`pnpm verify` passou com 307 testes de integração e o build. A contagem do e2e da fatia continua em
+3 testes: o F5 estende um teste existente.
+
+### Validadores
+
+- `validate_spec.py`: 0 erros, 0 avisos.
+- `validate_tasks.py`, sobre uma cópia do `tasks.md` com F1 a F5 trocados por T101 a T105: 0 erros e
+  12 avisos. São os 11 da rodada 3 e o `spec.md` no `Where` da T105.
+- `validate_state.py editar-fixos`: sai com 0.
+
+### Lições
+
+Nenhuma lição nova, porque a reverificação não teve falha. A L-025 continua `candidate`.
+
+### Requirement Traceability final, proposta
+
+| Requisito | Antes | Proposto |
+| --- | --- | --- |
+| EDF-01 | Implemented | ✅ Verified (F1, F4, F5; `validation.md`, reverificação depois do F5) |
+| EDF-02 | Implemented | ✅ Verified (F3; rodada 2) |
+| EDF-03 | Implemented | ✅ Verified (F1, F4; rodada 3) |
+| EDF-04 | Implemented | ✅ Verified (rodada 1) |
+| EDF-05 | Implemented | ✅ Verified (F2; rodada 2) |
+| EDF-06 | Implemented | ✅ Verified (F3; rodada 2) |
+
+O verificador não edita `spec.md`. A coluna Status de cada linha passa de `Implemented: …` para
+`Verified: …`, com o texto atual mantido e a citação desta seção no fim.
+
+### Resumo
+
+**Overall**: ✅ Ready.
+**Spec-anchored check**: 28/28 critérios.
+**Sensor**: 6 de 6 mortos nesta reverificação.
+**Gate**: typecheck e lint limpos, `e2e/editar-fixo.spec.ts` 3/3.
