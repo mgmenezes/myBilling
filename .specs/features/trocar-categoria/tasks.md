@@ -306,11 +306,11 @@ T9 -> T10
 **Reuses**: `limparDados`, `semearCadastroBase`, `entrar` dos outros e2e
 **Requirement**: TRC-01 a TRC-04
 **Done when**:
-- [ ] Fixo de outubro a dezembro com outubro pago: trocar em novembro mostra "Categoria trocada em todos os meses deste fixo.", e outubro e dezembro aparecem com a categoria nova; outubro continua pago (TRC-03 AC 1, TRC-04 AC 1, Independent Test)
-- [ ] Compra de 3 parcelas: trocar a parcela 2 mostra "Categoria trocada em todas as parcelas desta compra.", e as parcelas 1 e 3 aparecem com a categoria nova (TRC-03 AC 3, TRC-04 AC 2)
-- [ ] Gasto do mês: trocar mostra "Categoria trocada.", e outro gasto do mês com a mesma categoria antiga continua com ela (TRC-03 AC 4, TRC-04 AC 3)
-- [ ] Entrada aparece como "Receita", sem seletor (TRC-01 AC 1, 2)
-- [ ] "Gastos por categoria" da Visão geral mostra o valor do fixo na categoria nova (TRC-04 AC 5)
+- [x] Fixo de outubro a dezembro com outubro pago: trocar em novembro mostra "Categoria trocada em todos os meses deste fixo.", e outubro e dezembro aparecem com a categoria nova; outubro continua pago (TRC-03 AC 1, TRC-04 AC 1, Independent Test)
+- [x] Compra de 3 parcelas: trocar a parcela 2 mostra "Categoria trocada em todas as parcelas desta compra.", e as parcelas 1 e 3 aparecem com a categoria nova (TRC-03 AC 3, TRC-04 AC 2)
+- [x] Gasto do mês: trocar mostra "Categoria trocada.", e outro gasto do mês com a mesma categoria antiga continua com ela (TRC-03 AC 4, TRC-04 AC 3)
+- [x] Entrada aparece como "Receita", sem seletor (TRC-01 AC 1, 2)
+- [x] "Gastos por categoria" da Visão geral mostra o valor do fixo na categoria nova (TRC-04 AC 5)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(e2e): trocar a categoria de fixo, compra e gasto do mês na lista`

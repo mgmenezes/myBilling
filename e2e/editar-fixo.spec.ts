@@ -132,8 +132,13 @@ test("trocar categoria e descrição em novembro corrige também outubro, que co
 
   for (const competencia of ["2026-10", "2026-11"]) {
     const linha = await linhaNaLista(page, competencia, "Tarifa de energia");
-    await expect(linha).toContainText("Categoria Dois");
-    await expect(linha).not.toContainText("Categoria Um");
+    /* A categoria da linha é um seletor, que traz todas como opção: o texto da
+       linha contém as duas. O que prova a correção é a opção escolhida. */
+    const escolhida = linha
+      .getByRole("combobox", { name: "Categoria de Tarifa de energia" })
+      .locator("option:checked");
+    await expect(escolhida).toHaveText("Categoria Dois");
+    await expect(escolhida).not.toHaveText("Categoria Um");
   }
   const outubroDepois = await linhaNaLista(page, "2026-10", "Tarifa de energia");
   await expect(outubroDepois.locator("button[aria-pressed]")).toHaveAttribute(
