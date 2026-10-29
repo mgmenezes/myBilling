@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { Cents, Competencia, Lancamento } from "@/domain";
-import { contarFiltrosAtivos, filtrarLancamentos, situacaoDe } from "./filtrar-lancamentos";
+import {
+  contarFiltrosAtivos,
+  filtrarLancamentos,
+  SEM_CATEGORIA,
+  situacaoDe,
+} from "./filtrar-lancamentos";
 import type { LancamentoDoMes } from "./obter-visao-mensal/handler";
 
 /**
@@ -119,6 +124,59 @@ describe("cada dimensão de filtro isolada (REDE-01, AC 2)", () => {
 
   it("filtro vazio devolve a lista inteira do mês", () => {
     expect(filtrarLancamentos(lista, {}, MARCO)).toHaveLength(6);
+  });
+});
+
+/*
+ * LST-01, AC 9. O chip "Sem categoria" e a barra de mesmo nome na Visão geral
+ * levam a `categoriaId=sem-categoria`, e a lista precisa entender esse valor:
+ * comparado como id, ele não casaria com lançamento nenhum.
+ */
+describe("o filtro de lançamentos sem categoria (LST-01, AC 9)", () => {
+  const lista = [
+    item({ id: "com-x", categoriaId: CATEGORIA_X }),
+    item({ id: "sem-a", categoriaId: null }),
+    item({ id: "com-y", categoriaId: CATEGORIA_Y }),
+    item({ id: "sem-b", categoriaId: null, origem: "RECORRENCIA" }),
+  ];
+
+  it('o valor na URL é "sem-categoria", o mesmo que a Visão geral usa', () => {
+    expect(SEM_CATEGORIA).toBe("sem-categoria");
+  });
+
+  it("deixa só os lançamentos com categoria nula", () => {
+    expect(ids(filtrarLancamentos(lista, { categoriaId: SEM_CATEGORIA }, MARCO))).toEqual([
+      "sem-a",
+      "sem-b",
+    ]);
+  });
+
+  /* A entrada aparece na lista como "Receita", e não como "Sem categoria"
+     (TRC-01). Listá-la sob o chip "Sem categoria" poria o salário entre os
+     gastos que faltam categorizar. */
+  it("não traz a receita, que a lista mostra como Receita", () => {
+    const comReceita = [...lista, item({ id: "receita", natureza: "RECEITA", categoriaId: null })];
+
+    expect(ids(filtrarLancamentos(comReceita, { categoriaId: SEM_CATEGORIA }, MARCO))).toEqual([
+      "sem-a",
+      "sem-b",
+    ]);
+  });
+
+  it("um id de categoria continua filtrando por ele, sem trazer os sem categoria", () => {
+    expect(ids(filtrarLancamentos(lista, { categoriaId: CATEGORIA_X }, MARCO))).toEqual(["com-x"]);
+  });
+
+  it("sem categoriaId, os sem categoria continuam na lista", () => {
+    expect(ids(filtrarLancamentos(lista, {}, MARCO))).toEqual(["com-x", "sem-a", "com-y", "sem-b"]);
+  });
+
+  it("combinado com outra dimensão, é interseção como as outras", () => {
+    const combinada = [...lista, item({ id: "sem-pago", categoriaId: null, pagoEm: "2026-03-12" })];
+
+    expect(
+      ids(filtrarLancamentos(combinada, { categoriaId: SEM_CATEGORIA, situacao: "PAGO" }, MARCO)),
+    ).toEqual(["sem-pago"]);
   });
 });
 

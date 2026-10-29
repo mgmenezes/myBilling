@@ -17,6 +17,16 @@ import type { LancamentoDoMes } from "./obter-visao-mensal/handler";
 
 export type Situacao = "PENDENTE" | "PAGO" | "VENCIDO";
 
+/**
+ * O `categoriaId` que pede os gastos sem categoria (LST-01, AC 9).
+ *
+ * Mora aqui, e só aqui: a Visão geral usa o mesmo valor como id da barra
+ * "Sem categoria", a lista o grava na URL pelo chip, e este filtro o
+ * reconhece. Três cópias da string divergiriam na primeira mudança, e o link
+ * da Visão geral abriria a lista vazia.
+ */
+export const SEM_CATEGORIA = "sem-categoria";
+
 export interface FiltroDeLancamentos {
   readonly busca?: string;
   readonly categoriaId?: string;
@@ -47,6 +57,18 @@ export function situacaoDe(item: LancamentoDoMes, competenciaCorrente: Competenc
   return item.lancamento.competencia < competenciaCorrente ? "VENCIDO" : "PENDENTE";
 }
 
+/**
+ * `SEM_CATEGORIA` casa o gasto de categoria nula. A receita fica de fora: a
+ * lista a mostra como "Receita", e não como "Sem categoria" (TRC-01), e o
+ * chip de mesmo nome soma só despesa.
+ */
+function daCategoria(item: LancamentoDoMes, categoriaId: string): boolean {
+  if (categoriaId === SEM_CATEGORIA) {
+    return item.lancamento.categoriaId === null && item.lancamento.natureza !== "RECEITA";
+  }
+  return item.lancamento.categoriaId === categoriaId;
+}
+
 export function filtrarLancamentos(
   lancamentos: ReadonlyArray<LancamentoDoMes>,
   filtro: FiltroDeLancamentos,
@@ -61,7 +83,7 @@ export function filtrarLancamentos(
     if (filtro.natureza !== undefined && item.lancamento.natureza !== filtro.natureza) {
       return false;
     }
-    if (filtro.categoriaId !== undefined && item.lancamento.categoriaId !== filtro.categoriaId) {
+    if (filtro.categoriaId !== undefined && !daCategoria(item, filtro.categoriaId)) {
       return false;
     }
     if (

@@ -167,8 +167,8 @@ T8 -> T9
 **Reuses**: `filtrarLancamentos`
 **Requirement**: LST-01
 **Done when**:
-- [ ] `categoriaId: "sem-categoria"` deixa só os lançamentos com `categoriaId` nulo (LST-01 AC 9)
-- [ ] Um id de categoria continua filtrando por ele, e sem `categoriaId` nada muda
+- [x] `categoriaId: "sem-categoria"` deixa só os lançamentos com `categoriaId` nulo (LST-01 AC 9)
+- [x] Um id de categoria continua filtrando por ele, e sem `categoriaId` nada muda
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(lancamentos): filtrar os lançamentos sem categoria`
