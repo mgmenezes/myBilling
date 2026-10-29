@@ -337,6 +337,21 @@ select:not([multiple], [size]) {
 }
 
 /*
+ * A barra compacta de filtros da lista de Lançamentos (LST-03) fica fixa no
+ * topo quando o cartão de filtros sai da tela. A altura dela é este token, e
+ * o `html` a reserva no topo da rolagem: o elemento que recebe foco por
+ * teclado, ou que um link de âncora traz à tela, não para debaixo da barra
+ * (WCAG 2.4.11). Quem mudar a altura muda as duas coisas de uma vez.
+ */
+:root {
+  --altura-da-barra-de-filtros: 4rem;
+}
+
+html {
+  scroll-padding-top: var(--altura-da-barra-de-filtros);
+}
+
+/*
  * Foco em azul e 2px, como o campo de formulário do documento faz no estado
  * de foco. É a única aparição do azul que não é ação — e é justificada: o anel
  * de foco precisa ser a coisa mais visível da tela quando existe.

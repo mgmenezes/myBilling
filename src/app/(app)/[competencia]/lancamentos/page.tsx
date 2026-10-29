@@ -15,12 +15,14 @@ import {
   filtrarLancamentos,
   type Situacao,
 } from "@/application/mes/filtrar-lancamentos";
+import { filtrosAtivos } from "@/application/mes/filtros-ativos";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
 import { totaisPorCategoria } from "@/application/mes/totais-por-categoria";
 import {
   MESES_DE_PROJECAO,
   materializarRecorrencias,
 } from "@/application/recorrencias/materializar/handler";
+import { BarraDeFiltrosCompacta } from "@/components/barra-de-filtros-compacta";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
 import { FormCompra } from "@/components/form-compra";
@@ -172,6 +174,13 @@ export default async function PaginaDeLancamentos({
   /* Lido aqui, e não no navegador: o bloco que a pessoa recolheu já sai
      fechado no HTML, sem abrir e fechar diante dela (LST-02, AC 4). */
   const recolhidos = lerBlocosRecolhidos((await cookies()).get(COOKIE_BLOCOS_RECOLHIDOS)?.value);
+  /* Os filtros da URL com o nome que a barra compacta mostra (LST-03, AC 4).
+     O nome da categoria sai do mesmo mapa da tabela, arquivadas inclusive. */
+  const ativos = filtrosAtivos(filtro, {
+    categorias: nomePorCategoria,
+    meios: new Map(meios.map((m) => [m.id, m.nome])),
+    usuarios: new Map(usuarios.map((u) => [u.id, u.nome])),
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -223,13 +232,17 @@ export default async function PaginaDeLancamentos({
         </DialogoDeCadastro>
       </div>
 
-      <FiltrosDeLancamentos
-        categorias={gastoPorCategoria}
-        meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
-        usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
-        totalVisivel={formatarBRL(total)}
-        quantidadeVisivel={visiveis.length}
-      />
+      {/* O id é o que a barra compacta observa e para onde "Filtros" leva. */}
+      <div id="cartao-de-filtros">
+        <FiltrosDeLancamentos
+          categorias={gastoPorCategoria}
+          meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
+          usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
+          totalVisivel={formatarBRL(total)}
+          quantidadeVisivel={visiveis.length}
+        />
+      </div>
+      <BarraDeFiltrosCompacta alvo="cartao-de-filtros" ativos={ativos} />
 
       {/*
         Distinguir "mês sem lançamento" de "nenhum resultado para este filtro"

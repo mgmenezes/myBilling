@@ -1,9 +1,9 @@
 "use client";
 
 import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { ChipsDeCategoria, type TotalDeCategoria } from "./chips-de-categoria";
+import { useFiltrosNaUrl } from "./filtros-na-url";
 import type { OpcaoDeCadastro } from "./form-compra";
 
 /**
@@ -15,7 +15,8 @@ import type { OpcaoDeCadastro } from "./form-compra";
  * para o campo de busca não perder caractere enquanto o debounce roda.
  *
  * A busca espera 250ms antes de navegar: sem isso, cada tecla vira uma
- * navegação e o campo perde o foco no meio da digitação.
+ * navegação e o campo perde o foco no meio da digitação. A espera e a gravação
+ * moram em `useFiltrosNaUrl`, que a barra compacta usa também.
  *
  * **A categoria é escolhida por chip, e não por select** (LST-01). O chip diz
  * quanto foi para cada categoria no mês, e o total vem pronto da página, o
@@ -45,52 +46,12 @@ export function FiltrosDeLancamentos({
   readonly totalVisivel: string;
   readonly quantidadeVisivel: number;
 }) {
-  const router = useRouter();
-  const parametros = useSearchParams();
+  const { parametros, busca, setBusca, navegarCom, limparTudo } = useFiltrosNaUrl();
   const id = useId();
-
-  const buscaNaUrl = parametros.get("busca") ?? "";
-  const [busca, setBusca] = useState(buscaNaUrl);
-
-  function navegarCom(mudancas: Record<string, string>) {
-    const proximos = new URLSearchParams(parametros.toString());
-    for (const [chave, valor] of Object.entries(mudancas)) {
-      if (valor === "") {
-        proximos.delete(chave);
-      } else {
-        proximos.set(chave, valor);
-      }
-    }
-    const query = proximos.toString();
-    router.replace(query === "" ? "?" : `?${query}`, { scroll: false });
-  }
-
-  // Debounce: navegar a cada tecla tiraria o foco do campo no meio da palavra.
-  useEffect(() => {
-    if (busca === buscaNaUrl) {
-      return;
-    }
-    const temporizador = setTimeout(() => {
-      const proximos = new URLSearchParams(parametros.toString());
-      if (busca === "") {
-        proximos.delete("busca");
-      } else {
-        proximos.set("busca", busca);
-      }
-      const query = proximos.toString();
-      router.replace(query === "" ? "?" : `?${query}`, { scroll: false });
-    }, 250);
-    return () => clearTimeout(temporizador);
-  }, [busca, buscaNaUrl, parametros, router]);
 
   const ativos = ["busca", "categoriaId", "meioPagamentoId", "usuarioId", "situacao", "natureza"]
     .map((chave) => parametros.get(chave))
     .filter((valor) => valor !== null && valor !== "").length;
-
-  function limparTudo() {
-    setBusca("");
-    router.replace("?", { scroll: false });
-  }
 
   function seletor(
     chave: string,

@@ -234,12 +234,12 @@ T8 -> T9
 **Reuses**: o debounce e `navegarCom` do cartão de filtros (extrair para um hook se for o caso)
 **Requirement**: LST-03
 **Done when**:
-- [ ] Com o cartão fora da tela (IntersectionObserver simulado), a barra aparece com busca, filtros ativos e "Filtros"; com o cartão visível, some (LST-03 AC 1, 2)
-- [ ] Digitar na busca da barra grava `busca` na URL depois de 250 ms, com relógio falso (LST-03 AC 3)
-- [ ] Cada filtro ativo é um botão "Casa ×" com nome acessível "Tirar o filtro Casa", que tira só ele (LST-03 AC 4)
-- [ ] "Filtros" rola até o cartão e foca o primeiro controle dele (LST-03 AC 5)
-- [ ] `scroll-padding-top` em `globals.css` com a altura da barra (LST-03 AC 6)
-- [ ] Com 3 filtros ativos em 400 px, 2 aparecem e "+1" (LST-03 AC 7)
+- [x] Com o cartão fora da tela (IntersectionObserver simulado), a barra aparece com busca, filtros ativos e "Filtros"; com o cartão visível, some (LST-03 AC 1, 2)
+- [x] Digitar na busca da barra grava `busca` na URL depois de 250 ms, com relógio falso (LST-03 AC 3)
+- [x] Cada filtro ativo é um botão "Casa ×" com nome acessível "Tirar o filtro Casa", que tira só ele (LST-03 AC 4)
+- [x] "Filtros" rola até o cartão e foca o primeiro controle dele (LST-03 AC 5)
+- [x] `scroll-padding-top` em `globals.css` com a altura da barra (LST-03 AC 6)
+- [x] Com 3 filtros ativos em 400 px, 2 aparecem e "+1" (LST-03 AC 7)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(lancamentos): barra compacta de filtros ao rolar`
