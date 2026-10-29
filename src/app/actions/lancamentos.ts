@@ -3,9 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { cancelarLancamento as cancelarUso } from "@/application/mes/cancelar-lancamento/handler";
 import { criarLancamentoAvulso as criarAvulso } from "@/application/mes/criar-lancamento-avulso/handler";
+import { trocarCategoria as trocarUso } from "@/application/mes/trocar-categoria/handler";
 import { entradaLancamentoAvulsoSchema } from "@/application/schemas/lancamento-avulso.schema";
+import { entradaTrocaDeCategoriaSchema } from "@/application/schemas/troca-de-categoria.schema";
+import type { AlcanceDaTroca } from "@/domain";
 import { ErroDeSessao, requireSession } from "@/infrastructure/auth/sessao";
 import { criarRepositorios } from "@/infrastructure/container";
+import { db } from "@/infrastructure/db/client";
+import { TransacaoDrizzle } from "@/infrastructure/db/transacao";
 import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros";
 
 /**
@@ -109,6 +114,59 @@ export async function cancelarLancamento(
     return { ok: true, data: resultado.value };
   } catch (erro) {
     return falhaInesperada("cancelar lançamento", erro);
+  }
+}
+
+export interface TrocaGravada {
+  readonly lancamentoId: string;
+  /** O seletor escolhe o texto do aviso por ele (TRC-04 AC 1 a 3). */
+  readonly alcance: AlcanceDaTroca;
+  readonly categoriaId: string | null;
+}
+
+/**
+ * Trocar a categoria de um gasto na própria linha (TRC-03, TRC-05).
+ *
+ * Revalida as rotas pelo padrão, e não pela competência do lançamento: trocar
+ * a categoria de um fixo ou de uma compra muda todos os meses dele, e o
+ * "Gastos por categoria" da Visão geral e os cartões de "Todo mês" com eles
+ * (TRC-04 AC 5).
+ */
+export async function trocarCategoria(payload: unknown): Promise<ResultadoAction<TrocaGravada>> {
+  const sessao = await requireSession().catch(apenasErroDeSessao);
+  if (sessao instanceof ErroDeSessao) {
+    return erroDeAction(sessao.codigo);
+  }
+
+  const validado = entradaTrocaDeCategoriaSchema.safeParse(payload);
+  if (!validado.success) {
+    return erroDeValidacao(validado.error.issues);
+  }
+
+  try {
+    const banco = db();
+    const resultado = await trocarUso(
+      { ...criarRepositorios(banco), transacao: new TransacaoDrizzle(banco) },
+      validado.data,
+    );
+    if (!resultado.ok) {
+      return erroDeAction(resultado.error.code);
+    }
+
+    revalidatePath("/[competencia]/lancamentos", "page");
+    revalidatePath("/[competencia]", "page");
+    revalidatePath("/[competencia]/fixos", "page");
+
+    return {
+      ok: true,
+      data: {
+        lancamentoId: validado.data.lancamentoId,
+        alcance: resultado.value.alcance,
+        categoriaId: resultado.value.categoriaId,
+      },
+    };
+  } catch (erro) {
+    return falhaInesperada("trocar categoria", erro);
   }
 }
 

@@ -4,6 +4,7 @@ import type { CodigoErroCancelamento } from "@/application/mes/cancelar-lancamen
 import type { CodigoErroConfirmacao } from "@/application/mes/confirmar-valor/handler";
 import type { CodigoErroAvulso } from "@/application/mes/criar-lancamento-avulso/handler";
 import type { CodigoErroPagamento } from "@/application/mes/marcar-pagamento/handler";
+import type { CodigoErroTrocaDeCategoria } from "@/application/mes/trocar-categoria/handler";
 import type { CodigoErroRecorrencia } from "@/application/recorrencias/criar-recorrencia/handler";
 import type { CodigoErroEdicaoFixo } from "@/application/recorrencias/editar/handler";
 import type { CodigoErroVersao } from "@/application/recorrencias/registrar-versao/handler";
@@ -37,6 +38,7 @@ export type CodigoErroExibivel =
   | CodigoErroRecorrencia
   | CodigoErroVersao
   | CodigoErroEdicaoFixo
+  | CodigoErroTrocaDeCategoria
   | CodigoErroImportacao
   | CodigoErroDeBorda;
 

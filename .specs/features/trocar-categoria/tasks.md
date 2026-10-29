@@ -242,12 +242,12 @@ T9 -> T10
 **Reuses**: `requireSession`, `erroDeAction`, `TransacaoDrizzle`, `criarRepositorios`
 **Requirement**: TRC-03, TRC-04, TRC-05
 **Done when**:
-- [ ] Sem sessão → recusa com o código da sessão antes de qualquer leitura (TRC-05 AC 6)
-- [ ] Payload inválido → `VALIDACAO` (TRC-05 AC 5)
-- [ ] Recusas do caso de uso → código e mensagem de `erros.ts`; `CATEGORIA_EM_RECEITA` diz "Entrada não tem categoria." (TRC-05 AC 2–4)
-- [ ] Troca de um fixo no Postgres: as ocorrências de todos os meses com a categoria nova; um rollback de falha injetada deixa todas com a antiga (TRC-03 AC 1, 6)
-- [ ] Sucesso revalida `/[competencia]/lancamentos`, `/[competencia]` e `/[competencia]/fixos` (TRC-04 AC 5)
-- [ ] Erro inesperado → `ERRO_INESPERADO` com referência, sem lançar (TRC-05 AC 7)
+- [x] Sem sessão → recusa com o código da sessão antes de qualquer leitura (TRC-05 AC 6)
+- [x] Payload inválido → `VALIDACAO` (TRC-05 AC 5)
+- [x] Recusas do caso de uso → código e mensagem de `erros.ts`; `CATEGORIA_EM_RECEITA` diz "Entrada não tem categoria." (TRC-05 AC 2–4)
+- [x] Troca de um fixo no Postgres: as ocorrências de todos os meses com a categoria nova; um rollback de falha injetada deixa todas com a antiga (TRC-03 AC 1, 6)
+- [x] Sucesso revalida `/[competencia]/lancamentos`, `/[competencia]` e `/[competencia]/fixos` (TRC-04 AC 5)
+- [x] Erro inesperado → `ERRO_INESPERADO` com referência, sem lançar (TRC-05 AC 7)
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(categorias): action para trocar a categoria de um lançamento`

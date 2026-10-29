@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Cents, Competencia } from "@/domain";
 import {
   type CadastroBase,
   limparDados,
@@ -33,8 +34,19 @@ vi.mock("@/infrastructure/auth/auth", async (original) => ({
   auth: async () => sessaoAtual,
 }));
 
-const { cancelarLancamento, criarLancamentoAvulso } = await import("./lancamentos");
-const { criarPool } = await import("@/infrastructure/db/client");
+const { cancelarLancamento, criarLancamentoAvulso, trocarCategoria } = await import(
+  "./lancamentos"
+);
+const { criarCliente, criarPool } = await import("@/infrastructure/db/client");
+const { MovimentoRepositoryDrizzle } = await import(
+  "@/infrastructure/db/repositories/movimento.repository"
+);
+const { RecorrenciaRepositoryDrizzle } = await import(
+  "@/infrastructure/db/repositories/recorrencia.repository"
+);
+const { materializarRecorrencias } = await import(
+  "@/application/recorrencias/materializar/handler"
+);
 
 const EMAIL_PERMITIDO = "pessoa-a@example.com";
 
@@ -452,5 +464,239 @@ describe("erro inesperado nas duas actions (AVUL-01, AC 8)", () => {
     expect(resultado.erro.code).toBe("ERRO_INESPERADO");
     expect(resultado.erro.mensagem).toMatch(/informe o código [0-9a-f]{8}\.$/);
     expect(resultado.erro.mensagem).not.toMatch(/at |\.ts:|node_modules|invalid input syntax/i);
+  });
+});
+
+describe("trocarCategoria (TRC-03, TRC-04 AC 5, TRC-05)", () => {
+  const INEXISTENTE = "99999999-9999-4999-8999-999999999999";
+  let categoriaDois: string;
+  let recorrenciaId: string;
+
+  /** Um fixo de outubro a dezembro, com outubro pago, como no Independent Test do TRC-03. */
+  beforeEach(async () => {
+    categoriaDois =
+      (
+        await pool.query<{ id: string }>(
+          "INSERT INTO categoria (nome) VALUES ('Categoria Dois') RETURNING id",
+        )
+      ).rows[0]?.id ?? "";
+    const banco = criarCliente(pool);
+    const recorrencias = new RecorrenciaRepositoryDrizzle(banco);
+    const fixo = await recorrencias.criar({
+      dados: {
+        descricao: "Conta fixa A",
+        natureza: "DESPESA",
+        categoriaId: base.categoriaId,
+        usuarioId: base.usuarioId,
+        meioPagamentoId: base.contaId,
+        competenciaInicio: "2026-10" as Competencia,
+        competenciaFim: "2026-12" as Competencia,
+        diaVencimento: 10,
+      },
+      valorInicial: 10000 as Cents,
+    });
+    recorrenciaId = fixo.id;
+    await materializarRecorrencias(
+      { recorrencias, movimentos: new MovimentoRepositoryDrizzle(banco) },
+      "2026-10" as Competencia,
+      3,
+    );
+    await pool.query(
+      "UPDATE movimento SET pago_em = '2026-10-10' WHERE recorrencia_id = $1 AND competencia = '2026-10-01'",
+      [recorrenciaId],
+    );
+    revalidatePath.mockClear();
+  });
+
+  async function ocorrencia(competencia: string): Promise<string> {
+    const { rows } = await pool.query<{ id: string }>(
+      "SELECT id FROM movimento WHERE recorrencia_id = $1 AND competencia = $2",
+      [recorrenciaId, `${competencia}-01`],
+    );
+    return rows[0]?.id ?? "";
+  }
+
+  /** O fixo, as compras e os lançamentos, como o banco está agora. */
+  async function fotografia() {
+    const todas = async (consulta: string) => (await pool.query(consulta)).rows;
+    return {
+      recorrencias: await todas("SELECT * FROM recorrencia ORDER BY id"),
+      compras: await todas("SELECT * FROM compra_parcelada ORDER BY id"),
+      movimentos: await todas("SELECT * FROM movimento ORDER BY id"),
+    };
+  }
+
+  function recusa(resultado: Awaited<ReturnType<typeof trocarCategoria>>) {
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    return resultado.erro;
+  }
+
+  it("`requireSession` é a primeira instrução da action (TRC-05 AC 6)", () => {
+    const fonte = readFileSync(new URL("./lancamentos.ts", import.meta.url), "utf8");
+    const corpo = fonte.slice(fonte.indexOf("export async function trocarCategoria"));
+    const primeiraInstrucao =
+      corpo
+        .slice(corpo.indexOf("{") + 1)
+        .trim()
+        .split("\n")[0] ?? "";
+
+    expect(primeiraInstrucao).toContain("requireSession()");
+  });
+
+  it("sem sessão recusa com o código da sessão antes de ler o lançamento, com payload válido ou não (TRC-05 AC 6)", async () => {
+    sessaoAtual = null;
+    const antes = await fotografia();
+    const leitura = vi.spyOn(MovimentoRepositoryDrizzle.prototype, "buscarPorId");
+
+    try {
+      const valido = await trocarCategoria({
+        lancamentoId: await ocorrencia("2026-11"),
+        categoriaId: categoriaDois,
+      });
+      const invalido = await trocarCategoria({ lancamentoId: "nao-e-uuid" });
+
+      expect(recusa(valido).code).toBe("NAO_AUTENTICADO");
+      expect(recusa(invalido).code).toBe("NAO_AUTENTICADO");
+      expect(leitura).not.toHaveBeenCalled();
+      expect(await fotografia()).toEqual(antes);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    } finally {
+      leitura.mockRestore();
+    }
+  });
+
+  it.each([
+    ["lancamentoId que não é uuid", () => ({ lancamentoId: "mov-1", categoriaId: null })],
+    ["categoriaId ausente", (id: string) => ({ lancamentoId: id })],
+    ["categoriaId que não é uuid", (id: string) => ({ lancamentoId: id, categoriaId: "cat-1" })],
+    ["campo a mais", (id: string) => ({ lancamentoId: id, categoriaId: null, valorCentavos: 1 })],
+  ])("payload com %s é VALIDACAO, sem gravar (TRC-05 AC 5)", async (_, payload) => {
+    const antes = await fotografia();
+
+    const resultado = await trocarCategoria(payload(await ocorrencia("2026-11")));
+
+    expect(recusa(resultado).code).toBe("VALIDACAO");
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("lançamento inexistente é LANCAMENTO_NAO_ENCONTRADO com a mensagem de erros.ts (TRC-05 AC 2)", async () => {
+    const antes = await fotografia();
+
+    const resultado = await trocarCategoria({ lancamentoId: INEXISTENTE, categoriaId: null });
+
+    expect(recusa(resultado)).toEqual({
+      code: "LANCAMENTO_NAO_ENCONTRADO",
+      mensagem: "Esse lançamento não existe mais.",
+    });
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("categoria inexistente é CATEGORIA_NAO_ENCONTRADA com a mensagem de erros.ts (TRC-05 AC 3)", async () => {
+    const antes = await fotografia();
+
+    const resultado = await trocarCategoria({
+      lancamentoId: await ocorrencia("2026-11"),
+      categoriaId: INEXISTENTE,
+    });
+
+    const erro = recusa(resultado);
+    expect(erro.code).toBe("CATEGORIA_NAO_ENCONTRADA");
+    expect(erro.mensagem).toBe("Escolha uma categoria válida.");
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("entrada é CATEGORIA_EM_RECEITA com “Entrada não tem categoria.” (TRC-05 AC 4)", async () => {
+    const criada = await criarLancamentoAvulso(entrada({ natureza: "RECEITA", categoriaId: null }));
+    const entradaId = criada.ok ? criada.data.id : "";
+    revalidatePath.mockClear();
+    const antes = await fotografia();
+
+    const resultado = await trocarCategoria({
+      lancamentoId: entradaId,
+      categoriaId: categoriaDois,
+    });
+
+    expect(recusa(resultado)).toEqual({
+      code: "CATEGORIA_EM_RECEITA",
+      mensagem: "Entrada não tem categoria.",
+    });
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("trocar em novembro grava a categoria no fixo e nos três meses, e outubro continua pago (TRC-03 AC 1)", async () => {
+    const lancamentoId = await ocorrencia("2026-11");
+    const antes = await fotografia();
+
+    const resultado = await trocarCategoria({ lancamentoId, categoriaId: categoriaDois });
+
+    expect(resultado).toEqual({
+      ok: true,
+      data: { lancamentoId, alcance: "FIXO", categoriaId: categoriaDois },
+    });
+    const depois = await fotografia();
+    expect(depois.movimentos).toEqual(
+      antes.movimentos.map((m) => ({ ...m, categoria_id: categoriaDois })),
+    );
+    expect(depois.recorrencias).toEqual(
+      antes.recorrencias.map((r) => ({ ...r, categoria_id: categoriaDois })),
+    );
+    const { rows } = await pool.query(
+      `SELECT competencia::text, data_evento::text AS data, valor_centavos::text AS valor,
+              pago_em::text AS pago
+       FROM movimento WHERE recorrencia_id = $1 ORDER BY competencia`,
+      [recorrenciaId],
+    );
+    expect(rows).toEqual([
+      { competencia: "2026-10-01", data: "2026-10-10", valor: "10000", pago: "2026-10-10" },
+      { competencia: "2026-11-01", data: "2026-11-10", valor: "10000", pago: null },
+      { competencia: "2026-12-01", data: "2026-12-10", valor: "10000", pago: null },
+    ]);
+  });
+
+  it("sucesso revalida a lista, a Visão geral e Todo mês (TRC-04 AC 5)", async () => {
+    await trocarCategoria({
+      lancamentoId: await ocorrencia("2026-11"),
+      categoriaId: categoriaDois,
+    });
+
+    expect(revalidatePath.mock.calls.map((chamada) => chamada[0]).sort()).toEqual([
+      "/[competencia]",
+      "/[competencia]/fixos",
+      "/[competencia]/lancamentos",
+    ]);
+  });
+
+  it("falha injetada nas ocorrências desfaz o fixo já gravado e vira ERRO_INESPERADO com referência (TRC-03 AC 6, TRC-05 AC 7)", async () => {
+    const lancamentoId = await ocorrencia("2026-11");
+    const antes = await fotografia();
+    const serie = vi.spyOn(RecorrenciaRepositoryDrizzle.prototype, "atualizarSerie");
+    const falha = vi
+      .spyOn(MovimentoRepositoryDrizzle.prototype, "atualizarOcorrenciasDaSerie")
+      .mockRejectedValueOnce(new Error("falha injetada no banco"));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const resultado = await trocarCategoria({ lancamentoId, categoriaId: categoriaDois });
+
+      expect(serie).toHaveBeenCalledOnce();
+      expect(falha).toHaveBeenCalledOnce();
+      const erro = recusa(resultado);
+      expect(erro.code).toBe("ERRO_INESPERADO");
+      expect(erro.mensagem).toMatch(
+        /^Não foi possível concluir a operação\. Tente de novo\. Se continuar, informe o código [0-9a-f]{8}\.$/,
+      );
+      expect(await fotografia()).toEqual(antes);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    } finally {
+      serie.mockRestore();
+      falha.mockRestore();
+      log.mockRestore();
+    }
   });
 });
