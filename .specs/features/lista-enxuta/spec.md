@@ -202,7 +202,7 @@ o texto quebrar palavra por palavra.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| LST-01 | P1: Filtrar por categoria com o total | Execute | Implementing: `categoriaId=sem-categoria` lista só os gastos de categoria nula, sem a receita, que a lista mostra como Receita, e combina com os outros filtros por interseção; um id continua filtrando por ele e, sem `categoriaId`, nada muda, AC 9 (T1) |
+| LST-01 | P1: Filtrar por categoria com o total | Execute | Implementing: `categoriaId=sem-categoria` lista só os gastos de categoria nula, sem a receita, que a lista mostra como Receita, e combina com os outros filtros por interseção; um id continua filtrando por ele e, sem `categoriaId`, nada muda, AC 9 (T1); chips como botões "Nome · R$ 1.234,56" na ordem recebida, AC 1, `aria-pressed="true"` só no ativo, inclusive na ativa além das 6 primeiras, AC 7, tocar chamando `aoEscolher(id)` e, no ativo, `aoEscolher(null)`, ACs 5 e 6, 6 chips e "+3 categorias" com `aria-expanded` que revela as 9 na mesma coleção, que quebra linha e não corta nenhum chip, AC 4, e nada sem categorias, Edge Case (T2) |
 | LST-02 | P1: Blocos que recolhem | Tasks | Pending |
 | LST-03 | P1: Barra compacta de filtros ao rolar | Tasks | Pending |
 | LST-04 | P1: Visão geral leva à lista | Tasks | Pending |

@@ -182,12 +182,12 @@ T8 -> T9
 **Reuses**: `formatarBRL`; tokens de `ui.tsx`
 **Requirement**: LST-01
 **Done when**:
-- [ ] Um botão por categoria, "Nome · R$ 1.234,56", na ordem recebida (LST-01 AC 1)
-- [ ] `aria-pressed="true"` só no chip ativo (LST-01 AC 7)
-- [ ] Tocar num chip chama `aoEscolher(id)`; tocar no ativo chama `aoEscolher(null)` (LST-01 AC 5, 6)
-- [ ] Com 9 categorias: 6 visíveis e "+3 categorias" com `aria-expanded="false"`; acionado, as 9 visíveis e `aria-expanded="true"` (LST-01 AC 4)
-- [ ] Com 6 ou menos, nenhum "+N"; sem categorias, nada renderiza
-- [ ] A coleção usa `flex-wrap` e nenhum chip tem altura ou largura cortada por `overflow-hidden`
+- [x] Um botão por categoria, "Nome · R$ 1.234,56", na ordem recebida (LST-01 AC 1)
+- [x] `aria-pressed="true"` só no chip ativo (LST-01 AC 7)
+- [x] Tocar num chip chama `aoEscolher(id)`; tocar no ativo chama `aoEscolher(null)` (LST-01 AC 5, 6)
+- [x] Com 9 categorias: 6 visíveis e "+3 categorias" com `aria-expanded="false"`; acionado, as 9 visíveis e `aria-expanded="true"` (LST-01 AC 4)
+- [x] Com 6 ou menos, nenhum "+N"; sem categorias, nada renderiza
+- [x] A coleção usa `flex-wrap` e nenhum chip tem altura ou largura cortada por `overflow-hidden`
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(lancamentos): chips de categoria com o total do mês`
