@@ -209,8 +209,8 @@ T9 -> T10
 **Reuses**: `z.strictObject`, como `entradaEdicaoRecorrenciaSchema`
 **Requirement**: TRC-05
 **Done when**:
-- [ ] Aceita `lancamentoId` uuid com `categoriaId` uuid e com `categoriaId: null`
-- [ ] Recusa `lancamentoId` ausente ou que não é uuid, `categoriaId` ausente ou que não é uuid nem `null`, e campo a mais (TRC-05 AC 5)
+- [x] Aceita `lancamentoId` uuid com `categoriaId` uuid e com `categoriaId: null`
+- [x] Recusa `lancamentoId` ausente ou que não é uuid, `categoriaId` ausente ou que não é uuid nem `null`, e campo a mais (TRC-05 AC 5)
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(categorias): validar o payload da troca de categoria`
