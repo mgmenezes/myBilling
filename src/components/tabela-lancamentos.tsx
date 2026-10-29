@@ -8,8 +8,18 @@ import type {
 } from "@/app/actions/pagamentos";
 import { situacaoDe } from "@/application/mes/filtrar-lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
-import { type BlocoDoMes, type Competencia, type Natureza, resolverValorEfetivo } from "@/domain";
+import {
+  type BlocoDoMes,
+  type Cents,
+  type Competencia,
+  type Natureza,
+  resolverValorEfetivo,
+  somar,
+  ZERO_CENTS,
+} from "@/domain";
+import type { ChaveDeBloco } from "@/lib/blocos-recolhidos";
 import { formatarBRL, formatarData } from "@/lib/formatar";
+import { BlocoRecolhivel } from "./bloco-recolhivel";
 import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
@@ -74,6 +84,12 @@ import { ValorConfirmavel } from "./valor-confirmavel";
  * importação (TRC-01). Tudo que não é entrada, investimento inclusive, troca a
  * categoria na própria linha (TRC-02). O seletor é cliente, isolado em
  * `SeletorDeCategoria` como o selo de pago, e a tabela continua no servidor.
+ *
+ * **Cada bloco recolhe pelo cabeçalho, e o cabeçalho diz o que está
+ * recolhido** (LST-02): quantos, quanto e quantos a pagar, contados sobre as
+ * linhas que a tabela recebeu, ou seja, com os filtros já aplicados. O
+ * disclosure é cliente, em `BlocoRecolhivel`; as linhas continuam saindo
+ * daqui. Quais blocos começam fechados vem da página, que leu o cookie.
  */
 
 interface BlocoDeDespesa {
@@ -109,6 +125,7 @@ export function TabelaLancamentos({
   excluir,
   opcoesDeCategoria,
   trocarCategoria,
+  recolhidos = [],
 }: {
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
   /**
@@ -131,6 +148,8 @@ export function TabelaLancamentos({
   /** Só a linha avulsa a exibe; parcela e ocorrência não são canceláveis. */
   readonly excluir: typeof cancelarAction;
   readonly trocarCategoria: typeof trocarCategoriaAction;
+  /** Os blocos que o cookie diz estarem recolhidos. Sem cookie, nenhum. */
+  readonly recolhidos?: ReadonlyArray<ChaveDeBloco>;
 }) {
   if (lancamentos.length === 0) {
     return (
@@ -151,6 +170,8 @@ export function TabelaLancamentos({
     <div className="flex flex-col gap-7">
       <BlocoDeLancamentos
         id="entradas"
+        chave="ENTRADAS"
+        recolhido={recolhidos.includes("ENTRADAS")}
         titulo="Entradas"
         categorias={categorias}
         competenciaCorrente={competenciaCorrente}
@@ -166,6 +187,8 @@ export function TabelaLancamentos({
         <BlocoDeLancamentos
           key={bloco.bloco}
           id={bloco.id}
+          chave={bloco.bloco}
+          recolhido={recolhidos.includes(bloco.bloco)}
           titulo={bloco.titulo}
           categorias={categorias}
           competenciaCorrente={competenciaCorrente}
@@ -183,8 +206,26 @@ export function TabelaLancamentos({
   );
 }
 
+/**
+ * "12 · R$ 1.200,00 · 8 a pagar". Vencido é não pago lido pelo calendário,
+ * e conta como a pagar.
+ */
+function resumoDoBloco(
+  itens: ReadonlyArray<LancamentoDoMes>,
+  competenciaCorrente: Competencia,
+): string {
+  const total = itens.reduce<Cents>(
+    (acumulado, item) => somar(acumulado, item.lancamento.valor),
+    ZERO_CENTS,
+  );
+  const aPagar = itens.filter((item) => situacaoDe(item, competenciaCorrente) !== "PAGO").length;
+  return `${itens.length} · ${formatarBRL(total)} · ${aPagar} a pagar`;
+}
+
 function BlocoDeLancamentos({
   id,
+  chave,
+  recolhido,
   titulo,
   itens,
   categorias,
@@ -198,6 +239,8 @@ function BlocoDeLancamentos({
 }: {
   /** Identificador sem espaço: `aria-labelledby` é uma lista de ids. */
   readonly id: string;
+  readonly chave: ChaveDeBloco;
+  readonly recolhido: boolean;
   readonly titulo: string;
   readonly itens: ReadonlyArray<LancamentoDoMes>;
   readonly categorias: ReadonlyMap<string, string>;
@@ -210,18 +253,13 @@ function BlocoDeLancamentos({
   readonly trocarCategoria: typeof trocarCategoriaAction;
 }) {
   return (
-    <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-baseline gap-3">
-        <h3 id={`bloco-${id}`} className="text-[17px] font-medium tracking-[-0.01em]">
-          {titulo}
-        </h3>
-        {itens.length === 0 ? null : (
-          <span className="text-[14px] text-ink-muted">
-            {itens.length === 1 ? "1 lançamento" : `${itens.length} lançamentos`}
-          </span>
-        )}
-      </div>
-
+    <BlocoRecolhivel
+      id={id}
+      chave={chave}
+      titulo={titulo}
+      resumo={resumoDoBloco(itens, competenciaCorrente)}
+      recolhidoNoInicio={recolhido}
+    >
       {itens.length === 0 ? (
         <p className="text-[15px] text-ink-muted">Nenhum lançamento neste bloco.</p>
       ) : (
@@ -390,7 +428,7 @@ function BlocoDeLancamentos({
           </tbody>
         </table>
       )}
-    </section>
+    </BlocoRecolhivel>
   );
 }
 

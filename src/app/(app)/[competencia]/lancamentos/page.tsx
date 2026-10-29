@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { criarCategoria } from "@/app/actions/categorias";
 import { criarCompra } from "@/app/actions/compras";
@@ -37,6 +38,7 @@ import {
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
+import { COOKIE_BLOCOS_RECOLHIDOS, lerBlocosRecolhidos } from "@/lib/blocos-recolhidos";
 import { formatarBRL } from "@/lib/formatar";
 import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../../sessao";
@@ -167,6 +169,9 @@ export default async function PaginaDeLancamentos({
      porque quem conhece o relógio é a borda, e no fuso da casa — nunca o da
      máquina, que às 21h de 31/03 já está em abril. */
   const dataPadrao = dataPadraoDoLancamento(resultado.value, hoje);
+  /* Lido aqui, e não no navegador: o bloco que a pessoa recolheu já sai
+     fechado no HTML, sem abrir e fechar diante dela (LST-02, AC 4). */
+  const recolhidos = lerBlocosRecolhidos((await cookies()).get(COOKIE_BLOCOS_RECOLHIDOS)?.value);
 
   return (
     <div className="flex flex-col gap-6">
@@ -246,6 +251,7 @@ export default async function PaginaDeLancamentos({
           confirmarValor={confirmarValorDaOcorrencia}
           excluir={cancelarLancamento}
           trocarCategoria={trocarCategoria}
+          recolhidos={recolhidos}
         />
       )}
     </div>

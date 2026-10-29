@@ -217,12 +217,12 @@ T8 -> T9
 **Reuses**: `formatarBRL`; `situacaoDe` para "a pagar"
 **Requirement**: LST-02
 **Done when**:
-- [ ] Cabeçalho "Fixos" com "12 · R$ 1.200,00 · 8 a pagar" a partir das linhas recebidas (LST-02 AC 1)
-- [ ] Botão com `aria-expanded` e `aria-controls`; acionado, as linhas somem e voltam (LST-02 AC 2)
-- [ ] O clique grava o cookie `blocos-recolhidos` com as chaves dos blocos recolhidos (LST-02 AC 3)
-- [ ] Recebendo `recolhidos={["FIXOS"]}`, Fixos renderiza fechado desde o primeiro render (LST-02 AC 4)
-- [ ] Sem cookie, todos abertos; chave desconhecida no cookie é ignorada (LST-02 AC 5, Edge Case)
-- [ ] Bloco sem linha depois do filtro mostra "0" e a frase de bloco vazio
+- [x] Cabeçalho "Fixos" com "12 · R$ 1.200,00 · 8 a pagar" a partir das linhas recebidas (LST-02 AC 1)
+- [x] Botão com `aria-expanded` e `aria-controls`; acionado, as linhas somem e voltam (LST-02 AC 2)
+- [x] O clique grava o cookie `blocos-recolhidos` com as chaves dos blocos recolhidos (LST-02 AC 3)
+- [x] Recebendo `recolhidos={["FIXOS"]}`, Fixos renderiza fechado desde o primeiro render (LST-02 AC 4)
+- [x] Sem cookie, todos abertos; chave desconhecida no cookie é ignorada (LST-02 AC 5, Edge Case)
+- [x] Bloco sem linha depois do filtro mostra "0" e a frase de bloco vazio
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(lancamentos): recolher blocos e lembrar no cookie`

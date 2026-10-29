@@ -1,10 +1,12 @@
 import { cleanup, render as renderizar, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento, trocarCategoria } from "@/app/actions/lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
+import { type ChaveDeBloco, lerBlocosRecolhidos } from "@/lib/blocos-recolhidos";
 import { ProvedorDeAvisos } from "./avisos";
 import { TabelaLancamentos } from "./tabela-lancamentos";
 
@@ -798,5 +800,238 @@ describe("o vazio do mês oferece a saída (VAZIO-01, ACs 1 e 4)", () => {
     const aviso = screen.getByText(/Nenhum lançamento neste mês ainda/);
 
     expect(aviso.textContent).not.toContain("abaixo");
+  });
+});
+
+/**
+ * Testes derivados de LST-02 (ACs 1 a 5) e dos dois Edge Cases do bloco: o
+ * filtro que esvazia um bloco e o cookie com bloco que não existe.
+ *
+ * Os totais são escolhidos pela aritmética, e não copiados do exemplo da
+ * spec (AD-009): 25 fixos de R$ 100,00 e um de R$ 100,26 somam R$ 2.600,26.
+ */
+describe("blocos que recolhem, com resumo e cookie (LST-02)", () => {
+  const ABRIL = "2026-04" as Competencia;
+  const PAGO_EM = "2026-03-05";
+
+  /** 26 fixos, 6 pagos: "26 · R$ 2.600,26 · 20 a pagar". */
+  const VINTE_E_SEIS_FIXOS = Array.from({ length: 26 }, (_, posicao) =>
+    item({
+      id: `f-${posicao + 1}`,
+      origem: "RECORRENCIA",
+      descricao: `Conta fixa ${posicao + 1}`,
+      valor: (posicao === 25 ? 10026 : 10000) as Cents,
+      pagoEm: posicao < 6 ? PAGO_EM : null,
+    }),
+  );
+
+  const MES = [
+    item({
+      id: "r",
+      natureza: "RECEITA",
+      descricao: "Entrada A",
+      valor: 500000 as Cents,
+      pagoEm: PAGO_EM,
+    }),
+    item({ id: "f", origem: "RECORRENCIA", descricao: "Conta fixa A", valor: 12345 as Cents }),
+    item(
+      { id: "c1", origem: "PARCELA", descricao: "Compra A", valor: 25000 as Cents, compraId: "c" },
+      { numero: 1, total: 2, restantes: 1 },
+    ),
+    item(
+      {
+        id: "c2",
+        origem: "PARCELA",
+        descricao: "Compra B",
+        valor: 25001 as Cents,
+        compraId: "d",
+        pagoEm: PAGO_EM,
+      },
+      { numero: 2, total: 2, restantes: 0 },
+    ),
+    item({ id: "a", origem: "AVULSO", descricao: "Gasto A", valor: 99 as Cents }),
+  ];
+
+  function tabela(
+    lancamentos: ReadonlyArray<LancamentoDoMes>,
+    opcoes: { recolhidos?: ReadonlyArray<ChaveDeBloco>; corrente?: Competencia } = {},
+  ) {
+    return (
+      <TabelaLancamentos
+        competenciaCorrente={opcoes.corrente ?? MARCO}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
+        recolhidos={opcoes.recolhidos}
+        lancamentos={lancamentos}
+      />
+    );
+  }
+
+  const bloco = (nome: string) => screen.getByRole("region", { name: nome });
+  const botaoDo = (nome: string) => within(bloco(nome)).getByRole("button", { name: nome });
+
+  /** O valor do cookie como o navegador o guarda, sem os atributos. */
+  function cookieDosBlocos(): string | undefined {
+    return document.cookie
+      .split("; ")
+      .find((par) => par.startsWith("blocos-recolhidos="))
+      ?.slice("blocos-recolhidos=".length);
+  }
+
+  beforeEach(() => {
+    // biome-ignore lint/suspicious/noDocumentCookie: o jsdom guarda o cookie entre os testes do arquivo; apagá-lo é o que isola cada caso.
+    document.cookie = "blocos-recolhidos=; path=/; max-age=0";
+  });
+
+  describe("o resumo no cabeçalho (AC 1)", () => {
+    it('Fixos diz "26 · R$ 2.600,26 · 20 a pagar" a partir das linhas recebidas', () => {
+      render(tabela(VINTE_E_SEIS_FIXOS));
+
+      expect(within(bloco("Fixos")).getByText("26 · R$ 2.600,26 · 20 a pagar")).toBeDefined();
+    });
+
+    it("cada um dos quatro blocos traz o próprio resumo", () => {
+      render(tabela(MES));
+
+      expect(within(bloco("Entradas")).getByText("1 · R$ 5.000,00 · 0 a pagar")).toBeDefined();
+      expect(within(bloco("Fixos")).getByText("1 · R$ 123,45 · 1 a pagar")).toBeDefined();
+      expect(
+        within(bloco("Cartão de Crédito")).getByText("2 · R$ 500,01 · 1 a pagar"),
+      ).toBeDefined();
+      expect(within(bloco("Gastos do Mês")).getByText("1 · R$ 0,99 · 1 a pagar")).toBeDefined();
+    });
+
+    /* Vencido é não pago lido pelo calendário: continua a pagar. */
+    it("o vencido conta como a pagar", () => {
+      render(tabela(MES, { corrente: ABRIL }));
+
+      expect(within(bloco("Fixos")).getByText("1 · R$ 123,45 · 1 a pagar")).toBeDefined();
+      expect(
+        within(bloco("Cartão de Crédito")).getByText("2 · R$ 500,01 · 1 a pagar"),
+      ).toBeDefined();
+    });
+
+    it("bloco que o filtro esvaziou mostra 0 e a frase de bloco vazio (Edge Case)", () => {
+      render(tabela([item({ id: "a", origem: "AVULSO", descricao: "Gasto A" })]));
+
+      const cartao = bloco("Cartão de Crédito");
+      expect(within(cartao).getByText("0 · R$ 0,00 · 0 a pagar")).toBeDefined();
+      expect(within(cartao).getByText("Nenhum lançamento neste bloco.")).toBeDefined();
+    });
+  });
+
+  describe("recolher e expandir pelo cabeçalho (AC 2)", () => {
+    it("o botão do cabeçalho expõe aria-expanded e aria-controls apontando para as linhas", () => {
+      render(tabela(MES));
+
+      const botao = botaoDo("Fixos");
+      const controlado = document.getElementById(botao.getAttribute("aria-controls") ?? "");
+      expect(botao.getAttribute("aria-expanded")).toBe("true");
+      expect(controlado?.contains(within(bloco("Fixos")).getByRole("table"))).toBe(true);
+    });
+
+    it("acionado, as linhas do bloco somem; acionado de novo, voltam", async () => {
+      render(tabela(MES));
+      const botao = botaoDo("Fixos");
+
+      await userEvent.click(botao);
+
+      expect(botao.getAttribute("aria-expanded")).toBe("false");
+      expect(within(bloco("Fixos")).queryByRole("row")).toBeNull();
+      expect(within(bloco("Fixos")).getByText("1 · R$ 123,45 · 1 a pagar")).toBeDefined();
+      expect(within(bloco("Cartão de Crédito")).getAllByRole("row")).toHaveLength(3);
+
+      await userEvent.click(botao);
+
+      expect(botao.getAttribute("aria-expanded")).toBe("true");
+      expect(within(bloco("Fixos")).getByText("Conta fixa A")).toBeDefined();
+      expect(within(bloco("Fixos")).getAllByRole("row")).toHaveLength(2);
+    });
+  });
+
+  describe("o estado vai para o cookie blocos-recolhidos (AC 3)", () => {
+    it("cada clique grava as chaves dos blocos recolhidos naquele momento", async () => {
+      render(tabela(MES));
+
+      await userEvent.click(botaoDo("Fixos"));
+      expect(cookieDosBlocos()).toBe("FIXOS");
+
+      await userEvent.click(botaoDo("Cartão de Crédito"));
+      expect(cookieDosBlocos()).toBe("FIXOS,CARTAO");
+
+      await userEvent.click(botaoDo("Fixos"));
+      expect(cookieDosBlocos()).toBe("CARTAO");
+    });
+
+    it("Entradas e Gastos do Mês gravam as próprias chaves", async () => {
+      render(tabela(MES));
+
+      await userEvent.click(botaoDo("Entradas"));
+      await userEvent.click(botaoDo("Gastos do Mês"));
+
+      expect(cookieDosBlocos()).toBe("ENTRADAS,AVULSOS");
+    });
+
+    it("o cookie vale para o app inteiro e dura um ano", async () => {
+      const escrita = vi.spyOn(Document.prototype, "cookie", "set");
+      render(tabela(MES));
+
+      await userEvent.click(botaoDo("Fixos"));
+
+      const gravado = String(escrita.mock.lastCall?.[0]);
+      escrita.mockRestore();
+      expect(gravado).toMatch(/^blocos-recolhidos=FIXOS;/);
+      expect(gravado).toMatch(/; path=\/(;|$)/);
+      expect(gravado).toMatch(/; max-age=31536000(;|$)/);
+    });
+  });
+
+  describe("o estado inicial vem do servidor (ACs 4 e 5)", () => {
+    it('recebendo recolhidos={["FIXOS"]}, Fixos vem fechado já no HTML do servidor', () => {
+      const html = renderToStaticMarkup(
+        <ProvedorDeAvisos>{tabela(MES, { recolhidos: ["FIXOS"] })}</ProvedorDeAvisos>,
+      );
+      const pagina = new DOMParser().parseFromString(html, "text/html");
+
+      const fixos = pagina.querySelector("#bloco-fixos button");
+      const cartao = pagina.querySelector("#bloco-cartao button");
+      expect(fixos?.getAttribute("aria-expanded")).toBe("false");
+      expect(
+        pagina.getElementById(fixos?.getAttribute("aria-controls") ?? "")?.hasAttribute("hidden"),
+      ).toBe(true);
+      expect(cartao?.getAttribute("aria-expanded")).toBe("true");
+      expect(
+        pagina.getElementById(cartao?.getAttribute("aria-controls") ?? "")?.hasAttribute("hidden"),
+      ).toBe(false);
+    });
+
+    it('recebendo recolhidos={["FIXOS"]}, Fixos está fechado desde o primeiro render', () => {
+      render(tabela(MES, { recolhidos: ["FIXOS"] }));
+
+      expect(botaoDo("Fixos").getAttribute("aria-expanded")).toBe("false");
+      expect(within(bloco("Fixos")).queryByRole("row")).toBeNull();
+      expect(within(bloco("Gastos do Mês")).getAllByRole("row")).toHaveLength(2);
+    });
+
+    it("sem cookie, os quatro blocos abrem", () => {
+      render(tabela(MES));
+
+      for (const nome of ["Entradas", "Fixos", "Cartão de Crédito", "Gastos do Mês"]) {
+        expect(botaoDo(nome).getAttribute("aria-expanded")).toBe("true");
+      }
+    });
+
+    it("chave desconhecida no cookie é ignorada, e o resto vale (Edge Case)", () => {
+      render(tabela(MES, { recolhidos: lerBlocosRecolhidos("FIXOS,QUALQUER") }));
+
+      expect(botaoDo("Fixos").getAttribute("aria-expanded")).toBe("false");
+      for (const nome of ["Entradas", "Cartão de Crédito", "Gastos do Mês"]) {
+        expect(botaoDo(nome).getAttribute("aria-expanded")).toBe("true");
+      }
+    });
   });
 });
