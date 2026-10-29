@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 26,
+  "next_id": 28,
   "lessons": [
     {
       "id": "L-001",
@@ -247,18 +247,20 @@
       "text": "Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.",
       "signal": "surviving_mutant",
       "scope": "testes,composicao",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "importar-planilha"
+        "importar-planilha",
+        "trocar-categoria"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
         "validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)",
-        "N9r: planejar-importacao.ts:394 invertendo as receitas vigentes; validation.md, rodada 3 (testes,composicao)"
+        "N9r: planejar-importacao.ts:394 invertendo as receitas vigentes; validation.md, rodada 3 (testes,composicao)",
+        "P2, P3 — src/app/(app)/[competencia]/lancamentos/page.tsx:151 e :154 (validation.md, rodada 1) (testes,composicao)"
       ],
       "created": "2026-10-25T06:12:20Z",
-      "last_seen": "2026-10-25T06:36:08Z"
+      "last_seen": "2026-10-29T16:16:13Z"
     },
     {
       "id": "L-015",
@@ -320,17 +322,19 @@
       "text": "AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.",
       "signal": "surviving_mutant",
       "scope": "componentes,testes",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "importar-planilha"
+        "importar-planilha",
+        "trocar-categoria"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)"
+        "validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)",
+        "TB6 — src/components/tabela-lancamentos.tsx:268-270; tabela-lancamentos.test.tsx:524 e e2e/trocar-categoria.spec.ts:315 (validation.md, rodada 1) (componentes,testes)"
       ],
       "created": "2026-10-28T20:24:12Z",
-      "last_seen": "2026-10-28T20:24:12Z"
+      "last_seen": "2026-10-29T16:16:13Z"
     },
     {
       "id": "L-019",
@@ -457,6 +461,42 @@
       ],
       "created": "2026-10-29T15:09:18Z",
       "last_seen": "2026-10-29T15:09:18Z"
+    },
+    {
+      "id": "L-026",
+      "key": "surviving_mutant::fixture que prova a ordem recebida precisa estar fora da ordem que uma regra obvia alfabetica por id daria confira a ordem dos proprios dados nao o comentario que os descreve",
+      "text": "Fixture que prova 'a ordem recebida' precisa estar fora da ordem que uma regra óbvia (alfabética, por id) daria; confira a ordem dos próprios dados, não o comentário que os descreve.",
+      "signal": "surviving_mutant",
+      "scope": "testes,fixtures",
+      "status": "candidate",
+      "features": [
+        "trocar-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S10 — src/components/seletor-de-categoria.test.tsx:23-27 (validation.md, rodada 1) (testes,fixtures)"
+      ],
+      "created": "2026-10-29T16:16:13Z",
+      "last_seen": "2026-10-29T16:16:13Z"
+    },
+    {
+      "id": "L-027",
+      "key": "spec_deviation::codigo novo na union de erros do dominio leva a mensagem em src lib erros ts na mesma task o record exaustivo de mensagens nao compila sem ela",
+      "text": "Código novo na union de erros do domínio leva a mensagem em src/lib/erros.ts na mesma task; o Record exaustivo de mensagens não compila sem ela.",
+      "signal": "spec_deviation",
+      "scope": "tasks,erros",
+      "status": "candidate",
+      "features": [
+        "trocar-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros)"
+      ],
+      "created": "2026-10-29T16:16:13Z",
+      "last_seen": "2026-10-29T16:16:13Z"
     }
   ]
 }

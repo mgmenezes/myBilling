@@ -14,6 +14,18 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: mutante M24 (ciclo 1) e N2 (ciclo 3) — src/app/(app)/[competencia]/fixos/page.tsx:66-72 (app-router,paginas) (+1 more)
 - last seen: 2026-10-25T05:06:38Z
 
+### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,composicao` · harmful: 0
+- features: importar-planilha, trocar-categoria
+- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao) (+2 more)
+- last seen: 2026-10-29T16:16:13Z
+
+### L-018 - AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: importar-planilha, trocar-categoria
+- evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes) (+1 more)
+- last seen: 2026-10-29T16:16:13Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -90,12 +102,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: commit 7fe7552 (T12): tsc --noEmit com 10 erros em 5 arquivos; 0 em 3fca286 (T13) (tasks,ports)
 - last seen: 2026-10-25T05:06:38Z
 
-### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,composicao` · harmful: 0
-- features: importar-planilha
-- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao) (+1 more)
-- last seen: 2026-10-25T06:36:08Z
-
 ### L-015 - Correção de estado transitório na tela precisa observar todo elemento ligado ao mesmo sinal pendente, e não só o que exibiu o defeito.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
 - features: importar-planilha
@@ -112,12 +118,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
 - features: importar-planilha
 - evidence: validation.md, Rodada F13–F15: P28 em src/components/importacao/passo-pendencias.tsx:227 (componentes,testes)
-- last seen: 2026-10-28T20:24:12Z
-
-### L-018 - AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
-- features: importar-planilha
-- evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)
 - last seen: 2026-10-28T20:24:12Z
 
 ### L-019 - Valor versionado por mês precisa de teste com duas vigências que abra o mês anterior à mais nova; com uma vigência só, a vigente no mês e a última coincidem e a troca passa verde.
@@ -161,6 +161,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: editar-fixos
 - evidence: P4, src/app/(app)/[competencia]/fixos/page.tsx:113; C1 :114; C2 :112 (validation.md, Rodada 3) (e2e, app/page, formularios)
 - last seen: 2026-10-29T15:09:18Z
+
+### L-026 - Fixture que prova 'a ordem recebida' precisa estar fora da ordem que uma regra óbvia (alfabética, por id) daria; confira a ordem dos próprios dados, não o comentário que os descreve.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,fixtures` · harmful: 0
+- features: trocar-categoria
+- evidence: S10 — src/components/seletor-de-categoria.test.tsx:23-27 (validation.md, rodada 1) (testes,fixtures)
+- last seen: 2026-10-29T16:16:13Z
+
+### L-027 - Código novo na union de erros do domínio leva a mensagem em src/lib/erros.ts na mesma task; o Record exaustivo de mensagens não compila sem ela.
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `tasks,erros` · harmful: 0
+- features: trocar-categoria
+- evidence: SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros)
+- last seen: 2026-10-29T16:16:13Z
 
 ## Quarantined (failed when applied - ignore)
 
