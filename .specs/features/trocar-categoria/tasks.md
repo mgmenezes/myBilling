@@ -166,9 +166,19 @@ T8 -> T9
 T9 -> T10
 ```
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+```
+T9 -> F1
+```
+
+Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com teste.
+
 ---
 
 ## Task Breakdown
+
+### Phase 0 — Regra pura
 
 #### T1: O alcance da troca no domínio
 **What**: `alcanceDaTroca` e `CATEGORIA_EM_RECEITA` na union `CodigoErro`.
@@ -186,6 +196,8 @@ T9 -> T10
 **Gate**: quick
 **Commit**: `feat(categorias): decidir no domínio até onde vai a troca de categoria`
 
+### Phase 1 — Banco
+
 #### T2: Trocar a categoria de um lançamento e de uma compra no banco
 **What**: `trocarCategoria` em `MovimentoRepository` e `CompraRepository`, nos fakes e nos repositórios Drizzle, aceitando o `Executor` da transação.
 **Where**: `src/application/ports/repositories.ts`, `src/application/ports/fakes.ts`, `src/infrastructure/db/repositories/movimento.repository.ts`, `src/infrastructure/db/repositories/compra.repository.ts` (+ testes)
@@ -201,6 +213,8 @@ T9 -> T10
 **Tests**: integration (+ unit dos fakes)
 **Gate**: full
 **Commit**: `feat(categorias): trocar a categoria de um lançamento e de uma compra no banco`
+
+### Phase 2 — Aplicação e action
 
 #### T3: Schema da troca
 **What**: `entradaTrocaDeCategoriaSchema`.
@@ -252,6 +266,8 @@ T9 -> T10
 **Gate**: full
 **Commit**: `feat(categorias): action para trocar a categoria de um lançamento`
 
+### Phase 3 — Interface
+
 #### T6: Avisos em toast
 **What**: `ProvedorDeAvisos` e `useAvisos`, montados no layout de `(app)`.
 **Where**: `src/components/avisos.tsx` (+ teste), `src/app/(app)/layout.tsx`
@@ -299,6 +315,8 @@ T9 -> T10
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(categorias): mostrar Receita e o seletor na lista de Lançamentos`
 
+### Phase 4 — Ponta a ponta e fechamento
+
 #### T9: Trocar de ponta a ponta
 **What**: e2e do fluxo.
 **Where**: `e2e/trocar-categoria.spec.ts`
@@ -327,6 +345,22 @@ T9 -> T10
 **Gate**: build
 **Commit**: `docs(categorias): fechar a fatia de troca de categoria`
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+#### F1: Uma categoria arquivada atravessando a página real
+**What**: A página escolhe duas listas: os nomes de todas as categorias, para o gasto com uma arquivada vê-la pelo nome, e só as ativas como opções. O teste da tabela recebe as duas já montadas e nenhum e2e arquivava categoria, então trocar uma pela outra em `lancamentos/page.tsx` passava na suíte inteira. Com os nomes só das ativas (mutante P2), o gasto com a arquivada dizia "Categoria removida"; com as arquivadas como opção (P3), ela virava opção de todo gasto.
+**Where**: `e2e/trocar-categoria.spec.ts` (+ `spec.md`)
+**Depends on**: T9
+**Reuses**: `cadastrarAvulso`, `seletor`, `categoriaEscolhida`, `pool`
+**Requirement**: TRC-02
+**Done when**:
+- [x] Com Farmácia em Categoria Dois e Padaria em Categoria Um, e Categoria Dois arquivada no banco, o seletor de Farmácia mostra "Categoria Dois" escolhida (TRC-02 AC 3)
+- [x] As opções do seletor de Padaria são exatamente "Sem categoria" e "Categoria Um" (TRC-02 AC 1)
+- [x] P2 falha em `toHaveText("Categoria Dois")` com `Received: "Categoria removida"`; P3 falha na lista de Padaria com `Received` `["Sem categoria", "Categoria Dois", "Categoria Um"]`
+**Tests**: e2e
+**Gate**: `pnpm typecheck && pnpm exec playwright test e2e/trocar-categoria.spec.ts`
+**Commit**: `test(e2e): arquivar uma categoria e ver a lista pela página real`
+
 ---
 
 ## Task Granularity Check
@@ -339,6 +373,7 @@ T9 -> T10
 | T6, T7 | 1 componente cada (T6: + montagem no layout) | ✅ |
 | T8 | 1 componente + a página que o alimenta | ⚠️ coeso: a tabela só recebe o que a página passa |
 | T9, T10 | e2e; documentação | ✅ |
+| F1 | 1 caso de teste | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -354,8 +389,13 @@ T9 -> T10
 | T8 | T7 | T7→T8 | ✅ |
 | T9 | T8 | T8→T9 | ✅ |
 | T10 | T9 | T9→T10 | ✅ |
+| F1 | T9 | T9→F1 | ✅ |
 
 T4 também usa T1 e T2, de fases anteriores; o diagrama só liga tasks da mesma fase.
+
+`validate_tasks.py` só reconhece IDs `T<n>`. Uma cópia com as tasks `F<n>` trocadas por `T10<n>`
+passa com 0 erros; o aviso novo é o `spec.md` no `Where`. O validador atribui cada task ao último
+título de fase que vê, por isso o Task Breakdown repete os títulos das fases.
 
 ## Test Co-location Validation
 
@@ -368,3 +408,4 @@ T4 também usa T1 e T2, de fases anteriores; o diagrama só liga tasks da mesma 
 | T6, T7, T8 | componentes | componentes | componentes | ✅ |
 | T9 | fluxo | e2e | e2e | ✅ |
 | T10 | docs | none | none | ✅ |
+| F1 | fluxo | e2e | e2e | ✅ |

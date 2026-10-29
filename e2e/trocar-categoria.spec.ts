@@ -281,6 +281,35 @@ test("com a lista filtrada pela categoria antiga, o gasto trocado sai dela (TRC-
   await expect(linha(page, "Gastos do Mês", "Padaria")).toBeVisible();
 });
 
+test("com uma categoria arquivada, o gasto que a tem a vê pelo nome, e os outros não a oferecem (TRC-02, ACs 1 e 3)", async ({
+  page,
+}) => {
+  await cadastrarAvulso(page, "2026-03", {
+    descricao: "Farmácia",
+    valor: "20,00",
+    categoria: "Categoria Dois",
+  });
+  await cadastrarAvulso(page, "2026-03", {
+    descricao: "Padaria",
+    valor: "10,00",
+    categoria: "Categoria Um",
+  });
+  /* Arquivar não tem tela ainda; o banco é o caminho. */
+  const arquivadas = await pool.query("UPDATE categoria SET arquivada_em = now() WHERE nome = $1", [
+    "Categoria Dois",
+  ]);
+  expect(arquivadas.rowCount).toBe(1);
+
+  await page.goto("/2026-03/lancamentos");
+  /* A página manda à linha o nome de todas as categorias, arquivadas inclusive
+     (AC 3), e só as ativas como opções (AC 1). */
+  await expect(categoriaEscolhida(page, "Farmácia")).toHaveText("Categoria Dois");
+  await expect(seletor(page, "Padaria").locator("option")).toHaveText([
+    "Sem categoria",
+    "Categoria Um",
+  ]);
+});
+
 test("entrada fixa com categoria e entrada avulsa sem categoria dizem Receita, sem seletor (TRC-01, ACs 1 e 2)", async ({
   page,
 }) => {
