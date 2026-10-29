@@ -69,6 +69,9 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
   CATEGORIA_NAO_ENCONTRADA: "Escolha uma categoria válida.",
+  // SPEC_DEVIATION: a mensagem entrou com o código, em T1, e não em T5.
+  // Reason: todo `CodigoErro` do domínio é exibível, e o código sem mensagem não compila.
+  CATEGORIA_EM_RECEITA: "Entrada não tem categoria.",
   LANCAMENTO_NAO_CONFIRMAVEL: "Só gasto fixo tem valor a confirmar.",
   PLANILHA_ARQUIVO_INVALIDO:
     "Este arquivo não parece uma aba da planilha exportada em CSV. No Google Sheets: Arquivo → Fazer download → Valores separados por vírgula (.csv).",

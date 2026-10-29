@@ -177,11 +177,11 @@ T9 -> T10
 **Reuses**: `ok`, `err` de `shared/result.ts`
 **Requirement**: TRC-03, TRC-05
 **Done when**:
-- [ ] Despesa com `recorrenciaId` → `FIXO`; com `compraId` → `COMPRA`; sem os dois → `LANCAMENTO` (TRC-03 AC 1, 3, 4)
-- [ ] Investimento segue as mesmas três regras
-- [ ] Receita, com ou sem `recorrenciaId`, → `err` com `CATEGORIA_EM_RECEITA` (TRC-05 AC 4)
-- [ ] Com os dois ids, `FIXO`
-- [ ] 100% de branches em `src/domain`
+- [x] Despesa com `recorrenciaId` → `FIXO`; com `compraId` → `COMPRA`; sem os dois → `LANCAMENTO` (TRC-03 AC 1, 3, 4)
+- [x] Investimento segue as mesmas três regras
+- [x] Receita, com ou sem `recorrenciaId`, → `err` com `CATEGORIA_EM_RECEITA` (TRC-05 AC 4)
+- [x] Com os dois ids, `FIXO`
+- [x] 100% de branches em `src/domain`
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(categorias): decidir no domínio até onde vai a troca de categoria`

@@ -41,7 +41,8 @@ export type CodigoErro =
   | "LANCAMENTO_NAO_CANCELAVEL"
   | "PLANILHA_ARQUIVO_INVALIDO"
   | "PLANILHA_BLOCO_AUSENTE"
-  | "PERIODO_INVALIDO";
+  | "PERIODO_INVALIDO"
+  | "CATEGORIA_EM_RECEITA";
 
 export type DomainError = {
   readonly code: CodigoErro;

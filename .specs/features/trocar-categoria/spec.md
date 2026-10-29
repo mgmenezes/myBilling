@@ -199,9 +199,9 @@ o motivo.
 | --- | --- | --- | --- |
 | TRC-01 | P1: Entrada aparece como Receita | Tasks | Pending |
 | TRC-02 | P1: Trocar a categoria de um gasto na linha | Tasks | Pending |
-| TRC-03 | P1: O alcance da troca | Tasks | Pending |
+| TRC-03 | P1: O alcance da troca | Execute | Implementing: alcance no domínio: FIXO com fixo, COMPRA com compra e LANCAMENTO sem nenhum dos dois, em despesa e investimento, e FIXO quando há os dois, ACs 1, 3 e 4 (T1) |
 | TRC-04 | P1: Avisar a troca | Tasks | Pending |
-| TRC-05 | P1: Recusar sem gravar | Tasks | Pending |
+| TRC-05 | P1: Recusar sem gravar | Execute | Implementing: entrada, com ou sem fixo, recusada com `CATEGORIA_EM_RECEITA` no domínio, AC 4 (T1) |
 
 **Coverage:** 5 total, 5 mapped to tasks, 0 unmapped
 

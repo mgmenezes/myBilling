@@ -52,6 +52,8 @@ export type {
   RecorrenciaVigente,
 } from "./importacao/reconhecer-recorrencias";
 export { reconhecerRecorrencias } from "./importacao/reconhecer-recorrencias";
+export type { AlcanceDaTroca } from "./mes/alcance-da-troca";
+export { alcanceDaTroca } from "./mes/alcance-da-troca";
 export type { BlocoDoMes } from "./mes/bloco-do-lancamento";
 export { blocoDoLancamento } from "./mes/bloco-do-lancamento";
 export type { ErroCancelamentoProibido } from "./mes/cancelamento-permitido";
