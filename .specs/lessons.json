@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 25,
+  "next_id": 26,
   "lessons": [
     {
       "id": "L-001",
@@ -439,6 +439,24 @@
       ],
       "created": "2026-10-29T14:48:44Z",
       "last_seen": "2026-10-29T14:48:44Z"
+    },
+    {
+      "id": "L-025",
+      "key": "surviving_mutant::rode o salvar sem mexer nao muda nada antes da primeira gravacao do teste depois dela um campo que a tela entrega errado e constante ja foi gravado e passa a se comparar consigo mesmo",
+      "text": "Rode o 'salvar sem mexer não muda nada' antes da primeira gravação do teste; depois dela, um campo que a tela entrega errado e constante já foi gravado e passa a se comparar consigo mesmo.",
+      "signal": "surviving_mutant",
+      "scope": "e2e, app/page, formularios",
+      "status": "candidate",
+      "features": [
+        "editar-fixos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "P4, src/app/(app)/[competencia]/fixos/page.tsx:113; C1 :114; C2 :112 (validation.md, Rodada 3) (e2e, app/page, formularios)"
+      ],
+      "created": "2026-10-29T15:09:18Z",
+      "last_seen": "2026-10-29T15:09:18Z"
     }
   ]
 }

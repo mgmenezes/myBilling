@@ -156,6 +156,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: E3p, src/app/(app)/[competencia]/fixos/page.tsx:114; src/infrastructure/db/testing/banco-de-teste.ts:55 (validation.md, Rodada 2) (e2e, fixtures)
 - last seen: 2026-10-29T14:48:44Z
 
+### L-025 - Rode o 'salvar sem mexer não muda nada' antes da primeira gravação do teste; depois dela, um campo que a tela entrega errado e constante já foi gravado e passa a se comparar consigo mesmo.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e, app/page, formularios` · harmful: 0
+- features: editar-fixos
+- evidence: P4, src/app/(app)/[competencia]/fixos/page.tsx:113; C1 :114; C2 :112 (validation.md, Rodada 3) (e2e, app/page, formularios)
+- last seen: 2026-10-29T15:09:18Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -2,10 +2,17 @@
 
 ## Validation: editar-fixos — **FAIL**
 
-**Result**: FAIL ❌ — rodada 2 (2026-10-29, `bfc38f6`): E2 e S3 morrem, as duas lacunas de
-precisão estão fechadas e o gate está verde, mas dois mutantes novos sobrevivem no mesmo elo da
-página com o formulário (E2b, E3p). Uma fix task de e2e, já verificada numa sonda. Detalhe na seção
-[Rodada 2](#rodada-2), no fim do arquivo. A rodada 1 segue abaixo como foi escrita.
+**Result**: FAIL ❌ — rodada 3 (2026-10-29, `df1a2de`), a última do laço. O F4 mata E2, E2b e
+E3p, e o gate está verde. A varredura dos demais campos que a página entrega ao formulário achou um
+mutante vivo no mesmo elo: `categoriaId: null` (P4). Duas sondas mostram que a pessoa e o meio
+constantes também passam (C1, C2). O código de produto está certo, e a correção é uma fix task de
+e2e de 5 linhas, já verificada numa sonda (Fix 5). O caso escala para o dono. Detalhe na seção
+[Rodada 3](#rodada-3), no fim do arquivo. As rodadas 1 e 2 seguem abaixo como foram escritas.
+
+**Rodada 2** (2026-10-29, `bfc38f6`): FAIL ❌ — E2 e S3 morrem, as duas lacunas de precisão estão
+fechadas e o gate está verde, mas dois mutantes novos sobrevivem no mesmo elo da página com o
+formulário (E2b, E3p). Uma fix task de e2e, já verificada numa sonda. Detalhe na seção
+[Rodada 2](#rodada-2).
 
 **Rodada 1** (2026-10-28): FAIL ❌ — dois mutantes vivos, nenhum defeito de comportamento no código
 de `48c79da`.
@@ -641,3 +648,205 @@ valendo sobre o mesmo código de produto.
 `pnpm test:e2e` passou 62/62.
 
 **Próximo passo**: um implementador faz o Fix 4. Depois, a rodada 3 reaplica E2, E2b e E3p.
+
+---
+
+## Rodada 3
+
+**Data**: 2026-10-29
+**Verificado em**: `df1a2de`, branch `feat/editar-fixos`.
+**Faixa**: desde a rodada 2 (`a64660d`), um commit, `df1a2de` (F4). Ele muda
+`e2e/editar-fixo.spec.ts` (+13, −0), estende duas linhas da traceability em `spec.md` e acrescenta
+a F4 a `tasks.md`. Nenhum arquivo de `src` mudou desde `bfc38f6` (`git diff --stat bfc38f6 HEAD --
+src` vazio): o código de produto é o da rodada 2.
+**Verificador**: sub-agente independente, que não escreveu o F4. Por orientação do orquestrador, os
+mutantes rodaram na própria worktree da fatia, um por vez, cada um revertido com `git checkout --`
+logo depois da execução. O porcelain estava vazio antes. Depois de cada mutante, só aparecia
+`next-env.d.ts`, que o `next dev` reescreve e que voltou ao commitado com `git checkout`. **Nenhum
+`git stash`.** Banco de teste padrão (`DATABASE_URL_TEST` não definido).
+
+### Veredito
+
+**FAIL ❌. O caso escala para o dono.** O F4 faz o que prometeu: E2, E2b e E3p morrem, cada um na
+assertion que o declara. Dos seis campos varridos, cinco mutantes morrem, e um sobrevive:
+`categoriaId: null` (P4). O motivo não é a categoria. No e2e, o "salvar sem mexer → Nada mudou" só
+roda **depois** de uma gravação, e o primeiro salvar já gravou o valor errado. Dali em diante, a
+página compara o errado com ele mesmo. Duas sondas confirmam que a classe vale para outros campos: a
+pessoa constante (C1) e o meio constante (C2) também passam. O código de produto está certo, e a
+correção é de teste: 5 linhas, verificadas numa sonda (Fix 5). Esta foi a 3ª iteração, e o laço
+para aqui.
+
+### O F4 não removeu nem enfraqueceu assertion
+
+`git show df1a2de`: o diff de `e2e/editar-fixo.spec.ts` só tem linhas `+` (13). As linhas `−` do
+commit são três de texto: as linhas do EDF-01 e do EDF-03 na traceability de `spec.md`, reescritas
+com o texto anterior intacto e o trecho do F4 no fim, e a nota do `tasks.md` que passou de "F1 a F3"
+para "F1 a F4". Nenhum `skip`, `only` ou `todo` em `src` nem em `e2e`. `tasks.md` tem 48 itens
+marcados e nenhum aberto. `check_commit.py` dá OK na mensagem do `df1a2de`.
+
+### Mutantes da rodada 3
+
+Cada mutante rodou isolado. O log confere que ele morreu numa assertion, e não por erro de
+compilação. Os de página rodaram `pnpm exec playwright test e2e/editar-fixo.spec.ts`; os de
+formulário, `vitest run --project componentes src/components/form-recorrencia.test.tsx`.
+
+| # | `file:line` | Mutação | Morto por | Resultado |
+| --- | --- | --- | --- | --- |
+| E2 | `src/app/(app)/[competencia]/fixos/page.tsx:115` | `valorNoMesCentavos: versoes.at(-1)?.valorPrevisto ?? null` (a última vigência) | `e2e/editar-fixo.spec.ts:173` — `toHaveValue("100,00")`, `Received: "110,00"` | ✅ Morto |
+| E2b | `fixos/page.tsx:115` | `versoes[0]?.valorPrevisto ?? null` (a primeira vigência) | `:181` — `toHaveValue("110,00")`, `Received: "100,00"` (F4) | ✅ Morto |
+| E3p | `fixos/page.tsx:114` | `usuarios.find((u) => u.id !== recorrencia.usuarioId)?.id ?? recorrencia.usuarioId` (a outra pessoa) | `:175` — `toHaveText("Nada mudou: já estava tudo assim.")`, `Received: "Alterações salvas."` (F4: a Pessoa B entra em `:152`) | ✅ Morto |
+| P1 | `fixos/page.tsx:93` | descrição: `recorrencia.descricao.toLowerCase()` | `:119` — `toHaveValue("Conta de luz")`, `Received: "conta de luz"`. O filtro do cartão (`hasText`) ignora caixa, e a prova vem do campo | ✅ Morto |
+| P2 | `fixos/page.tsx:98` | dia: `recorrencia.diaVencimento + 1` | `:175` — "Nada mudou", `Received: "Alterações salvas."` | ✅ Morto |
+| P3 | `fixos/page.tsx:112` | meio: o nome no lugar do id, `nomePorMeio.get(recorrencia.meioPagamentoId) ?? …` | `:125` → `:91` — "Alterações salvas." não aparece: o formulário recusa com "Escolha o meio de pagamento." no campo do meio | ✅ Morto |
+| P4 | `fixos/page.tsx:113` | categoria: `categoriaId: null` | nenhum: 3/3, em duas execuções | ❌ **Sobreviveu** → Fix 5 |
+| P5 | `fixos/page.tsx:110` | início: `competenciaInicio: resultado.value` (o mês aberto, que é o padrão do cadastro) | `:121` — `toHaveValue("2026-10")`, `Received: "2026-11"` | ✅ Morto |
+| P6 | `fixos/page.tsx:111` | fim: `competenciaFim: null` | `:200` — `toHaveValue("2026-11")`, `Received: ""` | ✅ Morto |
+| C1 | `fixos/page.tsx:114` | sonda de classe: pessoa constante, `opcoesDeUsuario.at(-1)?.id ?? …` (a Pessoa B no teste do EDF-03) | nenhum: 3/3 | ❌ **Sobreviveu** → Fix 5 |
+| C2 | `fixos/page.tsx:112` | sonda de classe: meio constante, `opcoesDeMeio.at(-1)?.id ?? …` ("Conta Corrente", e o fixo é cadastrado no "Cartão Roxo") | nenhum: 3/3 | ❌ **Sobreviveu** → Fix 5 |
+| FP1 | `src/components/form-recorrencia.tsx:158` | o formulário usa a primeira pessoa, e não a gravada | `form-recorrencia.test.tsx:382` ("os nove campos") e mais 4 | ✅ Morto |
+| FP2 | `form-recorrencia.tsx:159-160` | idem, o primeiro meio | `form-recorrencia.test.tsx:382` e mais 5 | ✅ Morto |
+| FP3 | `form-recorrencia.tsx:152-153` | idem, o dia sempre `"10"` | `form-recorrencia.test.tsx:382` e mais 4 | ✅ Morto |
+| FP4 | `form-recorrencia.tsx:157` | idem, a categoria sempre vazia | `form-recorrencia.test.tsx:382` e mais 4 | ✅ Morto |
+
+**Resultado da rodada 3**: 15 mutantes, 12 mortos e 3 vivos (P4, C1, C2).
+
+**Por que o P4 sobrevive.** Na página, o e2e afirma descrição (`:119`), valor (`:120`, `:173`,
+`:181`), início (`:121`) e fim (`:200`). Meio, categoria, pessoa e dia só aparecem no "Nada mudou" de
+`:175` e `:183`, que vem depois de uma gravação. Com o P4, a primeira edição do teste do EDF-03 muda
+só o valor (`:161-164`). Só que o formulário abriu com "Sem categoria", e esse salvar grava a série
+com a categoria nula. A partir daí o gravado é nulo, a página entrega nulo, e o "Nada mudou" passa em
+outubro e em novembro. No EDF-04 acontece o mesmo: o primeiro salvar, que só preenche "Termina em",
+apaga a categoria. O EDF-02 escapa porque escolhe "Categoria Dois" à mão.
+
+O E3p e o E3m da rodada 2 morrem só porque "a outra pessoa" e "o outro meio" se alternam a cada
+gravação: depois do primeiro salvar, a página volta a entregar um valor diferente do gravado. Um
+valor errado **constante** se acerta sozinho no primeiro salvar, e o C1 e o C2 mostram isso na
+pessoa e no meio, com duas opções de cada no banco. A L-024 (duas opções em cada campo) é
+necessária, mas não basta.
+
+**Consequência medida.** Depois da suíte com o P4, o banco de teste tem o fixo do EDF-04 com
+`categoria_id` nulo, e as seis ocorrências também, de 2026-10 a 2027-03. Editar só o valor ou o fim
+de um fixo apagaria a categoria dele em todos os meses, inclusive os passados, sem a pessoa ter
+tocado no campo. Com o C2, o fixo cadastrado no "Cartão Roxo" terminou na "Conta Corrente". Isso
+fere o EDF-01 AC 3.
+
+**Onde a classe já está coberta.** No formulário, cair no padrão em vez do gravado morre (FP1 a
+FP4) em `src/components/form-recorrencia.test.tsx:382-396`, cujo fixo foge de todo padrão do
+cadastro. O furo fica só no elo da página, que nenhum teste além do e2e atravessa.
+
+### Critérios que mudaram desde a rodada 2
+
+| Critério | Resultado definido na spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| EDF-01 AC 3 — o formulário abre com o que está gravado | descrição, natureza, valor vigente no mês exibido, dia, início, fim, meio, categoria e pessoa gravados | Formulário: `src/components/form-recorrencia.test.tsx:382-396`, os nove campos (FP1 a FP4 mortos). Página: descrição em `e2e/editar-fixo.spec.ts:119`, valor em `:120`, `:173` e `:181`, início em `:121`, fim em `:200`. Meio, categoria, pessoa e dia só pelo "Nada mudou" de `:175` e `:183`, depois de uma gravação | ❌ GAP na página: P4, C1 e C2 vivos → Fix 5 |
+| EDF-03 AC 3 — valor igual ao vigente não registra vigência | nenhuma vigência; o mês continua com o valor que tinha | `e2e/editar-fixo.spec.ts:173-176` em outubro e `:181-184` em novembro — o valor vigente no campo, `toHaveText("Nada mudou: já estava tudo assim.")` e a lista com o valor de cada mês | ✅ PASS (E2, E2b mortos) |
+
+**Status**: 27 dos 28 critérios têm assertion sobre o resultado da spec e mutante morto. O GAP
+restante é o EDF-01 AC 3 na página, e fecha com uma fix task. Não há lacuna de precisão da spec.
+
+### Fix 5: salvar sem mexer antes da primeira gravação (EDF-01 AC 3) — Minor
+
+- **Causa**: no e2e, o "Nada mudou" que prova o elo `fixos/page.tsx:112-114` com o formulário só
+  roda depois de uma gravação, e um valor errado constante já foi gravado nela. Nenhuma assertion da
+  página olha meio, categoria ou pessoa antes disso.
+- **Fix task**: no teste do EDF-03 em `e2e/editar-fixo.spec.ts`, logo depois da primeira
+  `abrirEdicao` (`:159`) e antes de `:160`:
+  ```ts
+  /* Antes de qualquer gravação, salvar sem mexer não muda nada. Um campo que a
+     página entregasse diferente do gravado seria gravado aqui, e as edições
+     seguintes já o comparariam com ele mesmo (EDF-01 AC 3). */
+  await form.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(form.getByRole("status")).toHaveText("Nada mudou: já estava tudo assim.");
+  ```
+  O lugar é o teste do EDF-03 porque é o único com duas pessoas.
+- **Verificado** com uma sonda na worktree da fatia, revertida depois. A sonda passa em `df1a2de`
+  (3/3) e falha com o P4, o C1 e o C2 na linha nova, os três com `Received: "Alterações salvas."`.
+  Ela também mata qualquer dia constante diferente do gravado.
+- **Pronto quando**: P4, C1 e C2 morrem no e2e da fatia; E2, E2b e E3p continuam morrendo; a
+  traceability do EDF-01 cita o Fix 5.
+- **Prioridade**: Minor. O código de produto está certo, e cada mutante tem a consequência do E3p da
+  rodada 2: um campo da série gravado sem a pessoa pedir.
+
+**O que fica de fora, e não é gap.**
+
+- Um valor constante **igual ao padrão do cadastro** (o primeiro meio, a primeira pessoa, o dia 10)
+  continua equivalente no e2e, porque o `cadastrarFixo` grava os padrões (`e2e/editar-fixo.spec.ts:52-65`).
+  Na página, isso exigiria escrever de propósito o primeiro da lista, porque o tipo `ItemFixo`
+  (`src/components/lista-de-fixos.tsx:43-62`) não deixa omitir o campo. No formulário, onde cair no
+  padrão é plausível, FP1 a FP4 morrem. Fechar também esse caso pede um `cadastrarFixo` que escolha
+  meio, pessoa e dia, e isso fica fora do Fix 5.
+- `natureza` e `id` ficaram fora da varredura, que o orquestrador limitou aos seis campos. A natureza
+  vai travada e fora do payload (EDF-05 AC 2).
+
+### Gate
+
+Rodado na worktree da fatia, em `df1a2de` limpo, com o Postgres `mybilling-db` de pé e o banco de
+teste padrão.
+
+- `pnpm test:unit` — ✅ **87 arquivos, 1.268 testes**, 0 falhas. `src/domain`: 100% de branches
+  (345/345), statements (662/662), funções (158/158) e linhas (626/626)
+- `pnpm typecheck` — ✅ `Types generated successfully`, `tsc` saída 0
+- `pnpm lint` — ✅ `Checked 264 files in 119ms. No fixes applied.`
+- `pnpm exec playwright test e2e/editar-fixo.spec.ts` — ✅ **3 passed (15.9s)**, saída 0. Também 3/3
+  (19.7s) antes do primeiro mutante.
+
+A integração e o build não rodaram de novo: nenhum arquivo de `src` mudou desde `bfc38f6`, cujo
+`pnpm verify` passou na rodada 2 (307 de integração, build). A suíte e2e inteira também não rodou:
+só `e2e/editar-fixo.spec.ts` mudou, e nenhum mutante dependia de outro arquivo.
+
+**Integridade dos testes.** As contagens são as da rodada 2: 1.268 unit e 3 testes no
+`e2e/editar-fixo.spec.ts`. O F4 estende um teste existente.
+
+### Validadores
+
+- `validate_spec.py .specs/features/editar-fixos/spec.md` — 0 erros, 0 avisos.
+- `validate_tasks.py` sobre uma cópia do `tasks.md` com F1 a F4 trocados por T101 a T104 (regex com
+  borda de palavra, 30 trocas) — 0 erros, 11 avisos: os 10 da rodada 2 e o `spec.md` no `Where` da
+  T104.
+- `validate_state.py editar-fixos` — sai com 1, como deve: o veredito é FAIL.
+- `check_commit.py` — OK na mensagem do `df1a2de`.
+
+### Lições destiladas
+
+| Sinal | Fonte | Lição |
+| --- | --- | --- |
+| `surviving_mutant` | P4, `fixos/page.tsx:113`; C1, `:114`; C2, `:112` | L-025: rodar o "salvar sem mexer não muda nada" antes da primeira gravação do teste, porque depois dela um campo entregue errado e constante já foi gravado e se compara consigo mesmo |
+
+A L-023 e a L-024 não se repetem: os mutantes delas morreram. A L-025 completa a L-024.
+
+### Requirement Traceability: atualização proposta
+
+| Requisito | Antes | Proposto |
+| --- | --- | --- |
+| EDF-01 | Implemented | ❌ Needs Fix (Fix 5), ou ✅ Verified com o risco aceito pelo dono |
+| EDF-02 | Implemented | ✅ Verified |
+| EDF-03 | Implemented | ✅ Verified (o F4 mata o E2b) |
+| EDF-04 | Implemented | ✅ Verified |
+| EDF-05 | Implemented | ✅ Verified |
+| EDF-06 | Implemented | ✅ Verified |
+
+O verificador não edita `spec.md`. Quando o EDF-01 fechar, a traceability final fica com os seis
+requisitos em `Verified` e cita esta seção. No EDF-01, cita o Fix 5 (ou a aceitação do dono).
+
+### Decisão do dono
+
+As três iterações de correção e reverificação acabaram. Há duas saídas:
+
+1. **Autorizar o Fix 5 e uma reverificação curta.** Ela reaplica P4, C1, C2, E2, E2b e E3p e roda
+   `pnpm lint` e `pnpm exec playwright test e2e/editar-fixo.spec.ts`. A sonda indica que passa.
+2. **Aceitar o risco.** O código de produto está certo. O EDF-01 fica `Verified`, com a ressalva
+   desta seção, e o Fix 5 vai para o roadmap.
+
+### Resumo da rodada 3
+
+**Overall**: ❌ Not Ready. Falta uma fix task de teste e nenhuma de código. O laço de 3 iterações
+acabou, e a decisão é do dono.
+
+**Spec-anchored check**: 27/28 critérios. O GAP é o EDF-01 AC 3 na página. Não há lacuna de
+precisão.
+**Sensor**: 15 mutantes nesta rodada, 12 mortos e 3 vivos (P4, C1, C2). Os 46 da rodada 1 e os 9
+mortos da rodada 2 valem sobre o mesmo código de produto.
+**Gate**: 1.268 unit (100% de branches no domínio), typecheck e lint limpos, `e2e/editar-fixo.spec.ts`
+3/3.
+
+**Próximo passo**: o dono escolhe entre o Fix 5 com reverificação curta e o risco aceito.
