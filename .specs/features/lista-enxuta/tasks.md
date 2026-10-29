@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lista-enxuta/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Implemented, à espera da rodada 2 do Verifier (T1–T9 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F4 concluídas em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/lista-enxuta`, em worktree, a partir do `main` em `96778b3`; 2 lotes: T1–T5 e T6–T9, mais F1–F4)
+**Status**: Verified, PASS na rodada 2 de `validation.md` (T1–T9 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F4 concluídas em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/lista-enxuta`, em worktree, a partir do `main` em `96778b3`; 2 lotes: T1–T5 e T6–T9, mais F1–F4)
 **Total**: 13 tasks em 6 fases (T1–T9 e as correções F1–F4)
 
 ---
