@@ -297,6 +297,14 @@ describe("o seletor dentro da margem (LST-05)", () => {
     expect(classes()).toEqual(expect.arrayContaining(["md:w-44", "truncate"]));
   });
 
+  it("abaixo de md acompanha a largura do cartão, e o nome longo não alarga a tabela (UI-03)", () => {
+    montar({ categoriaId: LONGA, nomeDaGravada: NOME_LONGO });
+
+    /* Sem largura própria, o select mede a opção mais longa, e em 400 px essa
+       medida passava a tabela da tela. A medição é do e2e; aqui, a regra. */
+    expect(classes()).toEqual(expect.arrayContaining(["w-full", "max-w-full", "md:w-44"]));
+  });
+
   it("tem 36 px de altura sob ponteiro fino e 44 px no toque (AC 4)", () => {
     montar();
 

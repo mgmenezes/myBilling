@@ -34,6 +34,11 @@ import { useAvisos } from "./avisos";
  * fora da margem. O nome que não cabe termina em reticências, e o nome inteiro
  * fica no `title`. A altura é de 36 px com ponteiro fino e de 44 px no toque
  * (LST-05, AC 4; UI-03).
+ *
+ * **No celular, a largura do cartão.** Só `max-w-full` não bastava: a tabela
+ * mede a largura que o select pede, que é a da opção mais longa, e uma
+ * categoria de nome comprido passava a lista da tela em 400 px (UI-03).
+ * Com `w-full` a medida vem de fora, e a opção longa termina em reticências.
  */
 
 const AVISO: Record<AlcanceDaTroca, string> = {
@@ -108,7 +113,7 @@ export function SeletorDeCategoria({
         disabled={pendente}
         title={nomeEscolhido}
         onChange={(evento) => escolher(evento.target.value)}
-        className="min-h-11 max-w-full truncate rounded-pill border border-line bg-surface px-3.5 text-[13px] text-ink transition-[border-color,opacity] duration-200 hover:border-line-strong disabled:cursor-progress disabled:opacity-60 md:w-44 pointer-fine:min-h-9"
+        className="min-h-11 w-full max-w-full truncate rounded-pill border border-line bg-surface px-3.5 text-[13px] text-ink transition-[border-color,opacity] duration-200 hover:border-line-strong disabled:cursor-progress disabled:opacity-60 md:w-44 pointer-fine:min-h-9"
       >
         <option value={SEM_CATEGORIA}>Sem categoria</option>
         {categorias.map((categoria) => (

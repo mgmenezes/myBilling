@@ -258,6 +258,7 @@ T8 -> T9
 - [x] O BLOCO-01 AC 7 em `lancamento-avulso/spec.md` fica marcado como substituído por LST-05, com a decisão do dono
 - [x] O seletor tem largura fixa a partir de `md` e `title` com o nome da categoria escolhida (LST-05 AC 5)
 - [x] Classe de 36 px sob `pointer: fine` e 44 px fora dele (LST-05 AC 4)
+- [x] Ajuste achado pela T8: abaixo de `md` o seletor tem `w-full`. Só com `max-w-full` a tabela media a opção mais longa, e uma categoria de nome comprido criava 5 px de rolagem horizontal em 400 px (UI-03; LST-03 AC 7). Commit próprio, antes do da T8
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `fix(lancamentos): parcela sob a descrição e tabela na margem`
