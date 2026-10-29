@@ -28,6 +28,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Importar a planilha | As abas mensais exportadas em CSV entram pela Visão geral, em sequência: arquivo e mês, o que a planilha não diz, conferência contra os totais da própria planilha, e gravação tudo ou nada. A aba seguinte reconhece os fixos e as compras da anterior em vez de duplicar. Roteiro de uso em `docs/importacao.md`; spec, design e tasks em `.specs/features/importar-planilha/` |
 | Editar gasto fixo e entrada fixa | Na área "Todo mês", "Editar" em cada cartão abre o formulário do cadastro com o que está gravado. Descrição, categoria, meio, pessoa e dia valem para todos os meses do fixo, inclusive os passados, sem mexer em pagamento marcado nem em valor confirmado. O valor muda a partir de um mês, e "Termina em" encerra ou reabre. Natureza e início ficam travados. Tudo numa transação. Spec e tasks em `.specs/features/editar-fixos/` |
 | Trocar a categoria na lista | Em Lançamentos, a categoria de todo gasto, investimento inclusive, troca num seletor na própria linha, sem formulário e sem confirmação. O alcance é o do lançamento: um fixo troca em todos os meses, inclusive os passados, uma compra em todas as parcelas, e um gasto do mês só nele, sem mexer em valor, data nem pagamento. Um toast diz até onde a troca foi; uma recusa volta o seletor e diz o motivo na linha. Toda entrada aparece como "Receita". Spec e tasks em `.specs/features/trocar-categoria/` |
+| Lista de Lançamentos enxuta | No cartão de filtros, um chip por categoria com o gasto do mês, o mesmo número de "Gastos por categoria", no lugar do select; "Sem categoria" é um chip também, e além de seis um "+N categorias" revela o resto. Cada bloco recolhe pelo cabeçalho, que diz quantos, quanto e quantos a pagar, e o bloco recolhido continua recolhido na próxima visita, já fechado no HTML do servidor. Ao rolar, uma barra fixa no topo traz a busca, os filtros ativos removíveis e "Filtros". Cada barra do gráfico da Visão geral abre a lista filtrada pela categoria. No Cartão, a parcela é a segunda linha da descrição, e a tabela cabe na coluna de conteúdo em 1024, 1280 e 1440 px. Spec e tasks em `.specs/features/lista-enxuta/` |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -81,9 +82,15 @@ tipos está em rascunho em `.specs/features/editar-lancamentos/context.md`.
 
 ## Dívida de interface
 
-- **A tabela espalha as colunas por igual.** Com 1440px de largura, descrição e valor ficam em
-  pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão; a correção é deixar a
-  descrição absorver a folga.
+- **A descrição ainda não absorve a folga da tabela.** O item dizia que a tabela espalhava as
+  colunas por igual. A lista enxuta (LST-05) atacou o sintoma mais grave, que era o oposto: no
+  Cartão as colunas não cabiam, e a tabela passava da margem. A coluna Parcela saiu, a parcela virou
+  a segunda linha da descrição e o seletor de categoria ganhou largura fixa a partir de `md`. Medido
+  pelo e2e, a tabela do Cartão tem a largura da coluna de conteúdo, 736 px em 1024, 1280 e 1440 px,
+  porque o app tem no máximo 64rem. O que sobra é a distribuição: a folga ainda vai para Situação, e
+  a descrição fica com cerca de 133 px, de modo que "2/4 · (faltam 2 depois desta)" ocupa duas
+  linhas, e não mais uma palavra por linha. A correção continua sendo deixar a descrição absorver a
+  folga.
 - **Renomear e arquivar cadastro** não têm tela. Nascem na área "Cadastros", junto do orçamento.
   Quando arquivar existir, a edição de fixo precisa oferecer como selecionados o meio e a categoria
   arquivados que o fixo usa; hoje ela abre sem eles (decisão do dono em 2026-10-29).

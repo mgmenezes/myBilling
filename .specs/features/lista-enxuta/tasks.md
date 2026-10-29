@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lista-enxuta/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Planned (plano aprovado pelo dono em 2026-10-29; branch `feat/lista-enxuta`, em worktree, a partir do `main` em `96778b3`; 2 lotes: T1–T5 e T6–T9)
+**Status**: Implemented (T1–T9 concluídas em 2026-10-29; suíte e2e inteira e `pnpm verify` verdes; falta a validação do Verifier; plano aprovado pelo dono em 2026-10-29; branch `feat/lista-enxuta`, em worktree, a partir do `main` em `96778b3`; 2 lotes: T1–T5 e T6–T9)
 **Total**: 9 tasks em 5 fases
 
 ---
@@ -42,8 +42,12 @@ pelo gráfico.
 pequeno (`CabecalhoDeBloco`) com o botão de recolher, ou o bloco inteiro vira um disclosure, a
 critério do implementador, desde que a tabela continue renderizada no servidor. O estado inicial
 vem da página, que lê o cookie `blocos-recolhidos` (lista separada por vírgula com as chaves
-`ENTRADAS`, `FIXOS`, `CARTAO` e `GASTOS_DO_MES`, que são as de `BlocoDoMes`). O clique alterna o
+`ENTRADAS`, `FIXOS`, `CARTAO` e `AVULSOS`, que são as de `BlocoDoMes`). O clique alterna o
 estado na tela e grava o cookie no cliente (`document.cookie`, `path=/`, um ano).
+
+> **Desvio do lote 1, corrigido na T9.** O plano dizia `GASTOS_DO_MES`, mas a chave de
+> `BlocoDoMes` para "Gastos do Mês" é `AVULSOS`, e é ela que a T4 grava no cookie
+> (`src/lib/blocos-recolhidos.ts`). O texto acima foi corrigido; o comportamento não mudou.
 
 **Barra compacta.** `BarraDeFiltrosCompacta` é cliente, observa o cartão de filtros por
 `IntersectionObserver` e aparece `fixed` no topo quando ele sai da tela. A altura dela vira
@@ -303,8 +307,8 @@ T8 -> T9
 **Depends on**: T8
 **Requirement**: LST-01 a LST-05
 **Done when**:
-- [ ] Roadmap com a lista enxuta em "Pronto"; o item "A tabela espalha as colunas por igual" revisto à luz do LST-05
-- [ ] Traceability com cada requisito implementado
+- [x] Roadmap com a lista enxuta em "Pronto"; o item "A tabela espalha as colunas por igual" revisto à luz do LST-05
+- [x] Traceability com cada requisito implementado
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(lancamentos): fechar a fatia da lista enxuta`
