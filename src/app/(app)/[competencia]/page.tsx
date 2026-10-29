@@ -2,6 +2,7 @@ import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
 import { importarPlanilha, previaDaPlanilha } from "@/app/actions/importacao";
 import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
+import { SEM_CATEGORIA } from "@/application/mes/filtrar-lancamentos";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
 import {
   MESES_DE_PROJECAO,
@@ -168,8 +169,9 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
             </h2>
             <GraficoCategorias
               titulo="Gastos por categoria, ordenados do maior para o menor"
+              competencia={resultado.value}
               fatias={categorias.map((categoria) => ({
-                id: categoria.categoriaId ?? "sem-categoria",
+                id: categoria.categoriaId ?? SEM_CATEGORIA,
                 nome:
                   categoria.categoriaId === null
                     ? "Sem categoria"

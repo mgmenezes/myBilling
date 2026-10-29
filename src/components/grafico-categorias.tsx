@@ -1,4 +1,6 @@
 import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import type { Competencia } from "@/domain";
 import { formatarBRL, formatarPercentual } from "@/lib/formatar";
 
 /**
@@ -20,6 +22,13 @@ import { formatarBRL, formatarPercentual } from "@/lib/formatar";
  * Acessibilidade: os números estão no texto, não só na geometria. Quem usa
  * leitor de tela recebe categoria, valor e porcentagem em sequência, sem
  * depender de `title` nem de hover.
+ *
+ * **Cada barra é link para os lançamentos que a formam** (LST-04): a lista do
+ * mesmo mês, filtrada pelo `categoriaId` da fatia, que para o grupo sem
+ * categoria é `sem-categoria`. O link envolve a linha inteira, e o texto dela
+ * (nome, valor e porcentagem) é o nome acessível, então o leitor de tela diz
+ * aonde ele leva. O texto continua na cor de texto: o azul de ação em cada
+ * categoria gastaria a única cor que significa "aja aqui".
  */
 
 export interface FatiaDeCategoria {
@@ -35,9 +44,12 @@ export interface FatiaDeCategoria {
 export function GraficoCategorias({
   fatias,
   titulo,
+  competencia,
 }: {
   readonly fatias: ReadonlyArray<FatiaDeCategoria>;
   readonly titulo: string;
+  /** O mês aberto: o link leva à lista dele, e não à de outro. */
+  readonly competencia: Competencia;
 }) {
   if (fatias.length === 0) {
     return (
@@ -60,26 +72,30 @@ export function GraficoCategorias({
             fatia.limite !== undefined && fatia.limite !== null && fatia.valor > fatia.limite;
 
           return (
-            <li key={fatia.id} className="flex flex-col gap-1.5">
-              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-                <span className="flex items-center gap-1.5 text-[15px]">
-                  {fatia.nome}
-                  {estourou ? (
-                    <span className="flex items-center gap-1 text-[13px] font-semibold text-negativo">
-                      <WarningIcon size={14} weight="fill" aria-hidden="true" />
-                      acima do limite
+            <li key={fatia.id}>
+              <Link
+                href={`/${competencia}/lancamentos?categoriaId=${encodeURIComponent(fatia.id)}`}
+                className="-mx-2 flex flex-col gap-1.5 rounded-lg px-2 py-1.5 transition-colors duration-200 hover:bg-surface-soft"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+                  <span className="flex items-center gap-1.5 text-[15px]">
+                    {fatia.nome}
+                    {estourou ? (
+                      <span className="flex items-center gap-1 text-[13px] font-semibold text-negativo">
+                        <WarningIcon size={14} weight="fill" aria-hidden="true" />
+                        acima do limite
+                      </span>
+                    ) : null}
+                  </span>{" "}
+                  <span className="flex items-baseline gap-2">
+                    <span className="tabular text-[15px]">{formatarBRL(fatia.valor)}</span>{" "}
+                    <span className="tabular text-[13px] text-ink-muted">
+                      {formatarPercentual(fatia.percentual)}
                     </span>
-                  ) : null}
-                </span>
-                <span className="flex items-baseline gap-2">
-                  <span className="tabular text-[15px]">{formatarBRL(fatia.valor)}</span>
-                  <span className="tabular text-[13px] text-ink-muted">
-                    {formatarPercentual(fatia.percentual)}
                   </span>
-                </span>
-              </div>
+                </div>
 
-              {/*
+                {/*
                 O trilho existe para dar referência de escala à barra curta.
                 Ele é recessivo o bastante para não competir com o dado.
 
@@ -89,12 +105,13 @@ export function GraficoCategorias({
                 que significa "aja aqui". Quem sinaliza o estouro é o par ícone
                 mais texto acima, que também funciona sem enxergar matiz.
               */}
-              <div className="h-2.5 w-full overflow-hidden rounded-pill bg-grafico-trilho">
-                <div
-                  className="h-full rounded-pill bg-grafico-barra"
-                  style={{ width: `${largura}%` }}
-                />
-              </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-pill bg-grafico-trilho">
+                  <div
+                    className="h-full rounded-pill bg-grafico-barra"
+                    style={{ width: `${largura}%` }}
+                  />
+                </div>
+              </Link>
             </li>
           );
         })}

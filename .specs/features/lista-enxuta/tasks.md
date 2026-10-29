@@ -269,9 +269,9 @@ T8 -> T9
 **Reuses**: `FatiaDeCategoria.id`; `SEM_CATEGORIA`
 **Requirement**: LST-04
 **Done when**:
-- [ ] Cada fatia é um link para `/<competencia>/lancamentos?categoriaId=<id>` (LST-04 AC 1)
-- [ ] "Sem categoria" leva a `categoriaId=sem-categoria` (LST-04 AC 2)
-- [ ] O nome acessível do link contém nome, valor e porcentagem (LST-04 AC 3)
+- [x] Cada fatia é um link para `/<competencia>/lancamentos?categoriaId=<id>` (LST-04 AC 1)
+- [x] "Sem categoria" leva a `categoriaId=sem-categoria` (LST-04 AC 2)
+- [x] O nome acessível do link contém nome, valor e porcentagem (LST-04 AC 3)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(painel): abrir a lista filtrada pela categoria do gráfico`
