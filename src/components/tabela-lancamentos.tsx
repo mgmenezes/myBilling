@@ -1,4 +1,7 @@
-import type { cancelarLancamento as cancelarAction } from "@/app/actions/lancamentos";
+import type {
+  cancelarLancamento as cancelarAction,
+  trocarCategoria as trocarCategoriaAction,
+} from "@/app/actions/lancamentos";
 import type {
   alternarPagamento as alternarPagamentoAction,
   confirmarValorDaOcorrencia as confirmarValorAction,
@@ -10,6 +13,7 @@ import { formatarBRL, formatarData } from "@/lib/formatar";
 import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
+import { SeletorDeCategoria } from "./seletor-de-categoria";
 import { Chip } from "./ui";
 import { ValorConfirmavel } from "./valor-confirmavel";
 
@@ -64,6 +68,12 @@ import { ValorConfirmavel } from "./valor-confirmavel";
  * empurra descrição e valor para as pontas opostas da tela e obriga o olho a
  * atravessar um vão sem informação. No lugar dela entra a categoria, que é o
  * dado que faltava para saber o que foi cada gasto sem abrir nada.
+ *
+ * **Na entrada a categoria é "Receita"; no gasto, um seletor.** A entrada é
+ * sempre receita, e o "Sem categoria" que ela mostrava parecia erro da
+ * importação (TRC-01). Tudo que não é entrada, investimento inclusive, troca a
+ * categoria na própria linha (TRC-02). O seletor é cliente, isolado em
+ * `SeletorDeCategoria` como o selo de pago, e a tabela continua no servidor.
  */
 
 interface BlocoDeDespesa {
@@ -97,10 +107,18 @@ export function TabelaLancamentos({
   alternarPagamento,
   confirmarValor,
   excluir,
+  opcoesDeCategoria,
+  trocarCategoria,
 }: {
   readonly lancamentos: ReadonlyArray<LancamentoDoMes>;
-  /** Id para nome. O lançamento só carrega o id; o nome vive no cadastro. */
+  /**
+   * Id para nome, **inclusive das arquivadas**. O lançamento só carrega o id; o
+   * nome vive no cadastro. Arquivada não é opção do seletor, mas o gasto que
+   * ainda a tem precisa vê-la pelo nome (TRC-02, AC 3).
+   */
   readonly categorias: ReadonlyMap<string, string>;
+  /** As ativas, na ordem dos formulários: são as opções do seletor. */
+  readonly opcoesDeCategoria: ReadonlyArray<{ readonly id: string; readonly nome: string }>;
   /**
    * O mês de hoje, e não o mês aberto. É o argumento que decide se um não pago
    * está vencido, e é obrigatório de propósito: um padrão silencioso aqui
@@ -112,6 +130,7 @@ export function TabelaLancamentos({
   readonly confirmarValor: typeof confirmarValorAction;
   /** Só a linha avulsa a exibe; parcela e ocorrência não são canceláveis. */
   readonly excluir: typeof cancelarAction;
+  readonly trocarCategoria: typeof trocarCategoriaAction;
 }) {
   if (lancamentos.length === 0) {
     return (
@@ -138,6 +157,8 @@ export function TabelaLancamentos({
         alternarPagamento={alternarPagamento}
         confirmarValor={confirmarValor}
         excluir={excluir}
+        opcoesDeCategoria={opcoesDeCategoria}
+        trocarCategoria={trocarCategoria}
         comParcela={false}
         itens={entradas}
       />
@@ -151,6 +172,8 @@ export function TabelaLancamentos({
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValor}
           excluir={excluir}
+          opcoesDeCategoria={opcoesDeCategoria}
+          trocarCategoria={trocarCategoria}
           /* Só a compra parcelada tem parcela; nos outros a coluna seria um vão. */
           comParcela={bloco.bloco === "CARTAO"}
           itens={despesas.filter((item) => item.bloco === bloco.bloco)}
@@ -170,6 +193,8 @@ function BlocoDeLancamentos({
   alternarPagamento,
   confirmarValor,
   excluir,
+  opcoesDeCategoria,
+  trocarCategoria,
 }: {
   /** Identificador sem espaço: `aria-labelledby` é uma lista de ids. */
   readonly id: string;
@@ -181,6 +206,8 @@ function BlocoDeLancamentos({
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
   readonly excluir: typeof cancelarAction;
+  readonly opcoesDeCategoria: ReadonlyArray<{ readonly id: string; readonly nome: string }>;
+  readonly trocarCategoria: typeof trocarCategoriaAction;
 }) {
   return (
     <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
@@ -239,10 +266,21 @@ function BlocoDeLancamentos({
                 >
                   <td className={`${CELULA} font-medium`}>{lancamento.descricao}</td>
                   <td className={CELULA}>
-                    {lancamento.categoriaId === null ? (
-                      <span className="text-[14px] text-ink-soft">Sem categoria</span>
+                    {lancamento.natureza === "RECEITA" ? (
+                      <Chip tom="positivo">Receita</Chip>
                     ) : (
-                      <Chip>{categorias.get(lancamento.categoriaId) ?? "Categoria removida"}</Chip>
+                      <SeletorDeCategoria
+                        lancamentoId={lancamento.id}
+                        descricao={lancamento.descricao}
+                        categoriaId={lancamento.categoriaId}
+                        categorias={opcoesDeCategoria}
+                        nomeDaGravada={
+                          lancamento.categoriaId === null
+                            ? undefined
+                            : categorias.get(lancamento.categoriaId)
+                        }
+                        trocarCategoria={trocarCategoria}
+                      />
                     )}
                   </td>
                   {comParcela ? (

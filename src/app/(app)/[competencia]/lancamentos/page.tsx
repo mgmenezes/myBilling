@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import { criarCategoria } from "@/app/actions/categorias";
 import { criarCompra } from "@/app/actions/compras";
-import { cancelarLancamento, criarLancamentoAvulso } from "@/app/actions/lancamentos";
+import {
+  cancelarLancamento,
+  criarLancamentoAvulso,
+  trocarCategoria,
+} from "@/app/actions/lancamentos";
 import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import { alternarPagamento, confirmarValorDaOcorrencia } from "@/app/actions/pagamentos";
 import {
@@ -126,10 +130,11 @@ export default async function PaginaDeLancamentos({
     resultado.value,
     MESES_DE_PROJECAO,
   );
-  const [visao, meios, categorias, usuarios] = await Promise.all([
+  const [visao, meios, categorias, todasAsCategorias, usuarios] = await Promise.all([
     obterVisaoMensal(repositorios, resultado.value),
     repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),
     repositorios.cadastros.listarCategoriasDisponiveis(),
+    repositorios.cadastros.listarTodasAsCategorias(),
     repositorios.cadastros.listarUsuarios(),
   ]);
 
@@ -140,9 +145,12 @@ export default async function PaginaDeLancamentos({
   );
   const temFiltro = contarFiltrosAtivos(filtro) > 0;
   /* O lançamento carrega só o id da categoria; o nome vive no cadastro, e é
-     aqui que os dois se encontram — uma vez, e não por linha da tabela. */
-  const nomePorCategoria = new Map(categorias.map((c) => [c.id, c.nome]));
-  /* Montadas uma vez: os dois formulários do alternador recebem as mesmas. */
+     aqui que os dois se encontram — uma vez, e não por linha da tabela. Todas,
+     arquivadas inclusive: o gasto que ainda tem uma arquivada a vê pelo nome no
+     seletor, que só oferece as ativas (TRC-02, AC 3). */
+  const nomePorCategoria = new Map(todasAsCategorias.map((c) => [c.id, c.nome]));
+  /* Montadas uma vez: os dois formulários do alternador e o seletor de cada
+     linha recebem as mesmas. */
   const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
   const opcoesDeUsuario = usuarios.map((u) => ({ id: u.id, nome: u.nome }));
   /* Hoje, se hoje for deste mês; senão o dia 1 (CAD-04, AC 10). Resolvido aqui
@@ -222,10 +230,12 @@ export default async function PaginaDeLancamentos({
         <TabelaLancamentos
           lancamentos={temFiltro ? visiveis : visao.lancamentos}
           categorias={nomePorCategoria}
+          opcoesDeCategoria={opcoesDeCategoria}
           competenciaCorrente={corrente.value}
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValorDaOcorrencia}
           excluir={cancelarLancamento}
+          trocarCategoria={trocarCategoria}
         />
       )}
     </div>

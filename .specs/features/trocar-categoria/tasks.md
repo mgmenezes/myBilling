@@ -291,10 +291,10 @@ T9 -> T10
 **Reuses**: `Chip tom="positivo"`, `SeletorDeCategoria` (T7), `listarCategoriasDisponiveis`
 **Requirement**: TRC-01, TRC-02
 **Done when**:
-- [ ] Entrada sem categoria e entrada com categoria → "Receita", sem `combobox` na linha (TRC-01 AC 1, 2)
-- [ ] Despesa e investimento → seletor com a categoria gravada selecionada (TRC-02 AC 1)
-- [ ] Gasto com categoria arquivada → o seletor recebe o nome dela (TRC-02 AC 3)
-- [ ] Os testes atuais da tabela que afirmam "Sem categoria" numa entrada passam a afirmar "Receita" e os de gasto passam a ler o seletor; nenhuma assertion é apagada
+- [x] Entrada sem categoria e entrada com categoria → "Receita", sem `combobox` na linha (TRC-01 AC 1, 2)
+- [x] Despesa e investimento → seletor com a categoria gravada selecionada (TRC-02 AC 1)
+- [x] Gasto com categoria arquivada → o seletor recebe o nome dela (TRC-02 AC 3)
+- [x] Os testes atuais da tabela que afirmam "Sem categoria" numa entrada passam a afirmar "Receita" e os de gasto passam a ler o seletor; nenhuma assertion é apagada
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(categorias): mostrar Receita e o seletor na lista de Lançamentos`

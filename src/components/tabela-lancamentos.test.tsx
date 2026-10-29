@@ -1,12 +1,34 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render as renderizar, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { cancelarLancamento } from "@/app/actions/lancamentos";
+import type { cancelarLancamento, trocarCategoria } from "@/app/actions/lancamentos";
 import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
 import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
+import { ProvedorDeAvisos } from "./avisos";
 import { TabelaLancamentos } from "./tabela-lancamentos";
 
-const CATEGORIAS = new Map([["cat-1", "Categoria Um"]]);
+/** Os nomes, inclusive o de uma arquivada; as opções do seletor são só as ativas. */
+const CATEGORIAS = new Map([
+  ["cat-1", "Categoria Um"],
+  ["cat-arquivada", "Categoria Arquivada"],
+]);
+const OPCOES = [{ id: "cat-1", nome: "Categoria Um" }];
+
+/**
+ * O seletor de categoria da linha avisa pelo toast, e o provedor do toast mora
+ * no layout. Aqui ele embrulha cada render, como o layout embrulha a página.
+ */
+function render(ui: ReactElement) {
+  return renderizar(ui, { wrapper: ProvedorDeAvisos });
+}
+
+/** O que o seletor de categoria da linha mostra selecionado. */
+function categoriaSelecionada(escopo: HTMLElement, descricao: string): string | null | undefined {
+  return within(escopo).getByRole<HTMLSelectElement>("combobox", {
+    name: `Categoria de ${descricao}`,
+  }).selectedOptions[0]?.textContent;
+}
 
 /** O mês aberto nestes testes. Igual à competência corrente, salvo onde o
  *  caso diz o contrário: aí o não pago é vencido. */
@@ -22,6 +44,11 @@ const confirmarOk = vi.fn(async (_id: string, valorCentavos: number) => ({
   ok: true as const,
   data: { valorCentavos },
 }));
+
+const trocarOk = vi.fn(async () => ({
+  ok: true as const,
+  data: { lancamentoId: "1", alcance: "LANCAMENTO" as const, categoriaId: null },
+})) as unknown as typeof trocarCategoria;
 
 /**
  * Testes derivados do Done-when de T52 e dos ACs UI-01 (AC 5), UI-02 (AC 6) e
@@ -87,6 +114,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item(
@@ -119,6 +148,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
       />,
     );
@@ -135,6 +166,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", descricao: "Conta fixa A" }),
           item({ id: "3", origem: "AVULSO", descricao: "Lançamento avulso A" }),
@@ -158,6 +191,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
       />,
     );
 
@@ -173,6 +208,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "r", natureza: "RECEITA", descricao: "Entrada A", valor: 500000 as Cents }),
         ]}
@@ -201,6 +238,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
       />,
     );
@@ -218,6 +257,8 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", descricao: "Farmácia no cartão" }, null, "CARTAO"),
           item(
@@ -251,6 +292,8 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item(
             {
@@ -280,6 +323,8 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item(
             {
@@ -310,6 +355,8 @@ describe("valores e situação", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", descricao: "Previsto A", valor: 33334 as Cents }),
           item({
@@ -340,6 +387,8 @@ describe("estado vazio (UI-02, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
       />,
     );
 
@@ -362,6 +411,8 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item(
             { id: "1", origem: "PARCELA", categoriaId: "cat-1" },
@@ -374,7 +425,7 @@ describe("categoria na lista", () => {
     const bloco = screen.getByRole("region", { name: "Cartão de Crédito" });
     expect(within(bloco).getByRole("columnheader", { name: "Categoria" })).toBeTruthy();
     expect(within(bloco).getByRole("columnheader", { name: "Parcela" })).toBeTruthy();
-    expect(within(bloco).getByText("Categoria Um")).toBeTruthy();
+    expect(categoriaSelecionada(bloco, "Lançamento avulso A")).toBe("Categoria Um");
   });
 
   it("o bloco de gastos do mês mostra categoria e **não** mostra parcela", () => {
@@ -385,6 +436,8 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "2", origem: "AVULSO", categoriaId: "cat-1" })]}
       />,
     );
@@ -392,7 +445,7 @@ describe("categoria na lista", () => {
     const bloco = screen.getByRole("region", { name: "Gastos do Mês" });
     expect(within(bloco).getByRole("columnheader", { name: "Categoria" })).toBeTruthy();
     expect(within(bloco).queryByRole("columnheader", { name: "Parcela" })).toBeNull();
-    expect(within(bloco).getByText("Categoria Um")).toBeTruthy();
+    expect(categoriaSelecionada(bloco, "Lançamento avulso A")).toBe("Categoria Um");
   });
 
   it("lançamento sem categoria diz isso, em vez de deixar a célula muda", () => {
@@ -403,11 +456,13 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "3", origem: "AVULSO", categoriaId: null })]}
       />,
     );
 
-    expect(screen.getByText("Sem categoria")).toBeTruthy();
+    expect(categoriaSelecionada(document.body, "Lançamento avulso A")).toBe("Sem categoria");
   });
 
   it("categoria que saiu do cadastro não apaga a linha nem quebra a tabela", () => {
@@ -418,11 +473,99 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "4", origem: "AVULSO", categoriaId: "cat-sumida" })]}
       />,
     );
 
-    expect(screen.getByText("Categoria removida")).toBeTruthy();
+    expect(categoriaSelecionada(document.body, "Lançamento avulso A")).toBe("Categoria removida");
+  });
+});
+
+/**
+ * Testes derivados de TRC-01 (ACs 1 e 2), TRC-02 (ACs 1 e 3) e do Done-when de
+ * T8. A entrada é sempre receita e não troca de categoria; tudo o que não é
+ * entrada, investimento inclusive, troca na linha.
+ */
+describe("Receita na entrada e seletor no gasto (TRC-01, TRC-02)", () => {
+  function montar(itens: ReadonlyArray<LancamentoDoMes>) {
+    return render(
+      <TabelaLancamentos
+        competenciaCorrente={MARCO}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
+        lancamentos={itens}
+      />,
+    );
+  }
+
+  it("entrada sem categoria e entrada com categoria dizem Receita, sem seletor (TRC-01, ACs 1 e 2)", () => {
+    montar([
+      item({ id: "e1", natureza: "RECEITA", descricao: "Entrada A", categoriaId: null }),
+      item({
+        id: "e2",
+        natureza: "RECEITA",
+        origem: "RECORRENCIA",
+        recorrenciaId: "r1",
+        valorPrevisto: 500000 as Cents,
+        valor: 500000 as Cents,
+        descricao: "Entrada B",
+        categoriaId: "cat-1",
+      }),
+    ]);
+
+    for (const descricao of ["Entrada A", "Entrada B"]) {
+      const linha = screen.getByRole("row", { name: new RegExp(descricao) });
+      expect(within(linha).getByText("Receita")).toBeTruthy();
+      expect(within(linha).queryByRole("combobox")).toBeNull();
+    }
+    const entradas = screen.getByRole("region", { name: "Entradas" });
+    expect(within(entradas).queryByText("Categoria Um")).toBeNull();
+    expect(within(entradas).queryByText("Sem categoria")).toBeNull();
+  });
+
+  it("despesa tem o seletor com a categoria gravada selecionada e as ativas como opções (TRC-02, AC 1)", () => {
+    montar([
+      item({ id: "d1", origem: "RECORRENCIA", descricao: "Conta fixa A", categoriaId: "cat-1" }),
+    ]);
+
+    const seletor = screen.getByRole<HTMLSelectElement>("combobox", {
+      name: "Categoria de Conta fixa A",
+    });
+    expect(categoriaSelecionada(document.body, "Conta fixa A")).toBe("Categoria Um");
+    expect([...seletor.options].map((opcao) => opcao.textContent)).toEqual([
+      "Sem categoria",
+      "Categoria Um",
+    ]);
+    expect(screen.queryByText("Receita")).toBeNull();
+  });
+
+  it("investimento também tem o seletor, como despesa (TRC-02, AC 1)", () => {
+    montar([
+      item({ id: "i1", natureza: "INVESTIMENTO", descricao: "Investimento A", categoriaId: null }),
+    ]);
+
+    expect(categoriaSelecionada(document.body, "Investimento A")).toBe("Sem categoria");
+    expect(screen.queryByText("Receita")).toBeNull();
+  });
+
+  it("gasto com categoria arquivada mostra o nome dela selecionado, como opção a mais (TRC-02, AC 3)", () => {
+    montar([item({ id: "d2", descricao: "Gasto A", categoriaId: "cat-arquivada" })]);
+
+    const seletor = screen.getByRole<HTMLSelectElement>("combobox", {
+      name: "Categoria de Gasto A",
+    });
+    expect(categoriaSelecionada(document.body, "Gasto A")).toBe("Categoria Arquivada");
+    expect([...seletor.options].map((opcao) => opcao.textContent)).toEqual([
+      "Sem categoria",
+      "Categoria Um",
+      "Categoria Arquivada",
+    ]);
   });
 });
 
@@ -435,6 +578,8 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Almoço" })]}
       />,
     );
@@ -450,6 +595,8 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item(
             {
@@ -476,6 +623,8 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "1", origem: "RECORRENCIA", recorrenciaId: "r1", descricao: "Conta fixa A" }),
         ]}
@@ -493,6 +642,8 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[
           item({ id: "1", origem: "AVULSO", natureza: "RECEITA", descricao: "Pix recebido" }),
         ]}
@@ -523,6 +674,8 @@ describe("a situação vencida aparece na linha (VENC-01, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item(campos)]}
       />,
     );
@@ -582,6 +735,8 @@ describe("os dois controles da linha continuam separados (TOQUE-01)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Almoço" })]}
       />,
     );
@@ -614,6 +769,8 @@ describe("o vazio do mês oferece a saída (VAZIO-01, ACs 1 e 4)", () => {
           alternarPagamento={alternarOk}
           confirmarValor={confirmarOk}
           excluir={excluirOk}
+          opcoesDeCategoria={OPCOES}
+          trocarCategoria={trocarOk}
         />
       </>,
     );
