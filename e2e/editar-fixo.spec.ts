@@ -148,6 +148,11 @@ test("trocar categoria e descrição em novembro corrige também outubro, que co
 test("mudar o valor a partir de novembro mantém outubro com o valor antigo (EDF-03)", async ({
   page,
 }) => {
+  /* Uma segunda pessoa: sem ela, a pessoa errada no formulário coincide com a certa. */
+  await pool.query("INSERT INTO usuario (nome, email) VALUES ($1, $2)", [
+    "Pessoa B",
+    "pessoa-b@example.com",
+  ]);
   await cadastrarFixo(page, { descricao: "Conta de luz", valor: "100,00", inicio: "2026-10" });
   await abrirMeses(page, ["2026-10", "2026-11", "2026-12"]);
 
@@ -169,6 +174,14 @@ test("mudar o valor a partir de novembro mantém outubro com o valor antigo (EDF
   await outubro.getByRole("button", { name: "Salvar alterações" }).click();
   await expect(outubro.getByRole("status")).toHaveText("Nada mudou: já estava tudo assim.");
   await expect(await linhaNaLista(page, "2026-10", "Conta de luz")).toContainText("R$ 100,00");
+
+  /* No mês da vigência nova, a edição abre com ela, e não com a primeira:
+     salvar sem mexer não desfaz o reajuste (EDF-01 AC 3, EDF-03 AC 3). */
+  const novembro = await abrirEdicao(page, "2026-11", "Conta de luz");
+  await expect(novembro.getByLabel(/De quanto costuma ser/)).toHaveValue("110,00");
+  await novembro.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(novembro.getByRole("status")).toHaveText("Nada mudou: já estava tudo assim.");
+  await expect(await linhaNaLista(page, "2026-11", "Conta de luz")).toContainText("R$ 110,00");
 });
 
 test('encerrar pelo "Termina em" e reabrir apagando o campo (EDF-04)', async ({ page }) => {

@@ -221,6 +221,12 @@ As duas são independentes; cada uma fecha um mutante que sobreviveu em `validat
 T4 -> F3
 ```
 
+### Phase 7 — Correções da verificação (rodada 2)
+
+```
+F1 -> F4
+```
+
 ---
 
 ## Task Breakdown
@@ -436,6 +442,22 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Gate**: quick + `pnpm lint`
 **Commit**: `test(recorrencias): fechar as lacunas de precisão da edição de fixo`
 
+### Phase 7 — Correções da verificação (rodada 2)
+
+#### F4: Abrir a edição no mês da vigência mais nova, com duas pessoas
+**What**: A rodada 2 deixou dois mutantes vivos no elo entre o gravado e o formulário, em `fixos/page.tsx`. Ler a primeira vigência no lugar da vigente no mês (E2b) passava, e salvar sem mexer em novembro desfazia o reajuste de novembro e dezembro. Passar a outra pessoa ao formulário (E3p) também passava, porque o e2e tinha uma pessoa só.
+**Where**: `e2e/editar-fixo.spec.ts` (+ `spec.md`)
+**Depends on**: F1
+**Reuses**: `abrirEdicao`, `linhaNaLista`, `pool`
+**Requirement**: EDF-01, EDF-03
+**Done when**:
+- [x] Com uma segunda pessoa no banco, editar outubro depois do reajuste e salvar sem mexer continua dizendo "Nada mudou: já estava tudo assim."
+- [x] A edição aberta em novembro mostra "110,00"; salvar sem mexer diz "Nada mudou: já estava tudo assim." e novembro continua em R$ 110,00
+- [x] E2b falha com `Received: "100,00"`; E3p falha com `Received: "Alterações salvas."`
+**Tests**: e2e
+**Gate**: `pnpm typecheck && pnpm exec playwright test e2e/editar-fixo.spec.ts`
+**Commit**: `test(e2e): abrir a edição no mês do reajuste, com duas pessoas`
+
 ---
 
 ## Task Granularity Check
@@ -450,6 +472,7 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | T9, T10 | e2e; documentação | ✅ |
 | F1, F2 | 1 caso de teste cada | ✅ |
 | F3 | 1 caso de teste + 2 ACs reescritos | ✅ |
+| F4 | 1 caso de teste estendido | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -468,9 +491,10 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | F1 | T9 | T9→F1 | ✅ |
 | F2 | T5 | T5→F2 | ✅ |
 | F3 | T4 | T4→F3 | ✅ |
+| F4 | F1 | F1→F4 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>` e lê os campos das tasks `F<n>` como se fossem da T10.
-Uma cópia com F1 a F3 trocados por `T101` a `T103` passa com 0 erros; os avisos novos são o
+Uma cópia com F1 a F4 trocados por `T101` a `T104` passa com 0 erros; os avisos novos são o
 `spec.md` no `Where` de cada uma. O validador atribui cada task ao último título de fase que vê, por
 isso o Task Breakdown repete os títulos das fases.
 
@@ -488,3 +512,4 @@ isso o Task Breakdown repete os títulos das fases.
 | F1 | fluxo | e2e | e2e | ✅ |
 | F2 | aplicação | unit | unit | ✅ |
 | F3 | aplicação | unit | unit | ✅ |
+| F4 | fluxo | e2e | e2e | ✅ |
