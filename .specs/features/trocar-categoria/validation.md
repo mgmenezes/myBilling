@@ -1,8 +1,13 @@
 # Trocar a categoria na lista de Lançamentos — Validação
 
-## Validation: trocar-categoria — **FAIL**
+## Validation: trocar-categoria — **PASS**
 
-**Result**: FAIL ❌ — rodada 1 (2026-10-29, `b582e19`).
+**Result**: PASS ✅ — rodada 2 (2026-10-29, `927c93d`). F1, F2 e F3 matam P2, P3, TB6 e S10, cada
+um reaplicado sozinho, e o gate está verde. O código de produto é o mesmo da rodada 1. Os 25
+critérios têm assertion sobre o resultado da spec e mutante morto. Detalhe na seção
+[Rodada 2](#rodada-2), no fim do arquivo. A rodada 1 segue abaixo como foi escrita.
+
+**Rodada 1** (2026-10-29, `b582e19`): FAIL ❌.
 
 O código de produto faz o que a spec pede em todas as camadas, o gate está verde e 50 dos 55
 mutantes morreram. O veredito vem de **quatro mutantes vivos que quebram um critério da spec**. Os
@@ -371,3 +376,106 @@ nas entradas e o seletor nos gastos, investimento inclusive.
 L-001 (confirmada) foi carregada pela fatia e aplicada à regra da tabela, que o e2e exerce (TB1e
 morto). As escolhas da página são composição, e não `.filter()`: ficaram em L-014, sem penalizar a
 L-001.
+
+---
+
+## Rodada 2
+
+**Data**: 2026-10-29
+**Faixa do diff**: `6c7d6da..927c93d`, 4 commits: F1 `77e7231`, F2 `d4783a7`, F3 `9b63104` e
+`927c93d` (só docs, a nota sobre `atualizarOcorrenciasDaSerie` em
+`.specs/features/editar-lancamentos/context.md`).
+**Veredito**: PASS ✅.
+
+### O diff só mexe em teste
+
+`git diff --name-only 6c7d6da..927c93d -- src e2e` lista três arquivos, todos de teste:
+`e2e/trocar-categoria.spec.ts`, `src/components/seletor-de-categoria.test.tsx` e
+`src/components/tabela-lancamentos.test.tsx`. O código de produto é idêntico ao do `b582e19`.
+
+Nenhuma assertion foi removida nem enfraquecida:
+
+- **F1** só acrescenta um percurso (`e2e/trocar-categoria.spec.ts:284-311`), com uma guarda de que o
+  `UPDATE` arquivou exatamente uma categoria (`:301`).
+- **F2** troca `within(linha).getByText("Receita")` por
+  `expect(celulas[colunaCategoria]?.textContent).toBe("Receita")`
+  (`src/components/tabela-lancamentos.test.tsx:530`). É texto exato na célula sob o cabeçalho
+  "Categoria", e não presença em qualquer lugar da linha. A linha agora é buscada dentro da região
+  Entradas. A assertion de ausência do seletor (`:531`) e as duas checagens da região (`:533-534`)
+  continuam.
+- **F3** inverte a fixture para `[Categoria Um, Categoria Dois]`
+  (`src/components/seletor-de-categoria.test.tsx:25-28`) e reordena as quatro listas esperadas
+  (`:99`, `:121`, `:134`, `:146`). Nenhuma lista perdeu item.
+
+### Os mutantes da rodada 1, reaplicados um de cada vez
+
+Os quatro rodaram numa `git worktree` descartável no `927c93d`, cada um revertido com
+`git checkout --` antes do seguinte. Nenhum `git stash`.
+
+| Mutante | Falha injetada | Suíte | Resultado | Onde morre |
+| --- | --- | --- | --- | --- |
+| P2 | `page.tsx:151` com os nomes só das ativas | `e2e/trocar-categoria.spec.ts` | ✅ morto, 1 failed | `e2e/trocar-categoria.spec.ts:306` — `Expected: "Categoria Dois"`, `Received: "Categoria removida"` |
+| P3 | `page.tsx:154` com as arquivadas como opção | `e2e/trocar-categoria.spec.ts` | ✅ morto, 1 failed | `e2e/trocar-categoria.spec.ts:307` — a lista de Padaria ganha uma opção |
+| TB6 | "Receita" na célula da descrição, Categoria vazia | unit (domain + componentes) | ✅ morto, 1 failed de 1333 | `src/components/tabela-lancamentos.test.tsx:530` — `expected '' to be 'Receita'` |
+| S10 | opções ordenadas por nome no seletor | unit (domain + componentes) | ✅ morto, 4 failed de 1333 | `src/components/seletor-de-categoria.test.tsx:99`, `:121`, `:134`, `:146` |
+
+A suíte e2e inteira não foi rodada para os mutantes: os quatro morrem antes dela.
+
+**Sensor acumulado**: 55 mutantes; 54 mortos; 1 vivo fora da spec (S11, nota 1 da rodada 1).
+
+### A pendência do e2e da entrada não é lacuna
+
+O e2e da entrada (`e2e/trocar-categoria.spec.ts:342-346`) ainda procura "Receita" na linha
+(`linha(page, "Entradas", descricao).getByText("Receita", { exact: true })`), e não na célula da
+coluna. Isso não é lacuna. A coluna em que a pílula cai é decidida só dentro de `TabelaLancamentos`:
+a página entrega a lista de lançamentos e não monta célula nenhuma. O teste de componente renderiza
+a tabela real e agora prende a célula (TB6 morto em `tabela-lancamentos.test.tsx:530`). O e2e cobre o
+que só a composição pode quebrar: a natureza que chega da página faz a linha dizer "Receita", e a
+região Entradas não tem seletor (`:347`, TB1e morto na rodada 1). Repetir a checagem da coluna no e2e
+seria uma segunda prova do mesmo elo, e não do elo do meio.
+
+### Gate
+
+| Comando | Resultado |
+| --- | --- |
+| `pnpm test:unit` | 1333 passed (92 arquivos), domínio com 100% de branches (351/351) |
+| `pnpm typecheck` | sem erro |
+| `pnpm lint` | Biome em 275 arquivos, sem achado |
+| `DATABASE_URL_TEST=…/mybilling_test_trc pnpm exec playwright test e2e/trocar-categoria.spec.ts` | 6 passed (5 da rodada 1 + F1) |
+
+O unit continua em 1333 porque F2 e F3 mudam testes que já existiam. A integração não foi rodada de
+novo: o diff não toca em código de produto nem em teste de integração, e na rodada 1 ela deu 326
+passed. O implementador reporta 68 passed na suíte e2e inteira (67 da rodada 1 + F1). Este verificador
+rodou só o arquivo da fatia, como o coordenador pediu.
+
+### Validadores
+
+- `validate_spec.py`: 0 erros, 0 avisos.
+- `validate_tasks.py` numa cópia com F1–F3 trocados por T101–T103: 0 erros e 10 avisos de
+  granularidade. Os três novos são o `spec.md` no `Where` de cada fix.
+- `validate_state.py trocar-categoria`: 0 erros, saída 0.
+
+### Lições
+
+Rodada limpa, sem sinal novo: nenhuma lição registrada. As quatro da rodada 1 continuam valendo.
+
+### Requirement Traceability — proposta final
+
+Para o `spec.md` (não editado pelo verificador):
+
+| Requisito | Status anterior | Novo status | Evidência que fecha |
+| --- | --- | --- | --- |
+| TRC-01 | Implemented | ✅ Verified | AC 1: `tabela-lancamentos.test.tsx:530` (célula da coluna) e `e2e/trocar-categoria.spec.ts:337-346`; AC 2: `tabela-lancamentos.test.tsx:531` e `e2e/trocar-categoria.spec.ts:347` |
+| TRC-02 | Implemented | ✅ Verified | AC 1: `seletor-de-categoria.test.tsx:99` (ordem recebida) e `e2e/trocar-categoria.spec.ts:307` (só as ativas); AC 3: `e2e/trocar-categoria.spec.ts:306`; ACs 2, 4 e 5 como na rodada 1 |
+| TRC-03 | Implemented | ✅ Verified | Rodada 1 |
+| TRC-04 | Implemented | ✅ Verified | Rodada 1 |
+| TRC-05 | Implemented | ✅ Verified | Rodada 1 |
+
+**Coverage**: 5 de 5 requisitos verificados, 25 de 25 critérios com assertion sobre o resultado da
+spec e mutante morto.
+
+### Isolamento
+
+Antes e depois, o porcelain da worktree da fatia ficou vazio. O `next dev` do gate reescreveu
+`next-env.d.ts`, e o arquivo voltou ao commitado com `git checkout`. A worktree descartável foi
+removida. O checkout principal e as outras worktrees não foram tocados.
