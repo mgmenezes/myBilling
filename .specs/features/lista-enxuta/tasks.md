@@ -158,6 +158,17 @@ T5 -> T8
 T8 -> T9
 ```
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+```
+T8 -> F1
+```
+
+Cada uma fecha uma lacuna de `validation.md` (rodada 1, FAIL). A lacuna 2, o possível dado real
+(AD-009), foi resolvida pelo orquestrador antes desta rodada: o ramo local foi reescrito e os
+exemplos da spec, desta lista, dos comentários e da fixture dos chips viraram valores aritméticos.
+A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta rodada.
+
 ---
 
 ## Task Breakdown
@@ -313,6 +324,22 @@ T8 -> T9
 **Gate**: build
 **Commit**: `docs(lancamentos): fechar a fatia da lista enxuta`
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+#### F1: Espaço entre o nome e o total do chip
+**What**: O chip é `inline-flex` e o botão tinha três filhos soltos: o nome, o texto `" · "` e o `<span>` do valor. Os dois nós de texto viravam um item anônimo de flex, o espaço do fim dele era aparado e o valor colava no "·": a tela mostrava "Nome ·R$ X", com 0 px de folga nos seis chips. O `textContent` e o nome acessível continuavam "Nome · R$ X", e é isso que os testes liam (lacuna 1).
+**Where**: `src/components/chips-de-categoria.tsx`, `e2e/lista-enxuta.spec.ts` (+ `spec.md`)
+**Depends on**: T8
+**Reuses**: `chips()` do e2e
+**Requirement**: LST-01
+**Done when**:
+- [x] Nome, separador e valor num único `<span>` dentro do botão, com o valor ainda em `span.tabular` (LST-01 AC 1)
+- [x] No e2e, em cada um dos seis chips visíveis, a folga entre o fim do glifo "·" (um `Range` sobre o nó de texto) e o começo de `.tabular` é de pelo menos 2 px (LST-01 AC 1)
+- [x] Com o botão de antes, o e2e falha no primeiro chip com `Expected: >= 2`, `Received: 0`; com o `<span>` único, passa. Os testes de unidade dos chips seguem verdes, porque `textContent` e nome acessível não mudam
+**Tests**: e2e
+**Gate**: quick + `pnpm lint` + e2e
+**Commit**: `fix(lancamentos): espaço entre o nome e o total do chip`
+
 ---
 
 ## Task Granularity Check
@@ -327,6 +354,7 @@ T8 -> T9
 | T6 | tabela + seletor + 1 AC de outra spec | ⚠️ coeso: a margem depende das duas larguras |
 | T7 | 1 componente + a página que passa a competência | ✅ |
 | T8, T9 | e2e; documentação | ✅ |
+| F1 | 1 componente + 1 medição no e2e | ⚠️ coeso: a medição prova a correção, e só o navegador a vê |
 
 ## Diagram-Definition Cross-Check
 
@@ -341,6 +369,11 @@ T8 -> T9
 | T7 | T1 | T1→T7 | ✅ |
 | T8 | T5, T6, T7 | T5→T8, T6→T8, T7→T8 | ✅ |
 | T9 | T8 | T8→T9 | ✅ |
+| F1 | T8 | T8→F1 | ✅ |
+
+`validate_tasks.py` só reconhece IDs `T<n>`. Uma cópia com as tasks `F<n>` trocadas por `T10<n>`
+passa com 0 erros; os avisos novos são os vários arquivos no `Where`. O validador atribui cada task
+ao último título de fase que vê, por isso o Task Breakdown repete os títulos das fases.
 
 ## Test Co-location Validation
 
@@ -350,3 +383,4 @@ T8 -> T9
 | T2–T7 | componentes | componentes | componentes | ✅ |
 | T8 | fluxo | e2e | e2e | ✅ |
 | T9 | docs | none | none | ✅ |
+| F1 | componentes + fluxo | componentes, e2e | e2e | ✅ |

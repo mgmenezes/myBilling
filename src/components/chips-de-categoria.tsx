@@ -80,9 +80,14 @@ export function ChipsDeCategoria({
                     : "border-line bg-surface text-ink hover:border-line-strong"
                 }`}
               >
-                {categoria.nome}
-                {" · "}
-                <span className="tabular">{formatarBRL(categoria.gasto)}</span>
+                {/* Um item só no flex do chip: soltos, o nome e o " · " viram
+                    um item anônimo, o espaço do fim dele é aparado e o total
+                    cola no "·" (LST-01, AC 1). */}
+                <span>
+                  {categoria.nome}
+                  {" · "}
+                  <span className="tabular">{formatarBRL(categoria.gasto)}</span>
+                </span>
               </button>
             </li>
           );

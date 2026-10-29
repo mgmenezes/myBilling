@@ -199,6 +199,32 @@ function chip(page: Page, nome: string): Locator {
   return cartaoDeFiltros(page).getByRole("button", { name: nome, exact: true });
 }
 
+/**
+ * A folga desenhada, em px, entre o fim do glifo "·" e o começo do total, em
+ * cada chip. O `textContent` e o nome acessível dizem "Nome · R$ X" mesmo
+ * quando o flex apara o espaço depois do "·" e cola o total nele; só o
+ * retângulo do glifo, tirado de um `Range` sobre o nó de texto, mostra o que a
+ * pessoa lê (LST-01, AC 1).
+ */
+async function folgasDepoisDoPonto(page: Page): Promise<number[]> {
+  return chips(page).evaluateAll((botoes) =>
+    botoes.map((botao) => {
+      const total = botao.querySelector(".tabular");
+      const textos = document.createTreeWalker(botao, NodeFilter.SHOW_TEXT);
+      for (let no = textos.nextNode(); no !== null; no = textos.nextNode()) {
+        const posicao = no.textContent?.indexOf("·") ?? -1;
+        if (posicao >= 0 && total !== null) {
+          const ponto = document.createRange();
+          ponto.setStart(no, posicao);
+          ponto.setEnd(no, posicao + 1);
+          return total.getBoundingClientRect().left - ponto.getBoundingClientRect().right;
+        }
+      }
+      return Number.NaN;
+    }),
+  );
+}
+
 function linha(page: Page, descricao: string): Locator {
   return page.getByRole("row", { name: new RegExp(descricao) });
 }
@@ -220,6 +246,12 @@ test("o chip filtra a lista e mostra o mesmo total da barra na Visão geral, com
 
   /* Um chip por categoria com gasto, do maior para o menor, no cartão. */
   await expect(chips(page)).toHaveText(SEIS_PRIMEIROS);
+  /* "Nome · R$ X" também na tela: um espaço visível entre o "·" e o total. */
+  const folgas = await folgasDepoisDoPonto(page);
+  expect(folgas).toHaveLength(SEIS_PRIMEIROS.length);
+  folgas.forEach((folga, indice) => {
+    expect(folga, `folga depois do "·" em "${SEIS_PRIMEIROS[indice]}"`).toBeGreaterThanOrEqual(2);
+  });
   /* No lugar do select "Categoria" do cartão; o do diálogo de cadastro fica. */
   await expect(cartaoDeFiltros(page).getByRole("combobox", { name: "Categoria" })).toHaveCount(0);
 
