@@ -421,6 +421,13 @@ describe("parcela sob a descrição (LST-05)", () => {
     expect(linhaDaParcela(cartao, "Compra B").textContent).toBe("4/4 · (última)");
   });
 
+  it("na penúltima, ainda 3/4 · (faltam 1 depois desta), e não (última) (AC 1)", () => {
+    montar([parcelaDaCompraB(3, 1)]);
+
+    const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
+    expect(linhaDaParcela(cartao, "Compra B").textContent).toBe("3/4 · (faltam 1 depois desta)");
+  });
+
   it("nenhum bloco tem a coluna Parcela, nem o do Cartão (AC 2)", () => {
     montar([
       item({ id: "e", natureza: "RECEITA", descricao: "Entrada A" }),

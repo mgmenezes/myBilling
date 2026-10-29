@@ -162,6 +162,7 @@ T8 -> T9
 
 ```
 T8 -> F1
+T6 -> F2
 ```
 
 Cada uma fecha uma lacuna de `validation.md` (rodada 1, FAIL). A lacuna 2, o possível dado real
@@ -340,6 +341,19 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 **Gate**: quick + `pnpm lint` + e2e
 **Commit**: `fix(lancamentos): espaço entre o nome e o total do chip`
 
+#### F2: A penúltima parcela ainda diz quantas faltam
+**What**: Os testes da parcela sob a descrição só usavam `restantes` 0 e 2. Trocar `parcela.restantes === 0` por `<= 1` em `tabela-lancamentos.tsx` (mutante U15b) mantinha a suíte unitária verde, e a penúltima parcela passava a dizer "(última)" (lacuna 3).
+**Where**: `src/components/tabela-lancamentos.test.tsx` (+ `spec.md`)
+**Depends on**: T6
+**Reuses**: `parcelaDaCompraB`, `linhaDaParcela`, `montar` do bloco "parcela sob a descrição"
+**Requirement**: LST-05
+**Done when**:
+- [x] Com `parcelaDaCompraB(3, 1)`, a segunda linha da célula de "Compra B" é exatamente "3/4 · (faltam 1 depois desta)" (LST-05 AC 1)
+- [x] U15b falha só o caso novo, com `expected '3/4 · (última)' to be '3/4 · (faltam 1 depois desta)'`; desfeito, 48 de 48 no arquivo
+**Tests**: componentes
+**Gate**: quick + `pnpm lint`
+**Commit**: `test(lancamentos): penúltima parcela ainda diz quantas faltam`
+
 ---
 
 ## Task Granularity Check
@@ -355,6 +369,7 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 | T7 | 1 componente + a página que passa a competência | ✅ |
 | T8, T9 | e2e; documentação | ✅ |
 | F1 | 1 componente + 1 medição no e2e | ⚠️ coeso: a medição prova a correção, e só o navegador a vê |
+| F2 | 1 caso de teste | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -370,6 +385,7 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 | T8 | T5, T6, T7 | T5→T8, T6→T8, T7→T8 | ✅ |
 | T9 | T8 | T8→T9 | ✅ |
 | F1 | T8 | T8→F1 | ✅ |
+| F2 | T6 | T6→F2 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Uma cópia com as tasks `F<n>` trocadas por `T10<n>`
 passa com 0 erros; os avisos novos são os vários arquivos no `Where`. O validador atribui cada task
@@ -384,3 +400,4 @@ ao último título de fase que vê, por isso o Task Breakdown repete os títulos
 | T8 | fluxo | e2e | e2e | ✅ |
 | T9 | docs | none | none | ✅ |
 | F1 | componentes + fluxo | componentes, e2e | e2e | ✅ |
+| F2 | componentes | componentes | componentes | ✅ |
