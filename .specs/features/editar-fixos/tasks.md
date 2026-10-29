@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/editar-fixos/spec.md`
 **Design**: inline, na seção "Design" abaixo (fatia pequena, sem `design.md`)
-**Status**: Implemented, à espera do Verifier (aprovado pelo dono em 2026-10-28; branch `feat/editar-fixos`, em worktree; 2 lotes: T1–T6 e T7–T10; entra no `main` só depois das três importações em produção)
+**Status**: Verified (`validation.md`, 2026-10-29: PASS na reverificação depois do F5, após 3 rodadas; aprovado pelo dono em 2026-10-28; branch `feat/editar-fixos`, em worktree; 2 lotes: T1–T6 e T7–T10, mais F1–F5; as importações em produção já foram feitas)
 **Total**: 10 tasks em 5 fases
 
 ---
