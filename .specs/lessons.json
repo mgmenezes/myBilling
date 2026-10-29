@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 28,
+  "next_id": 34,
   "lessons": [
     {
       "id": "L-001",
@@ -497,6 +497,114 @@
       ],
       "created": "2026-10-29T16:16:13Z",
       "last_seen": "2026-10-29T16:16:13Z"
+    },
+    {
+      "id": "L-028",
+      "key": "ac_gap::ac que fixa o texto que a pessoa le precisa de prova no layout do navegador textcontent e nome acessivel nao veem o espaco que o flex apara entre itens",
+      "text": "AC que fixa o texto que a pessoa lê precisa de prova no layout do navegador; textContent e nome acessível não veem o espaço que o flex apara entre itens.",
+      "signal": "ac_gap",
+      "scope": "componentes,css",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LST-01 AC 1; src/components/chips-de-categoria.tsx:83-85 (componentes,css)"
+      ],
+      "created": "2026-10-29T19:06:31Z",
+      "last_seen": "2026-10-29T19:06:31Z"
+    },
+    {
+      "id": "L-029",
+      "key": "surviving_mutant::limiar de um ac precisa de casos colados nele dos dois lados provar o limiar e um valor distante deixa o off by one passar",
+      "text": "Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites)"
+      ],
+      "created": "2026-10-29T19:06:31Z",
+      "last_seen": "2026-10-29T19:06:31Z"
+    },
+    {
+      "id": "L-030",
+      "key": "surviving_mutant::ac universal nenhuma tabela todo bloco precisa de teste que percorra todos os elementos medir so o caso que motivou a regra deixa os outros regredirem",
+      "text": "AC universal ('nenhuma tabela', 'todo bloco') precisa de teste que percorra todos os elementos; medir só o caso que motivou a regra deixa os outros regredirem.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,layout",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout)"
+      ],
+      "created": "2026-10-29T19:06:31Z",
+      "last_seen": "2026-10-29T19:06:31Z"
+    },
+    {
+      "id": "L-031",
+      "key": "spec_precision_gap::objetivo de legibilidade precisa virar ac mensuravel em linhas ou largura sem numero quebrar em duas linhas passa como resolvido",
+      "text": "Objetivo de legibilidade precisa virar AC mensurável, em linhas ou largura; sem número, quebrar em duas linhas passa como resolvido.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,layout",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout)"
+      ],
+      "created": "2026-10-29T19:06:31Z",
+      "last_seen": "2026-10-29T19:06:31Z"
+    },
+    {
+      "id": "L-032",
+      "key": "spec_precision_gap::ac de filtro precisa nomear as naturezas que alcanca quando a lista rotula alguma de outro jeito senao quem decide e o teste",
+      "text": "AC de filtro precisa nomear as naturezas que alcança quando a lista rotula alguma de outro jeito; senão quem decide é o teste.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,filtros",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "LST-01 AC 9; .specs/features/lista-enxuta/spec.md:85-86 (spec,filtros)"
+      ],
+      "created": "2026-10-29T19:06:31Z",
+      "last_seen": "2026-10-29T19:06:31Z"
+    },
+    {
+      "id": "L-033",
+      "key": "spec_deviation::chave ou valor de enum citado no design precisa ser copiado do tipo que ja existe no codigo reescrito de memoria diverge e vira spec deviation",
+      "text": "Chave ou valor de enum citado no Design precisa ser copiado do tipo que já existe no código; reescrito de memória, diverge e vira SPEC_DEVIATION.",
+      "signal": "spec_deviation",
+      "scope": "design,tipos",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SPEC_DEVIATION src/lib/blocos-recolhidos.ts:19 (design,tipos)"
+      ],
+      "created": "2026-10-29T19:06:31Z",
+      "last_seen": "2026-10-29T19:06:31Z"
     }
   ]
 }

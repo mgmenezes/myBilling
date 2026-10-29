@@ -174,6 +174,42 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros)
 - last seen: 2026-10-29T16:16:13Z
 
+### L-028 - AC que fixa o texto que a pessoa lê precisa de prova no layout do navegador; textContent e nome acessível não veem o espaço que o flex apara entre itens.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `componentes,css` · harmful: 0
+- features: lista-enxuta
+- evidence: LST-01 AC 1; src/components/chips-de-categoria.tsx:83-85 (componentes,css)
+- last seen: 2026-10-29T19:06:31Z
+
+### L-029 - Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites` · harmful: 0
+- features: lista-enxuta
+- evidence: U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites)
+- last seen: 2026-10-29T19:06:31Z
+
+### L-030 - AC universal ('nenhuma tabela', 'todo bloco') precisa de teste que percorra todos os elementos; medir só o caso que motivou a regra deixa os outros regredirem.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: lista-enxuta
+- evidence: E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout)
+- last seen: 2026-10-29T19:06:31Z
+
+### L-031 - Objetivo de legibilidade precisa virar AC mensurável, em linhas ou largura; sem número, quebrar em duas linhas passa como resolvido.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,layout` · harmful: 0
+- features: lista-enxuta
+- evidence: LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout)
+- last seen: 2026-10-29T19:06:31Z
+
+### L-032 - AC de filtro precisa nomear as naturezas que alcança quando a lista rotula alguma de outro jeito; senão quem decide é o teste.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,filtros` · harmful: 0
+- features: lista-enxuta
+- evidence: LST-01 AC 9; .specs/features/lista-enxuta/spec.md:85-86 (spec,filtros)
+- last seen: 2026-10-29T19:06:31Z
+
+### L-033 - Chave ou valor de enum citado no Design precisa ser copiado do tipo que já existe no código; reescrito de memória, diverge e vira SPEC_DEVIATION.
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `design,tipos` · harmful: 0
+- features: lista-enxuta
+- evidence: SPEC_DEVIATION src/lib/blocos-recolhidos.ts:19 (design,tipos)
+- last seen: 2026-10-29T19:06:31Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
