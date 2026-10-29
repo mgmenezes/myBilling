@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/lista-enxuta/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Implemented (T1–T9 concluídas em 2026-10-29; suíte e2e inteira e `pnpm verify` verdes; falta a validação do Verifier; plano aprovado pelo dono em 2026-10-29; branch `feat/lista-enxuta`, em worktree, a partir do `main` em `96778b3`; 2 lotes: T1–T5 e T6–T9)
-**Total**: 9 tasks em 5 fases
+**Status**: Implemented, à espera da rodada 2 do Verifier (T1–T9 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F4 concluídas em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/lista-enxuta`, em worktree, a partir do `main` em `96778b3`; 2 lotes: T1–T5 e T6–T9, mais F1–F4)
+**Total**: 13 tasks em 6 fases (T1–T9 e as correções F1–F4)
 
 ---
 
@@ -164,6 +164,9 @@ T8 -> T9
 T8 -> F1
 T6 -> F2
 T8 -> F3
+F1 -> F4
+F2 -> F4
+F3 -> F4
 ```
 
 Cada uma fecha uma lacuna de `validation.md` (rodada 1, FAIL). A lacuna 2, o possível dado real
@@ -369,6 +372,20 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 **Gate**: quick + `pnpm lint` + e2e
 **Commit**: `test(e2e): medir a margem de todas as tabelas da lista`
 
+#### F4: Só os gastos sem categoria no filtro
+**What**: O LST-01 AC 9 dizia "só os lançamentos sem categoria" e não dizia se a receita sem categoria entra. O código a tira, coerente com TRC-01, que mostra a entrada como "Receita", e com o total do chip, que não soma receita (lacuna 6). A traceability passa a registrar o resultado da rodada 1 e as correções.
+**Where**: `.specs/features/lista-enxuta/spec.md`
+**Depends on**: F1, F2, F3
+**Reuses**: a proposta de traceability de `validation.md`
+**Requirement**: LST-01 a LST-05
+**Done when**:
+- [x] LST-01 AC 9: "só os gastos sem categoria", com a receita sem categoria de fora, pelo TRC-01 e pelo total do chip. Os testes já afirmam isso: `src/application/mes/filtrar-lancamentos.test.ts:147` ("deixa só os lançamentos com categoria nula") e `:157` ("não traz a receita, que a lista mostra como Receita")
+- [x] Traceability: LST-02, LST-03 e LST-04 verificados na rodada 1; LST-01 e LST-05 com o motivo do Needs Fix e as tasks que os corrigem; todos aguardando o Verifier na rodada 2
+- [x] `validate_spec.py` com 0 erros
+**Tests**: none
+**Gate**: quick + `pnpm lint`
+**Commit**: `docs(lancamentos): só os gastos sem categoria no filtro`
+
 ---
 
 ## Task Granularity Check
@@ -386,6 +403,7 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 | F1 | 1 componente + 1 medição no e2e | ⚠️ coeso: a medição prova a correção, e só o navegador a vê |
 | F2 | 1 caso de teste | ✅ |
 | F3 | 1 caso de teste estendido | ✅ |
+| F4 | 1 AC reescrito + traceability | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -403,10 +421,12 @@ A lacuna 5, a parcela em duas linhas, é decisão do dono e fica fora desta roda
 | F1 | T8 | T8→F1 | ✅ |
 | F2 | T6 | T6→F2 | ✅ |
 | F3 | T8 | T8→F3 | ✅ |
+| F4 | F1, F2, F3 | F1→F4, F2→F4, F3→F4 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. Uma cópia com as tasks `F<n>` trocadas por `T10<n>`
-passa com 0 erros; os avisos novos são os vários arquivos no `Where`. O validador atribui cada task
-ao último título de fase que vê, por isso o Task Breakdown repete os títulos das fases.
+passa com 0 erros; os avisos novos são os vários arquivos no `Where` e o `Tests: none` da F4. O
+validador atribui cada task ao último título de fase que vê, por isso o Task Breakdown repete os
+títulos das fases.
 
 ## Test Co-location Validation
 
@@ -419,3 +439,4 @@ ao último título de fase que vê, por isso o Task Breakdown repete os títulos
 | F1 | componentes + fluxo | componentes, e2e | e2e | ✅ |
 | F2 | componentes | componentes | componentes | ✅ |
 | F3 | fluxo | e2e | e2e | ✅ |
+| F4 | docs | none | none | ✅ |
