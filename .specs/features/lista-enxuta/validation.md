@@ -1,9 +1,19 @@
 # Lista de Lançamentos enxuta — Validação
 
-## Validation: lista-enxuta — **FAIL**
+## Validation: lista-enxuta — **PASS**
 
-**Result**: FAIL ❌ — rodada 1 (2026-10-29, `fcc88cf`). O gate está verde, os 29 critérios têm
-teste, e 43 dos 46 mutantes morreram (o E4a sobrevive ao e2e, mas o U16 já o mata no unit). O
+**Result**: PASS ✅ — rodada 2 (2026-10-29, `c2b1d3e`). F1, F2 e F3 fecham as três lacunas que
+davam o veredito da rodada 1, e a F4 fecha a lacuna de precisão do LST-01 AC 9. Cada mutante que
+vivia morre, reaplicado sozinho: U15b no unit, E5 nas três larguras, e a volta do chip de antes no
+e2e. Nenhum resto do possível dado real sobrou nos 16 commits da fatia. O gate está verde, e a
+suíte e2e inteira passa (77 de 77). Os 29 critérios têm assertion sobre o resultado da spec, e
+todo mutante que quebra critério morre. A parcela em duas linhas (lacuna 5) é decisão pendente do dono e não pesa no
+veredito. Detalhe na seção [Rodada 2](#rodada-2), no fim do arquivo. A rodada 1 segue abaixo como
+foi escrita, com os hashes de antes da limpeza do ramo.
+
+**Rodada 1** (2026-10-29, `fcc88cf`, hash de antes da limpeza do ramo): FAIL ❌. O gate está
+verde, os 29 critérios têm teste, e 43 dos 46 mutantes morreram (o E4a sobrevive ao e2e, mas o
+U16 já o mata no unit). O
 veredito vem de três critérios que não se sustentam: um defeito visível que nenhum teste vê e dois
 mutantes vivos que quebram critério. Nenhum dos três pede mudança grande, e as três correções já foram
 provadas numa sonda: o teste sugerido falha no estado de hoje ou no mutante, e passa com a correção.
@@ -399,3 +409,309 @@ O risco AD-009 não virou lição. Ele não está confirmado, e o `lessons.py` n
 
 **Próximo passo**: três tasks de fix (lacunas 1, 3 e 4), cada uma com o teste já provado na sonda.
 Antes de qualquer push, a pergunta ao dono sobre a lacuna 2. Depois, rodada 2 do verificador.
+
+---
+
+## Rodada 2
+
+**Data**: 2026-10-29
+**Faixa do diff**: a fatia inteira é `96778b3..c2b1d3e`, 16 commits. As correções são
+`e45f1ad..c2b1d3e`, 4 commits: F1 `d98b8d7`, F2 `f81f455`, F3 `1b871d6` e F4 `c2b1d3e`.
+**Veredito**: PASS ✅.
+**Verificador**: sub-agente independente (autor ≠ verificador). Os mutantes rodaram numa
+`git worktree` descartável, em modo detached no `c2b1d3e`, no scratchpad, com
+`pnpm install --offline` próprio. Os e2e rodaram um de cada vez na porta 3100, com
+`DATABASE_URL_TEST=…/mybilling_test_trc`. **Nenhum `git stash`.**
+
+**Os hashes da rodada 1 são de antes da limpeza do ramo.** O orquestrador reescreveu o ramo local
+para tirar os exemplos numéricos (lacuna 2). Pelo assunto do commit, a base `09a9156` da rodada 1
+é hoje `dfeaf7e`, e o `fcc88cf` é hoje `a3c12e5`. Os commits das tasks hoje são:
+
+| Task | Commit |
+| --- | --- |
+| T1 | `68452b6` |
+| T2 | `17bc2d4` |
+| T3 | `d4c5ac3` |
+| T4 | `8dda919` |
+| T5 | `e37229d` |
+| T6 | `67077e4` + `80154ee` |
+| T7 | `5d325ac` |
+| T8 | `a3c40b2` |
+| T9 | `a3c12e5` |
+
+O relatório da rodada 1 é o `e45f1ad`. Os `file:line` da rodada 1 valem para aquele estado. Os
+desta seção valem para o `c2b1d3e`.
+
+### O que as correções mudaram
+
+`git diff --stat e45f1ad..c2b1d3e` lista cinco arquivos:
+
+- **Código de produto:** só `src/components/chips-de-categoria.tsx`, em 11 linhas. Nome, separador e
+  total passam a ficar num único `<span>` dentro do botão (`:86-90`).
+- **Testes:**
+  - `e2e/lista-enxuta.spec.ts`: +80 −22;
+  - `src/components/tabela-lancamentos.test.tsx`: +7.
+- **Documentos:** `spec.md` e `tasks.md`.
+
+Duas assertions saíram, as duas do e2e de margem (`tabela.x` e `tabela.x + tabela.width` da tabela
+do Cartão). Voltam mais fortes no laço de `e2e/lista-enxuta.spec.ts:421-431`, que mede as três
+tabelas, inclusive a do Cartão, pelo começo e pelo fim. O resto do percurso de margem ficou:
+
+- o transbordo da página (`:432`);
+- a parcela na célula (`:456`), abaixo do texto (`:466`);
+- as cinco colunas (`:467-469`).
+
+O diff da fatia inteira (`96778b3..c2b1d3e -- src e2e`) não tem `skip`, `only` nem `fixme`.
+
+### AD-009: a limpeza do ramo
+
+Rodei `git grep -F -i` na árvore de cada um dos 16 commits de `96778b3..c2b1d3e`, e também na
+base, com os cinco termos que o orquestrador indicou. Eles não são repetidos aqui, porque repeti-los
+desfaria a limpeza (AD-009). Nenhum resultado. A busca nos patches (`git log -p`) e nas mensagens
+dos 16 commits também não achou nenhum desses termos.
+
+Os pontos que a rodada 1 apontou estão limpos:
+
+- `spec.md:71` diz "Categoria Um · R$ 300,00";
+- `spec.md:104-105` dizem "12 · R$ 1.200,00 · 8 a pagar";
+- o Problem Statement diz "dezenas de fixos" (`spec.md:11`);
+- os comentários de `src/components/tabela-lancamentos.tsx:211` e
+  `src/components/bloco-recolhivel.tsx:60` usam o mesmo exemplo aritmético;
+- a fixture dos chips usa 123456, 30003 e 50 centavos (`src/components/chips-de-categoria.test.tsx:17-21`);
+- o Independent Test de LST-05 usa "Compra B" (`spec.md:188-189`).
+
+A ref local `backup/lista-enxuta-antes-da-limpeza` continua lá (`d10edd9`). Ela não foi usada como
+evidência, nem apagada.
+
+### As lacunas da rodada 1
+
+| # | Lacuna | Status | Evidência no `c2b1d3e` |
+| --- | --- | --- | --- |
+| 1 | O chip mostra "Nome ·R$ X" (LST-01 AC 1) | ✅ Fechada (F1) | `src/components/chips-de-categoria.tsx:86-90`: um item só no flex. `e2e/lista-enxuta.spec.ts:209-226`: a folga entre o glifo "·", tirado de um `Range`, e `.tabular`. `:251`: `toHaveLength(6)`. `:253`: `toBeGreaterThanOrEqual(2)` em cada chip. Sonda: 3,94 px nos seis chips, em 1024, 1280 e 1440. F1 revertida (R2a): falha em `:253` com "Received: 0" |
+| 2 | Possível dado real (AD-009) | ✅ Fechada pelo orquestrador | Seção anterior: grep vazio nos 16 commits, nos patches e nas mensagens |
+| 3 | "(última)" na penúltima (LST-05 AC 1; U15b, E6) | ✅ Fechada (F2) | `src/components/tabela-lancamentos.test.tsx:424-429`. `:428`: `toBe("3/4 · (faltam 1 depois desta)")`. U15b falha só esse caso, 1 de 48: `expected '3/4 · (última)' to be '3/4 · (faltam 1 depois desta)'` |
+| 4 | Só a tabela do Cartão era medida (LST-05 AC 3; E5) | ✅ Fechada (F3) | `e2e/lista-enxuta.spec.ts:420`: `toHaveCount(3)`. `:427`: o começo de cada tabela. `:428-430`: o fim, com o nome da `caption` na mensagem. E5 e R4 (Gastos do Mês) falham nas três larguras |
+| 5 | ⚠️ A. Parcela em duas linhas, sem critério mensurável | ⏸️ Pendência do dono | Fora desta rodada, por decisão do orquestrador. Não pesa no veredito |
+| 6 | ⚠️ B. LST-01 AC 9 não dizia se a receita entra | ✅ Fechada (F4) | `spec.md:85-87`: "só os gastos sem categoria; a receita sem categoria não entra". `src/application/mes/filtrar-lancamentos.test.ts:160` prende isso (U9 morto). O investimento ficou sem nome no AC: ver ⚠️ C abaixo |
+| 7 | Menor: LST-05 ACs 4 e 5 só com prova de classe | ✅ Fechada (F3), salvo a metade do toque | `e2e/lista-enxuta.spec.ts:437`: `matchMedia("(pointer: fine)")` verdadeiro. `:447`: 19 seletores. `:449`: altura ≈ 36. `:450`: largura ≈ 176. E4a e U32 morrem no e2e. Os 44 px do toque seguem só com a classe (`src/components/seletor-de-categoria.test.tsx:311`) e com a sonda abaixo |
+
+**O teste da F3 não passa por vacuidade.** O código exige 3 tabelas (`:420`) e 19 seletores
+(`:447`, `FIXOS + 1 + GASTOS.length`). A sonda contou o mesmo nas três larguras: as tabelas Fixos,
+Cartão de Crédito e Gastos do Mês, e 19 seletores. O laço da folga também não passa vazio: a
+contagem é exigida em `:251`, e um chip sem "·" daria `NaN`, que falha o `>= 2`.
+
+### Critérios que mudaram desde a rodada 1
+
+| AC | Resultado definido pela spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| LST-01 AC 1 | "Nome · R$ X", do maior gasto para o menor, no lugar do select | `e2e/lista-enxuta.spec.ts:248`: `toHaveText(SEIS_PRIMEIROS)`. `:253`: folga ≥ 2 px entre "·" e o total, em cada chip. `src/components/chips-de-categoria.test.tsx:60`, `:70`: `textContent` e nome acessível | ✅ R1, R2a, R2b e U30 mortos |
+| LST-01 AC 9 (reescrito) | Com `sem-categoria`, só os gastos sem categoria, e a receita fora | `src/application/mes/filtrar-lancamentos.test.ts:148`: `["sem-a", "sem-b"]`. `:160`: com a receita, o mesmo par. `:179`: interseção. `e2e/lista-enxuta.spec.ts:315-319`: só "Gasto I" | ✅ U8 e U9 mortos. ⚠️ C: o AC não nomeia o investimento |
+| LST-05 AC 1 | "n/t · (faltam N depois desta)" ou "(última)" sob a descrição | `src/components/tabela-lancamentos.test.tsx:413`: 2/4 com 2 restantes. `:421`: 4/4 "(última)". `:428`: 3/4 com 1 restante. `e2e/lista-enxuta.spec.ts:456`, `:466` | ✅ U15b morto. O limiar tem caso colado dos dois lados |
+| LST-05 AC 3 | A 1024, 1280 e 1440 px, nenhuma tabela mais larga que a coluna | `e2e/lista-enxuta.spec.ts:420`, `:427`, `:428-430`, `:432` | ✅ E5 e R4 mortos nas três larguras |
+| LST-05 AC 4 | 36 px com ponteiro fino; 44 px no toque | `e2e/lista-enxuta.spec.ts:437`, `:449`. `src/components/seletor-de-categoria.test.tsx:311` | ✅ U32 morto no unit e no e2e (44 contra 36). O toque tem prova de classe e a sonda: 44 px em 19 de 19, com `pointer: coarse` |
+| LST-05 AC 5 | Largura fixa a partir de `md`, com o nome inteiro no `title` | `e2e/lista-enxuta.spec.ts:450`: 176 px em todo seletor, inclusive o do nome longo. `src/components/seletor-de-categoria.test.tsx:279`, `:291`, `:297` | ✅ E4a morto no e2e (228,25 contra 176) e no unit |
+
+Os outros 23 critérios não mudaram desde a rodada 1. O código deles é o mesmo. Os mutantes de
+página que os provam, E1 e E2, continuam morrendo (abaixo).
+
+### Sensor da rodada 2
+
+Quinze execuções: treze mutantes que tocam critério, o E6 (o R3 contra outra suíte) e o INV, fora
+da spec. Cada mutante foi aplicado sozinho, por substituição exata (o script recusa um trecho
+ambíguo), e desfeito com `git checkout --` antes do seguinte. Os do unit rodaram contra os arquivos
+de teste da camada. O R2a e o INV rodaram também contra a suíte unitária inteira. Os do e2e rodaram
+com `-g`, e os de margem rodaram uma vez por largura, porque o arquivo é `serial` e a primeira falha
+pula as outras larguras.
+
+| Mutante | Arquivo:linha | Falha injetada | Resultado | Onde morre |
+| --- | --- | --- | --- | --- |
+| R1 | `src/components/chips-de-categoria.tsx:88` | separador `" ·"`, sem o espaço | ✅ morto | Unit: 14 de 60, `chips-de-categoria.test.tsx:60` (`'Categoria Um ·R$ 1.234,56'`). E2e: `e2e/lista-enxuta.spec.ts:248` |
+| R2a | `chips-de-categoria.tsx:86-90` | a F1 revertida: nome, `" · "` e total soltos no botão | ✅ morto no e2e | `e2e/lista-enxuta.spec.ts:253`: "folga depois do "·" em "Categoria Um · R$ 200,00"", Expected ≥ 2, Received 0. Vivo no unit inteiro (1425 de 1425): só o navegador vê o espaço aparado |
+| R2b | `chips-de-categoria.tsx:86-90` | o total fora do `span` único; nome e separador ficam nele | ✅ morto | E2e: `:253`, Received 0. Unit: 11 de 60, `chips-de-categoria.test.tsx:70` (nome acessível) |
+| R3 (U15b) | `src/components/tabela-lancamentos.tsx:308` | `restantes === 0` → `<= 1`: a penúltima diz "(última)" | ✅ morto | Unit: 1 de 48, `tabela-lancamentos.test.tsx:428` |
+| E6 | `tabela-lancamentos.tsx:308` | o R3, contra `e2e/compra-parcelada.spec.ts` | ➖ vivo nesse e2e (11 passed) | Morto no unit pelo R3. Ver as notas |
+| R4 | `tabela-lancamentos.tsx:265` | só a tabela de Gastos do Mês com `w-[calc(100%+16px)]` | ✅ morto nas três larguras | `e2e/lista-enxuta.spec.ts:428`, "fim da tabela Gastos do Mês": 1016 > 1000,5; 1144 > 1128,5; 1224 > 1208,5 |
+| E5 | `tabela-lancamentos.tsx:265` | só a tabela de Fixos com `w-[calc(100%+16px)]` (rodada 1) | ✅ morto nas três larguras | `:428`, "fim da tabela Fixos": 1016, 1144 e 1224 |
+| E4a | `src/components/seletor-de-categoria.tsx:116` | sem `md:w-44`, mantendo `w-full` (rodada 1) | ✅ morto | E2e: `:450`, 228,25 contra 176. Unit: `seletor-de-categoria.test.tsx:297`, `:305` |
+| U32 | `seletor-de-categoria.tsx:116` | sem `pointer-fine:min-h-9` (rodada 1) | ✅ morto | E2e: `:449`, 44 contra 36. Unit: `:311` |
+| U8 | `src/application/mes/filtrar-lancamentos.ts:66` | `sem-categoria` comparado como id (rodada 1) | ✅ morto | 3 de 32: `filtrar-lancamentos.test.ts:148`, `:160`, `:179` |
+| U9 | `filtrar-lancamentos.ts:67` | `sem-categoria` com a receita (rodada 1) | ✅ morto | `:160`: `['sem-a', 'sem-b', 'receita']` |
+| U30 | `chips-de-categoria.tsx:88` | chip sem o separador (rodada 1) | ✅ morto | 14 de 60, `chips-de-categoria.test.tsx:60` |
+| E1 | `src/app/(app)/[competencia]/lancamentos/page.tsx:161` | chips somados sobre `visiveis`, a lista já filtrada (rodada 1) | ✅ morto | `e2e/lista-enxuta.spec.ts:274`: os totais mudam com `busca=Gasto` |
+| E2 | `lancamentos/page.tsx:176` | o servidor lê outro cookie (rodada 1) | ✅ morto | `e2e/lista-enxuta.spec.ts:339`: `aria-expanded` "true" depois de recarregar |
+| INV | `filtrar-lancamentos.ts:67` | `sem-categoria` só com DESPESA: o investimento sem categoria sai | ➖ vivo fora da spec | Unit inteiro, 1425 de 1425; e2e da fatia, 9 de 9. Ver ⚠️ C |
+
+**Resultado**: 13 mutantes que tocam critério, 13 mortos pelo gate. O E6 é o R3 contra outra
+suíte. O INV muda um comportamento que a spec não define, e fica com o dono (⚠️ C).
+
+**Sensor acumulado**:
+
+- Rodada 1: 46 mutantes.
+- Rodada 2: R1, R2a, R2b, R4 e INV são novos. U15b (R3), E6, E5, E4a, U32, U8, U9, U30, E1 e E2
+  repetem a rodada 1.
+- Hoje: todo mutante que quebra critério morre pelo gate. O único vivo em todas as suítes é o INV,
+  fora da spec. O E4a, que vivia no e2e na rodada 1, agora morre nele também. O E6 continua vivo só
+  no e2e de compra parcelada, e o R3 o mata no unit.
+
+### Sondas
+
+| Sonda | Medida no `c2b1d3e` |
+| --- | --- |
+| Margem, seletor e chip, em 1024, 1280 e 1440 px | Coluna de conteúdo de 264 a 1000, de 392 a 1128 e de 472 a 1208. As 3 tabelas começam e terminam exatamente nela. Os 19 seletores medem 176,00 × 36,00. A folga depois do "·" é de 3,94 px nos seis chips |
+| Seletor no toque (`hasTouch`, 1280 px) | `pointer: coarse` verdadeiro e `fine` falso; os 19 seletores medem 176,00 × 44,00 |
+| Investimento no filtro e no chip (unit, no scratch) | Mês com um gasto e um investimento sem categoria, e um gasto e um investimento em Categoria X. `sem-categoria` lista os dois sem categoria, e Categoria X lista os dois dela. Os chips somam só a despesa: X = 1000 e sem-categoria = 700 |
+
+### O ponto aberto: investimento no filtro e fora do total do chip
+
+O autor das correções levantou um ponto, e ele se confirma:
+
+- **O filtro:** `categoriaId=sem-categoria` lista o lançamento de categoria nula de qualquer
+  natureza menos RECEITA (`src/application/mes/filtrar-lancamentos.ts:65-68`). Isso inclui o
+  investimento. Um id comum casa qualquer natureza (`:69`), como antes da fatia
+  (`96778b3:src/application/mes/filtrar-lancamentos.ts:64`).
+- **O total do chip** vem de `resumoPorCategoria` sobre `despesasDaCompetencia`, que só soma DESPESA
+  (`src/domain/mes/resumo-mensal.ts:41-48`).
+- **O efeito:** com um investimento no mês, a lista filtrada mostra uma linha que o chip não soma.
+
+**Não fere nenhum AC da lista-enxuta.**
+
+- **LST-01 AC 9** (`spec.md:85-87`) pede "só os gastos sem categoria". No vocabulário do projeto, gasto
+  é "despesa ou investimento" (TRC-02 AC 1, `.specs/features/trocar-categoria/spec.md:87`). A linha
+  do investimento sem categoria mostra "Sem categoria" no seletor
+  (`src/components/tabela-lancamentos.test.tsx:653-660`). Pela primeira razão do AC, a do rótulo
+  da lista, ele entra.
+- **LST-01 ACs 1 a 3** pedem que o total do chip seja o de `resumoPorCategoria`, igual ao da Visão
+  geral, e ele é.
+- **Nenhum AC** pede que a soma da lista filtrada iguale o total do chip.
+- **LST-04 AC 1** só pede a lista filtrada pelo `categoriaId`.
+
+**Mas o AC 9 não decide o caso, e por isso fica como ⚠️ C, pendência do dono.**
+
+- A segunda razão que o AC dá para tirar a receita, "o total do chip 'Sem categoria' não a soma",
+  vale também para o investimento. Ela apontaria para tirá-lo.
+- Na lista-enxuta, "gasto" é sempre o valor da despesa: "o gasto dela" (AC 1), `resumoPorCategoria`
+  (AC 2). O MOV-04 AC 4 tira o investimento do Total de Gastos
+  (`.specs/features/mvp-gestao-financeira/spec.md:177`).
+- Nenhum teste prende a escolha: o mutante INV, que tira o investimento, passa no unit inteiro e no
+  e2e.
+- Como a spec não diz, um teste escrito agora derivaria da implementação, e o `AGENTS.md` proíbe
+  isso.
+
+**O caminho é este:**
+
+1. O dono decide.
+2. O AC 9 passa a nomear o investimento.
+3. Um caso em `filtrar-lancamentos.test.ts` prende a decisão.
+
+Se o investimento ficar, convém o AC dizer que o total do chip conta só a despesa, para a diferença
+não parecer defeito. O caso do id comum é anterior à fatia e segue a mesma decisão.
+
+### Code Quality das correções
+
+| Princípio | Status |
+| --- | --- |
+| Código mínimo | ✅ A F1 é um `<span>` em volta do conteúdo do botão, com o comentário do porquê. F2 e F3 só mexem em teste |
+| Mudanças cirúrgicas | ✅ Nada fora do que as lacunas pediam. O `CHIP` e o `title` do seletor não mudaram |
+| Resultado afirmado igual ao da spec | ✅ "3/4 · (faltam 1 depois desta)" exato; folga medida no navegador; 36 e 176 px exatos, com tolerância de meio pixel |
+| Teste que afirma o que só o navegador vê | ✅ A folga e as medidas saem do `getBoundingClientRect`, e não da classe |
+| Todo teste mapeia um AC | ✅ LST-01 AC 1 (F1), LST-05 AC 1 (F2), LST-05 ACs 3 a 5 (F3) |
+| Guias do projeto (`AGENTS.md`) | ✅ Regra 1: nomes genéricos e valores aritméticos. Regra 2: nenhum valor monetário novo fora de `formatarBRL` |
+
+### Gate
+
+| Comando | Resultado |
+| --- | --- |
+| `pnpm test:unit` | 1425 passed, em 98 arquivos; domínio com 100% de branches (351/351) |
+| `pnpm typecheck` | exit 0 |
+| `pnpm lint` | Biome em 289 arquivos, sem achado |
+| `DATABASE_URL_TEST=…/mybilling_test_trc pnpm exec playwright test e2e/lista-enxuta.spec.ts` | 9 passed (25,0 s) |
+| `DATABASE_URL_TEST=…/mybilling_test_trc pnpm exec playwright test` (a suíte inteira) | 77 passed (4,2 min) |
+| `pnpm build`, na worktree descartável no `c2b1d3e` | exit 0 |
+
+- **Delta:** a rodada 1 tinha 1424 testes no unit, e a F2 soma 1. O e2e continua com 77 testes,
+  porque a F1 e a F3 mudam testes que já existiam.
+- **Integração:** não rodei. Nenhum commit desde a rodada 1 toca em banco, caso de uso ou teste de
+  integração.
+
+### Validadores
+
+- `validate_spec.py lista-enxuta`: 0 erros, 0 avisos, antes e depois da traceability desta rodada.
+- `validate_tasks.py` numa cópia com F1–F4 trocadas por T101–T104: 0 erros e 11 avisos. Os quatro
+  novos são o `spec.md` no `Where` de T101–T103 e o `Tests: none` da T104.
+- `check_commit.py`: OK nas mensagens dos quatro commits de correção. Cada um traz `tasks.md` e
+  `spec.md`, como o `AGENTS.md` pede.
+- `validate_state.py lista-enxuta`: 0 erros, saída 0.
+
+### Notas
+
+- **E6 vivo no e2e não é lacuna.** O texto "(última)" é decidido só em `TabelaLancamentos`. A página
+  só repassa `restantes`, que o e2e de compra parcelada já confere de ponta a ponta nas duas pontas
+  (`e2e/compra-parcelada.spec.ts:177`, "8/10 · (faltam 2 depois desta)", e `:184`,
+  "10/10 · (última)"). O limiar tem caso colado dos dois lados no teste de componente
+  (`tabela-lancamentos.test.tsx:421`, `:428`). A rodada 1 já marcava o e2e como opcional.
+- **A metade do toque do LST-05 AC 4 continua sem e2e.** O projeto do Playwright é um Chrome de
+  computador. Os 44 px têm a classe (`seletor-de-categoria.test.tsx:311`), que mata a retirada de
+  `min-h-11`, e a sonda desta rodada. É menor e não pesa: a rodada 1 já o deixava assim, e a F3
+  cobriu o que a lacuna 7 pedia para a medida do computador.
+
+### Lições
+
+Nenhum sinal novo de falha: todo mutante que quebra critério morreu, o gate passou e não há
+`SPEC_DEVIATION` novo. A ⚠️ C é uma lacuna de precisão, e virou uma lição candidata, registrada
+pelo `lessons.py`:
+
+| Lição | Sinal | Origem |
+| --- | --- | --- |
+| L-034 | `spec_precision_gap` | ⚠️ C: o investimento no filtro e fora do total do chip; mutante INV vivo em `src/application/mes/filtrar-lancamentos.ts:67` |
+
+As candidatas da rodada 1, de L-028 a L-033, ficam como estão. A `references/lessons.md` não
+promove uma lição porque a correção deu certo. Promover é do script, e só quando o mesmo sinal
+volta em outra feature. O `penalize` é só para lição confirmada que falhou depois de aplicada.
+
+### Pendências do dono
+
+1. **⚠️ A (lacuna 5 da rodada 1).** A 1280 px, "2/4 · (faltam 2 depois desta)" ainda ocupa duas
+   linhas. O dono escolhe uma de duas saídas:
+   - um AC mensurável, por exemplo "em uma linha a partir de 1024 px";
+   - o registro de que duas linhas resolvem.
+2. **⚠️ C.** O investimento sem categoria entra em `sem-categoria`, e um investimento com categoria
+   entra no chip dela, mas o total do chip não o soma. O dono decide:
+   - se fica, o AC 9 diz isso e que o total do chip conta só a despesa;
+   - se sai, o filtro passa a pedir DESPESA, e o caso do id comum segue a mesma regra.
+
+   Nos dois casos, um caso de teste prende a decisão.
+
+### Requirement Traceability: aplicada ao `spec.md`
+
+| Requisito | Status anterior | Novo status | Evidência que fecha |
+| --- | --- | --- | --- |
+| LST-01 | Needs Fix (rodada 1), corrigido por F1 e F4 | ✅ Verified (rodada 2) | AC 1: `e2e/lista-enxuta.spec.ts:253`. AC 9: `spec.md:85-87` e `filtrar-lancamentos.test.ts:160`. Os outros ACs como na rodada 1 |
+| LST-02 | Verified (rodada 1) | ✅ Verified (rodada 2) | E2 morto de novo em `e2e/lista-enxuta.spec.ts:339`. O código não mudou |
+| LST-03 | Verified (rodada 1) | ✅ Verified (rodada 2) | O código e os testes não mudaram. A suíte e2e inteira passa |
+| LST-04 | Verified (rodada 1) | ✅ Verified (rodada 2) | O código e os testes não mudaram. `e2e/lista-enxuta.spec.ts:474-495` passa |
+| LST-05 | Needs Fix (rodada 1), corrigido por F2 e F3 | ✅ Verified (rodada 2) | AC 1: `tabela-lancamentos.test.tsx:428`. AC 3: `e2e/lista-enxuta.spec.ts:420-430`. ACs 4 e 5: `:449-450` |
+
+**Coverage**: 5 de 5 requisitos verificados. Os 29 critérios têm assertion sobre o resultado da
+spec, e todo mutante que quebra critério morre.
+
+### Isolamento
+
+- **Porcelain da worktree da fatia:** vazio antes do sensor. Depois dele, só as mudanças desta
+  rodada: este relatório, a traceability do `spec.md` e a L-034 (`.specs/lessons.json` e
+  `.specs/LESSONS.md`).
+- **`next-env.d.ts`:** o `next dev` dos e2e o reescreveu, e ele voltou ao commitado com
+  `git checkout`.
+- **Worktree descartável:** removida, e `git worktree list` não a mostra.
+- **Fora daqui:** o checkout principal, as outras worktrees e a ref de backup não foram tocados.
+
+### Resumo da rodada 2
+
+**Overall**: ✅ Ready.
+
+- **Lacunas da rodada 1:** as quatro que cabiam a esta rodada estão fechadas, com evidência própria
+  (1, 3, 4 e 6). A lacuna 7 também, salvo os 44 px do toque, que têm classe e sonda. A lacuna 2 foi
+  resolvida pelo orquestrador, e o grep confirma.
+- **Sensor:** 13 mutantes que tocam critério, 13 mortos. O INV está vivo, mas fora da spec.
+- **Gate:** 1425 no unit; `typecheck`, `lint` e `build` verdes; e2e da fatia 9 de 9; e2e inteira
+  77 de 77.
+- **Para o dono:** a ⚠️ A (parcela em duas linhas) e a ⚠️ C (investimento no filtro).

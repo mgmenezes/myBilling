@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 34,
+  "next_id": 35,
   "lessons": [
     {
       "id": "L-001",
@@ -605,6 +605,24 @@
       ],
       "created": "2026-10-29T19:06:31Z",
       "last_seen": "2026-10-29T19:06:31Z"
+    },
+    {
+      "id": "L-034",
+      "key": "spec_precision_gap::ac de filtro ligado a um total precisa dizer natureza por natureza se o que a lista mostra entra no total senao a natureza que um aceita e o outro ignora passa sem ninguem decidir",
+      "text": "AC de filtro ligado a um total precisa dizer, natureza por natureza, se o que a lista mostra entra no total; senão a natureza que um aceita e o outro ignora passa sem ninguém decidir.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,filtros",
+      "status": "candidate",
+      "features": [
+        "lista-enxuta"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 2, ⚠️ C; mutante INV vivo em src/application/mes/filtrar-lancamentos.ts:67 (spec,filtros)"
+      ],
+      "created": "2026-10-29T19:49:06Z",
+      "last_seen": "2026-10-29T19:49:06Z"
     }
   ]
 }

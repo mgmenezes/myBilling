@@ -210,6 +210,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SPEC_DEVIATION src/lib/blocos-recolhidos.ts:19 (design,tipos)
 - last seen: 2026-10-29T19:06:31Z
 
+### L-034 - AC de filtro ligado a um total precisa dizer, natureza por natureza, se o que a lista mostra entra no total; senão a natureza que um aceita e o outro ignora passa sem ninguém decidir.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,filtros` · harmful: 0
+- features: lista-enxuta
+- evidence: validation.md rodada 2, ⚠️ C; mutante INV vivo em src/application/mes/filtrar-lancamentos.ts:67 (spec,filtros)
+- last seen: 2026-10-29T19:49:06Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
