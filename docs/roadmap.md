@@ -82,6 +82,8 @@ tipos está em rascunho em `.specs/features/editar-lancamentos/context.md`.
   pontas opostas. A pílula de categoria reduziu o sintoma ao ocupar o vão; a correção é deixar a
   descrição absorver a folga.
 - **Renomear e arquivar cadastro** não têm tela. Nascem na área "Cadastros", junto do orçamento.
+  Quando arquivar existir, a edição de fixo precisa oferecer como selecionados o meio e a categoria
+  arquivados que o fixo usa; hoje ela abre sem eles (decisão do dono em 2026-10-29).
 
 ## Fora do roadmap
 

@@ -215,9 +215,17 @@ T5 -> F2
 
 As duas são independentes; cada uma fecha um mutante que sobreviveu em `validation.md`.
 
+### Phase 6 — Decisões do dono sobre a rodada 1
+
+```
+T4 -> F3
+```
+
 ---
 
 ## Task Breakdown
+
+### Phase 0 — Regra pura
 
 #### T1: A regra da edição e a data de vencimento no domínio
 **What**: `planejarEdicaoDoFixo` e `dataDeVencimento` movida para o domínio; `PERIODO_INVALIDO` na union `CodigoErro`.
@@ -235,6 +243,8 @@ As duas são independentes; cada uma fecha um mutante que sobreviveu em `validat
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(recorrencias): decidir no domínio o que a edição de um fixo faz`
+
+### Phase 1 — Banco e transação
 
 #### T2: Atualizar a série e as ocorrências no banco
 **What**: Métodos novos de `RecorrenciaRepository` e `MovimentoRepository` nas ports, nos fakes e no Drizzle.
@@ -263,6 +273,8 @@ As duas são independentes; cada uma fecha um mutante que sobreviveu em `validat
 **Tests**: integration
 **Gate**: full
 **Commit**: `refactor(db): extrair a transação genérica da transação da importação`
+
+### Phase 2 — Aplicação e action
 
 #### T4: Caso de uso de edição
 **What**: `editarRecorrencia(transacao, entrada)` carrega, valida, planeja e executa.
@@ -308,6 +320,8 @@ As duas são independentes; cada uma fecha um mutante que sobreviveu em `validat
 **Gate**: full
 **Commit**: `feat(recorrencias): action de edição de fixo`
 
+### Phase 3 — Interface
+
 #### T7: O formulário de cadastro em modo de edição
 **What**: `FormRecorrencia` aceita os valores gravados e a action de edição.
 **Where**: `src/components/form-recorrencia.tsx`
@@ -347,6 +361,8 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Tests**: componentes
 **Gate**: build
 **Commit**: `feat(recorrencias): editar cada fixo a partir de Todo mês`
+
+### Phase 4 — Ponta a ponta e fechamento
 
 #### T9: Editar de ponta a ponta
 **What**: e2e do fluxo inteiro.
@@ -403,6 +419,23 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Gate**: quick + `pnpm typecheck` + `pnpm lint`
 **Commit**: `test(recorrencias): exigir na edição a mesma mensagem do cadastro`
 
+### Phase 6 — Decisões do dono sobre a rodada 1
+
+#### F3: Fechar as lacunas de precisão da spec
+**What**: O dono decidiu em 2026-10-29 as três questões que a verificação deixou para ele: as duas frases da confirmação entram no EDF-06 AC 6; o EDF-02 AC 5 é reescrito para o que o AD-012 torna observável; o fixo com meio ou categoria arquivados vira requisito da área de Cadastros.
+**Where**: `src/application/recorrencias/editar/handler.test.ts` (+ `spec.md`, `docs/roadmap.md`)
+**Depends on**: T4
+**Reuses**: `cenario`, `semMudanca`, `ocorrencias`; `blocoDoLancamento`
+**Requirement**: EDF-02, EDF-06
+**Done when**:
+- [x] EDF-06 AC 6 com "Alterações salvas." e "Nada mudou: já estava tudo assim.", que os testes já afirmam
+- [x] EDF-02 AC 5 reescrito: as ocorrências continuam em Fixos e passam a ter o meio novo
+- [x] Trocar a conta por um cartão deixa as quatro ocorrências com o cartão e em `FIXOS`
+- [x] O caso dos arquivados no Out of Scope da spec e no roadmap, como requisito da área de Cadastros
+**Tests**: unit
+**Gate**: quick + `pnpm lint`
+**Commit**: `test(recorrencias): fechar as lacunas de precisão da edição de fixo`
+
 ---
 
 ## Task Granularity Check
@@ -416,6 +449,7 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | T8 | 1 componente + a página que o alimenta | ⚠️ coeso |
 | T9, T10 | e2e; documentação | ✅ |
 | F1, F2 | 1 caso de teste cada | ✅ |
+| F3 | 1 caso de teste + 2 ACs reescritos | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -433,10 +467,12 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | T10 | T9 | T9→T10 | ✅ |
 | F1 | T9 | T9→F1 | ✅ |
 | F2 | T5 | T5→F2 | ✅ |
+| F3 | T4 | T4→F3 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>` e lê os campos das tasks `F<n>` como se fossem da T10.
-Uma cópia com F1 e F2 trocados por `T101` e `T102` passa com 0 erros; os dois avisos novos são o
-`spec.md` no `Where` de cada uma.
+Uma cópia com F1 a F3 trocados por `T101` a `T103` passa com 0 erros; os avisos novos são o
+`spec.md` no `Where` de cada uma. O validador atribui cada task ao último título de fase que vê, por
+isso o Task Breakdown repete os títulos das fases.
 
 ## Test Co-location Validation
 
@@ -451,3 +487,4 @@ Uma cópia com F1 e F2 trocados por `T101` e `T102` passa com 0 erros; os dois a
 | T10 | docs | none | none | ✅ |
 | F1 | fluxo | e2e | e2e | ✅ |
 | F2 | aplicação | unit | unit | ✅ |
+| F3 | aplicação | unit | unit | ✅ |

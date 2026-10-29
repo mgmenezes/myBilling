@@ -5,7 +5,7 @@ import {
   type Fakes,
   FakeTransacao,
 } from "@/application/ports/fakes";
-import type { Cents, Competencia } from "@/domain";
+import { blocoDoLancamento, type Cents, type Competencia } from "@/domain";
 import { materializarRecorrencias } from "../materializar/handler";
 import { type EntradaEditarFixo, editarRecorrencia } from "./handler";
 
@@ -260,6 +260,29 @@ describe("a série vale para o fixo inteiro (EDF-02 AC 1 a 3)", () => {
       null,
       null,
       null,
+    ]);
+  });
+});
+
+describe("o meio novo não tira o fixo do bloco Fixos (EDF-02 AC 5, AD-012)", () => {
+  it("trocar a conta por um cartão deixa todas as ocorrências em Fixos, já com o cartão", async () => {
+    const { fakes, recorrenciaId, transacao } = await cenario();
+
+    await editarRecorrencia(transacao, { ...semMudanca(recorrenciaId), meioPagamentoId: "cartao" });
+
+    const cartoes = await fakes.cadastros.idsDeMeiosComFatura();
+    expect(cartoes.has("cartao")).toBe(true);
+    expect(
+      ocorrencias(fakes, recorrenciaId).map((m) => [
+        m.competencia,
+        m.meioPagamentoId,
+        blocoDoLancamento(m, cartoes),
+      ]),
+    ).toEqual([
+      ["2026-10", "cartao", "FIXOS"],
+      ["2026-11", "cartao", "FIXOS"],
+      ["2026-12", "cartao", "FIXOS"],
+      ["2027-01", "cartao", "FIXOS"],
     ]);
   });
 });
