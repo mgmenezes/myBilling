@@ -89,8 +89,12 @@ Cada importação tem até quatro telas:
 2. **O que precisa de você.** Só aparece quando há algo a decidir. Cada nome da coluna "Tipo"
    precisa de um meio de pagamento do app: escolha um que já existe ou use "+ cadastrar", que abre
    o cadastro com o nome preenchido e pede os dias de fechamento e vencimento quando é cartão. Cada
-   entrada pede "fixa" ou "avulsa" e a conta em que o dinheiro cai. **As decisões ficam
-   lembradas**: novembro só pergunta o que aparece pela primeira vez.
+   opção diz o que o meio é: "conta", "rótulo" ou "cartão, fecha dia 25, vence dia 5". Cada
+   entrada pede "fixa" ou "avulsa" e a conta em que o dinheiro cai. A conta das entradas se cria
+   em "+ nova conta", na própria seção Entradas, e não pelo "+ cadastrar" de um Tipo, que liga o
+   meio criado àquele Tipo. "Aplicar a todas" põe a mesma conta em todas as entradas, e depois dá
+   para trocar uma ou outra. **As decisões ficam lembradas**: novembro só pergunta o que aparece
+   pela primeira vez.
 3. **Conferência.** O que foi lido contra os totais da própria planilha, e o que vai acontecer com
    cada linha. Detalhes na seção seguinte.
 4. **Resultado.** Quantos itens foram criados, alterados e encerrados, o link para abrir o mês
