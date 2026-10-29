@@ -3,6 +3,7 @@
 import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useState } from "react";
+import { ChipsDeCategoria, type TotalDeCategoria } from "./chips-de-categoria";
 import type { OpcaoDeCadastro } from "./form-compra";
 
 /**
@@ -15,6 +16,15 @@ import type { OpcaoDeCadastro } from "./form-compra";
  *
  * A busca espera 250ms antes de navegar: sem isso, cada tecla vira uma
  * navegação e o campo perde o foco no meio da digitação.
+ *
+ * **A categoria é escolhida por chip, e não por select** (LST-01). O chip diz
+ * quanto foi para cada categoria no mês, e o total vem pronto da página, o
+ * mesmo de "Gastos por categoria" na Visão geral. Ele grava o mesmo
+ * `categoriaId` que o select gravava, então os links que já levam à lista
+ * filtrada continuam valendo.
+ *
+ * **A contagem fica numa região `role="status"`**, e só nela: é ela que diz a
+ * quem não vê a lista que o filtro mudou o que está na tela (LST-01, AC 8).
  */
 
 const CAMPO =
@@ -28,7 +38,8 @@ export function FiltrosDeLancamentos({
   totalVisivel,
   quantidadeVisivel,
 }: {
-  readonly categorias: ReadonlyArray<OpcaoDeCadastro>;
+  /** O gasto do mês por categoria, em ordem decrescente: os chips. */
+  readonly categorias: ReadonlyArray<TotalDeCategoria>;
   readonly meios: ReadonlyArray<OpcaoDeCadastro>;
   readonly usuarios: ReadonlyArray<OpcaoDeCadastro>;
   readonly totalVisivel: string;
@@ -132,8 +143,13 @@ export function FiltrosDeLancamentos({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {seletor("categoriaId", "Categoria", categorias)}
+      <ChipsDeCategoria
+        categorias={categorias}
+        ativa={parametros.get("categoriaId")}
+        aoEscolher={(categoriaId) => navegarCom({ categoriaId: categoriaId ?? "" })}
+      />
+
+      <div className="grid gap-3 sm:grid-cols-3">
         {seletor("meioPagamentoId", "Meio de pagamento", meios)}
         {seletor("usuarioId", "Pessoa", usuarios)}
         <div className="flex flex-col gap-1">
@@ -155,7 +171,7 @@ export function FiltrosDeLancamentos({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
-        <p aria-live="polite" className="text-[14px] text-ink-muted">
+        <p role="status" className="text-[14px] text-ink-muted">
           {quantidadeVisivel === 1 ? "1 lançamento" : `${quantidadeVisivel} lançamentos`}
           {ativos === 0 ? "" : ` com ${ativos === 1 ? "1 filtro" : `${ativos} filtros`}`}
           {". Total "}

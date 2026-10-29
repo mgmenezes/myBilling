@@ -15,6 +15,7 @@ import {
   type Situacao,
 } from "@/application/mes/filtrar-lancamentos";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
+import { totaisPorCategoria } from "@/application/mes/totais-por-categoria";
 import {
   MESES_DE_PROJECAO,
   materializarRecorrencias,
@@ -149,6 +150,15 @@ export default async function PaginaDeLancamentos({
      arquivadas inclusive: o gasto que ainda tem uma arquivada a vê pelo nome no
      seletor, que só oferece as ativas (TRC-02, AC 3). */
   const nomePorCategoria = new Map(todasAsCategorias.map((c) => [c.id, c.nome]));
+  /* Os chips somam o mês inteiro, e não o que sobrou do filtro: o total de
+     cada categoria é o de "Gastos por categoria" na Visão geral, e não muda
+     quando outro filtro entra (LST-01, AC 2). */
+  const gastoPorCategoria = totaisPorCategoria(
+    visao.lancamentos,
+    resultado.value,
+    visao.competenciaView.totalGastos,
+    nomePorCategoria,
+  );
   /* Montadas uma vez: os dois formulários do alternador e o seletor de cada
      linha recebem as mesmas. */
   const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
@@ -209,7 +219,7 @@ export default async function PaginaDeLancamentos({
       </div>
 
       <FiltrosDeLancamentos
-        categorias={categorias.map((c) => ({ id: c.id, nome: c.nome }))}
+        categorias={gastoPorCategoria}
         meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
         usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
         totalVisivel={formatarBRL(total)}

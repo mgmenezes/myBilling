@@ -1,9 +1,9 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FiltrosDeLancamentos } from "./filtros-de-lancamentos";
 
 /**
- * Testes derivados de REDE-01 (ACs 5 e 6).
+ * Testes derivados de REDE-01 (ACs 5 e 6) e de LST-01 (ACs 1, 5, 6, 7 e 8).
  *
  * Este componente era o outro módulo da fatia sem arquivo de teste: o painel
  * inteiro de filtros podia sumir da página e a busca podia parar de chegar à
@@ -28,7 +28,9 @@ const CATEGORIA_X = "55555555-5555-4555-8555-555555555555";
 const CONTA = "33333333-3333-4333-8333-333333333333";
 const PESSOA_A = "11111111-1111-4111-8111-111111111111";
 
-const CATEGORIAS = [{ id: CATEGORIA_X, nome: "Categoria X" }];
+/* O select "Categoria" virou chips com o gasto do mês (LST-01). */
+const CATEGORIAS = [{ id: CATEGORIA_X, nome: "Categoria X", gasto: 12000 }];
+const CHIP_X = "Categoria X · R$ 120,00";
 const MEIOS = [{ id: CONTA, nome: "Conta Corrente" }];
 const USUARIOS = [{ id: PESSOA_A, nome: "Pessoa A" }];
 
@@ -114,8 +116,17 @@ describe("a busca chega à URL (REDE-01, AC 5)", () => {
 });
 
 describe("cada seletor escreve o próprio parâmetro na URL (REDE-01, AC 5)", () => {
+  /* A categoria saiu do select e foi para o chip (LST-01, AC 1); a navegação
+     esperada é a mesma. */
+  it('"Categoria" escreve o parâmetro dele, pelo chip', () => {
+    montar();
+
+    fireEvent.click(screen.getByRole("button", { name: CHIP_X }));
+
+    expect(replace).toHaveBeenCalledWith(`?categoriaId=${CATEGORIA_X}`, { scroll: false });
+  });
+
   const casos = [
-    { rotulo: "Categoria", escolha: CATEGORIA_X, esperado: `?categoriaId=${CATEGORIA_X}` },
     { rotulo: "Meio de pagamento", escolha: CONTA, esperado: `?meioPagamentoId=${CONTA}` },
     { rotulo: "Pessoa", escolha: PESSOA_A, esperado: `?usuarioId=${PESSOA_A}` },
     { rotulo: "Situação", escolha: "VENCIDO", esperado: "?situacao=VENCIDO" },
@@ -147,6 +158,72 @@ describe("cada seletor escreve o próprio parâmetro na URL (REDE-01, AC 5)", ()
       (o) => o.value,
     );
     expect(opcoes).toEqual(["", "PENDENTE", "PAGO", "VENCIDO"]);
+  });
+});
+
+describe("os chips no lugar do select de categoria (LST-01)", () => {
+  it('o select "Categoria" sai, e Meio, Pessoa e Situação ficam (AC 1)', () => {
+    const { container: cartao } = montar();
+
+    expect(within(cartao).queryByRole("combobox", { name: "Categoria" })).toBeNull();
+    expect(within(cartao).getAllByRole("combobox")).toHaveLength(3);
+    for (const rotulo of ["Meio de pagamento", "Pessoa", "Situação"]) {
+      expect(within(cartao).getByRole("combobox", { name: rotulo })).toBeDefined();
+    }
+  });
+
+  it("os chips de categoria estão no cartão, com o gasto recebido (AC 1)", () => {
+    const { container: cartao } = montar();
+
+    const chips = within(cartao).getByRole("list", { name: "Categoria" });
+    expect(within(chips).getByRole("button", { name: CHIP_X })).toBeDefined();
+  });
+
+  it("escolher um chip grava categoriaId e mantém busca, meio, pessoa e situação (AC 5)", () => {
+    estado.parametros = new URLSearchParams(
+      `busca=agua&meioPagamentoId=${CONTA}&usuarioId=${PESSOA_A}&situacao=PAGO`,
+    );
+    montar();
+
+    fireEvent.click(screen.getByRole("button", { name: CHIP_X }));
+
+    expect(replace).toHaveBeenCalledTimes(1);
+    expect(replace).toHaveBeenCalledWith(
+      `?busca=agua&meioPagamentoId=${CONTA}&usuarioId=${PESSOA_A}&situacao=PAGO&categoriaId=${CATEGORIA_X}`,
+      { scroll: false },
+    );
+  });
+
+  it("tocar no chip ativo tira categoriaId e mantém o resto da URL (AC 6)", () => {
+    estado.parametros = new URLSearchParams(`categoriaId=${CATEGORIA_X}&situacao=PAGO`);
+    montar();
+
+    fireEvent.click(screen.getByRole("button", { name: CHIP_X }));
+
+    expect(replace).toHaveBeenCalledWith("?situacao=PAGO", { scroll: false });
+  });
+
+  it("o chip da categoria que está na URL é o pressionado (AC 7)", () => {
+    estado.parametros = new URLSearchParams(`categoriaId=${CATEGORIA_X}`);
+    montar();
+
+    expect(screen.getByRole("button", { name: CHIP_X }).getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("sem categoria na URL, o chip não está pressionado (AC 7)", () => {
+    montar();
+
+    expect(screen.getByRole("button", { name: CHIP_X }).getAttribute("aria-pressed")).toBe("false");
+  });
+
+  /* Uma região só: duas anunciariam a mesma contagem duas vezes. */
+  it("a contagem é uma frase numa região role=status, a única do cartão (AC 8)", () => {
+    estado.parametros = new URLSearchParams(`categoriaId=${CATEGORIA_X}`);
+    const { container: cartao } = montar({ quantidadeVisivel: 2, totalVisivel: "R$ 120,00" });
+
+    const regioes = within(cartao).getAllByRole("status");
+    expect(regioes).toHaveLength(1);
+    expect(regioes[0]?.textContent).toBe("2 lançamentos com 1 filtro. Total R$ 120,00");
   });
 });
 

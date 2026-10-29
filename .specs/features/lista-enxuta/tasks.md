@@ -199,11 +199,11 @@ T8 -> T9
 **Reuses**: `navegarCom`; `resumoPorCategoria`; `SEM_CATEGORIA`
 **Requirement**: LST-01
 **Done when**:
-- [ ] O select "Categoria" sai; Meio, Pessoa e Situação ficam (LST-01 AC 1)
-- [ ] Escolher um chip grava `categoriaId` na URL e mantém busca, meio, pessoa e situação (LST-01 AC 5)
-- [ ] A página passa os totais de `resumoPorCategoria`, com `sem-categoria` para o grupo nulo e o nome "Sem categoria" (LST-01 AC 2, 3)
-- [ ] A frase da contagem ("N lançamentos. Total R$ X") fica numa região `role="status"` (LST-01 AC 8)
-- [ ] Testes atuais do cartão de filtros que usam o select de categoria passam a usar o chip, sem apagar assertion
+- [x] O select "Categoria" sai; Meio, Pessoa e Situação ficam (LST-01 AC 1)
+- [x] Escolher um chip grava `categoriaId` na URL e mantém busca, meio, pessoa e situação (LST-01 AC 5)
+- [x] A página passa os totais de `resumoPorCategoria`, com `sem-categoria` para o grupo nulo e o nome "Sem categoria" (LST-01 AC 2, 3)
+- [x] A frase da contagem ("N lançamentos. Total R$ X") fica numa região `role="status"` (LST-01 AC 8)
+- [x] Testes atuais do cartão de filtros que usam o select de categoria passam a usar o chip, sem apagar assertion
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(lancamentos): filtrar por categoria pelos chips`
