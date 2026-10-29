@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { useId, useOptimistic, useState, useTransition } from "react";
 import type { trocarCategoria as trocarCategoriaAction } from "@/app/actions/lancamentos";
 import type { AlcanceDaTroca } from "@/domain";
@@ -89,23 +90,35 @@ export function SeletorDeCategoria({
       <label htmlFor={id} className="sr-only">
         Categoria de {descricao}
       </label>
-      <select
-        id={id}
-        value={escolhida}
-        disabled={pendente}
-        onChange={(evento) => escolher(evento.target.value)}
-        className="min-h-11 max-w-full rounded-pill border border-line bg-surface px-3 text-[13px] text-ink transition-[border-color,opacity] duration-200 hover:border-line-strong disabled:cursor-progress disabled:opacity-60"
-      >
-        <option value={SEM_CATEGORIA}>Sem categoria</option>
-        {categorias.map((categoria) => (
-          <option key={categoria.id} value={categoria.id}>
-            {categoria.nome}
-          </option>
-        ))}
-        {gravadaForaDaLista ? (
-          <option value={categoriaId}>{nomeDaGravada ?? "Categoria removida"}</option>
-        ) : null}
-      </select>
+      {/*
+       * O chevron é desenhado aqui, e não o do navegador: numa pílula, o nativo
+       * fica colado na curva da borda, e cada navegador o põe num lugar.
+       */}
+      <span className="relative inline-flex max-w-full">
+        <select
+          id={id}
+          value={escolhida}
+          disabled={pendente}
+          onChange={(evento) => escolher(evento.target.value)}
+          className="peer min-h-11 max-w-full appearance-none rounded-pill border border-line bg-surface pr-9 pl-3.5 text-[13px] text-ink transition-[border-color,opacity] duration-200 hover:border-line-strong disabled:cursor-progress disabled:opacity-60"
+        >
+          <option value={SEM_CATEGORIA}>Sem categoria</option>
+          {categorias.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.nome}
+            </option>
+          ))}
+          {gravadaForaDaLista ? (
+            <option value={categoriaId}>{nomeDaGravada ?? "Categoria removida"}</option>
+          ) : null}
+        </select>
+        <CaretDownIcon
+          size={14}
+          weight="bold"
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-ink-muted peer-disabled:opacity-60"
+        />
+      </span>
       {erro === "" ? null : (
         <span role="alert" className="text-[13px] font-medium text-negativo">
           {erro}
