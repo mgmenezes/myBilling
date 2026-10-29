@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/trocar-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (fatia pequena, sem `design.md`)
-**Status**: Planned (resumo aprovado pelo dono em 2026-10-29; branch `feat/trocar-categoria`, em worktree, a partir de `feat/editar-fixos`; entra no `main` depois da edição de fixos)
+**Status**: Implemented, à espera do Verifier (resumo aprovado pelo dono em 2026-10-29; branch `feat/trocar-categoria`, em worktree, a partir de `feat/editar-fixos`; 2 lotes: T1–T5 e T6–T10; entra no `main` depois da edição de fixos)
 **Total**: 10 tasks em 5 fases
 
 ---
@@ -321,8 +321,8 @@ T9 -> T10
 **Depends on**: T9
 **Requirement**: TRC-01 a TRC-05
 **Done when**:
-- [ ] Roadmap com a troca de categoria em "Pronto", junto da edição de fixos
-- [ ] Traceability com cada requisito implementado
+- [x] Roadmap com a troca de categoria em "Pronto", junto da edição de fixos
+- [x] Traceability com cada requisito implementado
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(categorias): fechar a fatia de troca de categoria`

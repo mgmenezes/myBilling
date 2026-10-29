@@ -16,7 +16,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Compra parcelada | Domínio, repositório transacional, caso de uso, action e formulário. Com 1 parcela, é a compra avulsa no cartão |
 | Autenticação | Google OAuth com allowlist, provider de teste isolado por duas condições |
 | Visão geral | Quatro indicadores, alternador Planejamento e Movimentações, gráfico de categorias, régua de comprometimento futuro |
-| Lançamentos | Lista com busca, filtro por categoria, meio, pessoa e situação, total do filtro, pílula de categoria |
+| Lançamentos | Lista com busca, filtro por categoria, meio, pessoa e situação, total do filtro, categoria trocável na linha |
 | Cadastros | Categoria e meio de pagamento criados **dentro do formulário**, pelo `CadastroInline`. Valem para todo mês, porque nenhum dos dois tem competência |
 | Identidade | Derivada do `DESIGN.md`, com contraste medido; tema claro, escuro ou do sistema |
 | Dados de desenvolvimento | Seed ancorado no relógio (dois meses atrás a três à frente) e idempotente |
@@ -27,6 +27,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Entradas visíveis | O bloco subiu para o topo e aparece sempre, mesmo vazio. Com receita marcada, os formulários trocam o vocabulário e não oferecem cartão como destino (AD-015) |
 | Importar a planilha | As abas mensais exportadas em CSV entram pela Visão geral, em sequência: arquivo e mês, o que a planilha não diz, conferência contra os totais da própria planilha, e gravação tudo ou nada. A aba seguinte reconhece os fixos e as compras da anterior em vez de duplicar. Roteiro de uso em `docs/importacao.md`; spec, design e tasks em `.specs/features/importar-planilha/` |
 | Editar gasto fixo e entrada fixa | Na área "Todo mês", "Editar" em cada cartão abre o formulário do cadastro com o que está gravado. Descrição, categoria, meio, pessoa e dia valem para todos os meses do fixo, inclusive os passados, sem mexer em pagamento marcado nem em valor confirmado. O valor muda a partir de um mês, e "Termina em" encerra ou reabre. Natureza e início ficam travados. Tudo numa transação. Spec e tasks em `.specs/features/editar-fixos/` |
+| Trocar a categoria na lista | Em Lançamentos, a categoria de todo gasto, investimento inclusive, troca num seletor na própria linha, sem formulário e sem confirmação. O alcance é o do lançamento: um fixo troca em todos os meses, inclusive os passados, uma compra em todas as parcelas, e um gasto do mês só nele, sem mexer em valor, data nem pagamento. Um toast diz até onde a troca foi; uma recusa volta o seletor e diz o motivo na linha. Toda entrada aparece como "Receita". Spec e tasks em `.specs/features/trocar-categoria/` |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -55,7 +56,9 @@ para ela seria a encenação que esta fatia recusou três vezes.
 
 Pedido do dono em 2026-10-24: editar o que já foi lançado, **incluindo trocar a categoria**. O gasto
 fixo e a entrada fixa saíram primeiro, na fatia `editar-fixos`. Falta o resto: avulso, entrada
-avulsa e compra parcelada. Absorve o item 3 da fatia abaixo (editar e excluir compra com escopo).
+avulsa e compra parcelada. Trocar a categoria já não espera por ela: saiu na fatia
+`trocar-categoria`, na própria linha da lista, para todo gasto. Absorve o item 3 da fatia abaixo
+(editar e excluir compra com escopo).
 Ganha peso com a importação: as entradas chegam sem categoria, porque a planilha não tem essa
 coluna, e um erro pontual depois de importar passa a ter conserto sem recomeçar. A análise desses
 tipos está em rascunho em `.specs/features/editar-lancamentos/context.md`.
