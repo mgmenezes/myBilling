@@ -227,6 +227,12 @@ T4 -> F3
 F1 -> F4
 ```
 
+### Phase 8 — Decisão do dono depois da rodada 3
+
+```
+F4 -> F5
+```
+
 ---
 
 ## Task Breakdown
@@ -458,6 +464,21 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 **Gate**: `pnpm typecheck && pnpm exec playwright test e2e/editar-fixo.spec.ts`
 **Commit**: `test(e2e): abrir a edição no mês do reajuste, com duas pessoas`
 
+### Phase 8 — Decisão do dono depois da rodada 3
+
+#### F5: Salvar sem mexer antes da primeira gravação
+**What**: A rodada 3 achou mais um mutante vivo no elo entre a página e o formulário: abrir a edição sem a categoria do fixo (P4), ou com meio ou pessoa constantes (C1, C2), passava. No e2e, o "salvar sem mexer" só rodava depois de uma gravação, e o primeiro salvar já gravava o valor errado. Com P4, editar só o fim apagou a categoria do fixo em todos os meses. O dono autorizou a correção e uma reverificação curta.
+**Where**: `e2e/editar-fixo.spec.ts` (+ `spec.md`)
+**Depends on**: F4
+**Reuses**: `abrirEdicao`
+**Requirement**: EDF-01
+**Done when**:
+- [x] Logo ao abrir a edição em novembro, antes de qualquer gravação, salvar sem mexer diz "Nada mudou: já estava tudo assim."
+- [x] P4, C1 e C2 falham com `Received: "Alterações salvas."`, na linha nova
+**Tests**: e2e
+**Gate**: `pnpm typecheck && pnpm exec playwright test e2e/editar-fixo.spec.ts`
+**Commit**: `test(e2e): salvar sem mexer antes da primeira gravação do fixo`
+
 ---
 
 ## Task Granularity Check
@@ -473,6 +494,7 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | F1, F2 | 1 caso de teste cada | ✅ |
 | F3 | 1 caso de teste + 2 ACs reescritos | ✅ |
 | F4 | 1 caso de teste estendido | ✅ |
+| F5 | 1 caso de teste estendido | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -492,9 +514,10 @@ o botão que o abre. O formulário nasce a cada abertura, com o que está gravad
 | F2 | T5 | T5→F2 | ✅ |
 | F3 | T4 | T4→F3 | ✅ |
 | F4 | F1 | F1→F4 | ✅ |
+| F5 | F4 | F4→F5 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>` e lê os campos das tasks `F<n>` como se fossem da T10.
-Uma cópia com F1 a F4 trocados por `T101` a `T104` passa com 0 erros; os avisos novos são o
+Uma cópia com F1 a F5 trocados por `T101` a `T105` passa com 0 erros; os avisos novos são o
 `spec.md` no `Where` de cada uma. O validador atribui cada task ao último título de fase que vê, por
 isso o Task Breakdown repete os títulos das fases.
 
@@ -513,3 +536,4 @@ isso o Task Breakdown repete os títulos das fases.
 | F2 | aplicação | unit | unit | ✅ |
 | F3 | aplicação | unit | unit | ✅ |
 | F4 | fluxo | e2e | e2e | ✅ |
+| F5 | fluxo | e2e | e2e | ✅ |

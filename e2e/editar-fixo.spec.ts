@@ -157,6 +157,11 @@ test("mudar o valor a partir de novembro mantém outubro com o valor antigo (EDF
   await abrirMeses(page, ["2026-10", "2026-11", "2026-12"]);
 
   const form = await abrirEdicao(page, "2026-11", "Conta de luz");
+  /* Antes de qualquer gravação: o formulário abre com tudo o que está gravado,
+     e salvar sem mexer não muda nada (EDF-01 AC 3). Depois de uma gravação, um
+     campo aberto errado já teria sido gravado e se compararia consigo mesmo. */
+  await form.getByRole("button", { name: "Salvar alterações" }).click();
+  await expect(form.getByRole("status")).toHaveText("Nada mudou: já estava tudo assim.");
   await expect(form.getByLabel("Vale a partir de")).toHaveCount(0);
   await form.getByLabel(/De quanto costuma ser/).fill("110,00");
   /* Aparece com o valor diferente, preenchido com o mês que se está vendo. */
