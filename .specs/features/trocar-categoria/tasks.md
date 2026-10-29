@@ -274,12 +274,12 @@ T9 -> T10
 **Reuses**: `useAvisos` (T6); o padrão de transição do `BotaoPago`
 **Requirement**: TRC-02, TRC-04, TRC-05
 **Done when**:
-- [ ] Opções: "Sem categoria" e as categorias recebidas, na ordem recebida, com a gravada selecionada; nome acessível "Categoria de <descrição>" (TRC-02 AC 1, 5)
-- [ ] Categoria gravada fora da lista → opção a mais, selecionada, com `nomeDaGravada` ou "Categoria removida" (TRC-02 AC 3)
-- [ ] Escolher uma opção chama a action uma vez com `{ lancamentoId, categoriaId }`, e "Sem categoria" manda `null` (TRC-02 AC 2)
-- [ ] Desabilitado enquanto grava (TRC-02 AC 4)
-- [ ] Sucesso com `FIXO`, `COMPRA` e `LANCAMENTO` → os três textos do TRC-04 AC 1–3, no toast
-- [ ] Recusa → volta à categoria anterior, `role="alert"` com a mensagem, nenhum aviso (TRC-05 AC 1)
+- [x] Opções: "Sem categoria" e as categorias recebidas, na ordem recebida, com a gravada selecionada; nome acessível "Categoria de <descrição>" (TRC-02 AC 1, 5)
+- [x] Categoria gravada fora da lista → opção a mais, selecionada, com `nomeDaGravada` ou "Categoria removida" (TRC-02 AC 3)
+- [x] Escolher uma opção chama a action uma vez com `{ lancamentoId, categoriaId }`, e "Sem categoria" manda `null` (TRC-02 AC 2)
+- [x] Desabilitado enquanto grava (TRC-02 AC 4)
+- [x] Sucesso com `FIXO`, `COMPRA` e `LANCAMENTO` → os três textos do TRC-04 AC 1–3, no toast
+- [x] Recusa → volta à categoria anterior, `role="alert"` com a mensagem, nenhum aviso (TRC-05 AC 1)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(categorias): seletor que troca a categoria na própria linha`
