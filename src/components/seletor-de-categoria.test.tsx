@@ -20,10 +20,11 @@ const CATEGORIA_UM = "11111111-1111-4111-8111-111111111111";
 const CATEGORIA_DOIS = "22222222-2222-4222-8222-222222222222";
 const ARQUIVADA = "33333333-3333-4333-8333-333333333333";
 
-/* Fora de ordem alfabética de propósito: a ordem é a recebida. */
+/* Fora de ordem alfabética de propósito ("Um" depois de "Dois" no alfabeto):
+   ordenar por nome inverteria as duas, e a ordem tem de ser a recebida. */
 const CATEGORIAS = [
-  { id: CATEGORIA_DOIS, nome: "Categoria Dois" },
   { id: CATEGORIA_UM, nome: "Categoria Um" },
+  { id: CATEGORIA_DOIS, nome: "Categoria Dois" },
 ];
 
 type Acao = typeof trocarCategoria;
@@ -95,7 +96,7 @@ describe("as opções do seletor (TRC-02, ACs 1 e 5)", () => {
   it("Sem categoria primeiro, depois as categorias na ordem recebida", () => {
     montar();
 
-    expect(opcoes()).toEqual(["Sem categoria", "Categoria Dois", "Categoria Um"]);
+    expect(opcoes()).toEqual(["Sem categoria", "Categoria Um", "Categoria Dois"]);
   });
 
   it("a categoria gravada aparece selecionada", () => {
@@ -119,8 +120,8 @@ describe("categoria gravada fora da lista (TRC-02, AC 3)", () => {
 
     expect(opcoes()).toEqual([
       "Sem categoria",
-      "Categoria Dois",
       "Categoria Um",
+      "Categoria Dois",
       "Categoria Arquivada",
     ]);
     expect(seletor().value).toBe(ARQUIVADA);
@@ -132,8 +133,8 @@ describe("categoria gravada fora da lista (TRC-02, AC 3)", () => {
 
     expect(opcoes()).toEqual([
       "Sem categoria",
-      "Categoria Dois",
       "Categoria Um",
+      "Categoria Dois",
       "Categoria removida",
     ]);
     expect(selecionada()).toBe("Categoria removida");
@@ -142,7 +143,7 @@ describe("categoria gravada fora da lista (TRC-02, AC 3)", () => {
   it("a gravada que está na lista não ganha opção a mais, mesmo com nome recebido", () => {
     montar({ categoriaId: CATEGORIA_UM, nomeDaGravada: "Categoria Um" });
 
-    expect(opcoes()).toEqual(["Sem categoria", "Categoria Dois", "Categoria Um"]);
+    expect(opcoes()).toEqual(["Sem categoria", "Categoria Um", "Categoria Dois"]);
   });
 });
 

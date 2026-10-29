@@ -171,6 +171,7 @@ T9 -> T10
 ```
 T9 -> F1
 T8 -> F2
+T7 -> F3
 ```
 
 Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com teste.
@@ -375,6 +376,19 @@ Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com 
 **Gate**: quick
 **Commit**: `test(categorias): prender Receita à coluna Categoria da entrada`
 
+#### F3: A fixture do seletor de fato fora de ordem alfabética
+**What**: `seletor-de-categoria.test.tsx` diz que a fixture está fora de ordem alfabética, mas "Categoria Dois" antes de "Categoria Um" já é a ordem alfabética. Ordenar as opções por nome no seletor (mutante S10) passava, e o Done when de T7 pede "na ordem recebida".
+**Where**: `src/components/seletor-de-categoria.test.tsx` (+ `spec.md`)
+**Depends on**: T7
+**Reuses**: `CATEGORIAS`, `opcoes()`
+**Requirement**: TRC-02
+**Done when**:
+- [x] A fixture traz "Categoria Um" antes de "Categoria Dois", e as quatro listas esperadas seguem essa ordem (TRC-02 AC 1, Done when de T7)
+- [x] S10 falha os 4 testes que comparam a lista de opções, com "Categoria Dois" antes de "Categoria Um" no `Received`
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(categorias): fixture do seletor fora de ordem alfabética`
+
 ---
 
 ## Task Granularity Check
@@ -389,6 +403,7 @@ Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com 
 | T9, T10 | e2e; documentação | ✅ |
 | F1 | 1 caso de teste | ✅ |
 | F2 | 1 assertion num caso de teste | ✅ |
+| F3 | 1 fixture e 4 listas esperadas | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -406,6 +421,7 @@ Cada uma fecha mutantes que sobreviveram em `validation.md` (rodada 1), só com 
 | T10 | T9 | T9→T10 | ✅ |
 | F1 | T9 | T9→F1 | ✅ |
 | F2 | T8 | T8→F2 | ✅ |
+| F3 | T7 | T7→F3 | ✅ |
 
 T4 também usa T1 e T2, de fases anteriores; o diagrama só liga tasks da mesma fase.
 
@@ -426,3 +442,4 @@ título de fase que vê, por isso o Task Breakdown repete os títulos das fases.
 | T10 | docs | none | none | ✅ |
 | F1 | fluxo | e2e | e2e | ✅ |
 | F2 | componentes | componentes | componentes | ✅ |
+| F3 | componentes | componentes | componentes | ✅ |
