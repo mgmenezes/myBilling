@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/trocar-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (fatia pequena, sem `design.md`)
-**Status**: Implemented, à espera do Verifier (resumo aprovado pelo dono em 2026-10-29; branch `feat/trocar-categoria`, em worktree, a partir de `feat/editar-fixos`; 2 lotes: T1–T5 e T6–T10; entra no `main` depois da edição de fixos)
+**Status**: Verified (`validation.md`, 2026-10-29: PASS na rodada 2; resumo aprovado pelo dono em 2026-10-29; branch `feat/trocar-categoria`, em worktree, a partir de `feat/editar-fixos`; 2 lotes: T1–T5 e T6–T10, mais F1–F3; entra no `main` depois da edição de fixos)
 **Total**: 10 tasks em 5 fases
 
 ---
