@@ -464,8 +464,8 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 **Reuses**: `categoria()` e o `beforeEach` do arquivo
 **Requirement**: COR-01
 **Done when**:
-- [ ] `criarCategoria` da action, com um nome novo, cria a categoria com `cor` nula no banco (COR-01 AC 5)
-- [ ] B4 falha; desfeito, com `git diff --quiet`
+- [x] `criarCategoria` da action, com um nome novo, cria a categoria com `cor` nula no banco (COR-01 AC 5)
+- [x] B4, que grava `verde` logo depois de criar, falha com `"cor": "verde"` no lugar de `null`; desfeito, com `git diff --quiet`
 **Tests**: integration
 **Gate**: full
 **Commit**: `test(categorias): o cadastro inline cria a categoria sem cor`

@@ -20,6 +20,9 @@ import {
  * uniforme. `next/cache` é o único módulo trocado por dublê: `revalidatePath`
  * exige um contexto de requisição do Next que não existe aqui.
  *
+ * O cadastro inline, `criarCategoria`, entra só pelo que esta fatia exige
+ * dele: a categoria nasce sem cor escolhida (COR-01, AC 5).
+ *
  * As cores automáticas usadas abaixo: "Categoria Um" é ciano, e "Categoria
  * Dez" é vermelho. Nomes genéricos (AD-009).
  */
@@ -41,7 +44,7 @@ vi.mock("@/infrastructure/auth/auth", async (original) => ({
   auth: async () => sessaoAtual,
 }));
 
-const { renomearCategoria, trocarCorDaCategoria } = await import("./categorias");
+const { criarCategoria, renomearCategoria, trocarCorDaCategoria } = await import("./categorias");
 const { criarPool } = await import("@/infrastructure/db/client");
 const { CadastroRepositoryDrizzle } = await import(
   "@/infrastructure/db/repositories/cadastro.repository"
@@ -164,6 +167,22 @@ describe("sessão antes de tudo", () => {
     } finally {
       busca.mockRestore();
     }
+  });
+});
+
+describe("criarCategoria, o cadastro inline (COR-01, AC 5)", () => {
+  it("cria a categoria sem cor escolhida: quem a mostra usa a automática", async () => {
+    const resultado = await criarCategoria({ nome: "Categoria Nova" });
+
+    if (!resultado.ok) {
+      throw new Error(`esperava sucesso, veio ${resultado.erro.code}`);
+    }
+    expect(resultado.data.jaExistia).toBe(false);
+    expect(await categoria(resultado.data.id)).toEqual({
+      id: resultado.data.id,
+      nome: "Categoria Nova",
+      cor: null,
+    });
   });
 });
 
