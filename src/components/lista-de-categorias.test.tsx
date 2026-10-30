@@ -423,6 +423,20 @@ describe("o nome igual ao atual (Edge Case)", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
+  it("mudar só a caixa é renomear: grava e avisa", async () => {
+    const { renomear, usuario } = montar();
+    const linha = linhaDe(UM);
+
+    await usuario.click(within(linha).getByRole("button", { name: "Renomear" }));
+    const campo = within(linha).getByRole("textbox", { name: "Novo nome" });
+    await usuario.clear(campo);
+    await usuario.type(campo, "categoria um{Enter}");
+
+    expect((await screen.findByRole("status")).textContent).toBe("Categoria renomeada.");
+    expect(renomear).toHaveBeenCalledTimes(1);
+    expect(renomear).toHaveBeenCalledWith({ categoriaId: UM, nome: "categoria um" });
+  });
+
   it("se o servidor diz que nada mudou, fecha o campo e não avisa", async () => {
     const { usuario } = montar({ renomear: renomeou(false) });
     const linha = linhaDe(UM);

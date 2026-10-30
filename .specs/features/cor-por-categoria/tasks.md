@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/cor-por-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Implemented, à espera da rodada 2 do Verifier (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 concluídas em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F5)
-**Total**: 18 tasks em 6 fases (T1–T13 e as correções F1–F5)
+**Status**: Implemented, à espera da rodada 3 do Verifier (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 concluídas em 2026-10-29; FAIL na rodada 2, com a F6 concluída em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F6)
+**Total**: 19 tasks em 7 fases (T1–T13 e as correções F1–F6)
 
 ---
 
@@ -194,6 +194,16 @@ lacuna sugere e o mutante dela provado: o teste falha com ele e passa sem ele. A
 1 e 3 do autor, as lacunas de precisão A e B, pela decisão do orquestrador, que o dono pode rever: a
 categoria arquivada fica na neutra em todo lugar, e mudar só a caixa é renomear. O ponto 2, o hover
 do escuro, continua com o dono; o ponto 4 está fora da fatia.
+
+### Phase 6 — Correções da verificação (rodada 2)
+
+```
+F5 -> F6
+```
+
+A F6 fecha a única lacuna da rodada 2 de `validation.md`: o Edge Case do nome igual, reescrito pela
+F5, só tinha prova no servidor. O mutante L3c, a comparação do cliente ignorando a caixa, passava na
+suíte inteira.
 
 ---
 
@@ -486,6 +496,21 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 **Gate**: quick + `pnpm lint` + e2e
 **Commit**: `fix(lancamentos): categoria arquivada neutra também no chip`
 
+### Phase 6 — Correções da verificação (rodada 2)
+
+#### F6: Mudar só a caixa grava, também no cliente
+**What**: A lacuna da rodada 2: quem decide se a action é chamada é o cliente (`if (nome === categoria.nome)` em `src/components/lista-de-categorias.tsx`), e nenhum teste do cliente prendia que mudar só a caixa grava.
+**Where**: `src/components/lista-de-categorias.test.tsx`
+**Depends on**: F5
+**Reuses**: `montar`, `linhaDe` e o bloco "o nome igual ao atual (Edge Case)"
+**Requirement**: COR-04
+**Done when**:
+- [x] Digitar "categoria um" na linha de "Categoria Um" chama `renomear` uma vez com `{ categoriaId: UM, nome: "categoria um" }` e avisa "Categoria renomeada." (Edge Case do nome igual)
+- [x] Passa na HEAD (24 de 24); com o L3c, a comparação do cliente em `toLocaleLowerCase("pt-BR")`, só ele falha (1 de 24); o mutante desfeito, com `git diff --quiet`
+**Tests**: componentes
+**Gate**: quick + `pnpm lint`
+**Commit**: `test(categorias): mudar só a caixa do nome grava no cliente`
+
 ---
 
 ## Task Granularity Check
@@ -504,6 +529,7 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 | F1, F2, F3 | 1 percurso ou 1 assertion no e2e | ✅ |
 | F4 | 1 caso de teste | ✅ |
 | F5 | 1 regra de aplicação + a prova dela + a spec | ⚠️ coeso: a decisão da spec e o código que a cumpre entram juntos |
+| F6 | 1 teste | ✅ |
 
 ## Diagram-Definition Cross-Check
 
@@ -527,6 +553,7 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 | F3 | T6, T11 | T6→F3, T11→F3 | ✅ |
 | F4 | T8 | T8→F4 | ✅ |
 | F5 | T7, F1, F2, F3, F4 | T7→F5, F1→F5, F2→F5, F3→F5, F4→F5 | ✅ |
+| F6 | F5 | F5→F6 | ✅ |
 
 `validate_tasks.py` só reconhece IDs `T<n>`. As tasks `F<n>` são validadas numa cópia com elas
 trocadas por `T10<n>`.
@@ -546,3 +573,4 @@ trocadas por `T10<n>`.
 | F1, F2, F3 | fluxo | e2e | e2e | ✅ |
 | F4 | actions | integration | integration | ✅ |
 | F5 | aplicação + fluxo | unit, e2e | unit + e2e | ✅ |
+| F6 | componentes | componentes | componentes | ✅ |
