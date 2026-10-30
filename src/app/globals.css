@@ -111,9 +111,11 @@
   --sombra-1: 0 4px 12px light-dark(rgb(10 11 13 / 0.06), rgb(0 0 0 / 0.5));
 
   /*
-   * Gráfico. A barra é neutra de propósito: o dado é um só (gasto), e quem
-   * identifica a categoria é o rótulo. Vinte matizes seria o anti-padrão — e
-   * usar o azul aqui gastaria a única cor de ação em quatro barras seguidas.
+   * Gráfico. A barra neutra é a de "Sem categoria" e "Categoria removida". A
+   * de cada categoria tem a cor dela (`--cat-*-barra`, abaixo): a revisão da
+   * regra que deixava todas neutras, e os limites dela, estão em
+   * `docs/design.md`, "Cor por categoria". O nome continua impresso ao lado de
+   * toda barra, e o azul de ação continua fora do gráfico.
    */
   --grafico-barra: light-dark(#5b616e, #a8acb3);
   --grafico-trilho: light-dark(#eef0f3, rgb(255 255 255 / 0.08));
@@ -122,7 +124,8 @@
    * A escala da barra de composição: **três passos de uma neutra só**, do mais
    * comprometido ao mais discricionário. Ela não é categórica — os três blocos
    * têm ordem natural, então a pergunta é de grau e não de identidade, e três
-   * matizes seriam o arco-íris que esta folha recusa dez linhas acima.
+   * matizes afirmariam uma identidade que os blocos não têm. A única escala
+   * categórica desta folha é a de categoria, logo abaixo.
    *
    * `--grafico-trilho` **não serve aqui**, e a primeira versão usou: ele é cor
    * de trilho, existe para ser recessivo, e mede 1,1:1 contra o branco. A maior
@@ -135,6 +138,54 @@
   --grafico-passo-1: light-dark(#0a0b0d, #ffffff);
   --grafico-passo-2: light-dark(#4e535c, #a8acb3);
   --grafico-passo-3: light-dark(#8d939c, #646b78);
+
+  /*
+   * **Cor por categoria** (COR-02). Dez matizes, guardados no banco pelo nome
+   * (`verde`, `verde-agua`…) e nunca pelo hex: remedir um tom aqui não pede
+   * migração. Cada um tem três papéis:
+   *
+   * - `fundo`: o tingido da pill, do seletor e do chip. Nada de pill cheia.
+   * - `texto`: a tinta da mesma família, que passa de 4,5:1 sobre o fundo.
+   * - `barra`: o tom médio da barra do gráfico, que passa de 3:1 sobre o canvas.
+   *
+   * Medidos nos dois temas, não escolhidos no olho, e o teste
+   * `src/components/cor-de-categoria.test.ts` refaz a conta lendo os hex
+   * daqui. O azul daqui é pálido, distinto do `--primary`: categoria não é
+   * ação. **A cor nunca vem sozinha**: o nome da categoria vai sempre impresso
+   * ao lado, porque com dez matizes os vizinhos não se separam para quem não
+   * distingue cor. Tabela, medições e limites em `docs/design.md`, "Cor por
+   * categoria". As classes saem de `CLASSES_DA_COR`, escritas por extenso.
+   */
+  --cat-vermelho-fundo: light-dark(#fceae8, #422522);
+  --cat-vermelho-texto: light-dark(#ab504b, #d87972);
+  --cat-vermelho-barra: light-dark(#e16a63, #a74541);
+  --cat-laranja-fundo: light-dark(#fdeae0, #402719);
+  --cat-laranja-texto: light-dark(#a55725, #d17f4f);
+  --cat-laranja-barra: light-dark(#d97230, #a24e10);
+  --cat-ambar-fundo: light-dark(#fbedd5, #3a2b11);
+  --cat-ambar-texto: light-dark(#8e6503, #bc8c30);
+  --cat-ambar-barra: light-dark(#bb8603, #845d00);
+  --cat-verde-fundo: light-dark(#e1f5e0, #1f3420);
+  --cat-verde-texto: light-dark(#357a3a, #61a764);
+  --cat-verde-barra: light-dark(#45a24d, #24732c);
+  --cat-verde-agua-fundo: light-dark(#d7f7ed, #10352c);
+  --cat-verde-agua-texto: light-dark(#0d7a66, #19aa8e);
+  --cat-verde-agua-barra: light-dark(#19a187, #0d725f);
+  --cat-ciano-fundo: light-dark(#d6f5ff, #0e333d);
+  --cat-ciano-texto: light-dark(#037690, #08a4c6);
+  --cat-ciano-barra: light-dark(#0a9cbc, #046f87);
+  --cat-azul-fundo: light-dark(#e7effc, #212e45);
+  --cat-azul-texto: light-dark(#456bb2, #6c94df);
+  --cat-azul-barra: light-dark(#5c8eeb, #3b63b0);
+  --cat-roxo-fundo: light-dark(#f1ebfd, #312941);
+  --cat-roxo-texto: light-dark(#7a5da9, #a285d6);
+  --cat-roxo-barra: light-dark(#a37ce1, #7555a8);
+  --cat-rosa-fundo: light-dark(#fde8f1, #3f2431);
+  --cat-rosa-texto: light-dark(#a2507a, #cf78a3);
+  --cat-rosa-barra: light-dark(#d76aa2, #9e4573);
+  --cat-marrom-fundo: light-dark(#fbecde, #382b1e);
+  --cat-marrom-texto: light-dark(#866648, #af8e6e);
+  --cat-marrom-barra: light-dark(#af8863, #7d5e3f);
 
   /*
    * Escala de raios do documento. Pílula para tudo que é interativo, 24px para
@@ -187,6 +238,36 @@
   --color-grafico-passo-1: var(--grafico-passo-1);
   --color-grafico-passo-2: var(--grafico-passo-2);
   --color-grafico-passo-3: var(--grafico-passo-3);
+  --color-cat-vermelho-fundo: var(--cat-vermelho-fundo);
+  --color-cat-vermelho-texto: var(--cat-vermelho-texto);
+  --color-cat-vermelho-barra: var(--cat-vermelho-barra);
+  --color-cat-laranja-fundo: var(--cat-laranja-fundo);
+  --color-cat-laranja-texto: var(--cat-laranja-texto);
+  --color-cat-laranja-barra: var(--cat-laranja-barra);
+  --color-cat-ambar-fundo: var(--cat-ambar-fundo);
+  --color-cat-ambar-texto: var(--cat-ambar-texto);
+  --color-cat-ambar-barra: var(--cat-ambar-barra);
+  --color-cat-verde-fundo: var(--cat-verde-fundo);
+  --color-cat-verde-texto: var(--cat-verde-texto);
+  --color-cat-verde-barra: var(--cat-verde-barra);
+  --color-cat-verde-agua-fundo: var(--cat-verde-agua-fundo);
+  --color-cat-verde-agua-texto: var(--cat-verde-agua-texto);
+  --color-cat-verde-agua-barra: var(--cat-verde-agua-barra);
+  --color-cat-ciano-fundo: var(--cat-ciano-fundo);
+  --color-cat-ciano-texto: var(--cat-ciano-texto);
+  --color-cat-ciano-barra: var(--cat-ciano-barra);
+  --color-cat-azul-fundo: var(--cat-azul-fundo);
+  --color-cat-azul-texto: var(--cat-azul-texto);
+  --color-cat-azul-barra: var(--cat-azul-barra);
+  --color-cat-roxo-fundo: var(--cat-roxo-fundo);
+  --color-cat-roxo-texto: var(--cat-roxo-texto);
+  --color-cat-roxo-barra: var(--cat-roxo-barra);
+  --color-cat-rosa-fundo: var(--cat-rosa-fundo);
+  --color-cat-rosa-texto: var(--cat-rosa-texto);
+  --color-cat-rosa-barra: var(--cat-rosa-barra);
+  --color-cat-marrom-fundo: var(--cat-marrom-fundo);
+  --color-cat-marrom-texto: var(--cat-marrom-texto);
+  --color-cat-marrom-barra: var(--cat-marrom-barra);
 
   /*
    * A largura do conteúdo, num token só. Ela precisa valer para o cabeçalho e

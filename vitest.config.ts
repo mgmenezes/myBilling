@@ -36,6 +36,9 @@ export default defineConfig({
             "src/infrastructure/config/**/*.test.ts",
             "src/infrastructure/auth/**/*.test.ts",
             "src/proxy.test.ts",
+            // Módulo `.ts` puro dentro de components, como o mapa de classes
+            // da cor de categoria. O project `componentes` só lê `.test.tsx`.
+            "src/components/**/*.test.ts",
           ],
           /*
            * `*.test.ts` também casa `*.integration.test.ts`, então dois

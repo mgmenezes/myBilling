@@ -219,11 +219,11 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Reuses**: valores medidos do plano (tabela em `docs/design.md`)
 **Requirement**: COR-02, COR-05
 **Done when**:
-- [ ] `--cat-<cor>-fundo`, `-texto` e `-barra` para as dez, com `light-dark()`, e `--color-cat-*` no `@theme inline` (COR-02 AC 1)
-- [ ] `CLASSES_DA_COR` tem uma entrada por cor de `CORES_DE_CATEGORIA`, cada uma com classes escritas por extenso que existem no CSS
-- [ ] Um teste lê os hex dos tokens no `globals.css` e calcula o contraste: texto ≥ 4,5:1 sobre o fundo e barra ≥ 3:1 sobre o canvas, nos dois temas (COR-02 AC 2, 3)
-- [ ] `docs/design.md` com a seção "Cor por categoria" e os trechos antigos revistos; o comentário do gráfico em `globals.css` revisto (COR-05 AC 1, 2)
-- [ ] AD nova em `.specs/STATE.md` (COR-05 AC 3)
+- [x] `--cat-<cor>-fundo`, `-texto` e `-barra` para as dez, com `light-dark()`, e `--color-cat-*` no `@theme inline` (COR-02 AC 1)
+- [x] `CLASSES_DA_COR` tem uma entrada por cor de `CORES_DE_CATEGORIA`, cada uma com classes escritas por extenso que existem no CSS
+- [x] Um teste lê os hex dos tokens no `globals.css` e calcula o contraste: texto ≥ 4,5:1 sobre o fundo e barra ≥ 3:1 sobre o canvas, nos dois temas (COR-02 AC 2, 3)
+- [x] `docs/design.md` com a seção "Cor por categoria" e os trechos antigos revistos; o comentário do gráfico em `globals.css` revisto (COR-05 AC 1, 2)
+- [x] AD nova em `.specs/STATE.md` (COR-05 AC 3)
 **Tests**: unit
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(ui): paleta de cores de categoria`

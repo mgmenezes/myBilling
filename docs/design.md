@@ -136,8 +136,9 @@ largura do contêiner não decide leitura de texto corrido em lugar nenhum.
 A barra empilhada de Fixos, Cartão e Avulsos usa **três passos de uma neutra só**, e não três
 matizes. Os blocos têm ordem natural — fixo foi decidido meses atrás, cartão já foi gasto e vai
 cair na fatura, avulso foi escolha deste mês — então a pergunta é de grau, não de identidade. Cor
-categórica aqui seria o arco-íris que o resto deste documento recusa, e o azul gastaria a única
-cor de ação em três faixas decorativas.
+categórica aqui afirmaria uma identidade que os blocos não têm, e o azul gastaria a única cor de
+ação em três faixas decorativas. A única escala categórica do sistema é a de categoria, com os
+limites de [Cor por categoria](#cor-por-categoria).
 
 `--grafico-trilho` foi usado na primeira versão e estava errado: ele é cor de **trilho**, existe
 para ser recessivo, e mede 1,1:1 contra o branco. A maior fatia da barra lia como vazio.
@@ -212,9 +213,122 @@ O que **não** recebe semântica, de propósito:
   dos quatro cartões vermelhos.
 - **O cartão de ênfase.** A inversão já é o destaque, e o verde e o vermelho do tema claro foram
   medidos contra o canvas claro, não contra a superfície invertida.
-- **A barra do gráfico**, inclusive no estouro de orçamento. Preenchimento com semântica é proibido
-  pelo sistema, e o azul gastaria a cor de ação em quatro barras seguidas. Quem sinaliza o estouro é
-  o par ícone mais texto.
+- **A barra do gráfico**, inclusive no estouro de orçamento. Ela tem a cor da categoria, e essa cor
+  é identidade, não semântica: não vira vermelha no estouro nem verde abaixo do limite (veja
+  [Cor por categoria](#cor-por-categoria)). Preenchimento com semântica continua proibido, e o azul
+  de ação continua fora do gráfico. Quem sinaliza o estouro é o par ícone mais texto.
+
+## Cor por categoria
+
+**Esta seção revê uma decisão.** Até a fatia `cor-por-categoria` (AD-018), toda pill, chip e barra
+de categoria era da mesma neutra. Este documento recusava "o arco-íris", e o comentário do gráfico
+em `globals.css` dizia que "vinte matizes seria o anti-padrão". O argumento era certo para vinte
+matizes soltos. O que entrou é outra coisa: uma **paleta fechada de dez**, medida nos dois temas, e
+**sempre com o nome impresso ao lado**. A cor serve para reconhecer a categoria de longe e para
+ligar a linha da lista à barra do gráfico. Quem identifica continua sendo o nome.
+
+### Onde a cor aparece, e como
+
+| Lugar | Tratamento |
+| --- | --- |
+| Pill da categoria em "Todo mês" | Fundo tingido, texto em tinta da mesma cor |
+| Seletor de categoria da linha, em Lançamentos | Fundo e texto da cor escolhida, com o chevron de sempre |
+| Chip de filtro **inativo** | Fundo e texto da cor, sem borda |
+| Chip de filtro **ativo** | Continua invertido (`bg-inverso`), como antes |
+| Barra de "Gastos por categoria" | O tom médio da cor; o trilho continua neutro |
+| "Sem categoria" e "Categoria removida" | A neutra de antes (`surface-strong`, `grafico-barra`) |
+
+A cor de cada categoria é a escolhida na tela de Categorias, ou uma **automática** derivada do
+nome normalizado, quando ninguém escolheu. O banco guarda o **nome** do matiz (`verde`,
+`verde-agua`…), nunca o hex: o hex mora só nos tokens `--cat-<cor>-{fundo,texto,barra}` de
+`globals.css`, e remedir um tom não pede migração. As classes saem de `CLASSES_DA_COR`
+(`src/components/cor-de-categoria.ts`), escritas por extenso, porque o Tailwind v4 só gera a classe
+que lê no fonte.
+
+### A paleta
+
+| Cor | Fundo claro | Texto claro | Barra clara | Fundo escuro | Texto escuro | Barra escura |
+| --- | --- | --- | --- | --- | --- | --- |
+| `vermelho` | `#fceae8` | `#ab504b` | `#e16a63` | `#422522` | `#d87972` | `#a74541` |
+| `laranja` | `#fdeae0` | `#a55725` | `#d97230` | `#402719` | `#d17f4f` | `#a24e10` |
+| `ambar` (âmbar) | `#fbedd5` | `#8e6503` | `#bb8603` | `#3a2b11` | `#bc8c30` | `#845d00` |
+| `verde` | `#e1f5e0` | `#357a3a` | `#45a24d` | `#1f3420` | `#61a764` | `#24732c` |
+| `verde-agua` (verde-água) | `#d7f7ed` | `#0d7a66` | `#19a187` | `#10352c` | `#19aa8e` | `#0d725f` |
+| `ciano` | `#d6f5ff` | `#037690` | `#0a9cbc` | `#0e333d` | `#08a4c6` | `#046f87` |
+| `azul` | `#e7effc` | `#456bb2` | `#5c8eeb` | `#212e45` | `#6c94df` | `#3b63b0` |
+| `roxo` | `#f1ebfd` | `#7a5da9` | `#a37ce1` | `#312941` | `#a285d6` | `#7555a8` |
+| `rosa` | `#fde8f1` | `#a2507a` | `#d76aa2` | `#3f2431` | `#cf78a3` | `#9e4573` |
+| `marrom` | `#fbecde` | `#866648` | `#af8863` | `#382b1e` | `#af8e6e` | `#7d5e3f` |
+
+O azul daqui é pálido e não é o `--primary`: categoria não é ação, e o azul de ação continua
+escasso. Os nomes CSS não têm acento (`ambar`, `verde-agua`), porque são os mesmos que vão para o
+banco e para o `CHECK`.
+
+### Medido, não escolhido no olho
+
+Texto contra o próprio fundo tingido, piso de 4,5:1. Barra contra o canvas, que é o fundo do
+gráfico, piso de 3:1. Nos dois temas. O teste `src/components/cor-de-categoria.test.ts` lê os hex
+de `globals.css` e refaz estas contas: trocar um tom que reprove derruba a suíte.
+
+| Cor | Texto/fundo, claro | Texto/fundo, escuro | Barra/canvas, claro | Barra/canvas, escuro |
+| --- | --- | --- | --- | --- |
+| vermelho | 4,54 | 4,54 | 3,26 | 3,35 |
+| laranja | 4,52 | 4,51 | 3,28 | 3,41 |
+| âmbar | 4,53 | 4,52 | 3,22 | 3,33 |
+| verde | 4,59 | 4,60 | 3,22 | 3,34 |
+| verde-água | 4,61 | 4,58 | 3,24 | 3,37 |
+| ciano | 4,59 | 4,58 | 3,23 | 3,40 |
+| azul | 4,54 | 4,50 | 3,22 | 3,37 |
+| roxo | 4,55 | 4,50 | 3,22 | 3,40 |
+| rosa | 4,54 | 4,55 | 3,24 | 3,33 |
+| marrom | 4,53 | 4,51 | 3,22 | 3,32 |
+| **Pior caso** | **4,52** | **4,50** | **3,22** | **3,32** |
+
+Os dois 4,50 do escuro são 4,502 (azul) e 4,503 (roxo): passam, sem folga. Contra o
+`surface-soft` do hover da linha, a barra mede no mínimo 3,00 no claro e 3,17 no escuro. Contra o
+**trilho** ela mede cerca de 2,8:1, abaixo de 3. Não bloqueia: o trilho é recessivo por definição,
+a barra tem a altura inteira dele e encosta no canvas acima e abaixo, e o valor e a porcentagem
+estão impressos na própria linha.
+
+### Os limites
+
+- **Nome sempre ao lado.** Nenhuma cor de categoria aparece sem o nome dela escrito no mesmo
+  elemento. Cor nunca carrega informação sozinha.
+- **Nome acessível sem a cor.** O leitor de tela continua ouvindo "Categoria Um R$ 300,00 75,00%",
+  e não o nome do matiz.
+- **Chip ativo invertido.** O estado pressionado é a inversão, como antes. Tingir o ativo faria
+  "escolhido" e "da cor verde" competirem pelo mesmo sinal.
+- **Estouro por ícone e texto.** A barra de uma categoria acima do limite não muda de cor. A cor é
+  identidade; o alerta é o par ícone mais "acima do limite".
+- **Nada de pill cheia.** Fundo tingido e texto em tinta. Preenchimento saturado com texto branco
+  viraria um selo de alerta, e dez deles numa lista seriam ruído.
+- **Paleta fechada.** Sem cor livre: só as dez, cada uma medida. O `CHECK`
+  `categoria_cor_valida` recusa qualquer outra no banco.
+- **Fora daqui, nada muda.** Os cards de indicadores, a barra de composição e a semântica de
+  valor continuam como estão.
+
+### O que o validador de paleta reprovou, e por que não bloqueia
+
+As barras foram passadas pelo validador de paleta categórica da skill `dataviz`
+(`validate_palette.py`, contra o canvas de cada tema). Passaram a faixa de luminosidade e o
+contraste contra a superfície. Reprovaram três checagens:
+
+| Checagem | Claro | Escuro |
+| --- | --- | --- |
+| Croma mínima (0,10 em OKLCH) | marrom `#af8863`, 0,07 | verde-água 0,09, ciano 0,09, marrom 0,061 |
+| Separação para quem não distingue cor (ΔE ≥ 8 entre vizinhos) | âmbar e laranja, ΔE 1,4 (deutan) | âmbar e laranja, ΔE 1,7 (protan) |
+| Separação em visão normal (ΔE ≥ 15 entre vizinhos) | laranja e vermelho, ΔE 6,4 | laranja e vermelho, ΔE 5,7 |
+
+**Com dez matizes, isso é esperado, e não bloqueia.** O validador mede uma paleta que precisa
+distinguir séries só pela cor, como numa legenda. Aqui ninguém distingue categoria pela cor: o
+nome está impresso em toda pill, chip, seletor e barra, que é exatamente a "codificação
+secundária" que o próprio validador exige para liberar pares próximos. Vermelho e laranja vizinhos
+se confundem; "Categoria Um" e "Categoria Dois" escritos, não. O marrom tem croma baixa de
+propósito: é o tom terroso da paleta, e o texto dele continua passando de 4,5:1.
+
+A consequência prática: a cor ajuda a reconhecer uma categoria que a pessoa já conhece, e nunca
+deve ser o único jeito de achá-la. Quem propuser legenda de cor, gráfico sem rótulo ou filtro só
+por cor esbarra neste limite.
 
 ## O que não foi adotado, e por quê
 
