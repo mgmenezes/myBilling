@@ -16,7 +16,7 @@ Esta é a **primeira de três fatias**. Ela entrega navegação, painel de decis
 - [ ] Registrar despesa à vista e receita, além da compra parcelada que já existe
 - [ ] Encontrar um lançamento por busca, filtro de categoria, meio de pagamento, pessoa e situação
 - [ ] Marcar um lançamento como pago e desfazer, pela interface
-- [ ] Tirar o formulário extenso do caminho de quem só quer consultar
+- [ ] Tirar o formulário extenso do caminho de quem só quer consultar (revisto na Visão geral por AD-019: o dono quer lançar sem sair dela, e o cadastro fica aberto na coluna de ação)
 
 ## Out of Scope
 
@@ -41,7 +41,7 @@ Explicitamente excluído desta fatia.
 | Como a competência atravessa as áreas | Segmento de rota: `/AAAA-MM` e `/AAAA-MM/lancamentos` | Estado global exigiria sincronização entre áreas e quebraria abrir em nova aba. A rota já existe nesse formato e o e2e depende dela | y |
 | Substituição do jargão contábil | Alternador de duas posições, "Planejamento" e "Movimentações", uma visão por vez | Resolve três problemas juntos: tira o jargão, respeita MOV-03 (os eixos nunca aparecem somados) e cabe no limite de quatro indicadores. Assume que os dois eixos raramente precisam ser lidos lado a lado | y |
 | Escada de superfícies no tema escuro | `#100F0E` canvas, `#1E1E1A` superfície, `#2E2E28` campo | Medido: os degraus atuais dão 1.104 e 1.101, abaixo do limiar em que a camada é percebida. A escada nova dá 1.145 e 1.224, com texto a 14.74:1 e acento a 7.16:1 | n |
-| Onde o cadastro acontece | Painel lateral sobre a tela, aberto por ação "Novo lançamento" | Tira o formulário do fluxo de consulta sem custar uma navegação. Em telas estreitas ocupa a altura inteira, porque campo de formulário em painel curto é hostil no polegar | n |
+| Onde o cadastro acontece | Painel lateral sobre a tela, aberto por ação "Novo lançamento" | Tira o formulário do fluxo de consulta sem custar uma navegação. Em telas estreitas ocupa a altura inteira, porque campo de formulário em painel curto é hostil no polegar. Revisto por AD-019: na Visão geral o cadastro fica aberto na coluna de ação (TRES-03) | n |
 | Indicador sem dado versus valor zero | Zero é exibido como `R$ 0,00`; ausência de configuração é exibida como texto explicativo | Um traço no lugar de zero faz o usuário achar que houve falha de carregamento | n |
 | Rótulo do quarto indicador | "Saldo previsto" em Planejamento, "Saldo do período" em Movimentações | O termo "saldo disponível" seria falso: nenhum dado no sistema representa conta bancária | y |
 | Exclusão de lançamento | Só despesa avulsa e receita, com confirmação. Parcela de compra não é excluível nesta fatia | Excluir uma parcela isolada quebra a conservação da soma, que é invariante do domínio (I3). O caminho correto passa pela edição com escopo, que é fatia 3 | n |

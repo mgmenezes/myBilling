@@ -271,11 +271,10 @@
   --color-cat-marrom-barra: var(--cat-marrom-barra);
 
   /*
-   * A largura do conteúdo, num token só. Ela precisa valer para o cabeçalho e
-   * para o miolo ao mesmo tempo: se os dois escolherem a sua, a pílula de
-   * navegação deixa de alinhar com o conteúdo embaixo dela, e o desalinhamento
-   * de poucos pixels é do tipo que ninguém consegue nomear mas todo mundo
-   * sente.
+   * A largura de leitura das telas de lista (Lançamentos, Todo mês,
+   * Categorias e a home), pela `AreaEstreita`. A moldura não tem largura
+   * máxima: o menu fica na borda e a Visão geral usa a sobra do monitor grande
+   * em colunas, e não em linhas mais compridas (AD-019).
    *
    * **1024px.** Já foram 1440px, apostando que tabela lida todo dia quer
    * largura. Não quer: numa linha de 1440px a descrição fica numa ponta e o

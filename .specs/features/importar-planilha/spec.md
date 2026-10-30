@@ -375,7 +375,8 @@ soltar, para importar sem procurar onde fica.
 **Acceptance Criteria**
 
 1. WHEN a Visão geral é exibida THEN o sistema SHALL mostrar o botão "Importar planilha" no topo da
-   área
+   área. **Substituído por TRES-02, AC 6 e TRES-01, AC 5** (`visao-tres-colunas`, 2026-10-30): o
+   botão mora no pé do menu lateral, em toda tela (AD-019)
 2. WHEN o botão é acionado THEN o sistema SHALL abrir um `<dialog>` nativo, no padrão do
    `DialogoDeCadastro`
 3. WHEN o diálogo está no passo 1 THEN o sistema SHALL aceitar o arquivo por arrastar e soltar sobre

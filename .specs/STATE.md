@@ -147,6 +147,15 @@
 - **Date**: 2026-10-29
 - **Status**: active
 
+### AD-019
+- **Decision**: O app inteiro ganha uma moldura só: um **menu encostado na borda esquerda**, da altura da janela e preso ao rolar, com a marca, as áreas e, no pé, "Importar planilha", o nome e o tema. A pílula do topo e o `<main>` de 1.024 px saem. A **Visão geral** passa a ter o mês no centro, sem largura máxima, e uma **coluna de ação** à direita, a partir de 1.280 px, com o cadastro de lançamento **aberto**, a busca que leva a Lançamentos filtrado e os últimos lançamentos do mês. Lançamentos, Todo mês, Categorias e a home continuam em 1.024 px por dentro (`AreaEstreita`).
+- **Reason**: O dono usa um monitor de 1.920 px ou mais, e mais da metade da tela ficava vazia. Ao abrir o app ele quer lançar, ver se o mês fecha e achar um lançamento, e só a segunda tarefa morava na Visão geral. Na referência que ele escolheu (a home da Coinbase), a ação fica sempre à mão ao lado do número. Os 1.024 px tinham motivo (linha larga afasta a descrição do valor), e ele continua valendo: a largura extra vira **coluna**, e não linha mais comprida.
+- **Revê**: o AD-014 **só na Visão geral** (lá o cadastro fica aberto, sem diálogo; em Lançamentos o diálogo continua), o objetivo de `painel-e-lancamentos` de tirar o formulário de quem só consulta, e o IMP-08, AC 1 (o importar sai do título da Visão geral para o pé do menu, em toda tela).
+- **Trade-off**: A Visão geral fica mais alta que a janela, por causa do cadastro, e o menu precisou ficar preso para o pé não sumir. O cadastro aberto põe "Já saiu da conta" na mesma tela do card "Saiu da conta", e o e2e de MOV-03 passou a procurar o rótulo exato do card. Trocar de mês com o cadastro pela metade perde o que foi digitado, como já acontecia com o diálogo. Os cards seguem a largura do centro (`@container`), e não a da janela.
+- **Scope**: `src/app/(app)/layout.tsx`, `MenuLateral`, `NavegacaoPrincipal` (competência pela rota), `[competencia]/layout.tsx`, `AreaEstreita`, a Visão geral (`page.tsx`, `loading.tsx`), `CadastroDeLancamento`, `UltimosLancamentos`, `ultimosLancamentos`, `ValorDaNatureza`, `HorizonteFuturo` em linhas, `GradeDeIndicadores`, a barra de filtros compacta, e a seção "Largura do conteúdo" de `docs/design.md`.
+- **Date**: 2026-10-30
+- **Status**: active
+
 ---
 
 ## Handoff

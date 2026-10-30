@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T7 concluídas)
+**Status**: Implementada, à espera do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T8 concluídas)
 **Total**: 8 tasks em 4 fases (T1–T8), um lote só, executado inline
 
 ---
@@ -669,10 +669,10 @@ Nada muda na tela.
 **Reuses**: nenhuma
 **Requirement**: TRES-01, TRES-02
 **Done when**:
-- [ ] AD-019 registrado, com o motivo e o que ele revê (AD-014 na Visão geral)
-- [ ] IMP-08 AC 1 marcado como substituído por TRES-02 AC 6; as premissas de cadastro em diálogo marcadas como revistas na Visão geral
-- [ ] `docs/design.md` explica por que a largura extra vira coluna, e não linha mais comprida
-- [ ] `pnpm verify` e o e2e inteiro passam
+- [x] AD-019 registrado, com o motivo e o que ele revê (AD-014 na Visão geral)
+- [x] IMP-08 AC 1 marcado como substituído por TRES-02 AC 6; as premissas de cadastro em diálogo marcadas como revistas na Visão geral
+- [x] `docs/design.md` explica por que a largura extra vira coluna, e não linha mais comprida
+- [x] `pnpm verify` e o e2e inteiro passam: 1.694 unitários, 364 de integração, build, e 105 e2e
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(visao-tres-colunas): registrar a moldura e a visão em colunas`

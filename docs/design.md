@@ -115,10 +115,13 @@ padrão de 80% das superfícies é chapado; o cartão sobre canvas branco é sep
 
 ## Largura do conteúdo
 
-`--container-conteudo`, **1024px**. Ele vale para o cabeçalho e para o miolo ao mesmo tempo, num
-token só: se os dois escolherem a sua largura, a pílula de navegação deixa de alinhar com o conteúdo
-embaixo dela — desalinhamento de poucos pixels é do tipo que ninguém consegue nomear mas todo mundo
-sente.
+**A moldura não tem largura máxima; as telas têm** (AD-019). O menu fica encostado na borda
+esquerda, com 240px, da altura da janela e preso ao rolar, e o `<main>` ocupa o resto. Cada tela
+decide a própria largura.
+
+`--container-conteudo`, **1024px**, continua sendo a largura de leitura das telas de lista:
+Lançamentos, Todo mês, Categorias e a home, pela `AreaEstreita`, centradas no espaço à direita do
+menu.
 
 **Já foram 1440px, e foi erro.** A aposta era que tabela de lançamento lida todo dia quer largura, e
 que os "~1200px centered" do `DESIGN.md` valiam só para página de marketing. Na tela real a aposta
@@ -126,10 +129,17 @@ não se sustentou: com 1440px a descrição fica numa ponta da linha e o valor n
 lançamento o olho atravessa um vão sem informação. O que cansa quem lê a tabela não é densidade
 vertical — é essa varredura horizontal.
 
-1024px encurta o percurso sem apertar nenhuma das seis colunas: descontando a navegação lateral
-(208px) e o vão entre as duas (32px), sobram ~784px de tabela. A única prosa da interface (a
-explicação de Planejamento × Movimentações) continua limitada em `62ch` por conta própria, então a
-largura do contêiner não decide leitura de texto corrido em lugar nenhum.
+**Por isso a largura extra do monitor grande vira coluna, e não linha.** A Visão geral não tem
+máximo: no centro ficam os cards e, lado a lado quando cabem, as categorias e os próximos meses; à
+direita, a partir de 1280px, a coluna de ação com o cadastro, a busca e os últimos lançamentos.
+Nenhuma linha fica mais comprida que antes, e a sobra do monitor passa a ser conteúdo. Os cards
+seguem a largura do centro (`@container`), e não a da janela: em 1280px o centro tem 656px, e
+quatro cards lado a lado quebravam rótulo e link.
+
+Em 1024px de janela, o menu (240px) e o respiro da `AreaEstreita` deixam os mesmos ~736px úteis que
+a navegação de 208px e o vão de 32px deixavam antes. A única prosa da interface (a explicação de
+Planejamento × Movimentações) continua limitada em `62ch` por conta própria, então a largura do
+contêiner não decide leitura de texto corrido em lugar nenhum.
 
 ## Escala do gráfico de composição
 
