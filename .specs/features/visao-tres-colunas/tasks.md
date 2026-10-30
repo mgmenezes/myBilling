@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T5 concluídas)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T6 concluídas)
 **Total**: 8 tasks em 4 fases (T1–T8), um lote só, executado inline
 
 ---
@@ -348,10 +348,10 @@ Nada muda na tela.
 **Reuses**: `ultimosLancamentos`, `ValorDaNatureza`, `CLASSES_DA_COR`, `Chip`, `formatarData`
 **Requirement**: TRES-05
 **Done when**:
-- [ ] Cada linha tem a descrição, a data, a pill e o valor (TRES-05 AC 3)
-- [ ] Pill com a cor da categoria; "Receita" neutra na entrada; "Sem categoria" neutra no gasto sem categoria (TRES-05 AC 3)
-- [ ] Lista vazia mostra "Nenhum lançamento até hoje neste mês." (TRES-05 AC 4)
-- [ ] "Ver todos" junto do título leva a `/<competência>/lancamentos` (TRES-05 AC 5)
+- [x] Cada linha tem a descrição, a data, a pill e o valor (TRES-05 AC 3)
+- [x] Pill com a cor da categoria; "Receita" neutra na entrada; "Sem categoria" neutra no gasto sem categoria (TRES-05 AC 3)
+- [x] Lista vazia mostra "Nenhum lançamento até hoje neste mês." (TRES-05 AC 4)
+- [x] "Ver todos" junto do título leva a `/<competência>/lancamentos` (TRES-05 AC 5)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(painel): lista dos últimos lançamentos`
