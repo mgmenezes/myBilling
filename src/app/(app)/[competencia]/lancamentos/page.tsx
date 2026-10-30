@@ -31,6 +31,7 @@ import { SeletorDeFormulario } from "@/components/seletor-de-formulario";
 import { TabelaLancamentos } from "@/components/tabela-lancamentos";
 import {
   type Cents,
+  corDaCategoria,
   criarCompetencia,
   dataPadraoDoLancamento,
   type Natureza,
@@ -164,8 +165,13 @@ export default async function PaginaDeLancamentos({
     nomePorCategoria,
   );
   /* Montadas uma vez: os dois formulários do alternador e o seletor de cada
-     linha recebem as mesmas. */
-  const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
+     linha recebem as mesmas. A cor em uso vai junto, para o seletor da linha
+     (COR-03, AC 2); os formulários a ignoram. */
+  const opcoesDeCategoria = categorias.map((c) => ({
+    id: c.id,
+    nome: c.nome,
+    cor: corDaCategoria(c),
+  }));
   const opcoesDeUsuario = usuarios.map((u) => ({ id: u.id, nome: u.nome }));
   /* Hoje, se hoje for deste mês; senão o dia 1 (CAD-04, AC 10). Resolvido aqui
      porque quem conhece o relógio é a borda, e no fuso da casa — nunca o da

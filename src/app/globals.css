@@ -393,6 +393,12 @@ h3 {
  *
  * Sem camada, de propósito, ao contrário do bloco acima: o espaço do chevron
  * precisa vencer o `px-*` de cada campo, senão o texto passa por baixo dele.
+ *
+ * **Nunca use o shorthand `background:` num `<select>`**, nem em classe nem
+ * em estilo: ele zera a `background-image` daqui e o chevron some. A cor de
+ * fundo vem só por longhand. É o que o seletor de categoria da linha faz com
+ * `bg-cat-*-fundo` (COR-03, AC 2): a classe define só `background-color`, e o
+ * chevron continua por cima dela.
  */
 :root {
   --chevron-do-select: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%235b616e' d='M216.49,104.49l-80,80a12,12,0,0,1-17,0l-80-80a12,12,0,0,1,17-17L128,159l71.51-71.52a12,12,0,0,1,17,17Z'/%3E%3C/svg%3E");

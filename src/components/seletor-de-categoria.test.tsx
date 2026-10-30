@@ -23,9 +23,9 @@ const ARQUIVADA = "33333333-3333-4333-8333-333333333333";
 /* Fora de ordem alfabética de propósito ("Um" depois de "Dois" no alfabeto):
    ordenar por nome inverteria as duas, e a ordem tem de ser a recebida. */
 const CATEGORIAS = [
-  { id: CATEGORIA_UM, nome: "Categoria Um" },
-  { id: CATEGORIA_DOIS, nome: "Categoria Dois" },
-];
+  { id: CATEGORIA_UM, nome: "Categoria Um", cor: "verde" },
+  { id: CATEGORIA_DOIS, nome: "Categoria Dois", cor: "roxo" },
+] as const;
 
 type Acao = typeof trocarCategoria;
 
@@ -250,6 +250,130 @@ describe("o servidor recusa (TRC-05, AC 1)", () => {
     expect(selecionada()).toBe("Categoria Um");
     expect(seletor().disabled).toBe(false);
     expect(screen.queryByRole("status")).toBeNull();
+  });
+});
+
+/**
+ * Testes derivados de COR-03 (ACs 2 e 3), COR-02 (AC 5), do Edge Case da
+ * categoria arquivada e do Done-when de T6. O nome acessível (AC 6) é o do
+ * primeiro teste deste arquivo, que já monta o seletor pintado. O seletor tem o fundo e o texto da
+ * cor da categoria escolhida, segue a escolha otimista e volta à cor anterior
+ * quando o servidor recusa. "Sem categoria" e a gravada fora das opções ficam
+ * na neutra de hoje.
+ *
+ * Ficam antes do bloco de LST-05 de propósito: um teste dele deixa uma
+ * gravação que nunca termina, e o React 19 entrelaça as transições pendentes.
+ * Depois dela, a volta da cor nunca chegaria.
+ */
+describe("o seletor na cor da categoria escolhida (COR-03, AC 2)", () => {
+  function classes(): ReadonlyArray<string> {
+    return seletor().className.split(/\s+/);
+  }
+
+  const NEUTRA = ["border-line", "bg-surface", "text-ink"];
+
+  function ehNeutro(): void {
+    expect(classes()).toEqual(expect.arrayContaining(NEUTRA));
+    expect(classes().some((classe) => classe.startsWith("bg-cat-"))).toBe(false);
+    expect(classes().some((classe) => classe.startsWith("text-cat-"))).toBe(false);
+  }
+
+  it("com uma categoria escolhida, tem o fundo e o texto da cor dela, no lugar da neutra", () => {
+    montar({ categoriaId: CATEGORIA_UM });
+
+    expect(classes()).toEqual(
+      expect.arrayContaining(["bg-cat-verde-fundo", "text-cat-verde-texto"]),
+    );
+    expect(classes()).not.toContain("bg-surface");
+    expect(classes()).not.toContain("text-ink");
+  });
+
+  it("cada categoria pinta o seletor com a própria cor", () => {
+    montar({ categoriaId: CATEGORIA_DOIS });
+
+    expect(classes()).toEqual(expect.arrayContaining(["bg-cat-roxo-fundo", "text-cat-roxo-texto"]));
+  });
+
+  /* O chevron é a imagem de fundo da regra global de `select`; a cor de
+     categoria só pode mexer na cor de fundo. A medida é do e2e. */
+  it("continua um select simples, sem utilitária de imagem de fundo, para manter o chevron", () => {
+    montar({ categoriaId: CATEGORIA_UM });
+
+    expect(seletor().multiple).toBe(false);
+    expect(seletor().hasAttribute("size")).toBe(false);
+    expect(
+      classes().filter((classe) => /^bg-(none|\[|gradient|linear|radial|conic)/.test(classe)),
+    ).toEqual([]);
+  });
+
+  it("sem categoria fica na neutra de hoje (COR-02, AC 5)", () => {
+    montar({ categoriaId: null });
+
+    ehNeutro();
+  });
+
+  it("a gravada fora das opções fica na neutra (Edge Case)", () => {
+    montar({ categoriaId: ARQUIVADA, nomeDaGravada: "Categoria Arquivada" });
+
+    ehNeutro();
+  });
+});
+
+describe("trocar pinta na hora, e a recusa volta à cor anterior (COR-03, AC 3)", () => {
+  function classes(): ReadonlyArray<string> {
+    return seletor().className.split(/\s+/);
+  }
+
+  it.each([
+    ["Categoria Dois", ["bg-cat-roxo-fundo", "text-cat-roxo-texto"], "bg-cat-verde-fundo"],
+    ["Sem categoria", ["border-line", "bg-surface", "text-ink"], "bg-cat-verde-fundo"],
+  ])("escolher %s pinta o seletor enquanto grava", async (opcao, esperadas, anterior) => {
+    let liberar: () => void = () => {};
+    const acao = vi.fn(
+      () =>
+        new Promise((resolve) => {
+          liberar = () =>
+            resolve({
+              ok: true,
+              data: { lancamentoId: "lanc-1", alcance: "LANCAMENTO", categoriaId: null },
+            });
+        }),
+    );
+    const { usuario } = montar({ categoriaId: CATEGORIA_UM, acao });
+
+    await usuario.selectOptions(seletor(), opcao);
+
+    /* `finally`, como em "enquanto grava": a gravação pendente não pode
+       segurar a transição dos testes seguintes. */
+    try {
+      await waitFor(() => {
+        expect(seletor().disabled).toBe(true);
+      });
+      expect(classes()).toEqual(expect.arrayContaining(esperadas));
+      expect(classes()).not.toContain(anterior);
+    } finally {
+      liberar();
+    }
+    await waitFor(() => {
+      expect(seletor().disabled).toBe(false);
+    });
+  });
+
+  it("recusada a troca, volta à cor da categoria anterior", async () => {
+    const { usuario } = montar({
+      categoriaId: CATEGORIA_UM,
+      acao: recusou("Escolha uma categoria válida."),
+    });
+
+    await usuario.selectOptions(seletor(), "Categoria Dois");
+
+    expect((await screen.findByRole("alert")).textContent).toBe("Escolha uma categoria válida.");
+    await waitFor(() => {
+      expect(classes()).toEqual(
+        expect.arrayContaining(["bg-cat-verde-fundo", "text-cat-verde-texto"]),
+      );
+    });
+    expect(classes()).not.toContain("bg-cat-roxo-fundo");
   });
 });
 

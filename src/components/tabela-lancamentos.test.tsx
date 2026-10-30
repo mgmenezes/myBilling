@@ -15,7 +15,7 @@ const CATEGORIAS = new Map([
   ["cat-1", "Categoria Um"],
   ["cat-arquivada", "Categoria Arquivada"],
 ]);
-const OPCOES = [{ id: "cat-1", nome: "Categoria Um" }];
+const OPCOES = [{ id: "cat-1", nome: "Categoria Um", cor: "verde" }] as const;
 
 /**
  * O seletor de categoria da linha avisa pelo toast, e o provedor do toast mora
@@ -648,6 +648,19 @@ describe("Receita na entrada e seletor no gasto (TRC-01, TRC-02)", () => {
       "Categoria Um",
     ]);
     expect(screen.queryByText("Receita")).toBeNull();
+  });
+
+  /* A cor vem das opções que a página monta: a tabela as entrega ao seletor
+     da linha, e não as perde no caminho (COR-03, AC 2). */
+  it("o seletor da linha tem a cor da categoria gravada, vinda das opções (COR-03, AC 2)", () => {
+    montar([item({ id: "d1", descricao: "Conta fixa A", categoriaId: "cat-1" })]);
+
+    const seletor = screen.getByRole<HTMLSelectElement>("combobox", {
+      name: "Categoria de Conta fixa A",
+    });
+    expect(seletor.className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["bg-cat-verde-fundo", "text-cat-verde-texto"]),
+    );
   });
 
   it("investimento também tem o seletor, como despesa (TRC-02, AC 1)", () => {

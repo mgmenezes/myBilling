@@ -23,7 +23,7 @@ import { BlocoRecolhivel } from "./bloco-recolhivel";
 import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
-import { SeletorDeCategoria } from "./seletor-de-categoria";
+import { SeletorDeCategoria, type SeletorDeCategoriaProps } from "./seletor-de-categoria";
 import { Chip } from "./ui";
 import { ValorConfirmavel } from "./valor-confirmavel";
 
@@ -139,7 +139,7 @@ export function TabelaLancamentos({
    */
   readonly categorias: ReadonlyMap<string, string>;
   /** As ativas, na ordem dos formulários: são as opções do seletor. */
-  readonly opcoesDeCategoria: ReadonlyArray<{ readonly id: string; readonly nome: string }>;
+  readonly opcoesDeCategoria: SeletorDeCategoriaProps["categorias"];
   /**
    * O mês de hoje, e não o mês aberto. É o argumento que decide se um não pago
    * está vencido, e é obrigatório de propósito: um padrão silencioso aqui
@@ -248,7 +248,7 @@ function BlocoDeLancamentos({
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
   readonly excluir: typeof cancelarAction;
-  readonly opcoesDeCategoria: ReadonlyArray<{ readonly id: string; readonly nome: string }>;
+  readonly opcoesDeCategoria: SeletorDeCategoriaProps["categorias"];
   readonly trocarCategoria: typeof trocarCategoriaAction;
 }) {
   return (

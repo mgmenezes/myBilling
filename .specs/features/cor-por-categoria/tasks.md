@@ -266,10 +266,10 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Reuses**: `useOptimistic` existente
 **Requirement**: COR-03
 **Done when**:
-- [ ] O seletor tem a pill da cor da categoria escolhida (COR-03 AC 2)
-- [ ] Trocar pinta na hora; recusa volta à cor anterior (COR-03 AC 3)
-- [ ] "Sem categoria" e categoria fora das opções ficam neutras (COR-02 AC 5, Edge Case)
-- [ ] O comentário da regra do chevron em `globals.css` proíbe o shorthand `background:`
+- [x] O seletor tem a pill da cor da categoria escolhida (COR-03 AC 2)
+- [x] Trocar pinta na hora; recusa volta à cor anterior (COR-03 AC 3)
+- [x] "Sem categoria" e categoria fora das opções ficam neutras (COR-02 AC 5, Edge Case)
+- [x] O comentário da regra do chevron em `globals.css` proíbe o shorthand `background:`
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(lancamentos): seletor de categoria na cor dela`
