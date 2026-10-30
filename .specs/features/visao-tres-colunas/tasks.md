@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Corrigida, à espera da rodada 2 do Verifier (FAIL na rodada 1 de `validation.md`, em 2026-10-30; plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1–T8 e F0–F6 concluídas)
+**Status**: Verified, PASS na rodada 2 de `validation.md`, em 2026-10-30 (FAIL na rodada 1, com F0–F6 concluídas; plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1–T8 e F0–F6 concluídas)
 **Total**: 15 tasks em 5 fases (T1–T8 e as correções F0–F6), executadas inline
 
 ---

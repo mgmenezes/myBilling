@@ -1,8 +1,22 @@
 # Visão geral em três colunas — Validação
 
-## Validation: visao-tres-colunas — **FAIL**
+## Validation: visao-tres-colunas — **PASS**
 
-**Result**: FAIL ❌ — rodada 1 (2026-10-30, `e4ad923`).
+**Result**: PASS ✅ — rodada 2 (2026-10-30, `89674b9`). As sete correções da rodada 1 (F0 a F6) só
+tocam teste, spec e `tasks.md`; nenhum arquivo de `src/` mudou desde `e4ad923`.
+- Os 7 mutantes que sobreviveram na rodada 1 (G1, G2, G4 a G8), reaplicados um por um na HEAD,
+  morrem todos, cada um no teste novo que mira a sua lacuna.
+- Três mutantes novos, do outro lado de cada limiar ou na tela que faltava, também morrem: G1b, G7b
+  e G8c.
+- Uma amostra dos que já morriam continua morrendo: 4 de unit e 5 de e2e.
+- O gate está verde: unit 1694, integração 364, e2e 111 de 111 sem retry e sem `flaky`, `typecheck`,
+  `lint` e `build`.
+- Os 28 critérios têm assertion sobre o resultado da spec, e todo mutante que quebra um critério
+  morre.
+
+Detalhe na seção [Rodada 2](#rodada-2), no fim do arquivo. A rodada 1 segue abaixo como foi escrita.
+
+**Rodada 1** (2026-10-30, `e4ad923`): FAIL ❌.
 
 Na HEAD o produto faz o que a spec pede: os 28 critérios de TRES-01 a TRES-05 têm comportamento
 correto no navegador, e o gate está verde (unit 1694, integração 364, e2e 105 de 105, `typecheck`,
@@ -428,3 +442,184 @@ mudaram de alvo sem afrouxar o que provam.
 
 **Próximo passo**: as correções 1 a 5 são só de teste, num commit `test(visao-tres-colunas): …`, e
 depois uma rodada 2 do verificador repetindo G1, G2 e G4 a G8.
+
+---
+
+## Rodada 2
+
+**Data**: 2026-10-30
+**Faixa**: `e4ad923..89674b9`, 8 commits: o relatório da rodada 1 (`2024bc3`) e as correções F0 a F6
+(`8f17bbe`, `cc20945`, `158017a`, `cda76a5`, `39780d0`, `0c469d1`, `89674b9`). A faixa da fatia
+inteira é `3b42f3c..89674b9`.
+**O que mudou**: `e2e/visao-tres-colunas.spec.ts` (6 testes novos, 2 reforçados, e todo `goto`
+passando por `abrir()`, que espera o `h1`), a traceability de TRES-01 a TRES-05 no `spec.md` e a
+`tasks.md` refeita. `git diff --stat e4ad923..89674b9 -- src` é vazio.
+**Verificador**: o mesmo sub-agente da rodada 1, que não escreveu as correções.
+
+- **Onde as mutações rodaram**: uma `git worktree` descartável nova, detached em `89674b9`, com
+  `pnpm install --frozen-lockfile` próprio. Mutantes aplicados um por vez, por substituição exata, e
+  desfeitos com `git checkout`. No fim a worktree foi removida.
+- **Isolamento**: o `git status --porcelain` do worktree real antes e depois da rodada é o mesmo
+  (` M next-env.d.ts`, a mudança de sempre). Sem `git stash` e sem commit.
+
+### Veredito
+
+**PASS ✅.** As sete lacunas da rodada 1 estão fechadas, cada uma pela mutação que a revelou (L-004).
+- Nenhum mutante sobreviveu nesta rodada: 18 aplicados, 18 mortos.
+- Todos morreram na assertion esperada, e não por tempo.
+- Nenhuma execução saiu `flaky`, nem na worktree fria, onde a rodada 1 tinha falhado por tempo em 7
+  execuções.
+
+### As lacunas da rodada 1
+
+| Lacuna | Correção | Evidência na HEAD (`file:line` + assertion) | Mutante reaplicado |
+| --- | --- | --- | --- |
+| 1. A busca e os últimos fora da coluna de ação (TRES-04 AC 1, TRES-05 AC 1) | F1 `cc20945` | `e2e/visao-tres-colunas.spec.ts:328-329` - `expect(medida.x).toBeGreaterThanOrEqual(cards.x + cards.width)`, `expect(Math.abs(medida.x - coluna.x)).toBeLessThanOrEqual(24)`, para o `search` e para a região "Últimos lançamentos" | G4 e G5: mortos em `:314`, na assertion de `:328` |
+| 2. O limiar de 1.280 px (TRES-02 ACs 1 e 5) | F4 `39780d0` | `e2e/visao-tres-colunas.spec.ts:507` - `(await caixa(cadastro)).x).toBeGreaterThanOrEqual(cards.x + cards.width)` em 1.280 px; `:511` - `(await caixa(cadastro)).y).toBeGreaterThanOrEqual(proximos.y + proximos.height - 1)` em 1.279 px | G1 (vira em 1.536 px) e G1b, novo (vira em 1.024 px): mortos em `:496` |
+| 3. A cor da pill pela página (TRES-05 AC 3) | F2 `158017a` | `e2e/visao-tres-colunas.spec.ts:400-401` - `expect(fundoDaPill).toBe(esperado)`, `expect(fundoDaPill).not.toBe(neutro)`, com o `background-color` computado (L-037) | G2: morto em `:372`, na assertion de `:400` |
+| 4. AC 8 só em Lançamentos (TRES-01 AC 8) | F3 `cda76a5` | `e2e/visao-tres-colunas.spec.ts:229` - `expect(conteudo.width, caminho).toBeLessThanOrEqual(1024)`; `:232` - folgas iguais; num laço sobre Lançamentos, Todo mês e Categorias | G8 (Todo mês) e G8c, novo (Categorias): mortos em `:213`, cada um com o caminho da tela na mensagem |
+| 5. O limiar de 768 px (TRES-01 ACs 1 e 9) | F4 `39780d0` | `e2e/visao-tres-colunas.spec.ts:522-532` em 768 px - `coluna.x).toBe(0)`, `coluna.width).toBeLessThanOrEqual(260)`, áreas dentro da coluna, `y` ≈ 0 depois de rolar e o importar `toBeInViewport()`; `:543-548` em 767 px - `topo.y).toBe(0)`, largura da janela, áreas na base | G7 (vira em 1.024 px): morto em `:514`; G7b, novo (vira em 640 px): morto em `:535` |
+| 6. A linha fina (TRES-02 AC 1) | F1 `cc20945` | `e2e/visao-tres-colunas.spec.ts:336` - `expect(linha).toEqual({ largura: "1px", tipo: "solid" })`, do `border-left` computado | G6: morto em `:314`, na assertion de `:336` |
+| 7. TRES-03 AC 2 só com cards e últimos | F5 `0c469d1` | `e2e/visao-tres-colunas.spec.ts:414` → `:428` - "Sem categoria" `toHaveCount(0)` e, depois de gravar, `toContainText("R$ 100,00")`; `:445` → `:456` - comprometido do mês seguinte `toHaveText("R$ 0,00")` e, depois de uma compra de 3 × R$ 100,00 pela coluna, `toHaveText("R$ 100,00")` | sem mutante: a lacuna era de cobertura |
+
+### Spec-anchored: os 28 critérios na HEAD
+
+Os testes de unidade e de componente não mudaram; as linhas da rodada 1 valem para eles. No e2e da
+fatia, todo `goto` passou a `abrir()`, e as linhas andaram. Esta tabela traz as linhas na `89674b9`.
+
+| Critério | Evidência na HEAD | Resultado |
+| --- | --- | --- |
+| TRES-01 AC 1 | `e2e/visao-tres-colunas.spec.ts:150-151` (x = 0, altura ≥ 1.080), `:166-167` (presa ao rolar, importar à vista), `:522-532` (o mesmo em 768 px), `:175` e `src/components/menu-lateral.test.tsx:39` (marca para `/`) | ✅ |
+| TRES-01 AC 2 | `e2e/visao-tres-colunas.spec.ts:152` - `getByRole("banner")).toHaveCount(0)` | ✅ |
+| TRES-01 AC 3 | `src/components/menu-lateral.test.tsx:45-46`; `src/components/navegacao-principal.test.tsx:61`, `:127`, `:139`; `e2e/visao-tres-colunas.spec.ts:527` (áreas dentro da coluna em 768 px) | ✅ |
+| TRES-01 AC 4 | `src/components/navegacao-principal.test.tsx:36-37`; `src/components/menu-lateral.test.tsx:53-55`; `e2e/visao-tres-colunas.spec.ts:177` | ✅ |
+| TRES-01 AC 5 | `src/components/menu-lateral.test.tsx:61-63`; `e2e/visao-tres-colunas.spec.ts:185-187` | ✅ |
+| TRES-01 AC 6 | `e2e/visao-tres-colunas.spec.ts:191` - "Tudo entra em nome de Pessoa A"; `e2e/importacao.spec.ts:171` - "Próximo mês esperado: Novembro de 2026" | ✅ |
+| TRES-01 AC 7 | `e2e/visao-tres-colunas.spec.ts:203-204` | ✅ |
+| TRES-01 AC 8 | `e2e/visao-tres-colunas.spec.ts:229`, `:232`, nas três telas | ✅ |
+| TRES-01 AC 9 | `e2e/visao-tres-colunas.spec.ts:585-592` (400 px) e `:543-548` (767 px) | ✅ |
+| TRES-01 AC 10 | `e2e/visao-tres-colunas.spec.ts:606` - `transbordoHorizontal(page), caminho).toBe(0)` em cinco telas | ✅ |
+| TRES-02 AC 1 | `e2e/visao-tres-colunas.spec.ts:296` (centro > 1.024 px), `:298-299` (coluna à direita em 1.920 px), `:507` (em 1.280 px), `:336` (linha fina) | ✅ |
+| TRES-02 AC 2 | `e2e/visao-tres-colunas.spec.ts:301-306`; "Qual é a diferença" em `e2e/compra-parcelada.spec.ts:261` | ✅ |
+| TRES-02 AC 3 | `e2e/visao-tres-colunas.spec.ts:288`; MOV-03 em `e2e/compra-parcelada.spec.ts:244`, `:251` | ✅ |
+| TRES-02 AC 4 | `e2e/visao-tres-colunas.spec.ts:243`, `:252-253`, `:258` | ✅ |
+| TRES-02 AC 5 | `e2e/visao-tres-colunas.spec.ts:511` (1.279 px) e `:557` (1.024 px) | ✅ |
+| TRES-02 AC 6 | `e2e/visao-tres-colunas.spec.ts:264-265` | ✅ |
+| TRES-03 AC 1 | `e2e/visao-tres-colunas.spec.ts:346-348` | ✅ |
+| TRES-03 AC 2 | `e2e/visao-tres-colunas.spec.ts:409` → `:427` (R$ 110,00 → R$ 210,00), `:414` → `:428` (categorias), `:429-431` (topo dos últimos), `:445` → `:456` (próximos meses) | ✅ |
+| TRES-03 AC 3 | `e2e/visao-tres-colunas.spec.ts:425-426` | ✅ |
+| TRES-03 AC 4 | `e2e/lancamento-avulso.spec.ts:63`, `:312`, `:324`, `:335` | ✅ |
+| TRES-04 AC 1 | `e2e/visao-tres-colunas.spec.ts:328-329` (na coluna) e `:465` (rótulo "Buscar lançamento") | ✅ |
+| TRES-04 AC 2 | `e2e/visao-tres-colunas.spec.ts:468-473` | ✅ |
+| TRES-04 AC 3 | `e2e/visao-tres-colunas.spec.ts:486-491` | ✅ |
+| TRES-05 AC 1 | `src/application/mes/ultimos-lancamentos.test.ts:50`, `:59`, `:80`, `:105-114`; `e2e/visao-tres-colunas.spec.ts:358-363`; `:328-329` (na coluna) | ✅ |
+| TRES-05 AC 2 | `src/application/mes/ultimos-lancamentos.test.ts:94` | ✅ |
+| TRES-05 AC 3 | `src/components/ultimos-lancamentos.test.tsx:68-73`, `:80-85`, `:91-93`; `src/components/valor-da-natureza.test.tsx:27-42`; `e2e/visao-tres-colunas.spec.ts:400-401` (pela página) | ✅ |
+| TRES-05 AC 4 | `src/components/ultimos-lancamentos.test.tsx:127-128` | ✅ |
+| TRES-05 AC 5 | `src/components/ultimos-lancamentos.test.tsx:136-138` | ✅ |
+
+**Status**: 28 de 28 com assertion sobre o resultado da spec, e sem cláusula sem prova. Sem lacuna de
+precisão.
+
+**Edge cases**: os da rodada 1 seguem como estavam, com duas ressalvas baixas que não mudam o
+veredito e não eram lacunas ranqueadas. A primeira é a busca com espaços nas pontas: é por
+construção, um GET sem tratamento, e a spec remete ao filtro de hoje. A segunda é a gravação recusada
+na coluna de ação: é o mesmo `CadastroDeLancamento` do diálogo. As duas ficam registradas na
+candidata L-043. A janela entre 768 e 1.280 px agora tem as duas pontas provadas: `:514`, `:535` e
+`:496`.
+
+### Gate
+
+Na HEAD `89674b9`, com `DATABASE_URL_TEST` no banco de teste da fatia:
+
+| Comando | Onde | Resultado |
+| --- | --- | --- |
+| `pnpm test:unit` | worktree real | 107 arquivos, **1694 de 1694**; `src/domain` com 100% de branches (355/355) |
+| `pnpm typecheck` | worktree real | exit 0 |
+| `pnpm lint` | worktree real | 312 arquivos, nenhum achado |
+| `pnpm test:integration` | worktree real | 23 arquivos, **364 de 364** |
+| `pnpm exec playwright test` | worktree real | **111 de 111** em 4,6 min, sem retry e sem `flaky` |
+| `pnpm build` | worktree descartável, limpa | exit 0; ali o `next build` não reescreve o `next-env.d.ts` do worktree real |
+
+Contagem: e2e 105 → 111 (+6, todos em `e2e/visao-tres-colunas.spec.ts`); unit e integração iguais.
+Nenhum teste apagado, nenhum `skip`. Dos testes antigos da fatia, um ficou mais largo: o de AC 8
+mede três telas, e não uma.
+
+### Discrimination Sensor
+
+Mesmo protocolo da rodada 1. Os de unit rodaram com `pnpm exec vitest run <arquivo>`. Os de e2e
+rodaram com `pnpm exec playwright test e2e/visao-tres-colunas.spec.ts --retries=2`, um por vez. O
+spec é serial, então cada execução para no primeiro teste que falha.
+
+| # | Mutação | Rodada 1 | Rodada 2: morto por |
+| --- | --- | --- | --- |
+| G1 | coluna de ação vira em 1.536 px (`2xl`) | sobreviveu | ✅ `:496`, assertion de `:507` (1.280 px) |
+| G1b | coluna de ação vira em 1.024 px (`lg`) | novo | ✅ `:496`, assertion de `:511` (1.279 px) |
+| G2 | a página manda toda categoria sem cor | sobreviveu | ✅ `:372`, `toBe(esperado)` de `:400` |
+| G4 | a busca vai para o centro, sob os cards | sobreviveu | ✅ `:314`, assertion de `:328` |
+| G5 | os últimos vão para o centro, sob as seções | sobreviveu | ✅ `:314`, assertion de `:328` |
+| G6 | sem `xl:border-l` | sobreviveu | ✅ `:314`, `toEqual` de `:336` |
+| G7 | o menu vira coluna em 1.024 px (`lg`) | sobreviveu | ✅ `:514`, `toBeLessThanOrEqual` de `:523`/`:531` |
+| G7b | o menu vira coluna em 640 px (`sm`) | novo | ✅ `:535`, largura da janela em `:544` |
+| G8 | Todo mês sem a `AreaEstreita` | sobreviveu | ✅ `:213`, mensagem `/2026-03/fixos` |
+| G8c | Categorias sem a `AreaEstreita` | novo | ✅ `:213`, mensagem `/2026-03/cadastros/categorias` |
+| E1 | sem `md:sticky` | morto | ✅ `:156`, assertion de `:166` |
+| E2 | sem `xl:flex-row` | morto | ✅ `:274`, assertion de `:298` |
+| E3a | `name="busca"` → `name="q"` | morto | ✅ `:459`, `toHaveURL` de `:468` |
+| E6 | "Próximos meses" lado a lado | morto | ✅ `:236`, assertion de `:252` |
+| U1 | sem o corte `dataEvento <= hoje` | morto | ✅ unit `ultimos-lancamentos.test.ts` |
+| U2 | ordem crescente | morto | ✅ unit `ultimos-lancamentos.test.ts` |
+| N1 | áreas desenhadas sem competência | morto | ✅ unit `navegacao-principal.test.tsx` e `menu-lateral.test.tsx` |
+| C1 | a receita mostra a categoria | morto | ✅ unit `ultimos-lancamentos.test.tsx` |
+
+**Resultado do sensor**: 18 de 18 mortos nesta rodada (os 7 vivos da rodada 1, 3 novos de limiar e
+de tela, e 8 da amostra). Na fatia inteira: 24 mutantes distintos, todos mortos na HEAD (os 21 da
+rodada 1 mais G1b, G7b e G8c).
+
+### Observações da rodada 1
+
+- **1, 2 e 7** (tempo do e2e, títulos e traceability): resolvidas por F6.
+  - Todo `goto` passa por `abrir()`, e a rolagem espera "Últimos lançamentos".
+  - Nesta rodada, nenhuma das 14 execuções de e2e na worktree fria caiu por tempo.
+  - "da altura da janela" no título do teste e na traceability.
+- **`tasks.md` malformada**: resolvida por F0. Uma "Task Breakdown" só, 423 linhas, T1 a T8 e F0 a F6
+  com os "Done when" marcados (63 `[x]`, nenhum `[ ]`).
+- **3** (cards de 171 a 179 px em 1.024 e 1.440 px), **4** (duas consultas a mais no layout), **5**
+  (semeadura com `ON CONFLICT`) e **6** (`exact` em "Saiu da conta") seguem como estavam. São do dono,
+  fora do veredito.
+- **Nova, fora do veredito**: o teste de F2 calcula o fundo esperado com o próprio código do app
+  (`CLASSES_DA_COR` e `corDaCategoria`, importados no e2e). Isso prova que a cor chega à pill pela
+  página, que era a lacuna. Uma regra de cor errada mudaria o esperado e o obtido juntos; quem segura
+  a regra são os testes de domínio de `corDaCategoria`, e não este.
+
+### Lições
+
+Nenhuma lição nova: a rodada 2 não tem mutante vivo, lacuna de precisão, AC sem prova nem
+`SPEC_DEVIATION`. As lições da rodada 1 (L-018, L-014, L-029, L-030, L-010 e L-043) ficam como foram
+registradas.
+
+### Requirement Traceability Update
+
+| Requirement | Status na rodada 1 | Status na rodada 2 |
+| --- | --- | --- |
+| TRES-01 | ❌ Needs Fix | ✅ Verified |
+| TRES-02 | ❌ Needs Fix | ✅ Verified |
+| TRES-03 | ⚠️ Verified com ressalva | ✅ Verified |
+| TRES-04 | ❌ Needs Fix | ✅ Verified |
+| TRES-05 | ❌ Needs Fix | ✅ Verified |
+
+O verificador não edita a `spec.md`; a coluna Status da traceability ainda diz "In progress" e passa a
+"Verified" no commit que fechar a fatia.
+
+### Summary
+
+**Overall**: ✅ Ready.
+
+**Spec-anchored check**: 28 de 28 critérios com assertion sobre o resultado da spec; nenhuma lacuna
+de precisão.
+**Sensor**: 18 de 18 mortos nesta rodada; 24 de 24 mutantes distintos mortos na HEAD.
+**Gate**: unit 1694, integração 364, e2e 111 de 111, `typecheck`, `lint` e `build` verdes.
+
+**Próximo passo**: o dono confere a fatia no monitor de 1.920 px e num notebook de 1.280 px. As
+decisões do autor marcadas `n` na spec e as observações 3 a 6 são as que pedem o olho dele. Depois,
+a traceability vai para "Verified" e a fatia segue para o merge, que pede autorização à parte.
