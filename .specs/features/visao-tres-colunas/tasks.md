@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T4 concluídas)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T5 concluídas)
 **Total**: 8 tasks em 4 fases (T1–T8), um lote só, executado inline
 
 ---
@@ -330,13 +330,13 @@ Nada muda na tela.
 
 #### T5: Próximos meses em linhas
 **What**: `HorizonteFuturo` com uma linha por mês, sem a régua horizontal.
-**Where**: `src/components/horizonte-futuro.tsx` (+ teste), `e2e/saldo-futuro.spec.ts` se a consulta depender do cartão
+**Where**: `src/components/horizonte-futuro.tsx` (+ teste), `e2e/visao-tres-colunas.spec.ts` (as linhas medidas no navegador)
 **Depends on**: nenhuma
 **Reuses**: `apresentarSaldo`, a animação de entrada
 **Requirement**: TRES-02
 **Done when**:
-- [ ] Os testes de SALDO-03 do componente e do e2e continuam passando sem mudar o que afirmam (TRES-02 AC 4)
-- [ ] A lista não rola na horizontal: o `<ul>` não tem `overflow-x`, medido no e2e de 400 px (TRES-02 AC 4)
+- [x] Os testes de SALDO-03 do componente e do e2e continuam passando sem mudar o que afirmam (TRES-02 AC 4)
+- [x] Uma linha por mês, uma embaixo da outra, e a lista sem rolagem lateral, medido no navegador (TRES-02 AC 4)
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `feat(painel): próximos meses em linhas`

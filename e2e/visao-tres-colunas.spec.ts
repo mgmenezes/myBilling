@@ -158,6 +158,31 @@ test.describe("em 1.920 px", () => {
     expect(Math.abs(folgaEsquerda - folgaDireita)).toBeLessThanOrEqual(1);
   });
 
+  test("Próximos meses tem uma linha por mês, uma embaixo da outra, sem rolagem lateral (TRES-02, AC 4)", async ({
+    page,
+  }) => {
+    await page.goto(`/${MARCO}`);
+
+    const secao = page.getByRole("region", { name: "Próximos meses" });
+    const linhas = secao.getByRole("listitem");
+    await expect(linhas).toHaveCount(3);
+    const caixas = await Promise.all([0, 1, 2].map((indice) => caixa(linhas.nth(indice))));
+    for (const [anterior, atual] of [
+      [caixas[0], caixas[1]],
+      [caixas[1], caixas[2]],
+    ]) {
+      if (anterior === undefined || atual === undefined) {
+        throw new Error("faltou uma linha");
+      }
+      expect(atual.x).toBe(anterior.x);
+      expect(atual.y).toBeGreaterThanOrEqual(anterior.y + anterior.height - 1);
+    }
+    const rolaDeLado = await secao
+      .getByRole("list")
+      .evaluate((lista) => lista.scrollWidth > lista.clientWidth);
+    expect(rolaDeLado).toBe(false);
+  });
+
   test("a Visão geral não tem o importar fora do menu (TRES-02, AC 6)", async ({ page }) => {
     await page.goto(`/${MARCO}`);
 

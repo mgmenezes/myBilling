@@ -13,8 +13,11 @@ gsap.registerPlugin(ScrollTrigger);
  * sobrar ou faltar em cada um.
  *
  * É a informação que a planilha nunca deu: quanto dos próximos meses já está
- * gasto antes de começarem. Por isso ela não é uma lista de texto, é uma
- * régua onde dá para comparar os meses de relance.
+ * gasto antes de começarem. **Uma linha por mês**, com os dois valores
+ * alinhados à direita, um mês embaixo do outro: é assim que dá para comparar
+ * os meses de relance, e é o que cabe ao lado de "Gastos por categoria" na
+ * Visão geral em colunas (TRES-02, AC 4). Ela já foi uma régua de cartões com
+ * rolagem lateral, que ao lado das categorias esconderia um dos meses.
  *
  * **O saldo não usa o rótulo do card.** É o mesmo número do "Saldo previsto"
  * daquele mês (SALDO-03, AC 7), mas esta seção aparece também em
@@ -31,7 +34,7 @@ gsap.registerPlugin(ScrollTrigger);
  * página não tem é uma forma de esconder conteúdo.
  *
  * Agora o ScrollTrigger só decide **quando** começar, e a revelação roda até
- * o fim sozinha. `once: true` porque reanimar a régua a cada rolagem para
+ * o fim sozinha. `once: true` porque reanimar a lista a cada rolagem para
  * cima e para baixo não informa nada.
  *
  * O gatilho é `top bottom` — o topo da seção encostando na base da janela — e
@@ -117,33 +120,33 @@ export function HorizonteFuturo({ meses }: { readonly meses: ReadonlyArray<MesFu
     return (
       <p className="rounded-xl border border-dashed border-line px-5 py-8 text-center text-[15px] text-ink-muted">
         Nenhum mês à frente tem valor comprometido. Compras parceladas cadastradas aqui aparecem
-        nesta régua automaticamente.
+        nesta lista automaticamente.
       </p>
     );
   }
 
   return (
     <div ref={raiz}>
-      <ul className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
+      <ul className="flex flex-col">
         {meses.map((mes) => {
           const saldo = apresentarSaldo(mes.saldo);
           return (
             <li
               key={mes.competencia}
-              className="mes-futuro flex min-w-[9.5rem] shrink-0 snap-start flex-col gap-3 rounded-xl border border-line bg-surface p-5"
+              className="mes-futuro flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-line py-3.5 last:border-b-0"
             >
-              <span className="text-[14px] font-semibold">{mes.rotulo}</span>
+              <span className="text-[15px] font-semibold">{mes.rotulo}</span>
               {/* `dt` e `dd` ligam cada rótulo ao seu valor para o leitor de tela. */}
-              <dl className="flex flex-col gap-2">
-                <div className="flex flex-col gap-0.5">
+              <dl className="flex gap-6">
+                <div className="flex flex-col gap-0.5 text-right">
                   <dt className="text-[13px] text-ink-muted">Comprometido</dt>
-                  <dd className="tabular whitespace-nowrap text-[17px]">
+                  <dd className="tabular whitespace-nowrap text-[15px]">
                     {formatarBRL(mes.comprometido)}
                   </dd>
                 </div>
-                <div className="flex flex-col gap-0.5">
+                <div className="flex min-w-28 flex-col gap-0.5 text-right">
                   <dt className="text-[13px] text-ink-muted">{saldo.rotulo}</dt>
-                  <dd className={`tabular whitespace-nowrap text-[17px] ${saldo.classe}`}>
+                  <dd className={`tabular whitespace-nowrap text-[15px] ${saldo.classe}`}>
                     {saldo.valor}
                   </dd>
                 </div>
