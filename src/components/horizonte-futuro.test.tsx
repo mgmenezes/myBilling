@@ -93,6 +93,19 @@ describe("cada cartão mostra o comprometido e o saldo (SALDO-03, AC 2)", () => 
       ["Vai faltar", "DD", "R$ 500,00"],
     ]);
   });
+
+  /* `dt` fora de `dl` não é lista de descrição: o leitor de tela perde o par. */
+  it("os pares ficam dentro de uma lista de descrição em cada cartão", () => {
+    render(<HorizonteFuturo meses={MESES} />);
+
+    for (const item of screen.getAllByRole("listitem")) {
+      expect(
+        within(item)
+          .getAllByRole("term")
+          .map((termo) => termo.closest("dl") !== null && item.contains(termo.closest("dl"))),
+      ).toEqual([true, true]);
+    }
+  });
 });
 
 describe("o rótulo e a cor seguem o sinal do saldo (SALDO-03, ACs 3 a 5)", () => {
