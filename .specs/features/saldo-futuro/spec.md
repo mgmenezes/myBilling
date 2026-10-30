@@ -142,7 +142,7 @@ previsto R$ 700,00".
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | SALDO-01 | P1: Saldo de cada mês seguinte, numa definição só | Execute | Implementing: `saldoPrevistoDaCompetencia` em `resumo-mensal.ts` é a definição única, usada pelo `competenciaView.saldo` e por `projetarProximosMeses`; `projecao.test.ts` prova entradas − despesas − investimentos e os cancelados fora, AC 1, a despesa paga no saldo e fora do comprometido, AC 2, cada mês isolado, AC 3, o mesmo número de `resumoMensal`, AC 4, e zero no mês vazio, AC 5 (passo 2); falta o Verifier |
-| SALDO-02 | P1: A visão mensal entrega o saldo futuro | Execute | Pending |
+| SALDO-02 | P1: A visão mensal entrega o saldo futuro | Execute | Implementing: `handler.test.ts` prova `futuro` com competência, comprometido e saldo nos `MESES_DE_PROJECAO` meses, com entrada fixa, fixo e investimento, AC 1, e o saldo projetado igual ao `competenciaView.saldo` de abril e de maio abertos, AC 2; o mês sem lançamento com saldo zero (passo 3); falta o Verifier |
 | SALDO-03 | P1: Os cartões dos próximos meses mostram o saldo | Execute | Pending |
 
 ---

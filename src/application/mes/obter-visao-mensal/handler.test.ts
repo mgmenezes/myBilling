@@ -347,6 +347,67 @@ describe("comprometimento futuro (MOV-06, AC 3)", () => {
   });
 });
 
+describe("saldo dos próximos meses (SALDO-02)", () => {
+  const ABRIL = "2026-04" as Competencia;
+  const MAIO = "2026-05" as Competencia;
+
+  /* Uma entrada fixa e um fixo em abril; só um investimento em maio; junho vazio. */
+  function semearMesesSeguintes(): void {
+    semear(
+      lancamento({
+        id: "entrada-fixa",
+        natureza: "RECEITA",
+        origem: "RECORRENCIA",
+        recorrenciaId: "recorrencia-entrada",
+        competencia: ABRIL,
+        valor: 100000 as Cents,
+        meioPagamentoId: CONTA,
+      }),
+      lancamento({
+        id: "fixo",
+        origem: "RECORRENCIA",
+        recorrenciaId: "recorrencia-fixo",
+        competencia: ABRIL,
+        valor: 30000 as Cents,
+        meioPagamentoId: CONTA,
+      }),
+      lancamento({
+        id: "investimento",
+        natureza: "INVESTIMENTO",
+        competencia: MAIO,
+        valor: 10000 as Cents,
+        meioPagamentoId: CONTA,
+      }),
+    );
+  }
+
+  it("entrega competência, comprometido e saldo para cada mês da janela (AC 1)", async () => {
+    semearMesesSeguintes();
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    expect(visao.futuro).toHaveLength(MESES_DE_PROJECAO);
+    expect(visao.futuro).toEqual([
+      { competencia: "2026-04", comprometido: 30000, saldo: 70000 },
+      { competencia: "2026-05", comprometido: 0, saldo: -10000 },
+      { competencia: "2026-06", comprometido: 0, saldo: 0 },
+    ]);
+  });
+
+  it("o saldo projetado é o mesmo do mês seguinte quando ele é aberto (AC 2)", async () => {
+    semearMesesSeguintes();
+
+    const marco = await obterVisaoMensal(fakes, MARCO);
+    const abril = await obterVisaoMensal(fakes, ABRIL);
+    const maio = await obterVisaoMensal(fakes, MAIO);
+
+    expect(abril.competenciaView.saldo).toBe(70000);
+    expect(marco.futuro[0]?.saldo).toBe(abril.competenciaView.saldo);
+    expect(maio.competenciaView.saldo).toBe(-10000);
+    expect(marco.futuro[1]?.saldo).toBe(maio.competenciaView.saldo);
+  });
+});
+
 describe("mês sem lançamento (UI-02, AC 6)", () => {
   it("devolve estrutura válida com zeros, não erro", async () => {
     const visao = await obterVisaoMensal(fakes, MARCO);
@@ -370,5 +431,6 @@ describe("mês sem lançamento (UI-02, AC 6)", () => {
     });
     expect(visao.futuro).toHaveLength(MESES_DE_PROJECAO);
     expect(visao.futuro.every((mes) => mes.comprometido === 0)).toBe(true);
+    expect(visao.futuro.every((mes) => mes.saldo === 0)).toBe(true);
   });
 });
