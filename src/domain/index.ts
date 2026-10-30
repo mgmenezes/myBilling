@@ -10,6 +10,13 @@
 export type { CicloFatura } from "./cartao/ciclo-fatura";
 export { diaEfetivo, resolverCicloFatura } from "./cartao/ciclo-fatura";
 export { geraFatura, podeReceberNovaCompra } from "./cartao/regras-cartao";
+export type { CorDeCategoria } from "./categoria/cor-da-categoria";
+export {
+  CORES_DE_CATEGORIA,
+  corAutomatica,
+  corDaCategoria,
+  ehCorDeCategoria,
+} from "./categoria/cor-da-categoria";
 export type { MotivoNaoLida, ParcelaDaLinha } from "./importacao/celula";
 export { normalizarNome, parcelaDaCelula, valorDaCelula } from "./importacao/celula";
 export type { MesEAnoDoArquivo } from "./importacao/competencia-do-arquivo";

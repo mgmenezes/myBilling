@@ -185,11 +185,11 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Reuses**: `normalizarNome`
 **Requirement**: COR-01
 **Done when**:
-- [ ] `CORES_DE_CATEGORIA` com as dez cores na ordem do AC 1 (COR-01 AC 1)
-- [ ] `corAutomatica` devolve sempre uma das dez, igual para nomes que diferem em caixa, acento ou espaços (COR-01 AC 3)
-- [ ] Nome normalizado vazio dá a primeira cor (Edge Case)
-- [ ] `corDaCategoria` devolve a escolhida quando há, e a automática quando é nula (COR-01 AC 2, 3)
-- [ ] `ehCorDeCategoria` aceita as dez e recusa o resto; 100% de branches
+- [x] `CORES_DE_CATEGORIA` com as dez cores na ordem do AC 1 (COR-01 AC 1)
+- [x] `corAutomatica` devolve sempre uma das dez, igual para nomes que diferem em caixa, acento ou espaços (COR-01 AC 3)
+- [x] Nome normalizado vazio dá a primeira cor (Edge Case)
+- [x] `corDaCategoria` devolve a escolhida quando há, e a automática quando é nula (COR-01 AC 2, 3)
+- [x] `ehCorDeCategoria` aceita as dez e recusa o resto; 100% de branches
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(categorias): cor de categoria no domínio`

@@ -203,7 +203,7 @@ medições, para a próxima mudança saber por que a cor existe e até onde vai.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| COR-01 | P1: A categoria tem uma cor | Tasks | Pending |
+| COR-01 | P1: A categoria tem uma cor | Execute | Implementing: `CORES_DE_CATEGORIA` com as dez cores na ordem do AC 1, `corAutomatica` sempre uma das dez, igual para nomes que diferem só em caixa, acento ou espaços, e derivada do nome, AC 3, nome normalizado vazio na primeira cor, Edge Case, `corDaCategoria` com a escolhida vencendo a automática e a automática quando nula, ACs 2 e 3, `ehCorDeCategoria` aceitando só as dez (T1) |
 | COR-02 | P1: Paleta medida nos dois temas | Tasks | Pending |
 | COR-03 | P1: A cor aparece onde a categoria aparece | Tasks | Pending |
 | COR-04 | P1: Tela de Categorias | Tasks | Pending |
