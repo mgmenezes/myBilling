@@ -249,16 +249,16 @@ que lê no fonte.
 
 | Cor | Fundo claro | Texto claro | Barra clara | Fundo escuro | Texto escuro | Barra escura |
 | --- | --- | --- | --- | --- | --- | --- |
-| `vermelho` | `#fceae8` | `#ab504b` | `#e16a63` | `#422522` | `#d87972` | `#a74541` |
-| `laranja` | `#fdeae0` | `#a55725` | `#d97230` | `#402719` | `#d17f4f` | `#a24e10` |
-| `ambar` (âmbar) | `#fbedd5` | `#8e6503` | `#bb8603` | `#3a2b11` | `#bc8c30` | `#845d00` |
-| `verde` | `#e1f5e0` | `#357a3a` | `#45a24d` | `#1f3420` | `#61a764` | `#24732c` |
-| `verde-agua` (verde-água) | `#d7f7ed` | `#0d7a66` | `#19a187` | `#10352c` | `#19aa8e` | `#0d725f` |
-| `ciano` | `#d6f5ff` | `#037690` | `#0a9cbc` | `#0e333d` | `#08a4c6` | `#046f87` |
-| `azul` | `#e7effc` | `#456bb2` | `#5c8eeb` | `#212e45` | `#6c94df` | `#3b63b0` |
-| `roxo` | `#f1ebfd` | `#7a5da9` | `#a37ce1` | `#312941` | `#a285d6` | `#7555a8` |
-| `rosa` | `#fde8f1` | `#a2507a` | `#d76aa2` | `#3f2431` | `#cf78a3` | `#9e4573` |
-| `marrom` | `#fbecde` | `#866648` | `#af8863` | `#382b1e` | `#af8e6e` | `#7d5e3f` |
+| `vermelho` | `#fceae8` | `#ab504b` | `#dc665f` | `#422522` | `#d87972` | `#ac4a45` |
+| `laranja` | `#fdeae0` | `#a55725` | `#d56e2c` | `#402719` | `#d17f4f` | `#a65216` |
+| `ambar` (âmbar) | `#fbedd5` | `#8e6503` | `#b58101` | `#3a2b11` | `#bc8c30` | `#8a620c` |
+| `verde` | `#e1f5e0` | `#357a3a` | `#3f9d48` | `#1f3420` | `#61a764` | `#297831` |
+| `verde-agua` (verde-água) | `#d7f7ed` | `#0d7a66` | `#0d9c83` | `#10352c` | `#19aa8e` | `#167763` |
+| `ciano` | `#d6f5ff` | `#037690` | `#0697b7` | `#0e333d` | `#08a4c6` | `#0d738b` |
+| `azul` | `#e7effc` | `#456bb2` | `#5789e6` | `#212e45` | `#6c94df` | `#3f67b5` |
+| `roxo` | `#f1ebfd` | `#7a5da9` | `#9e77dc` | `#312941` | `#a285d6` | `#7859ac` |
+| `rosa` | `#fde8f1` | `#a2507a` | `#d2659d` | `#3f2431` | `#cf78a3` | `#a44a78` |
+| `marrom` | `#fbecde` | `#866648` | `#aa835f` | `#382b1e` | `#af8e6e` | `#826344` |
 
 O azul daqui é pálido e não é o `--primary`: categoria não é ação, e o azul de ação continua
 escasso. Os nomes CSS não têm acento (`ambar`, `verde-agua`), porque são os mesmos que vão para o
@@ -266,29 +266,55 @@ banco e para o `CHECK`.
 
 ### Medido, não escolhido no olho
 
-Texto contra o próprio fundo tingido, piso de 4,5:1. Barra contra o canvas, que é o fundo do
-gráfico, piso de 3:1. Nos dois temas. O teste `src/components/cor-de-categoria.test.ts` lê os hex
-de `globals.css` e refaz estas contas: trocar um tom que reprove derruba a suíte.
+Texto contra o próprio fundo tingido, piso de 4,5:1. Barra contra o **trilho** em que ela é
+desenhada e contra o canvas, que é o fundo do gráfico, piso de 3:1 nos dois. Nos dois temas. O
+teste `src/components/cor-de-categoria.test.ts` lê os hex de `globals.css` e refaz estas contas:
+trocar um tom que reprove derruba a suíte.
 
-| Cor | Texto/fundo, claro | Texto/fundo, escuro | Barra/canvas, claro | Barra/canvas, escuro |
-| --- | --- | --- | --- | --- |
-| vermelho | 4,54 | 4,54 | 3,26 | 3,35 |
-| laranja | 4,52 | 4,51 | 3,28 | 3,41 |
-| âmbar | 4,53 | 4,52 | 3,22 | 3,33 |
-| verde | 4,59 | 4,60 | 3,22 | 3,34 |
-| verde-água | 4,61 | 4,58 | 3,24 | 3,37 |
-| ciano | 4,59 | 4,58 | 3,23 | 3,40 |
-| azul | 4,54 | 4,50 | 3,22 | 3,37 |
-| roxo | 4,55 | 4,50 | 3,22 | 3,40 |
-| rosa | 4,54 | 4,55 | 3,24 | 3,33 |
-| marrom | 4,53 | 4,51 | 3,22 | 3,32 |
-| **Pior caso** | **4,52** | **4,50** | **3,22** | **3,32** |
+O trilho do claro é `#eef0f3`, opaco. O do escuro é `rgb(255 255 255 / 0.08)`, e o que a tela
+mostra é ele composto sobre o canvas `#0a0b0d`: `rgb(29.6 30.5 32.4)`, que o navegador pinta como
+`#1e1f20`. O teste compõe a partir dos dois tokens, sem copiar o resultado.
 
-Os dois 4,50 do escuro são 4,502 (azul) e 4,503 (roxo): passam, sem folga. Contra o
-`surface-soft` do hover da linha, a barra mede no mínimo 3,00 no claro e 3,17 no escuro. Contra o
-**trilho** ela mede cerca de 2,8:1, abaixo de 3. Não bloqueia: o trilho é recessivo por definição,
-a barra tem a altura inteira dele e encosta no canvas acima e abaixo, e o valor e a porcentagem
-estão impressos na própria linha.
+| Cor | Texto/fundo, claro | Texto/fundo, escuro | Barra/trilho, claro | Barra/trilho, escuro | Barra/canvas, claro | Barra/canvas, escuro |
+| --- | --- | --- | --- | --- | --- | --- |
+| vermelho | 4,54 | 4,54 | 3,01 | 3,02 | 3,44 | 3,58 |
+| laranja | 4,52 | 4,51 | 3,02 | 3,03 | 3,44 | 3,60 |
+| âmbar | 4,53 | 4,52 | 3,01 | 3,03 | 3,44 | 3,59 |
+| verde | 4,59 | 4,60 | 3,00 | 3,02 | 3,43 | 3,59 |
+| verde-água | 4,61 | 4,58 | 3,02 | 3,04 | 3,44 | 3,61 |
+| ciano | 4,59 | 4,58 | 3,01 | 3,03 | 3,43 | 3,60 |
+| azul | 4,54 | 4,50 | 3,00 | 3,02 | 3,43 | 3,58 |
+| roxo | 4,55 | 4,50 | 3,00 | 3,02 | 3,43 | 3,58 |
+| rosa | 4,54 | 4,55 | 3,02 | 3,02 | 3,45 | 3,59 |
+| marrom | 4,53 | 4,51 | 3,01 | 3,01 | 3,43 | 3,58 |
+| **Pior caso** | **4,52** | **4,50** | **3,00** | **3,01** | **3,43** | **3,58** |
+
+Os dois 4,50 do escuro são 4,502 (azul) e 4,503 (roxo), e os três 3,00 do claro são 3,002
+(verde e azul) e 3,003 (roxo): passam, sem folga. No escuro, a barra passa também contra o trilho
+já arredondado para `#1e1f20`, com 3,001 no pior caso.
+
+**A barra mudou depois da primeira medição.** Os tons da T3 mediam 3,22:1 contra o canvas, mas
+cerca de 2,8:1 contra o trilho, e é o trilho que fica encostado na barra. A T13 escureceu as dez
+barras do claro e clareou as dez do escuro, só o necessário: mexeu na luminosidade em OKLCH, com o
+mesmo matiz e a mesma croma, salvo o arredondamento para hex. Os tons de antes:
+
+| Cor | Barra clara, antes | Barra escura, antes |
+| --- | --- | --- |
+| vermelho | `#e16a63` | `#a74541` |
+| laranja | `#d97230` | `#a24e10` |
+| âmbar | `#bb8603` | `#845d00` |
+| verde | `#45a24d` | `#24732c` |
+| verde-água | `#19a187` | `#0d725f` |
+| ciano | `#0a9cbc` | `#046f87` |
+| azul | `#5c8eeb` | `#3b63b0` |
+| roxo | `#a37ce1` | `#7555a8` |
+| rosa | `#d76aa2` | `#9e4573` |
+| marrom | `#af8863` | `#7d5e3f` |
+
+Contra o `surface-soft` do hover da linha, a barra mede no mínimo 3,20 no claro e 3,41 no escuro.
+**No hover do escuro, o trilho fica abaixo de 3:1**: o branco translúcido passa a ser composto
+sobre o `surface-soft`, e a barra mede cerca de 2,8:1 contra ele. Não bloqueia: é um estado de
+passagem, só de ponteiro, e o valor e a porcentagem estão impressos na própria linha.
 
 ### Os limites
 
@@ -310,14 +336,14 @@ estão impressos na própria linha.
 ### O que o validador de paleta reprovou, e por que não bloqueia
 
 As barras foram passadas pelo validador de paleta categórica da skill `dataviz`
-(`validate_palette.py`, contra o canvas de cada tema). Passaram a faixa de luminosidade e o
-contraste contra a superfície. Reprovaram três checagens:
+(`validate_palette.py`, contra o canvas de cada tema), e passadas de novo com os tons da T13.
+Passaram a faixa de luminosidade e o contraste contra a superfície. Reprovaram três checagens:
 
 | Checagem | Claro | Escuro |
 | --- | --- | --- |
-| Croma mínima (0,10 em OKLCH) | marrom `#af8863`, 0,07 | verde-água 0,09, ciano 0,09, marrom 0,061 |
-| Separação para quem não distingue cor (ΔE ≥ 8 entre vizinhos) | âmbar e laranja, ΔE 1,4 (deutan) | âmbar e laranja, ΔE 1,7 (protan) |
-| Separação em visão normal (ΔE ≥ 15 entre vizinhos) | laranja e vermelho, ΔE 6,4 | laranja e vermelho, ΔE 5,7 |
+| Croma mínima (0,10 em OKLCH) | marrom `#aa835f`, 0,069 | verde-água 0,091, ciano 0,091, marrom 0,06 |
+| Separação para quem não distingue cor (ΔE ≥ 8 entre vizinhos) | âmbar e laranja, ΔE 1,6 (deutan) | âmbar e laranja, ΔE 1,2 (deutan) |
+| Separação em visão normal (ΔE ≥ 15 entre vizinhos) | laranja e vermelho, ΔE 6,2 | laranja e vermelho, ΔE 5,6 |
 
 **Com dez matizes, isso é esperado, e não bloqueia.** O validador mede uma paleta que precisa
 distinguir séries só pela cor, como numa legenda. Aqui ninguém distingue categoria pela cor: o

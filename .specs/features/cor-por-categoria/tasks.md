@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/cor-por-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Draft (plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T8–T12)
-**Total**: 12 tasks em 5 fases
+**Status**: Draft (plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8)
+**Total**: 13 tasks em 5 fases
 
 ---
 
@@ -136,6 +136,7 @@ T1 -> T2
 
 ```
 T1 -> T3
+T3 -> T13
 ```
 
 ### Phase 2 — A cor nas telas
@@ -159,6 +160,7 @@ T8 -> T10
 T4 -> T10
 T9 -> T11
 T10 -> T11
+T13 -> T11
 ```
 
 ### Phase 4 — Fechamento
@@ -170,7 +172,7 @@ T7 -> T12
 T11 -> T12
 ```
 
-Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
+Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8–T12).
 
 ---
 
@@ -227,6 +229,22 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Tests**: unit
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(ui): paleta de cores de categoria`
+
+#### T13: A barra com 3:1 sobre o trilho
+**What**: a barra de cada cor passa de 3:1 também contra o trilho, que é quem fica ao lado dela no gráfico.
+**Where**: `src/app/globals.css`, `src/components/cor-de-categoria.test.ts`, `docs/design.md` (+ `spec.md`, COR-02 AC 3)
+**Depends on**: T3
+**Reuses**: o leitor de tokens e a conta de contraste de `cor-de-categoria.test.ts`
+**Requirement**: COR-02
+**Done when**:
+- [x] COR-02 AC 3 reescrito: a barra passa de 3:1 contra o trilho e contra a superfície do gráfico, nos dois temas
+- [x] O teste lê `--grafico-trilho` e `--canvas` de `globals.css`, compõe o trilho translúcido do escuro sobre o canvas e mede a barra contra os dois (COR-02 AC 3)
+- [x] O teste falha com os tons de barra antigos
+- [x] Só os `--cat-*-barra` que reprovam mudam, o mínimo de luminosidade, com o mesmo matiz: mais escuros no claro, mais claros no escuro
+- [x] A tabela de valores e a de medições em `docs/design.md` com os tons novos
+**Tests**: unit
+**Gate**: quick + `pnpm lint`
+**Commit**: `fix(ui): barra de categoria com 3:1 sobre o trilho`
 
 ### Phase 2 — A cor nas telas
 
@@ -343,7 +361,7 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 #### T11: A tela de Categorias de ponta a ponta
 **What**: a página e o e2e que prova a cor nas quatro telas.
 **Where**: `src/app/(app)/[competencia]/cadastros/categorias/page.tsx`, `e2e/categorias.spec.ts`
-**Depends on**: T9, T10
+**Depends on**: T9, T10, T13
 **Reuses**: `sessaoDaUI`, `listarCategoriasDisponiveis`, helpers de `e2e/lista-enxuta.spec.ts`
 **Requirement**: COR-02, COR-03, COR-04
 **Done when**:
@@ -381,6 +399,7 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 | T1 | 1 módulo de domínio | ✅ |
 | T2 | coluna + migration + tipo + repositório | ⚠️ coeso: a coluna sem o mapeador não compila |
 | T3 | tokens + mapa + documento | ⚠️ coeso: o mapa só vale com os tokens, e a decisão é a mesma |
+| T13 | 10 tokens de barra + teste + documento | ⚠️ coeso: o teste, os tons e a tabela medem a mesma coisa |
 | T4–T7 | 1 componente + a página que o alimenta | ✅ |
 | T8 | schema + erro + 2 actions | ⚠️ coeso: as duas actions dividem schema e revalidação |
 | T9, T10 | 1 componente | ✅ |
@@ -394,6 +413,7 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 | T1 | — | — | ✅ |
 | T2 | T1 | T1→T2 | ✅ |
 | T3 | T1 | T1→T3 | ✅ |
+| T13 | T3 | T3→T13 | ✅ |
 | T4 | T2, T3 | T2→T4, T3→T4 | ✅ |
 | T5 | T2, T3 | T2→T5, T3→T5 | ✅ |
 | T6 | T2, T3 | T2→T6, T3→T6 | ✅ |
@@ -401,7 +421,7 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 | T8 | T2 | T2→T8 | ✅ |
 | T9 | — | — | ✅ |
 | T10 | T8, T4 | T8→T10, T4→T10 | ✅ |
-| T11 | T9, T10 | T9→T11, T10→T11 | ✅ |
+| T11 | T9, T10, T13 | T9→T11, T10→T11, T13→T11 | ✅ |
 | T12 | T5, T6, T7, T11 | T5→T12, T6→T12, T7→T12, T11→T12 | ✅ |
 
 ## Test Co-location Validation
@@ -411,6 +431,7 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 | T1 | domínio | unit | unit | ✅ |
 | T2 | repositório | integration | integration | ✅ |
 | T3 | `src/components/*.ts` | unit | unit | ✅ |
+| T13 | `src/components/*.ts` | unit | unit | ✅ |
 | T4–T7, T9, T10 | componentes | componentes | componentes | ✅ |
 | T8 | schema + actions | unit + integration | unit + integration | ✅ |
 | T11 | fluxo | e2e | e2e | ✅ |

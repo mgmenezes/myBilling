@@ -32,18 +32,56 @@ function token(nome: string): Record<Tema, string> {
   return { claro: casamento[1], escuro: casamento[2] };
 }
 
-/** Luminância relativa da WCAG 2.x, a partir do hex sRGB. */
-function luminancia(hex: string): number {
-  const canal = (posicao: number): number => {
-    const valor = Number.parseInt(hex.slice(posicao, posicao + 2), 16) / 255;
-    return valor <= 0.04045 ? valor / 12.92 : ((valor + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * canal(1) + 0.7152 * canal(3) + 0.0722 * canal(5);
+/** Uma cor em sRGB, canais de 0 a 255. Fracionários quando é resultado de composição. */
+type Rgb = readonly [number, number, number];
+
+function deHex(hex: string): Rgb {
+  const canal = (posicao: number): number => Number.parseInt(hex.slice(posicao, posicao + 2), 16);
+  return [canal(1), canal(3), canal(5)];
 }
 
-function contraste(a: string, b: string): number {
+/** Luminância relativa da WCAG 2.x, a partir do sRGB. */
+function luminancia(cor: string | Rgb): number {
+  const [r, g, b] = typeof cor === "string" ? deHex(cor) : cor;
+  const canal = (valor255: number): number => {
+    const valor = valor255 / 255;
+    return valor <= 0.04045 ? valor / 12.92 : ((valor + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+}
+
+function contraste(a: string | Rgb, b: string | Rgb): number {
   const [clara, escura] = [luminancia(a), luminancia(b)].sort((x, y) => y - x) as [number, number];
   return (clara + 0.05) / (escura + 0.05);
+}
+
+/**
+ * O trilho como a tela o pinta. `--grafico-trilho` é `light-dark()` com um
+ * lado opaco (`#rrggbb`) e outro que pode ser branco translúcido
+ * (`rgb(r g b / a)`); o translúcido é composto sobre o canvas do mesmo tema,
+ * que é o que fica embaixo dele no gráfico.
+ */
+function trilhoPintado(canvas: Record<Tema, string>): Record<Tema, Rgb> {
+  const COR = String.raw`#[0-9a-f]{6}|rgb\(\s*\d+\s+\d+\s+\d+\s*\/\s*[\d.]+\s*\)`;
+  const casamento = new RegExp(
+    String.raw`--grafico-trilho:\s*light-dark\(\s*(${COR})\s*,\s*(${COR})\s*\)`,
+    "i",
+  ).exec(CSS);
+  if (casamento?.[1] === undefined || casamento[2] === undefined) {
+    throw new Error("--grafico-trilho não está declarado com light-dark() em globals.css");
+  }
+  const pintar = (declarada: string, fundo: string): Rgb => {
+    if (declarada.startsWith("#")) {
+      return deHex(declarada);
+    }
+    const [r = 0, g = 0, b = 0, alfa = 1] = (declarada.match(/[\d.]+/g) ?? []).map(Number);
+    const [fr, fg, fb] = deHex(fundo);
+    return [alfa * r + (1 - alfa) * fr, alfa * g + (1 - alfa) * fg, alfa * b + (1 - alfa) * fb];
+  };
+  return {
+    claro: pintar(casamento[1], canvas.claro),
+    escuro: pintar(casamento[2], canvas.escuro),
+  };
 }
 
 describe("a conta de contraste do teste", () => {
@@ -95,6 +133,32 @@ describe("a barra sobre o fundo do gráfico, nos dois temas (COR-02, AC 3)", () 
       const barra = token(`--cat-${cor}-barra`)[tema];
 
       expect(contraste(barra, canvas[tema])).toBeGreaterThanOrEqual(3);
+    },
+  );
+});
+
+/*
+ * Quem fica encostado na barra é o trilho, e não o canvas: a barra é desenhada
+ * dentro dele, da mesma altura. No claro o trilho é um cinza opaco; no escuro
+ * é branco translúcido, e a cor que a pessoa vê é ele composto sobre o canvas.
+ */
+describe("a barra sobre o trilho, nos dois temas (COR-02, AC 3)", () => {
+  const trilho = trilhoPintado(token("--canvas"));
+
+  /* Sem esta prova, um erro na leitura do trilho (o canvas no lugar dele, ou
+     o branco puro sem a transparência) deixaria a conta abaixo passar. */
+  it("o trilho escuro é o branco translúcido composto sobre o canvas, e não o canvas", () => {
+    expect(contraste(trilho.escuro, token("--canvas").escuro)).toBeGreaterThan(1.1);
+    expect(contraste(trilho.escuro, "#ffffff")).toBeGreaterThan(15);
+    expect(contraste(trilho.claro, "#ffffff")).toBeGreaterThan(1.1);
+  });
+
+  it.each(CORES_DE_CATEGORIA.flatMap((cor) => TEMAS.map((tema) => [cor, tema] as const)))(
+    "%s no tema %s passa de 3:1",
+    (cor, tema) => {
+      const barra = token(`--cat-${cor}-barra`)[tema];
+
+      expect(contraste(barra, trilho[tema])).toBeGreaterThanOrEqual(3);
     },
   );
 });
