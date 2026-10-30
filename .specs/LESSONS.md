@@ -15,22 +15,34 @@ Corroborated across multiple features. Safe to apply as guidance.
 - last seen: 2026-10-25T05:06:38Z
 
 ### L-010 - AC com duas cláusulas precisa de uma assertion para cada uma; provar só uma deixa a outra livre para regredir.
-- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
-- features: importar-planilha, saldo-futuro
-- evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria) (+1 more)
-- last seen: 2026-10-30T13:55:49Z
+- signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
+- features: importar-planilha, saldo-futuro, visao-tres-colunas
+- evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria) (+2 more)
+- last seen: 2026-10-30T22:13:51Z
 
 ### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
-- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,composicao` · harmful: 1
-- features: importar-planilha, trocar-categoria
-- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao) (+2 more)
-- last seen: 2026-10-30T02:12:18Z
+- signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,composicao` · harmful: 1
+- features: importar-planilha, trocar-categoria, visao-tres-colunas
+- evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao) (+3 more)
+- last seen: 2026-10-30T22:13:51Z
 
 ### L-018 - AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.
-- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `componentes,testes` · harmful: 0
-- features: importar-planilha, trocar-categoria
-- evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes) (+1 more)
-- last seen: 2026-10-29T16:16:13Z
+- signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `componentes,testes` · harmful: 1
+- features: importar-planilha, trocar-categoria, visao-tres-colunas
+- evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes) (+2 more)
+- last seen: 2026-10-30T22:13:51Z
+
+### L-029 - Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,limites` · harmful: 0
+- features: lista-enxuta, visao-tres-colunas
+- evidence: U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites) (+1 more)
+- last seen: 2026-10-30T22:13:51Z
+
+### L-030 - AC universal ('nenhuma tabela', 'todo bloco') precisa de teste que percorra todos os elementos; medir só o caso que motivou a regra deixa os outros regredirem.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: lista-enxuta, visao-tres-colunas
+- evidence: E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout) (+1 more)
+- last seen: 2026-10-30T22:13:51Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -180,18 +192,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: LST-01 AC 1; src/components/chips-de-categoria.tsx:83-85 (componentes,css)
 - last seen: 2026-10-29T19:06:31Z
 
-### L-029 - Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites` · harmful: 0
-- features: lista-enxuta
-- evidence: U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites)
-- last seen: 2026-10-29T19:06:31Z
-
-### L-030 - AC universal ('nenhuma tabela', 'todo bloco') precisa de teste que percorra todos os elementos; medir só o caso que motivou a regra deixa os outros regredirem.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
-- features: lista-enxuta
-- evidence: E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout)
-- last seen: 2026-10-29T19:06:31Z
-
 ### L-031 - Objetivo de legibilidade precisa virar AC mensurável, em linhas ou largura; sem número, quebrar em duas linhas passa como resolvido.
 - signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,layout` · harmful: 0
 - features: lista-enxuta
@@ -263,6 +263,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: saldo-futuro
 - evidence: validation.md rodada 1: H1 (src/application/mes/obter-visao-mensal/handler.ts:91, SALDO-02 AC 2, edge case da despesa futura paga) (testes,composicao)
 - last seen: 2026-10-30T13:55:49Z
+
+### L-043 - Edge case de uma porta nova que reusa uma regra antiga precisa de teste que passe pela porta nova com o caso; a prova da regra antiga não vê a porta.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `e2e,composicao` · harmful: 0
+- features: visao-tres-colunas
+- evidence: Edge cases 'busca com espaços nas pontas' e 'gravação recusada na coluna de ação' — src/app/(app)/[competencia]/page.tsx:250-284 (validation.md rodada 1) (e2e,composicao)
+- last seen: 2026-10-30T22:13:51Z
 
 ## Quarantined (failed when applied - ignore)
 

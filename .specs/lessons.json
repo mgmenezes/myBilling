@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 43,
+  "next_id": 44,
   "lessons": [
     {
       "id": "L-001",
@@ -178,16 +178,18 @@
       "status": "confirmed",
       "features": [
         "importar-planilha",
-        "saldo-futuro"
+        "saldo-futuro",
+        "visao-tres-colunas"
       ],
-      "recurrence": 2,
+      "recurrence": 3,
       "harmful": 0,
       "evidence": [
         "mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria)",
-        "validation.md rodada 1: U9 (src/components/horizonte-futuro.tsx:137, SALDO-03 AC 2, cláusula 'numa lista de descrição') (testes,acceptance-criteria)"
+        "validation.md rodada 1: U9 (src/components/horizonte-futuro.tsx:137, SALDO-03 AC 2, cláusula 'numa lista de descrição') (testes,acceptance-criteria)",
+        "G6 — src/app/(app)/[competencia]/page.tsx:242 (TRES-02 AC 1, cláusula 'separada do centro por uma linha fina'); TRES-03 AC 2 sem assertion para 'Gastos por categoria' e 'Próximos meses' (validation.md rodada 1) (testes,acceptance-criteria)"
       ],
       "created": "2026-10-25T05:06:38Z",
-      "last_seen": "2026-10-30T13:55:49Z"
+      "last_seen": "2026-10-30T22:13:51Z"
     },
     {
       "id": "L-011",
@@ -252,17 +254,19 @@
       "status": "confirmed",
       "features": [
         "importar-planilha",
-        "trocar-categoria"
+        "trocar-categoria",
+        "visao-tres-colunas"
       ],
-      "recurrence": 2,
+      "recurrence": 3,
       "harmful": 1,
       "evidence": [
         "validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)",
         "N9r: planejar-importacao.ts:394 invertendo as receitas vigentes; validation.md, rodada 3 (testes,composicao)",
-        "P2, P3 — src/app/(app)/[competencia]/lancamentos/page.tsx:151 e :154 (validation.md, rodada 1) (testes,composicao)"
+        "P2, P3 — src/app/(app)/[competencia]/lancamentos/page.tsx:151 e :154 (validation.md, rodada 1) (testes,composicao)",
+        "G2 — src/app/(app)/[competencia]/page.tsx:131; src/components/ultimos-lancamentos.test.tsx:70 (TRES-05 AC 3; validation.md rodada 1) (e2e,composicao)"
       ],
       "created": "2026-10-25T06:12:20Z",
-      "last_seen": "2026-10-30T02:12:18Z"
+      "last_seen": "2026-10-30T22:13:51Z"
     },
     {
       "id": "L-015",
@@ -327,16 +331,18 @@
       "status": "confirmed",
       "features": [
         "importar-planilha",
-        "trocar-categoria"
+        "trocar-categoria",
+        "visao-tres-colunas"
       ],
-      "recurrence": 2,
-      "harmful": 0,
+      "recurrence": 3,
+      "harmful": 1,
       "evidence": [
         "validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes)",
-        "TB6 — src/components/tabela-lancamentos.tsx:268-270; tabela-lancamentos.test.tsx:524 e e2e/trocar-categoria.spec.ts:315 (validation.md, rodada 1) (componentes,testes)"
+        "TB6 — src/components/tabela-lancamentos.tsx:268-270; tabela-lancamentos.test.tsx:524 e e2e/trocar-categoria.spec.ts:315 (validation.md, rodada 1) (componentes,testes)",
+        "G4, G5 — src/app/(app)/[competencia]/page.tsx:259-292; e2e/visao-tres-colunas.spec.ts:298,337 (TRES-04 AC 1, TRES-05 AC 1; validation.md rodada 1) (e2e,layout)"
       ],
       "created": "2026-10-28T20:24:12Z",
-      "last_seen": "2026-10-29T16:16:13Z"
+      "last_seen": "2026-10-30T22:13:51Z"
     },
     {
       "id": "L-019",
@@ -524,17 +530,19 @@
       "text": "Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.",
       "signal": "surviving_mutant",
       "scope": "testes,limites",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "lista-enxuta"
+        "lista-enxuta",
+        "visao-tres-colunas"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites)"
+        "U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites)",
+        "G1 — src/app/(app)/[competencia]/page.tsx:136,242 (1.280 px); G7 — src/components/menu-lateral.tsx:38 (768 px); validation.md rodada 1 (e2e,layout)"
       ],
       "created": "2026-10-29T19:06:31Z",
-      "last_seen": "2026-10-29T19:06:31Z"
+      "last_seen": "2026-10-30T22:13:51Z"
     },
     {
       "id": "L-030",
@@ -542,17 +550,19 @@
       "text": "AC universal ('nenhuma tabela', 'todo bloco') precisa de teste que percorra todos os elementos; medir só o caso que motivou a regra deixa os outros regredirem.",
       "signal": "surviving_mutant",
       "scope": "e2e,layout",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "lista-enxuta"
+        "lista-enxuta",
+        "visao-tres-colunas"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout)"
+        "E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout)",
+        "G8 — src/app/(app)/[competencia]/fixos/page.tsx:124; e2e/visao-tres-colunas.spec.ts:195-206 (TRES-01 AC 8; validation.md rodada 1) (e2e,layout)"
       ],
       "created": "2026-10-29T19:06:31Z",
-      "last_seen": "2026-10-29T19:06:31Z"
+      "last_seen": "2026-10-30T22:13:51Z"
     },
     {
       "id": "L-031",
@@ -769,6 +779,24 @@
       ],
       "created": "2026-10-30T13:55:49Z",
       "last_seen": "2026-10-30T13:55:49Z"
+    },
+    {
+      "id": "L-043",
+      "key": "ac_gap::edge case de uma porta nova que reusa uma regra antiga precisa de teste que passe pela porta nova com o caso a prova da regra antiga nao ve a porta",
+      "text": "Edge case de uma porta nova que reusa uma regra antiga precisa de teste que passe pela porta nova com o caso; a prova da regra antiga não vê a porta.",
+      "signal": "ac_gap",
+      "scope": "e2e,composicao",
+      "status": "candidate",
+      "features": [
+        "visao-tres-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "Edge cases 'busca com espaços nas pontas' e 'gravação recusada na coluna de ação' — src/app/(app)/[competencia]/page.tsx:250-284 (validation.md rodada 1) (e2e,composicao)"
+      ],
+      "created": "2026-10-30T22:13:51Z",
+      "last_seen": "2026-10-30T22:13:51Z"
     }
   ]
 }
