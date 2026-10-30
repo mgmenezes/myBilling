@@ -376,7 +376,7 @@ Nada muda na tela.
 **Reuses**: `caixa`
 **Requirement**: TRES-01
 **Done when**:
-- [ ] Nas três telas, a área de conteúdo mede até 1.024 px e fica centrada na área à direita do menu (TRES-01 AC 8)
+- [x] Nas três telas, a área de conteúdo mede até 1.024 px e fica centrada na área à direita do menu (TRES-01 AC 8)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(moldura): medir a área estreita nas três telas`

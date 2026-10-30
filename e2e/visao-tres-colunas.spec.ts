@@ -194,17 +194,32 @@ test.describe("em 1.920 px", () => {
     }
   });
 
-  test("Lançamentos fica em até 1.024 px, centrado na área à direita do menu (TRES-01, AC 8)", async ({
+  /*
+   * A área de conteúdo é o bloco, logo abaixo da moldura do mês, que contém o
+   * título da tela. Sem a `AreaEstreita`, esse bloco seria a página inteira,
+   * da largura da área à direita do menu.
+   */
+  test("Lançamentos, Todo mês e Categorias ficam em até 1.024 px, centrados na área à direita do menu (TRES-01, AC 8)", async ({
     page,
   }) => {
-    await page.goto(`/${MARCO}/lancamentos`);
+    for (const caminho of [
+      `/${MARCO}/lancamentos`,
+      `/${MARCO}/fixos`,
+      `/${MARCO}/cadastros/categorias`,
+    ]) {
+      await page.goto(caminho);
+      const titulo = page.getByRole("heading", { level: 1 });
+      await expect(titulo).toBeVisible();
 
-    const area = await caixa(page.getByRole("main"));
-    const cartao = await caixa(page.locator("#cartao-de-filtros"));
-    expect(cartao.width).toBeLessThanOrEqual(1024);
-    const folgaEsquerda = cartao.x - area.x;
-    const folgaDireita = area.x + area.width - (cartao.x + cartao.width);
-    expect(Math.abs(folgaEsquerda - folgaDireita)).toBeLessThanOrEqual(1);
+      const area = await caixa(page.getByRole("main"));
+      const conteudo = await caixa(
+        page.getByRole("main").locator(":scope > div > div").filter({ has: titulo }),
+      );
+      expect(conteudo.width, caminho).toBeLessThanOrEqual(1024);
+      const folgaEsquerda = conteudo.x - area.x;
+      const folgaDireita = area.x + area.width - (conteudo.x + conteudo.width);
+      expect(Math.abs(folgaEsquerda - folgaDireita), caminho).toBeLessThanOrEqual(1);
+    }
   });
 
   test("Próximos meses tem uma linha por mês, uma embaixo da outra, sem rolagem lateral (TRES-02, AC 4)", async ({
