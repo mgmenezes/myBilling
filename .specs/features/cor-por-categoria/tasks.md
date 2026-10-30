@@ -348,12 +348,12 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 **Reuses**: `Chip cor`, `useAvisos`, padrão de edição inline de `lista-de-fixos.tsx`
 **Requirement**: COR-04
 **Done when**:
-- [ ] Uma linha por categoria, na ordem recebida, com a pill na cor em uso (COR-04 AC 2)
-- [ ] `fieldset` com `legend` "Cor de <nome>" e onze radios com o nome da cor escrito; a cor em uso marcada, "Automática (<cor>)" quando nula (COR-04 AC 3)
-- [ ] Escolher grava, pinta na hora e avisa "Cor trocada."; "Automática" manda `null` (COR-04 AC 4, 5)
-- [ ] "Renomear" abre o campo; salvar avisa "Categoria renomeada." (COR-04 AC 6)
-- [ ] Recusa volta o valor anterior e mostra o motivo na linha, em `role="alert"` (COR-04 AC 7, 8)
-- [ ] Sem categorias, a frase de vazio (Edge Case)
+- [x] Uma linha por categoria, na ordem recebida, com a pill na cor em uso (COR-04 AC 2)
+- [x] `fieldset` com `legend` "Cor de <nome>" e onze radios com o nome da cor escrito; a cor em uso marcada, "Automática (<cor>)" quando nula (COR-04 AC 3)
+- [x] Escolher grava, pinta na hora e avisa "Cor trocada."; "Automática" manda `null` (COR-04 AC 4, 5)
+- [x] "Renomear" abre o campo; salvar avisa "Categoria renomeada." (COR-04 AC 6)
+- [x] Recusa volta o valor anterior e mostra o motivo na linha, em `role="alert"` (COR-04 AC 7, 8)
+- [x] Sem categorias, a frase de vazio (Edge Case)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(categorias): lista de categorias com cor e nome`
