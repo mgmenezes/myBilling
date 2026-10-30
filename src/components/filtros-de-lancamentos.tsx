@@ -22,7 +22,8 @@ import type { OpcaoDeCadastro } from "./form-compra";
  * quanto foi para cada categoria no mês, e o total vem pronto da página, o
  * mesmo de "Gastos por categoria" na Visão geral. Ele grava o mesmo
  * `categoriaId` que o select gravava, então os links que já levam à lista
- * filtrada continuam valendo.
+ * filtrada continuam valendo. A cor de cada chip também vem pronta no total
+ * (COR-03, AC 4).
  *
  * **A contagem fica numa região `role="status"`**, e só nela: é ela que diz a
  * quem não vê a lista que o filtro mudou o que está na tela (LST-01, AC 8).

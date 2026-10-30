@@ -1,7 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
+import type { CorDeCategoria } from "@/domain";
 import { formatarBRL } from "@/lib/formatar";
+import { CLASSES_DA_COR } from "./cor-de-categoria";
 
 /**
  * O filtro de categoria da lista, em chips com o gasto do mês (LST-01).
@@ -19,6 +21,12 @@ import { formatarBRL } from "@/lib/formatar";
  * no computador. O resto entra na mesma coleção quando a pessoa pede, e a
  * coleção quebra linha: nenhum chip some atrás de `overflow`, nem encolhe até
  * perder o valor.
+ *
+ * **O chip inativo tem a cor da categoria** (COR-03, AC 4), a mesma da pill e
+ * da barra, com o nome sempre escrito nele. O ativo continua invertido: o
+ * estado pressionado é a inversão, e tingi-lo faria "escolhido" e "da cor
+ * verde" disputarem o mesmo sinal. "Sem categoria" chega com cor nula e fica
+ * na neutra.
  */
 
 export interface TotalDeCategoria {
@@ -26,6 +34,18 @@ export interface TotalDeCategoria {
   readonly nome: string;
   /** Centavos (AD-001). */
   readonly gasto: number;
+  /** A cor em uso; `null` em "Sem categoria" e "Categoria removida". */
+  readonly cor: CorDeCategoria | null;
+}
+
+function pinturaDoChip(categoria: TotalDeCategoria, pressionado: boolean): string {
+  if (pressionado) {
+    return "border-inverso bg-inverso text-on-inverso";
+  }
+  if (categoria.cor === null) {
+    return "border-line bg-surface text-ink hover:border-line-strong";
+  }
+  return `border-transparent ${CLASSES_DA_COR[categoria.cor].pill} hover:border-line-strong`;
 }
 
 /** Quantos chips aparecem antes do "+N". */
@@ -74,11 +94,7 @@ export function ChipsDeCategoria({
                 type="button"
                 aria-pressed={pressionado}
                 onClick={() => aoEscolher(pressionado ? null : categoria.id)}
-                className={`${CHIP} ${
-                  pressionado
-                    ? "border-inverso bg-inverso text-on-inverso"
-                    : "border-line bg-surface text-ink hover:border-line-strong"
-                }`}
+                className={`${CHIP} ${pinturaDoChip(categoria, pressionado)}`}
               >
                 {/* Um item só no flex do chip: soltos, o nome e o " · " viram
                     um item anônimo, o espaço do fim dele é aparado e o total

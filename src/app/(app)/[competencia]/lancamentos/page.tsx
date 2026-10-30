@@ -157,12 +157,13 @@ export default async function PaginaDeLancamentos({
   const nomePorCategoria = new Map(todasAsCategorias.map((c) => [c.id, c.nome]));
   /* Os chips somam o mês inteiro, e não o que sobrou do filtro: o total de
      cada categoria é o de "Gastos por categoria" na Visão geral, e não muda
-     quando outro filtro entra (LST-01, AC 2). */
+     quando outro filtro entra (LST-01, AC 2). Cada um leva a cor em uso da
+     categoria, das mesmas categorias de onde sai o nome (COR-03, AC 4). */
   const gastoPorCategoria = totaisPorCategoria(
     visao.lancamentos,
     resultado.value,
     visao.competenciaView.totalGastos,
-    nomePorCategoria,
+    new Map(todasAsCategorias.map((c) => [c.id, c])),
   );
   /* Montadas uma vez: os dois formulários do alternador e o seletor de cada
      linha recebem as mesmas. A cor em uso vai junto, para o seletor da linha

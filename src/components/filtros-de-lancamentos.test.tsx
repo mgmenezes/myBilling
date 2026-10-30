@@ -29,7 +29,7 @@ const CONTA = "33333333-3333-4333-8333-333333333333";
 const PESSOA_A = "11111111-1111-4111-8111-111111111111";
 
 /* O select "Categoria" virou chips com o gasto do mês (LST-01). */
-const CATEGORIAS = [{ id: CATEGORIA_X, nome: "Categoria X", gasto: 12000 }];
+const CATEGORIAS = [{ id: CATEGORIA_X, nome: "Categoria X", gasto: 12000, cor: "rosa" }] as const;
 const CHIP_X = "Categoria X · R$ 120,00";
 const MEIOS = [{ id: CONTA, nome: "Conta Corrente" }];
 const USUARIOS = [{ id: PESSOA_A, nome: "Pessoa A" }];
@@ -177,6 +177,17 @@ describe("os chips no lugar do select de categoria (LST-01)", () => {
 
     const chips = within(cartao).getByRole("list", { name: "Categoria" });
     expect(within(chips).getByRole("button", { name: CHIP_X })).toBeDefined();
+  });
+
+  /* A cor vem do total que a página manda: o cartão a entrega ao chip, e
+     não a perde no caminho (COR-03, AC 4). */
+  it("o chip inativo tem a cor do total recebido (COR-03, AC 4)", () => {
+    const { container: cartao } = montar();
+
+    const chips = within(cartao).getByRole("list", { name: "Categoria" });
+    expect(within(chips).getByRole("button", { name: CHIP_X }).className.split(/\s+/)).toEqual(
+      expect.arrayContaining(["bg-cat-rosa-fundo", "text-cat-rosa-texto"]),
+    );
   });
 
   it("escolher um chip grava categoriaId e mantém busca, meio, pessoa e situação (AC 5)", () => {

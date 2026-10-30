@@ -15,9 +15,9 @@ import { ChipsDeCategoria, type TotalDeCategoria } from "./chips-de-categoria";
 afterEach(cleanup);
 
 const TRES: ReadonlyArray<TotalDeCategoria> = [
-  { id: "cat-um", nome: "Categoria Um", gasto: 123456 },
-  { id: "cat-dois", nome: "Categoria Dois", gasto: 30003 },
-  { id: "cat-tres", nome: "Categoria Três", gasto: 50 },
+  { id: "cat-um", nome: "Categoria Um", gasto: 123456, cor: "verde" },
+  { id: "cat-dois", nome: "Categoria Dois", gasto: 30003, cor: "roxo" },
+  { id: "cat-tres", nome: "Categoria Três", gasto: 50, cor: "ambar" },
 ];
 
 const NOMES = ["Um", "Dois", "Três", "Quatro", "Cinco", "Seis", "Sete", "Oito", "Nove"];
@@ -28,6 +28,7 @@ function categorias(quantas: number): ReadonlyArray<TotalDeCategoria> {
     id: `cat-${posicao + 1}`,
     nome: `Categoria ${nome}`,
     gasto: (9 - posicao) * 1000,
+    cor: "azul",
   }));
 }
 
@@ -208,5 +209,56 @@ describe("sem despesa no mês, nenhum chip (Edge Case)", () => {
     const { container } = montar([]);
 
     expect(container.innerHTML).toBe("");
+  });
+});
+
+/**
+ * Testes derivados de COR-03 (ACs 4 e 6), COR-02 (AC 5) e do Done-when de T7.
+ * O chip inativo tem a pill da cor da categoria; o ativo continua invertido,
+ * e "Sem categoria" continua na neutra. O nome acessível é o mesmo de antes:
+ * os testes de LST-01 acima já montam os chips tingidos.
+ */
+describe("os chips na cor da categoria (COR-03, AC 4)", () => {
+  function classesDo(nome: string): ReadonlyArray<string> {
+    return within(colecao())
+      .getByRole("button", { name: new RegExp(`^${nome} · `) })
+      .className.split(/\s+/);
+  }
+
+  const semCor = (classes: ReadonlyArray<string>) =>
+    classes.some((classe) => classe.startsWith("bg-cat-") || classe.startsWith("text-cat-"));
+
+  it("cada chip inativo tem o fundo e o texto da própria cor, sem borda", () => {
+    montar(TRES, null);
+
+    expect(classesDo("Categoria Um")).toEqual(
+      expect.arrayContaining(["bg-cat-verde-fundo", "text-cat-verde-texto", "border-transparent"]),
+    );
+    expect(classesDo("Categoria Dois")).toEqual(
+      expect.arrayContaining(["bg-cat-roxo-fundo", "text-cat-roxo-texto"]),
+    );
+    expect(classesDo("Categoria Um")).not.toContain("bg-surface");
+    expect(classesDo("Categoria Um")).not.toContain("border-line");
+  });
+
+  it("o chip ativo continua invertido, sem a cor da categoria", () => {
+    montar(TRES, "cat-dois");
+
+    const ativo = classesDo("Categoria Dois");
+    expect(ativo).toEqual(expect.arrayContaining(["bg-inverso", "text-on-inverso"]));
+    expect(semCor(ativo)).toBe(false);
+    /* Os outros continuam tingidos ao lado dele. */
+    expect(classesDo("Categoria Um")).toContain("bg-cat-verde-fundo");
+  });
+
+  it('"Sem categoria" fica com border-line bg-surface, a neutra de hoje (COR-02, AC 5)', () => {
+    montar([
+      { id: "cat-um", nome: "Categoria Um", gasto: 2000, cor: "verde" },
+      { id: "sem-categoria", nome: "Sem categoria", gasto: 1000, cor: null },
+    ]);
+
+    const sem = classesDo("Sem categoria");
+    expect(sem).toEqual(expect.arrayContaining(["border-line", "bg-surface", "text-ink"]));
+    expect(semCor(sem)).toBe(false);
   });
 });
