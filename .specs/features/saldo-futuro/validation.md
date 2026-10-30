@@ -1,8 +1,24 @@
 # Saldo dos próximos meses — Validação
 
-## Validation: saldo-futuro — **FAIL**
+## Validation: saldo-futuro — **PASS**
 
-**Result**: FAIL ❌ — rodada 1 (2026-10-30, `69bd28f`). Na HEAD o produto faz o que a spec pede: os 15
+**Result**: PASS ✅ — rodada 2 (2026-10-30, `bbe9bf5`). As duas correções fecham as duas lacunas da
+rodada 1, e só tocam teste.
+- **F1** (`0cdf2c6`) põe em abril uma despesa já paga em março. H1, reaplicado sozinho, morre nela, e
+  só nela.
+- **F2** (`bbe9bf5`) exige o `dl` dentro do próprio cartão. U9 morre nela, e U9b, novo, também: U9b
+  põe o `dl` em volta da régua inteira, fora dos cartões.
+- Desde `69bd28f`, nenhum arquivo fora de teste e de spec mudou.
+- Os mutantes D2, D5, U3 e P2 da rodada 1, repetidos, continuam morrendo.
+- O gate está verde: unit 1668, e2e da fatia 15 de 15, `typecheck` e `lint`. A primeira execução do
+  e2e caiu num hook de semeadura de `compra-parcelada.spec.ts`, fora da fatia, e a segunda passou
+  inteira (ver [Rodada 2](#rodada-2)).
+- Os 15 critérios e os 5 edge cases têm assertion sobre o resultado da spec, e todo mutante que
+  quebra critério morre.
+
+Detalhe na seção [Rodada 2](#rodada-2), no fim do arquivo. A rodada 1 segue abaixo como foi escrita.
+
+**Rodada 1** (2026-10-30, `69bd28f`): FAIL ❌. Na HEAD o produto faz o que a spec pede: os 15
 critérios e os 5 edge cases têm assertion sobre o valor que a spec define. O gate está verde: unit
 1666, integração 364, e2e da fatia 15 de 15, `typecheck`, `lint` e `build`. Dos 22 mutantes, 20
 morreram. O veredito vem de **dois mutantes vivos**, e nenhum deles é defeito de produto. Nos dois falta
@@ -287,3 +303,134 @@ o card ao abrir o mês; os 400 px.
 
 **Próximo passo**: Fix 1 e Fix 2 por um implementador, depois a rodada 2 do Verifier, que reaplica H1
 e U9.
+
+---
+
+## Rodada 2
+
+**Data**: 2026-10-30
+**Faixa do diff**: `b85aa31..bbe9bf5`, 2 commits: F1 (`0cdf2c6`) e F2 (`bbe9bf5`). Os dois só acrescentam
+um caso de teste cada e atualizam a traceability de SALDO-02 e SALDO-03. Fora de teste e de spec, nada
+mudou desde `69bd28f`: `git diff --stat 69bd28f..HEAD`, sem `.specs` nem `*.test.*`, sai vazio.
+**Verificador**: o mesmo sub-agente independente da rodada 1 (autor ≠ verificador). Só leitura sobre o
+código e os testes.
+
+- **Onde as mutações rodaram**: como na rodada 1, uma `git worktree` descartável por mutante, detached
+  no `bbe9bf5`, com `pnpm install --frozen-lockfile --prefer-offline` próprio. Não houve `git stash`.
+- **Baseline**: nesta rodada, o worktree real começou limpo. O `next-env.d.ts` já tinha voltado à forma
+  da HEAD antes da rodada. As 7 comparações depois de cada mutante deram iguais, e a do fim da rodada
+  também, depois que o `typecheck` desfez o que o `next dev` do e2e escreve.
+
+### As duas correções
+
+| Fix | Caso novo | Assertion | Prova |
+| --- | --- | --- | --- |
+| F1 | `src/application/mes/obter-visao-mensal/handler.test.ts:412` - abril com entrada fixa 100000, fixo 30000 e despesa 20000 paga em `2026-03-28` | `:427` - `expect(marco.futuro[0]).toEqual({ competencia: "2026-04", comprometido: 30000, saldo: 50000 })`; `:428` - `expect(abril.competenciaView.saldo).toBe(50000)` | 100000 − 30000 − 20000 = 50000. A paga fica fora do comprometido e dentro do saldo, e o card de abril dá o mesmo número |
+| F2 | `src/components/horizonte-futuro.test.tsx:98` - os três cartões | `:105-106` - `termo.closest("dl") !== null && item.contains(termo.closest("dl"))` igual a `[true, true]` em cada cartão | os dois termos de cada cartão dentro de um `dl` do próprio cartão |
+
+As duas assertions são as das sondas F1 e F2 da rodada 1. A F2 ficou mais forte que a sonda, porque
+exige também que o `dl` esteja dentro do cartão.
+
+### Critérios que mudam de status
+
+| Critério | Rodada 1 | Rodada 2 | Evidência |
+| --- | --- | --- | --- |
+| SALDO-02 AC 2 | ⚠️ PASS com H1 vivo | ✅ PASS | `src/application/mes/obter-visao-mensal/handler.test.ts:404-407` e `:427-428` |
+| SALDO-03 AC 2 | ⚠️ PASS com U9 vivo | ✅ PASS | `src/components/horizonte-futuro.test.tsx:86-94` e `:105-106` |
+| Edge case "despesa futura já paga" | [~] só no domínio | [x] domínio e handler | `src/domain/mes/projecao.test.ts:236` e `src/application/mes/obter-visao-mensal/handler.test.ts:427` |
+
+Os outros 13 critérios e 4 edge cases ficam como na rodada 1, com as mesmas assertions. Os dois commits
+só acrescentam linhas, e algumas citações da rodada 1 desceram:
+- Em `src/components/horizonte-futuro.test.tsx`, tudo depois de `:94` desceu 13 linhas. AC 3 está
+  agora em `:117-119`, AC 4 em `:128-132`, AC 5 em `:141-147` e AC 6 em `:155`.
+- Em `src/application/mes/obter-visao-mensal/handler.test.ts`, a assertion do mês vazio (SALDO-01
+  AC 5) desceu de `:434` para `:455`.
+- As outras citações não mudaram.
+
+Agora são 15 de 15 critérios com assertion sobre o resultado da spec, e nenhum tem mutante vivo. Sem
+lacuna de precisão da spec.
+
+### Sensor
+
+Unit: `pnpm exec vitest run --project domain --project componentes`, sem cobertura. e2e:
+`pnpm exec playwright test e2e/saldo-futuro.spec.ts`.
+
+| # | `file:line` | Mutação | Rodada 1 | Rodada 2 |
+| --- | --- | --- | --- | --- |
+| H1 | `src/application/mes/obter-visao-mensal/handler.ts:91` | o handler entrega à projeção só os futuros pendentes | ❌ vivo | ✅ morto pelo unit, 1 teste: o caso da F1 (`handler.test.ts:412`) |
+| U9 | `src/components/horizonte-futuro.tsx:137,150` | `<dl>` vira `<div>` | ❌ vivo | ✅ morto pelo unit, 1 teste: o caso da F2 (`horizonte-futuro.test.tsx:98`) |
+| U9b | `src/components/horizonte-futuro.tsx:127,137,150,154` | novo: o `dl` sai do cartão e envolve a régua inteira | - | ✅ morto pelo unit, 1 teste: o caso da F2 (a cláusula `item.contains`) |
+| D2 | `src/domain/mes/resumo-mensal.ts:67` | o saldo ignora a despesa paga | ✅ | ✅ morto pelo unit, 5 testes (agora também o da F1) |
+| D5 | `src/domain/mes/projecao.ts:47` | a projeção calcula o saldo com a regra do comprometido | ✅ | ✅ morto pelo unit, 4 testes (agora também o da F1) |
+| U3 | `src/components/horizonte-futuro.tsx:72,75` | rótulos trocados | ✅ | ✅ morto pelo unit, 3 testes |
+| P2 | `src/app/(app)/[competencia]/page.tsx:204` | a página passa o comprometido no lugar do saldo | ✅ | ✅ morto pelo e2e `saldo-futuro.spec.ts:108` (unit passa, 1668 de 1668) |
+
+**Resultado**: 7 de 7 mortos. Os dois vivos da rodada 1 morrem, cada um só no caso que a correção
+acrescentou. Os outros 15 mortos da rodada 1 não foram repetidos. Os dois commits só acrescentam teste,
+e nenhum deles toca o código que esses mutantes alteram.
+
+### Lacuna nova?
+
+Nenhuma.
+- Os dois commits não tiram nem afrouxam assertion: o diff só tem linhas acrescentadas em teste.
+- Os dois casos novos mapeiam para SALDO-02 AC 2 com o edge case, e para SALDO-03 AC 2.
+- A F2 percorre `getAllByRole("listitem")`. Com zero cartões ela passaria sem checar nada, mas o
+  `toHaveLength(3)` de `horizonte-futuro.test.tsx:86` impede esse caso.
+- A F1 reusa a semeadura de SALDO-02 (`handler.test.ts:355-382`) e acrescenta uma despesa paga. O saldo
+  de maio, que a semeadura também cria, não entra na assertion nova, e não precisa: H1 e D2 morrem no
+  caso de abril.
+
+### Gate
+
+- `pnpm typecheck`: exit 0.
+- `pnpm lint`: exit 0 (301 arquivos).
+- `pnpm test:unit`: 1668 de 1668, 103 arquivos; `src/domain` com 100% de branches (355 de 355). São 2
+  testes a mais que na rodada 1.
+- e2e (`e2e/saldo-futuro.spec.ts` e `e2e/compra-parcelada.spec.ts`, com `DATABASE_URL_TEST` em
+  `mybilling_test_trc`):
+  - **Primeira execução**: 11 passaram, 1 falhou, 3 não rodaram (modo serial). A falha foi
+    `compra-parcelada.spec.ts:381` (CART-02), dentro do `beforeEach` de `:38-41`, antes de qualquer
+    assertion: `duplicate key value violates unique constraint "usuario_email_unique"` em
+    `semearCadastroBase` (`src/infrastructure/db/testing/banco-de-teste.ts:55`). Os 4 testes de
+    `saldo-futuro.spec.ts` passaram nessa mesma execução.
+  - **Segunda execução**, logo em seguida e sem mudança nenhuma: 15 de 15.
+  - **Leitura**: o arquivo e o código que ele exercita são os mesmos da rodada 1, que passou duas vezes.
+    Causa plausível, não confirmada: `src/infrastructure/auth/sessao.ts:65` cria a usuária quando a
+    sessão não a encontra. Um pedido do teste anterior ainda em voo pode recriar a Pessoa A entre o
+    `limparDados` e o `semearCadastroBase`.
+  - Fica como observação para o dono, fora do veredito.
+- `pnpm test:integration` e `pnpm build` não foram repetidos. Fora de teste e de spec nada mudou, e os
+  dois arquivos de teste alterados rodam no gate unit. Na rodada 1 deram 364 de 364 e exit 0.
+
+### Requirement Traceability Update
+
+| Requirement | Status anterior | Status novo |
+| --- | --- | --- |
+| SALDO-01 | Implementing | ✅ Verified |
+| SALDO-02 | Implementing | ✅ Verified |
+| SALDO-03 | Implementing | ✅ Verified |
+
+Em `spec.md`, o Status dos três passa a começar com "Verified". A evidência fica, e "falta o Verifier"
+sai.
+
+### Lições
+
+Nenhuma nova. A falha da primeira execução do e2e é de ambiente: um hook de semeadura, num arquivo fora
+da fatia, que não se repetiu. Não é sinal de verificação deste código. As lições da rodada 1 (L-010
+confirmada e L-042 candidata) continuam como estão.
+
+### Resumo da rodada 2
+
+**Overall**: ✅ Ready.
+
+**Spec-anchored check**: 15 de 15 critérios com assertion sobre o resultado da spec; 0 lacunas de
+precisão; 0 mutantes vivos.
+**Sensor**: rodada 2, 7 de 7 mortos. Na soma das duas rodadas, 23 mutantes distintos, e todos morrem
+na HEAD `bbe9bf5`. Os 15 não repetidos na rodada 2 não tiveram o código alterado pelos dois commits.
+**Gate**: unit 1668, `typecheck`, `lint` e e2e da fatia 15 de 15 (na segunda execução) verdes.
+
+**Para o dono**:
+- As observações da rodada 1 continuam valendo: cinco decisões do autor sem confirmação, o mesmo
+  número em duas formas e o saldo de competência em Movimentações.
+- Uma nova: o `beforeEach` de `e2e/compra-parcelada.spec.ts` pode colidir com a criação da usuária
+  pela sessão.
