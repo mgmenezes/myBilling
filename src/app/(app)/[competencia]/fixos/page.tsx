@@ -8,6 +8,7 @@ import {
   registrarNovaVigencia,
 } from "@/app/actions/recorrencias";
 import { valorNoMesExibido } from "@/application/recorrencias/editar/handler";
+import { AreaEstreita } from "@/components/area-estreita";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FormRecorrencia } from "@/components/form-recorrencia";
 import { ListaDeFixos } from "@/components/lista-de-fixos";
@@ -120,47 +121,49 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
     });
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Todo mês</h1>
-        {/* Mesmo gesto da área de Lançamentos: a lista só cresce, e o
-            formulário no rodapé ficava cada vez mais longe (AD-014). */}
-        <DialogoDeCadastro rotuloDoBotao="+ Novo fixo" titulo="Novo gasto fixo ou entrada">
-          <FormRecorrencia
-            competencia={resultado.value}
-            meios={opcoesDeMeio}
-            categorias={opcoesDeCategoria}
-            usuarios={opcoesDeUsuario}
-            criar={criarRecorrencia}
-            criarCategoria={criarCategoria}
-            criarMeioDePagamento={criarMeioDePagamento}
-          />
-        </DialogoDeCadastro>
-      </div>
+    <AreaEstreita>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Todo mês</h1>
+          {/* Mesmo gesto da área de Lançamentos: a lista só cresce, e o
+              formulário no rodapé ficava cada vez mais longe (AD-014). */}
+          <DialogoDeCadastro rotuloDoBotao="+ Novo fixo" titulo="Novo gasto fixo ou entrada">
+            <FormRecorrencia
+              competencia={resultado.value}
+              meios={opcoesDeMeio}
+              categorias={opcoesDeCategoria}
+              usuarios={opcoesDeUsuario}
+              criar={criarRecorrencia}
+              criarCategoria={criarCategoria}
+              criarMeioDePagamento={criarMeioDePagamento}
+            />
+          </DialogoDeCadastro>
+        </div>
 
-      <div className="flex flex-col gap-2">
-        <p className="max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
-          Água, luz, internet, salário. Cadastre uma vez e eles aparecem em todo mês, inclusive nos
-          que ainda não chegaram. Quando o valor mudar, registre a partir de qual mês vale — os
-          anteriores continuam mostrando o que você tinha planejado.
-        </p>
-      </div>
+        <div className="flex flex-col gap-2">
+          <p className="max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
+            Água, luz, internet, salário. Cadastre uma vez e eles aparecem em todo mês, inclusive
+            nos que ainda não chegaram. Quando o valor mudar, registre a partir de qual mês vale —
+            os anteriores continuam mostrando o que você tinha planejado.
+          </p>
+        </div>
 
-      <ListaDeFixos
-        competencia={resultado.value}
-        rotuloDaCompetencia={formatarCompetencia(resultado.value)}
-        itens={itens}
-        registrarVigencia={registrarNovaVigencia}
-        encerrar={encerrarRecorrencia}
-        edicao={{
-          meios: opcoesDeMeio,
-          categorias: opcoesDeCategoria,
-          usuarios: opcoesDeUsuario,
-          editar: editarRecorrencia,
-          criarCategoria,
-          criarMeioDePagamento,
-        }}
-      />
-    </div>
+        <ListaDeFixos
+          competencia={resultado.value}
+          rotuloDaCompetencia={formatarCompetencia(resultado.value)}
+          itens={itens}
+          registrarVigencia={registrarNovaVigencia}
+          encerrar={encerrarRecorrencia}
+          edicao={{
+            meios: opcoesDeMeio,
+            categorias: opcoesDeCategoria,
+            usuarios: opcoesDeUsuario,
+            editar: editarRecorrencia,
+            criarCategoria,
+            criarMeioDePagamento,
+          }}
+        />
+      </div>
+    </AreaEstreita>
   );
 }

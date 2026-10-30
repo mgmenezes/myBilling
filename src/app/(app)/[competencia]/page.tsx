@@ -1,24 +1,21 @@
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
-import { importarPlanilha, previaDaPlanilha } from "@/app/actions/importacao";
-import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import { SEM_CATEGORIA } from "@/application/mes/filtrar-lancamentos";
 import { obterVisaoMensal } from "@/application/mes/obter-visao-mensal/handler";
 import {
   MESES_DE_PROJECAO,
   materializarRecorrencias,
 } from "@/application/recorrencias/materializar/handler";
+import { AreaEstreita } from "@/components/area-estreita";
 import { GraficoCategorias } from "@/components/grafico-categorias";
 import { HorizonteFuturo } from "@/components/horizonte-futuro";
-import { DialogoImportacao } from "@/components/importacao/dialogo-importacao";
 import { AlternadorDeVisao, GradeDeIndicadores, type Visao } from "@/components/painel-indicadores";
 import { TransicaoMes } from "@/components/transicao-mes";
-import { addMeses, corDaCategoria, criarCompetencia, resumoPorCategoria } from "@/domain";
+import { corDaCategoria, criarCompetencia, resumoPorCategoria } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
-import { ImportacaoRepositoryDrizzle } from "@/infrastructure/db/repositories/importacao.repository";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
-import { descreverMeio, formatarCompetencia } from "@/lib/formatar";
+import { formatarCompetencia } from "@/lib/formatar";
 import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../sessao";
 
@@ -42,16 +39,14 @@ import { sessaoDaUI } from "../sessao";
  * ancestral desloca toda medida de posição do ScrollTrigger, e o gatilho da
  * revelação nunca casa com a posição real da seção.
  *
- * **A importação da planilha abre daqui**, por um botão ao lado do título
- * (IMP-08). É ferramenta de largada: as três abas entram de uma vez, antes de
- * qualquer lançamento. O diálogo recebe quem está logado, porque tudo entra em
- * nome dessa pessoa, e a competência seguinte à última importada.
+ * A importação da planilha abria daqui, ao lado do título (IMP-08, AC 1). Ela
+ * mudou para o pé do menu lateral, que está em toda tela (TRES-02, AC 6).
  */
 
 export const dynamic = "force-dynamic";
 
 export default async function PainelDoMes({ params, searchParams }: PageProps<"/[competencia]">) {
-  const usuario = await sessaoDaUI();
+  await sessaoDaUI();
 
   const { competencia } = await params;
   const { visao: visaoBruta } = await searchParams;
@@ -94,117 +89,103 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
     visaoMensal.competenciaView.totalGastos,
   );
 
-  const [categoriasDisponiveis, meios, ultimaImportada] = await Promise.all([
-    repositorios.cadastros.listarCategoriasDisponiveis(),
-    repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),
-    new ImportacaoRepositoryDrizzle(db()).ultimaCompetenciaImportada(),
-  ]);
+  const categoriasDisponiveis = await repositorios.cadastros.listarCategoriasDisponiveis();
   /* O nome e a cor da barra saem da mesma categoria. A que não está entre as
      disponíveis vira "Categoria removida", na barra neutra (COR-02, AC 5). */
   const categoriaPorId = new Map(categoriasDisponiveis.map((c) => [c.id, c]));
 
   return (
-    <div className="flex flex-col gap-8">
-      <TransicaoMes competencia={resultado.value}>
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
-                {formatarCompetencia(resultado.value)}
-              </h1>
-              <DialogoImportacao
-                nomeDaPessoa={usuario.nome}
-                competenciaEsperada={ultimaImportada === null ? null : addMeses(ultimaImportada, 1)}
-                /* "Cai em" lista só meio sem fatura (AD-015). */
-                meios={meios.map((meio) => ({
-                  id: meio.id,
-                  nome: meio.nome,
-                  geraFatura: meio.tipo === "CARTAO_CREDITO",
-                  detalhe: descreverMeio(meio),
-                }))}
-                previaDaPlanilha={previaDaPlanilha}
-                importarPlanilha={importarPlanilha}
-                criarMeioDePagamento={criarMeioDePagamento}
-              />
+    <AreaEstreita>
+      <div className="flex flex-col gap-8">
+        <TransicaoMes competencia={resultado.value}>
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">
+                  {formatarCompetencia(resultado.value)}
+                </h1>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <AlternadorDeVisao competencia={resultado.value} visao={visao} />
+
+                <details className="group">
+                  <summary className="flex min-h-11 list-none items-center gap-1.5 rounded-pill px-3 text-[14px] text-ink-muted hover:text-ink">
+                    <InfoIcon size={16} weight="bold" aria-hidden="true" />
+                    Qual é a diferença
+                  </summary>
+                  <p className="mt-3 max-w-[62ch] rounded-lg bg-surface-soft p-4 text-[15px] leading-relaxed text-ink-muted">
+                    <strong className="font-medium text-ink">Planejamento</strong> mede o que foi
+                    assumido neste mês, pago ou não.{" "}
+                    <strong className="font-medium text-ink">Movimentações</strong> mede o que de
+                    fato saiu ou entrou na conta. Os dois divergem de propósito: a fatura paga neste
+                    mês contém compras de meses anteriores. O myBilling nunca soma nem subtrai um do
+                    outro.
+                  </p>
+                </details>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <AlternadorDeVisao competencia={resultado.value} visao={visao} />
-
-              <details className="group">
-                <summary className="flex min-h-11 list-none items-center gap-1.5 rounded-pill px-3 text-[14px] text-ink-muted hover:text-ink">
-                  <InfoIcon size={16} weight="bold" aria-hidden="true" />
-                  Qual é a diferença
-                </summary>
-                <p className="mt-3 max-w-[62ch] rounded-lg bg-surface-soft p-4 text-[15px] leading-relaxed text-ink-muted">
-                  <strong className="font-medium text-ink">Planejamento</strong> mede o que foi
-                  assumido neste mês, pago ou não.{" "}
-                  <strong className="font-medium text-ink">Movimentações</strong> mede o que de fato
-                  saiu ou entrou na conta. Os dois divergem de propósito: a fatura paga neste mês
-                  contém compras de meses anteriores. O myBilling nunca soma nem subtrai um do
-                  outro.
-                </p>
-              </details>
-            </div>
-          </div>
-
-          <GradeDeIndicadores
-            competencia={resultado.value}
-            competenciaCorrente={corrente.value}
-            visao={visao}
-            planejamento={{
-              entradas: visaoMensal.competenciaView.entradas,
-              totalGastos: visaoMensal.competenciaView.totalGastos,
-              pendente: visaoMensal.competenciaView.pendente,
-              saldo: visaoMensal.competenciaView.saldo,
-            }}
-            movimentacoes={{
-              entradasRecebidas: visaoMensal.caixaView.entradasRecebidas,
-              saidas: visaoMensal.caixaView.saidas,
-              saldo: visaoMensal.caixaView.saldo,
-            }}
-          />
-
-          <section aria-labelledby="titulo-categorias" className="flex flex-col gap-5">
-            <h2 id="titulo-categorias" className="text-[20px]">
-              Gastos por categoria
-            </h2>
-            <GraficoCategorias
-              titulo="Gastos por categoria, ordenados do maior para o menor"
+            <GradeDeIndicadores
               competencia={resultado.value}
-              fatias={categorias.map((resumo) => {
-                const categoria =
-                  resumo.categoriaId === null ? undefined : categoriaPorId.get(resumo.categoriaId);
-                return {
-                  id: resumo.categoriaId ?? SEM_CATEGORIA,
-                  nome:
-                    resumo.categoriaId === null
-                      ? "Sem categoria"
-                      : (categoria?.nome ?? "Categoria removida"),
-                  valor: resumo.gasto,
-                  percentual: resumo.percentualDistribuicao,
-                  cor: categoria === undefined ? null : corDaCategoria(categoria),
-                };
-              })}
+              competenciaCorrente={corrente.value}
+              visao={visao}
+              planejamento={{
+                entradas: visaoMensal.competenciaView.entradas,
+                totalGastos: visaoMensal.competenciaView.totalGastos,
+                pendente: visaoMensal.competenciaView.pendente,
+                saldo: visaoMensal.competenciaView.saldo,
+              }}
+              movimentacoes={{
+                entradasRecebidas: visaoMensal.caixaView.entradasRecebidas,
+                saidas: visaoMensal.caixaView.saidas,
+                saldo: visaoMensal.caixaView.saldo,
+              }}
             />
-          </section>
-        </div>
-      </TransicaoMes>
 
-      {/* Fora da árvore do Motion: veja a nota no topo do arquivo. */}
-      <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
-        <h2 id="titulo-futuro" className="text-[20px]">
-          Próximos meses
-        </h2>
-        <HorizonteFuturo
-          meses={visaoMensal.futuro.map((mes) => ({
-            competencia: mes.competencia,
-            rotulo: formatarCompetencia(mes.competencia),
-            comprometido: mes.comprometido,
-            saldo: mes.saldo,
-          }))}
-        />
-      </section>
-    </div>
+            <section aria-labelledby="titulo-categorias" className="flex flex-col gap-5">
+              <h2 id="titulo-categorias" className="text-[20px]">
+                Gastos por categoria
+              </h2>
+              <GraficoCategorias
+                titulo="Gastos por categoria, ordenados do maior para o menor"
+                competencia={resultado.value}
+                fatias={categorias.map((resumo) => {
+                  const categoria =
+                    resumo.categoriaId === null
+                      ? undefined
+                      : categoriaPorId.get(resumo.categoriaId);
+                  return {
+                    id: resumo.categoriaId ?? SEM_CATEGORIA,
+                    nome:
+                      resumo.categoriaId === null
+                        ? "Sem categoria"
+                        : (categoria?.nome ?? "Categoria removida"),
+                    valor: resumo.gasto,
+                    percentual: resumo.percentualDistribuicao,
+                    cor: categoria === undefined ? null : corDaCategoria(categoria),
+                  };
+                })}
+              />
+            </section>
+          </div>
+        </TransicaoMes>
+
+        {/* Fora da árvore do Motion: veja a nota no topo do arquivo. */}
+        <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
+          <h2 id="titulo-futuro" className="text-[20px]">
+            Próximos meses
+          </h2>
+          <HorizonteFuturo
+            meses={visaoMensal.futuro.map((mes) => ({
+              competencia: mes.competencia,
+              rotulo: formatarCompetencia(mes.competencia),
+              comprometido: mes.comprometido,
+              saldo: mes.saldo,
+            }))}
+          />
+        </section>
+      </div>
+    </AreaEstreita>
   );
 }

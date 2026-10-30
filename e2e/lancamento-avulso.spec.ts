@@ -300,6 +300,10 @@ test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 6)", asy
  * jsdom não implementa nada disso, e testar lá seria testar o dublê.
  *
  * A dívida foi apontada pelo Verifier: o comentário existia e o percurso não.
+ *
+ * O diálogo medido é o **aberto**, `dialog[open]`. O menu lateral tem o
+ * diálogo de importação, fechado, antes do `<main>` no documento (TRES-01), e
+ * o primeiro `dialog` da página deixou de ser o do cadastro.
  */
 test("o diálogo confina o foco e torna o resto da página inerte (AVUL-05, AC 3)", async ({
   page,
@@ -317,7 +321,7 @@ test("o diálogo confina o foco e torna o resto da página inerte (AVUL-05, AC 3
    * está no diálogo e também não é um controle da página.
    */
   const visitouOFundo = await page.evaluate(async () => {
-    const dialogo = document.querySelector("dialog");
+    const dialogo = document.querySelector("dialog[open]");
     const fundo = [...document.querySelectorAll("button, a[href], select, input")].filter(
       (el) => dialogo?.contains(el) !== true,
     );
@@ -328,7 +332,7 @@ test("o diálogo confina o foco e torna o resto da página inerte (AVUL-05, AC 3
   for (let i = 0; i < 20; i += 1) {
     await page.keyboard.press("Tab");
     const noFundo = await page.evaluate(() => {
-      const dialogo = document.querySelector("dialog");
+      const dialogo = document.querySelector("dialog[open]");
       const ativo = document.activeElement;
       if (ativo === null || ativo === document.body) {
         return false;

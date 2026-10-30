@@ -27,15 +27,28 @@ import { useEffect, useId, useRef, useState } from "react";
  * serve o padrão real de lançar várias coisas seguidas quando se senta para
  * atualizar o mês; o formulário já limpa descrição e valor sozinho. O custo é
  * um clique para fechar, que o `Escape` também resolve.
+ *
+ * **Duas variantes de botão.** A primária é o azul de ação, para o cadastro
+ * que é a tarefa da área. A discreta, sem preenchimento, é a do rodapé do menu
+ * lateral: importar é ferramenta de largada, e o azul é escasso (TRES-01).
  */
+
+const CLASSE_DO_BOTAO = {
+  primario:
+    "inline-flex min-h-11 w-fit items-center justify-center rounded-pill bg-primary px-6 text-[15px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97]",
+  discreto:
+    "inline-flex min-h-11 w-fit items-center rounded-pill px-3 text-[15px] text-ink-muted transition-colors duration-200 hover:bg-surface-strong hover:text-ink",
+} as const;
 
 export function DialogoDeCadastro({
   rotuloDoBotao,
   titulo,
+  variante = "primario",
   children,
 }: {
   readonly rotuloDoBotao: string;
   readonly titulo: string;
+  readonly variante?: keyof typeof CLASSE_DO_BOTAO;
   readonly children: React.ReactNode;
 }) {
   const dialogo = useRef<HTMLDialogElement>(null);
@@ -53,7 +66,7 @@ export function DialogoDeCadastro({
         onClick={abrir}
         aria-haspopup="dialog"
         aria-expanded={aberto}
-        className="inline-flex min-h-11 w-fit items-center justify-center rounded-pill bg-primary px-6 text-[15px] font-semibold text-on-primary transition-[transform,background-color] duration-200 hover:bg-primary-ativo active:scale-[0.97]"
+        className={CLASSE_DO_BOTAO[variante]}
       >
         {rotuloDoBotao}
       </button>

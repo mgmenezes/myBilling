@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { DialogoDeCadastro } from "./dialogo-de-cadastro";
 
-/** Testes derivados de AVUL-05 (AC 2 a 5 e 7). */
+/** Testes derivados de AVUL-05 (AC 2 a 5 e 7) e da variante discreta do rodapé (TRES-01). */
 
 /*
  * O jsdom não implementa `showModal`/`close` do `<dialog>`. Os dublês abaixo
@@ -149,5 +149,31 @@ describe("DialogoDeCadastro — nome acessível", () => {
 
     const titulo = screen.getByRole("heading", { name: "Novo lançamento" });
     expect(elementoDoDialogo().getAttribute("aria-labelledby")).toBe(titulo.id);
+  });
+});
+
+describe("DialogoDeCadastro — variante do botão (TRES-01, azul escasso)", () => {
+  it("por padrão o botão é o azul de ação", () => {
+    montar();
+
+    expect(screen.getByRole("button", { name: "+ Novo lançamento" }).className).toContain(
+      "bg-primary",
+    );
+  });
+
+  it("a variante discreta não usa o azul de ação", () => {
+    render(
+      <DialogoDeCadastro
+        rotuloDoBotao="Importar planilha"
+        titulo="Importar planilha"
+        variante="discreto"
+      >
+        <p>conteúdo</p>
+      </DialogoDeCadastro>,
+    );
+
+    const botao = screen.getByRole("button", { name: "Importar planilha" });
+    expect(botao.className).not.toContain("bg-primary");
+    expect(botao.className).toContain("text-ink-muted");
   });
 });

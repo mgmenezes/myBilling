@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 e T2 concluídas)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T3 concluídas)
 **Total**: 8 tasks em 4 fases (T1–T8), um lote só, executado inline
 
 ---
@@ -175,6 +175,88 @@ Lote único, inline: T1 a T8, nesta ordem.
 **Gate**: quick
 **Commit**: `refactor(navegacao): ler a competência da rota`
 
+### Phase 3 — Visão geral
+
+```
+T4 -> T6
+T5 -> T7
+T6 -> T7
+```
+
+### Phase 4 — Fechamento
+
+```
+T8
+```
+
+Lote único, inline: T1 a T8, nesta ordem.
+
+---
+
+## Task Breakdown
+
+### Phase 1 — Base pura
+
+### Phase 2 — Moldura
+
+```
+T2 -> T3
+```
+
+### Phase 3 — Visão geral
+
+```
+T4 -> T6
+T5 -> T7
+T6 -> T7
+```
+
+### Phase 4 — Fechamento
+
+```
+T8
+```
+
+Lote único, inline: T1 a T8, nesta ordem.
+
+---
+
+## Task Breakdown
+
+### Phase 1 — Base pura
+
+#### T1: Os últimos lançamentos do mês
+**What**: a função que escolhe os até 8 lançamentos mais recentes com data até hoje.
+**Where**: `src/application/mes/ultimos-lancamentos.ts` (+ teste)
+**Depends on**: nenhuma
+**Reuses**: o tipo `LancamentoDoMes` de `obterVisaoMensal`, o campo `canceladoEm` (o repositório já tira os cancelados; a função garante a regra por conta própria)
+**Requirement**: TRES-05
+**Done when**:
+- [ ] Lançamento cancelado fica fora (TRES-05 AC 1)
+- [ ] Lançamento com data depois de hoje fica fora; o de hoje entra (TRES-05 AC 1)
+- [ ] Ordem pela data decrescente (TRES-05 AC 1)
+- [ ] Empate de data ordenado pela descrição, em ordem alfabética pt-BR (TRES-05 AC 2)
+- [ ] Corte em 8 com 10 elegíveis; lista vazia quando nenhum é elegível (TRES-05 AC 1, Edge Case)
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(mes): escolher os últimos lançamentos do mês`
+
+### Phase 2 — Moldura
+
+#### T2: A navegação acha a competência sozinha
+**What**: `NavegacaoPrincipal` lê a competência de `useParams()` e não desenha nada sem competência válida.
+**Where**: `src/components/navegacao-principal.tsx` (+ teste), `src/app/(app)/[competencia]/layout.tsx` (deixa de passar a prop)
+**Depends on**: nenhuma
+**Reuses**: `criarCompetencia`, `estaAtiva`
+**Requirement**: TRES-01
+**Done when**:
+- [x] Sem `competencia` nos parâmetros, ou com uma inválida, a navegação não desenha item nenhum (TRES-01 AC 4)
+- [x] Com competência, os quatro itens apontam para ela e o ativo continua marcado como hoje (TRES-01 AC 3)
+- [x] Os testes atuais da navegação passam sem mudar o que afirmam
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `refactor(navegacao): ler a competência da rota`
+
 #### T3: A moldura com o menu na borda
 **What**:
 - `MenuLateral` com a marca, a navegação, o rodapé (importar, nome e tema) e a barra no topo do celular;
@@ -214,7 +296,8 @@ Lote único, inline: T1 a T8, nesta ordem.
 - [ ] Em 400 px, a home, a Visão geral, Lançamentos, Todo mês e Categorias não rolam na horizontal (TRES-01 AC 10)
 - [ ] A Visão geral não tem "Importar planilha" fora do `aside` (TRES-02 AC 6)
 - [ ] A barra de filtros compacta de Lançamentos não cobre o menu em 1.280 px, medido no navegador
-- [ ] `e2e/importacao.spec.ts`, `auth.spec.ts`, `categorias.spec.ts`, `lista-enxuta.spec.ts` e `lancamento-avulso.spec.ts` passam; a única mudança neles é o alvo `dialog[open]` do foco preso
+- [ ] O botão de importar do pé usa a variante discreta, sem o azul de ação (Global Constraints, azul escasso)
+- [ ] O e2e inteiro passa (96 cenários); a única mudança nos specs antigos é o alvo `dialog[open]` do foco preso em `lancamento-avulso.spec.ts`
 - [ ] Os comentários de `(app)/layout.tsx` e `(app)/page.tsx` sobre a pílula e a home sem navegação lateral dizem o que o código faz agora
 **Tests**: componentes, e2e
 **Gate**: e2e

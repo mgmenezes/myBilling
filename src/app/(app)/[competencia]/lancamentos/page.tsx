@@ -22,6 +22,7 @@ import {
   MESES_DE_PROJECAO,
   materializarRecorrencias,
 } from "@/application/recorrencias/materializar/handler";
+import { AreaEstreita } from "@/components/area-estreita";
 import { BarraDeFiltrosCompacta } from "@/components/barra-de-filtros-compacta";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
@@ -192,90 +193,92 @@ export default async function PaginaDeLancamentos({
   });
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
-        <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
-          <SeletorDeFormulario
-            rotuloDoGrupo="Tipo de lançamento a cadastrar"
-            abas={[
-              {
-                id: "avulso",
-                rotulo: "Avulso",
-                conteudo: (
-                  <FormLancamentoAvulso
-                    competencia={resultado.value}
-                    dataPadrao={dataPadrao}
-                    /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
-                    meios={meios.map((meio) => ({
-                      id: meio.id,
-                      nome: meio.nome,
-                      geraFatura: meio.tipo === "CARTAO_CREDITO",
-                    }))}
-                    categorias={opcoesDeCategoria}
-                    usuarios={opcoesDeUsuario}
-                    enviar={criarLancamentoAvulso}
-                    criarCategoria={criarCategoria}
-                    criarMeioDePagamento={criarMeioDePagamento}
-                  />
-                ),
-              },
-              {
-                id: "parcelado",
-                rotulo: "Parcelado",
-                conteudo: (
-                  <FormCompra
-                    competencia={resultado.value}
-                    dataPadrao={dataPadrao}
-                    meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
-                    categorias={opcoesDeCategoria}
-                    usuarios={opcoesDeUsuario}
-                    enviar={criarCompra}
-                    criarCategoria={criarCategoria}
-                    criarMeioDePagamento={criarMeioDePagamento}
-                  />
-                ),
-              },
-            ]}
+    <AreaEstreita>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
+          <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
+            <SeletorDeFormulario
+              rotuloDoGrupo="Tipo de lançamento a cadastrar"
+              abas={[
+                {
+                  id: "avulso",
+                  rotulo: "Avulso",
+                  conteudo: (
+                    <FormLancamentoAvulso
+                      competencia={resultado.value}
+                      dataPadrao={dataPadrao}
+                      /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
+                      meios={meios.map((meio) => ({
+                        id: meio.id,
+                        nome: meio.nome,
+                        geraFatura: meio.tipo === "CARTAO_CREDITO",
+                      }))}
+                      categorias={opcoesDeCategoria}
+                      usuarios={opcoesDeUsuario}
+                      enviar={criarLancamentoAvulso}
+                      criarCategoria={criarCategoria}
+                      criarMeioDePagamento={criarMeioDePagamento}
+                    />
+                  ),
+                },
+                {
+                  id: "parcelado",
+                  rotulo: "Parcelado",
+                  conteudo: (
+                    <FormCompra
+                      competencia={resultado.value}
+                      dataPadrao={dataPadrao}
+                      meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
+                      categorias={opcoesDeCategoria}
+                      usuarios={opcoesDeUsuario}
+                      enviar={criarCompra}
+                      criarCategoria={criarCategoria}
+                      criarMeioDePagamento={criarMeioDePagamento}
+                    />
+                  ),
+                },
+              ]}
+            />
+          </DialogoDeCadastro>
+        </div>
+
+        {/* O id é o que a barra compacta observa e para onde "Filtros" leva. */}
+        <div id="cartao-de-filtros">
+          <FiltrosDeLancamentos
+            categorias={gastoPorCategoria}
+            meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
+            usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
+            totalVisivel={formatarBRL(total)}
+            quantidadeVisivel={visiveis.length}
           />
-        </DialogoDeCadastro>
-      </div>
+        </div>
+        <BarraDeFiltrosCompacta alvo="cartao-de-filtros" ativos={ativos} />
 
-      {/* O id é o que a barra compacta observa e para onde "Filtros" leva. */}
-      <div id="cartao-de-filtros">
-        <FiltrosDeLancamentos
-          categorias={gastoPorCategoria}
-          meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
-          usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
-          totalVisivel={formatarBRL(total)}
-          quantidadeVisivel={visiveis.length}
-        />
+        {/*
+          Distinguir "mês sem lançamento" de "nenhum resultado para este filtro"
+          (LANC-03). São situações diferentes e a saída de cada uma é diferente:
+          uma pede cadastro, a outra pede limpar filtro.
+        */}
+        {visao.lancamentos.length > 0 && visiveis.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
+            Nenhum lançamento corresponde aos filtros aplicados. O mês tem{" "}
+            {visao.lancamentos.length} lançamentos no total.
+          </p>
+        ) : (
+          <TabelaLancamentos
+            lancamentos={temFiltro ? visiveis : visao.lancamentos}
+            categorias={nomePorCategoria}
+            opcoesDeCategoria={opcoesDeCategoria}
+            competenciaCorrente={corrente.value}
+            alternarPagamento={alternarPagamento}
+            confirmarValor={confirmarValorDaOcorrencia}
+            excluir={cancelarLancamento}
+            trocarCategoria={trocarCategoria}
+            recolhidos={recolhidos}
+          />
+        )}
       </div>
-      <BarraDeFiltrosCompacta alvo="cartao-de-filtros" ativos={ativos} />
-
-      {/*
-        Distinguir "mês sem lançamento" de "nenhum resultado para este filtro"
-        (LANC-03). São situações diferentes e a saída de cada uma é diferente:
-        uma pede cadastro, a outra pede limpar filtro.
-      */}
-      {visao.lancamentos.length > 0 && visiveis.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
-          Nenhum lançamento corresponde aos filtros aplicados. O mês tem {visao.lancamentos.length}{" "}
-          lançamentos no total.
-        </p>
-      ) : (
-        <TabelaLancamentos
-          lancamentos={temFiltro ? visiveis : visao.lancamentos}
-          categorias={nomePorCategoria}
-          opcoesDeCategoria={opcoesDeCategoria}
-          competenciaCorrente={corrente.value}
-          alternarPagamento={alternarPagamento}
-          confirmarValor={confirmarValorDaOcorrencia}
-          excluir={cancelarLancamento}
-          trocarCategoria={trocarCategoria}
-          recolhidos={recolhidos}
-        />
-      )}
-    </div>
+    </AreaEstreita>
   );
 }

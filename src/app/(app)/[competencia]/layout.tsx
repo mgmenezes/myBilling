@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
-import { NavegacaoPrincipal } from "@/components/navegacao-principal";
 import { SeletorCompetencia } from "@/components/seletor-competencia";
 import { criarCompetencia } from "@/domain";
 import { hojeEm } from "@/lib/relogio";
 
 /**
- * Moldura das áreas do mês: navegação e seletor de período.
+ * Moldura das áreas do mês: o seletor de período no topo, acima do conteúdo
+ * (TRES-01, AC 7). A navegação entre as áreas mora no menu lateral, do layout
+ * de cima, e acha a competência pela rota.
  *
  * **A competência vive na rota**, não em estado global. Trocar de área é um
  * link, não uma sincronização, e abrir em nova aba funciona. É também o que
@@ -33,15 +34,11 @@ export default async function LayoutDoMes({ children, params }: LayoutProps<"/[c
   }
 
   return (
-    <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-      <div className="md:w-52 md:shrink-0">
-        <NavegacaoPrincipal />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-6 pb-24 md:pb-0">
+    <div className="flex min-w-0 flex-1 flex-col pb-24 md:pb-0">
+      <div className="border-b border-line px-4 py-3 sm:px-8">
         <SeletorCompetencia competencia={resultado.value} competenciaCorrente={corrente.value} />
-        {children}
       </div>
+      {children}
     </div>
   );
 }

@@ -214,8 +214,8 @@ os 8 mais recentes, nenhum com data futura, na ordem da data.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| TRES-01 | P1: Uma moldura só, com o menu na borda | Execute | In progress: `navegacao-principal.test.tsx` prova que, sem competência válida na rota, a navegação não desenha nada, AC 4, e que com ela os quatro itens apontam para o mês e marcam o ativo, AC 3 (T2) |
-| TRES-02 | P1: A Visão geral em colunas | Design | Pending |
+| TRES-01 | P1: Uma moldura só, com o menu na borda | Execute | In progress: `navegacao-principal.test.tsx` prova que, sem competência válida na rota, a navegação não desenha nada, AC 4, e que com ela os quatro itens apontam para o mês e marcam o ativo, AC 3 (T2); `menu-lateral.test.tsx` prova a marca para a home, AC 1, as áreas no menu, AC 3, o menu da home sem áreas, AC 4, e o pé com o nome, o tema e o importar, AC 5; `e2e/visao-tres-colunas.spec.ts` mede o menu em x = 0 e da altura da página, sem `banner`, ACs 1 e 2, abre o importar do pé em Lançamentos e vê "Tudo entra em nome de Pessoa A", AC 6, mede o seletor acima do `h1` e à direita do menu, AC 7, Lançamentos em até 1.024 px e centrado, AC 8, as áreas na base e o topo com a marca, o importar, o tema e o nome em 400 px, AC 9, e nenhuma rolagem horizontal em cinco telas, AC 10 (T3) |
+| TRES-02 | P1: A Visão geral em colunas | Execute | In progress: `e2e/visao-tres-colunas.spec.ts` prova o importar só no menu, fora do `<main>` da Visão geral, AC 6 (T3) |
 | TRES-03 | P1: Lançar pela Visão geral | Design | Pending |
 | TRES-04 | P1: Buscar pela Visão geral | Design | Pending |
 | TRES-05 | P1: Últimos lançamentos do mês | Execute | In progress: `ultimos-lancamentos.test.ts` prova o cancelado e o de data futura fora, o de hoje dentro, a ordem pela data e o corte em 8, AC 1, o empate pela descrição em ordem pt-BR, AC 2, e a lista vazia do mês futuro (T1) |

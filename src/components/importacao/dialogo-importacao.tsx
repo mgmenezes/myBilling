@@ -134,7 +134,11 @@ export function DialogoImportacao({
           : null;
 
   return (
-    <DialogoDeCadastro rotuloDoBotao="Importar planilha" titulo="Importar planilha">
+    <DialogoDeCadastro
+      rotuloDoBotao="Importar planilha"
+      titulo="Importar planilha"
+      variante="discreto"
+    >
       <div className="flex flex-col gap-5">
         {indiceDoPasso === null ? null : (
           <ol aria-label="Passos da importação" className="flex flex-wrap gap-x-4 gap-y-1">

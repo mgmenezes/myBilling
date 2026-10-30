@@ -21,6 +21,10 @@ import { useFiltrosNaUrl } from "./filtros-na-url";
  * reserva em `scroll-padding-top`: o elemento que recebe foco por teclado não
  * para debaixo da barra (WCAG 2.4.11).
  *
+ * **A partir de 768 px ela começa depois do menu lateral** (`md:left-60`, a
+ * largura do menu), e o miolo fica centrado como o conteúdo da tela, na
+ * `AreaEstreita`. Sem isso a barra cobriria o menu (TRES-01).
+ *
  * Em 400 px cabem a busca, dois filtros e o "+N"; o resto aparece a partir de
  * `sm`. O rótulo longo encolhe dentro do próprio botão, e o nome inteiro fica
  * no nome acessível e no `title`.
@@ -79,7 +83,7 @@ export function BarraDeFiltrosCompacta({
   return (
     <search
       aria-label="Busca e filtros ativos"
-      className="fixed inset-x-0 top-0 z-30 h-(--altura-da-barra-de-filtros) border-b border-line bg-surface shadow-lift"
+      className="fixed inset-x-0 top-0 z-30 h-(--altura-da-barra-de-filtros) border-b border-line bg-surface shadow-lift md:left-60"
     >
       <div className="mx-auto flex h-full w-full max-w-conteudo items-center gap-2 px-4 sm:px-6">
         <div className="relative min-w-24 flex-1">

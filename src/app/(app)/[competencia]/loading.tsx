@@ -15,7 +15,11 @@ function Bloco({ className }: { readonly className: string }) {
 
 export default function CarregandoMes() {
   return (
-    <div role="status" aria-live="polite" className="flex flex-col gap-8">
+    <div
+      role="status"
+      aria-live="polite"
+      className="mx-auto flex w-full max-w-conteudo flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10"
+    >
       <span className="sr-only">Carregando o mês</span>
 
       <Bloco className="h-[68px] w-full rounded-pill sm:max-w-md" />

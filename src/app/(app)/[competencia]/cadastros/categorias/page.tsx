@@ -1,4 +1,5 @@
 import { renomearCategoria, trocarCorDaCategoria } from "@/app/actions/categorias";
+import { AreaEstreita } from "@/components/area-estreita";
 import { ListaDeCategorias } from "@/components/lista-de-categorias";
 import { criarRepositorios } from "@/infrastructure/container";
 import { sessaoDaUI } from "../../../sessao";
@@ -33,20 +34,22 @@ export default async function PaginaDeCategorias() {
     .map(({ id, nome, cor }) => ({ id, nome, cor }));
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Categorias</h1>
+    <AreaEstreita>
+      <div className="flex flex-col gap-6">
+        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Categorias</h1>
 
-      <p className="max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
-        A cor de cada categoria aparece em “Todo mês”, em Lançamentos e no gráfico da Visão geral.
-        Quem não escolhe fica com uma cor automática, tirada do nome. O nome vai sempre ao lado da
-        cor: ela ajuda a reconhecer, e o nome identifica.
-      </p>
+        <p className="max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
+          A cor de cada categoria aparece em “Todo mês”, em Lançamentos e no gráfico da Visão geral.
+          Quem não escolhe fica com uma cor automática, tirada do nome. O nome vai sempre ao lado da
+          cor: ela ajuda a reconhecer, e o nome identifica.
+        </p>
 
-      <ListaDeCategorias
-        categorias={categorias}
-        trocarCor={trocarCorDaCategoria}
-        renomear={renomearCategoria}
-      />
-    </div>
+        <ListaDeCategorias
+          categorias={categorias}
+          trocarCor={trocarCorDaCategoria}
+          renomear={renomearCategoria}
+        />
+      </div>
+    </AreaEstreita>
   );
 }
