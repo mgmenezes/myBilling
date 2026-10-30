@@ -388,9 +388,9 @@ Nada muda na tela.
 **Reuses**: `caixa`, `menu`
 **Requirement**: TRES-01, TRES-02
 **Done when**:
-- [ ] Em 1.280 px a coluna de ação fica à direita dos cards; em 1.279 px, abaixo de "Próximos meses" (TRES-02 ACs 1 e 5)
-- [ ] Em 768 px o menu é coluna de até 260 px em x = 0, com as áreas dentro, e continua no alto ao rolar até o fim, com o importar à vista (TRES-01 AC 1)
-- [ ] Em 767 px o menu é a barra do topo, da largura da janela, e as áreas ficam na base (TRES-01 AC 9)
+- [x] Em 1.280 px a coluna de ação fica à direita dos cards; em 1.279 px, abaixo de "Próximos meses" (TRES-02 ACs 1 e 5)
+- [x] Em 768 px o menu é coluna de até 260 px em x = 0, com as áreas dentro, e continua no alto ao rolar até o fim, com o importar à vista (TRES-01 AC 1)
+- [x] Em 767 px o menu é a barra do topo, da largura da janela, e as áreas ficam na base (TRES-01 AC 9)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(moldura): provar os limiares de 768 e 1.280 px`

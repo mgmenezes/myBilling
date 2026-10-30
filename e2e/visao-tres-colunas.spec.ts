@@ -450,6 +450,62 @@ test.describe("a Visão geral em 1.920 px", () => {
   });
 });
 
+/* Os pontos de virada que a spec fixa, provados dos dois lados (L-029). */
+test("a coluna de ação fica ao lado do centro em 1.280 px e abaixo dele em 1.279 px (TRES-02, ACs 1 e 5)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`/${ATUAL}`);
+  await expect(page.getByRole("region", { name: "Últimos lançamentos" })).toBeVisible();
+  const cadastro = page.getByRole("region", { name: "Novo lançamento" });
+
+  const cards = await caixa(
+    page.getByRole("link", { name: /Receitas do mês/ }).locator("xpath=.."),
+  );
+  expect((await caixa(cadastro)).x).toBeGreaterThanOrEqual(cards.x + cards.width);
+
+  await page.setViewportSize({ width: 1279, height: 900 });
+  const proximos = await caixa(page.getByRole("region", { name: "Próximos meses" }));
+  expect((await caixa(cadastro)).y).toBeGreaterThanOrEqual(proximos.y + proximos.height - 1);
+});
+
+test("em 768 px o menu já é a coluna da borda, presa ao rolar, com as áreas dentro e o importar à vista (TRES-01, AC 1)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await page.goto(`/${ATUAL}`);
+  await expect(page.getByRole("region", { name: "Últimos lançamentos" })).toBeVisible();
+
+  const coluna = await caixa(menu(page));
+  expect(coluna.x).toBe(0);
+  expect(coluna.width).toBeLessThanOrEqual(260);
+  const areas = await caixa(
+    menu(page).getByRole("navigation", { name: "Áreas do myBilling" }).getByRole("list"),
+  );
+  expect(areas.x + areas.width).toBeLessThanOrEqual(coluna.x + coluna.width);
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  expect(Math.abs((await caixa(menu(page))).y)).toBeLessThanOrEqual(1);
+  await expect(menu(page).getByRole("button", { name: "Importar planilha" })).toBeInViewport();
+});
+
+test("em 767 px o menu é a barra do topo, da largura da janela, e as áreas ficam na base (TRES-01, AC 9)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 767, height: 900 });
+  await page.goto(`/${MARCO}/lancamentos`);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+
+  const topo = await caixa(menu(page));
+  expect(topo.y).toBe(0);
+  expect(Math.abs(topo.width - 767)).toBeLessThanOrEqual(1);
+  const areas = await caixa(
+    page.getByRole("navigation", { name: "Áreas do myBilling" }).getByRole("list"),
+  );
+  expect(areas.y + areas.height).toBeGreaterThanOrEqual(899);
+});
+
 test("em 1.024 px, a coluna de ação fica abaixo do centro (TRES-02, AC 5)", async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto(`/${ATUAL}`);
