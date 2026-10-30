@@ -62,6 +62,12 @@ test.beforeAll(async () => {
   base = await semearCadastroBase(pool);
   categoriaDois = await inserirCategoria("Categoria Dois");
   await inserirCategoria("Categoria Três");
+  /* Nomes que só ficam em ordem pela regra do português. Pelo código de
+     caractere, que é como o banco de teste ordena, a acentuada e a minúscula
+     iriam para depois de "Categoria Zeta" (COR-04, AC 2). */
+  await inserirCategoria("categoria Beta");
+  await inserirCategoria("Categoria Ômega");
+  await inserirCategoria("Categoria Zeta");
   await inserirFixo("Fixo A", base.categoriaId, 10000);
   await inserirFixo("Fixo B", categoriaDois, 5000);
   await inserirGasto("Gasto A", base.categoriaId, MARCO, 2000);
@@ -322,11 +328,17 @@ test("Cadastros, pela navegação, abre a tela com as categorias em ordem alfab�
   await expect(navegacao(page, "Cadastros")).toHaveAttribute("aria-current", "page");
   await expect(navegacao(page, "Visão geral")).not.toHaveAttribute("aria-current", "page");
 
-  /* A base cria "Categoria Um" primeiro; a tela ordena pelo nome. */
+  /* A base cria "Categoria Um" primeiro; a tela ordena pelo nome, pela regra
+     do português: sem distinguir caixa nem acento. A ordem do banco e a do
+     código de caractere terminariam em "Categoria Zeta", "Categoria Ômega" e
+     "categoria Beta". */
   await expect(listaDeCategorias(page).getByRole("heading")).toHaveText([
+    "categoria Beta",
     "Categoria Dois",
+    "Categoria Ômega",
     "Categoria Três",
     "Categoria Um",
+    "Categoria Zeta",
   ]);
 
   /* Cada pill na cor automática do nome, vinda do banco com `cor` nula. */
@@ -430,9 +442,12 @@ test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com
 
   await expect(aviso(page)).toHaveText("Categoria renomeada.");
   await expect(listaDeCategorias(page).getByRole("heading")).toHaveText([
+    "categoria Beta",
     "Categoria Dez",
+    "Categoria Ômega",
     "Categoria Três",
     "Categoria Um",
+    "Categoria Zeta",
   ]);
   const linhaDez = linhaDaCategoria(page, "Categoria Dez");
   expect(await fundo(pillDaLinha(linhaDez))).toBe(rosa);
@@ -466,9 +481,12 @@ test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com
   );
   await expect(pillDaLinha(linhaDez)).toHaveText("Categoria Dez");
   await expect(listaDeCategorias(page).getByRole("heading")).toHaveText([
+    "categoria Beta",
     "Categoria Dez",
+    "Categoria Ômega",
     "Categoria Três",
     "Categoria Um",
+    "Categoria Zeta",
   ]);
   await expect(aviso(page)).toHaveCount(0);
 });
@@ -478,7 +496,7 @@ test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizo
 }) => {
   await page.setViewportSize({ width: 400, height: 900 });
   await page.goto(CATEGORIAS);
-  await expect(listaDeCategorias(page).getByRole("listitem")).toHaveCount(3);
+  await expect(listaDeCategorias(page).getByRole("listitem")).toHaveCount(6);
 
   expect(await transbordoHorizontal(page)).toBe(0);
 
@@ -513,7 +531,7 @@ test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizo
         return { nome: radio.closest("label")?.textContent, largura: width, altura: height };
       }),
     );
-  expect(alvos).toHaveLength(3 * 11);
+  expect(alvos).toHaveLength(6 * 11);
   for (const { nome, largura, altura } of alvos) {
     expect(largura, `largura de ${nome}`).toBeGreaterThanOrEqual(44);
     expect(altura, `altura de ${nome}`).toBeGreaterThanOrEqual(44);
@@ -542,7 +560,7 @@ test("com uma categoria de cada cor, nos temas claro e escuro, todo texto de pil
     /* As pills da tela de Categorias: a de cada linha e as onze opções. */
     await abrirNoTema(page, tema, CATEGORIAS);
     const pills = listaDeCategorias(page).locator("h2 > span, label > span");
-    expect(await pills.count()).toBe(13 + 13 * 11);
+    expect(await pills.count()).toBe(16 + 16 * 11);
     for (const pill of await pills.all()) {
       expect(
         await contrasteDoTexto(pill),

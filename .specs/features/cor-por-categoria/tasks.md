@@ -435,10 +435,10 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 **Reuses**: `inserirCategoria` e `listaDeCategorias` do e2e
 **Requirement**: COR-04
 **Done when**:
-- [ ] A fixture ganha "categoria Beta", "Categoria Ômega" e "Categoria Zeta", que só ficam em ordem pela regra do português (COR-04 AC 2)
-- [ ] A tela lista as seis na ordem do português, e a lista continua nessa ordem depois de renomear (COR-04 AC 2)
-- [ ] As contagens dos percursos seguintes acompanham as seis categorias, sem afrouxar nenhuma assertion
-- [ ] E7 e E8 falham; cada um desfeito, com `git diff --quiet`
+- [x] A fixture ganha "categoria Beta", "Categoria Ômega" e "Categoria Zeta", que só ficam em ordem pela regra do português (COR-04 AC 2)
+- [x] A tela lista as seis na ordem do português, `["categoria Beta", "Categoria Dois", "Categoria Ômega", "Categoria Três", "Categoria Um", "Categoria Zeta"]`, e a lista continua nessa ordem depois de renomear (COR-04 AC 2)
+- [x] As contagens dos percursos seguintes acompanham as seis categorias, sem afrouxar nenhuma assertion: 6 linhas e 6 × 11 opções em 400 px, 16 + 16 × 11 pills no contraste
+- [x] E7 e E8 falham na ordem, com "Categoria Ômega" e "categoria Beta" depois de "Categoria Zeta"; cada um desfeito, com `git diff --quiet`
 **Tests**: e2e
 **Gate**: quick + `pnpm lint` + e2e
 **Commit**: `test(categorias): ordem alfabética do português na tela`
