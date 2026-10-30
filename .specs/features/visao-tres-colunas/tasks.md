@@ -364,7 +364,7 @@ Nada muda na tela.
 **Reuses**: `corDaCategoria`, `CLASSES_DA_COR`
 **Requirement**: TRES-05
 **Done when**:
-- [ ] A cor computada da pill é a da cor da categoria, e não a neutra (TRES-05 AC 3)
+- [x] A cor computada da pill é a da cor da categoria, e não a neutra (TRES-05 AC 3)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(painel): a cor da categoria chega à pill dos últimos`

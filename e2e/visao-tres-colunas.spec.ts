@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import type { Pool } from "pg";
+import { CLASSES_DA_COR } from "@/components/cor-de-categoria";
+import { corDaCategoria } from "@/domain";
 import {
   type CadastroBase,
   criarPoolDeTeste,
@@ -333,6 +335,44 @@ test.describe("a Visão geral em 1.920 px", () => {
       await expect(linhas.nth(indice)).toContainText(descricao);
     }
     await expect(ultimos.getByText("Futuro A")).toHaveCount(0);
+  });
+
+  /*
+   * A cor da pill atravessa a página (L-014): quem monta o mapa de cores é a
+   * página, e o teste do componente recebe o mapa pronto. O esperado sai da
+   * mesma regra do app: a cor da "Categoria Um" (automática, pelo nome) e as
+   * classes da pill dela, aplicadas a um elemento de prova na mesma página.
+   */
+  test("a pill de cada linha dos últimos tem a cor da categoria, e não a neutra (TRES-05, AC 3)", async ({
+    page,
+  }) => {
+    await page.goto(`/${ATUAL}`);
+    const linha = page
+      .getByRole("region", { name: "Últimos lançamentos" })
+      .getByRole("listitem")
+      .filter({ hasText: recente(1) });
+    const pill = linha.getByText("Categoria Um", { exact: true });
+    await expect(pill).toBeVisible();
+
+    const fundoDe = (classe: string) =>
+      page.evaluate((nome) => {
+        const prova = document.createElement("span");
+        prova.className = nome;
+        document.body.append(prova);
+        const cor = getComputedStyle(prova).backgroundColor;
+        prova.remove();
+        return cor;
+      }, classe);
+    const esperado = await fundoDe(
+      CLASSES_DA_COR[corDaCategoria({ nome: "Categoria Um", cor: null })].pill,
+    );
+    const neutro = await fundoDe("bg-surface-strong");
+
+    const fundoDaPill = await pill.evaluate(
+      (elemento) => getComputedStyle(elemento).backgroundColor,
+    );
+    expect(fundoDaPill).toBe(esperado);
+    expect(fundoDaPill).not.toBe(neutro);
   });
 
   test("lançar pela coluna aumenta Despesas do mês, põe o gasto no topo dos últimos e mantém o cadastro com a confirmação (TRES-03, ACs 2 e 3)", async ({
