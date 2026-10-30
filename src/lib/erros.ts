@@ -29,6 +29,12 @@ export type CodigoErroDeBorda =
   | "ACESSO_NEGADO"
   | "ERRO_INESPERADO";
 
+/**
+ * Códigos dos cadastros, que não passam por caso de uso: a action da tela de
+ * Categorias decide sozinha que um nome já está ocupado.
+ */
+export type CodigoErroCadastro = "CATEGORIA_JA_EXISTE";
+
 export type CodigoErroExibivel =
   | CodigoErroAplicacao
   | CodigoErroAvulso
@@ -40,6 +46,7 @@ export type CodigoErroExibivel =
   | CodigoErroEdicaoFixo
   | CodigoErroTrocaDeCategoria
   | CodigoErroImportacao
+  | CodigoErroCadastro
   | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
@@ -71,6 +78,8 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
   CATEGORIA_NAO_ENCONTRADA: "Escolha uma categoria válida.",
+  /* Também quando a outra está arquivada: o nome dela continua ocupado. */
+  CATEGORIA_JA_EXISTE: "Já existe outra categoria com esse nome.",
   // SPEC_DEVIATION: a mensagem entrou com o código, em T1, e não em T5.
   // Reason: todo `CodigoErro` do domínio é exibível, e o código sem mensagem não compila.
   CATEGORIA_EM_RECEITA: "Entrada não tem categoria.",
@@ -101,6 +110,13 @@ export const MENSAGEM_VIGENCIA_ANTES_DO_INICIO =
   "O valor novo não pode valer antes do mês de início.";
 
 /**
+ * Na tela de Categorias, `CATEGORIA_NAO_ENCONTRADA` não nasce de uma escolha
+ * num seletor, e sim de um id que não está mais no banco. "Escolha uma
+ * categoria válida" não faria sentido numa linha sem seletor.
+ */
+export const MENSAGEM_CATEGORIA_INEXISTENTE = "Essa categoria não existe mais.";
+
+/**
  * Em qual campo do formulário cada erro aparece. O que não está aqui é erro
  * do formulário inteiro, não de um campo (design: "formulário preservado").
  */
@@ -112,6 +128,7 @@ const CAMPO_DO_ERRO: Partial<Record<CodigoErroExibivel, string>> = {
   MEIO_PAGAMENTO_ARQUIVADO: "meioPagamentoId",
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "meioPagamentoId",
   CATEGORIA_NAO_ENCONTRADA: "categoriaId",
+  CATEGORIA_JA_EXISTE: "nome",
   COMPETENCIA_INVALIDA: "competenciaInicial",
   PERIODO_INVALIDO: "competenciaFim",
 };

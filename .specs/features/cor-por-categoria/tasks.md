@@ -316,13 +316,13 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 **Reuses**: disciplina de `criarCategoria`, `buscarCategoriaPorNome`, `atualizarCategoria`
 **Requirement**: COR-04
 **Done when**:
-- [ ] Schema recusa cor fora das dez, id que não é uuid e chave a mais; aceita `cor: null` (COR-01 AC 4, COR-04 AC 5)
-- [ ] Sem sessão, as duas actions recusam antes de tocar no banco
-- [ ] `trocarCorDaCategoria` grava a cor e `null` apaga (COR-04 AC 4, 5)
-- [ ] `renomearCategoria` grava o nome e a cor em uso antes do novo nome (COR-04 AC 6)
-- [ ] Nome de outra categoria recusa com `CATEGORIA_JA_EXISTE` no campo `nome`, sem mudar nada (COR-04 AC 7)
-- [ ] Nome igual ao atual não grava (Edge Case)
-- [ ] As quatro rotas são revalidadas (COR-04 AC 9)
+- [x] Schema recusa cor fora das dez, id que não é uuid e chave a mais; aceita `cor: null` (COR-01 AC 4, COR-04 AC 5)
+- [x] Sem sessão, as duas actions recusam antes de tocar no banco
+- [x] `trocarCorDaCategoria` grava a cor e `null` apaga (COR-04 AC 4, 5)
+- [x] `renomearCategoria` grava o nome e a cor em uso antes do novo nome (COR-04 AC 6)
+- [x] Nome de outra categoria recusa com `CATEGORIA_JA_EXISTE` no campo `nome`, sem mudar nada (COR-04 AC 7)
+- [x] Nome igual ao atual não grava (Edge Case)
+- [x] As quatro rotas são revalidadas (COR-04 AC 9)
 **Tests**: unit + integration
 **Gate**: full
 **Commit**: `feat(categorias): trocar a cor e renomear a categoria`

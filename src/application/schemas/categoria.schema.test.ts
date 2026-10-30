@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { entradaCategoriaSchema, MAX_NOME_CATEGORIA } from "./categoria.schema";
+import { CORES_DE_CATEGORIA } from "@/domain";
+import {
+  entradaCategoriaSchema,
+  entradaCorDaCategoriaSchema,
+  entradaRenomearCategoriaSchema,
+  MAX_NOME_CATEGORIA,
+} from "./categoria.schema";
 
 /**
  * O que este schema protege é a lista de categorias de encher de gêmeas
@@ -66,5 +72,118 @@ describe("nome da categoria", () => {
     expect(analisar(42).success).toBe(false);
     expect(analisar(null).success).toBe(false);
     expect(analisar(undefined).success).toBe(false);
+  });
+});
+
+/**
+ * Testes derivados de COR-04 (ACs 4 a 6), COR-01 (AC 4) e do Done-when de T8.
+ * Os dois payloads da tela de Categorias são estritos: a troca de cor só muda
+ * a cor, e renomear só muda o nome. Um campo a mais que o servidor ignorasse
+ * calado daria a impressão de ter mudado outra coisa.
+ */
+
+const CATEGORIA = "11111111-1111-4111-8111-111111111111";
+
+describe("trocar a cor da categoria", () => {
+  it.each(CORES_DE_CATEGORIA.map((cor) => [cor]))("aceita %s, uma das dez", (cor) => {
+    const resultado = entradaCorDaCategoriaSchema.safeParse({ categoriaId: CATEGORIA, cor });
+
+    expect(resultado.success).toBe(true);
+    expect(resultado.data).toEqual({ categoriaId: CATEGORIA, cor });
+  });
+
+  it("aceita cor nula, que é a volta à automática (COR-04, AC 5)", () => {
+    const resultado = entradaCorDaCategoriaSchema.safeParse({ categoriaId: CATEGORIA, cor: null });
+
+    expect(resultado.success).toBe(true);
+    expect(resultado.data).toEqual({ categoriaId: CATEGORIA, cor: null });
+  });
+
+  it("recusa cor fora das dez, inclusive com acento ou em maiúscula (COR-01, AC 4)", () => {
+    for (const cor of ["dourado", "âmbar", "Verde", "#45a24d", ""]) {
+      const resultado = entradaCorDaCategoriaSchema.safeParse({ categoriaId: CATEGORIA, cor });
+
+      expect(resultado.success).toBe(false);
+      expect(resultado.error?.issues[0]?.path).toEqual(["cor"]);
+    }
+  });
+
+  it("recusa payload sem a cor: ausente não é o mesmo que automática", () => {
+    const resultado = entradaCorDaCategoriaSchema.safeParse({ categoriaId: CATEGORIA });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.path).toEqual(["cor"]);
+  });
+
+  it("recusa id que não é uuid", () => {
+    const resultado = entradaCorDaCategoriaSchema.safeParse({ categoriaId: "1", cor: "verde" });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.path).toEqual(["categoriaId"]);
+  });
+
+  it("recusa chave a mais", () => {
+    const resultado = entradaCorDaCategoriaSchema.safeParse({
+      categoriaId: CATEGORIA,
+      cor: "verde",
+      nome: "Categoria Dez",
+    });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.code).toBe("unrecognized_keys");
+  });
+});
+
+describe("renomear a categoria", () => {
+  it("aceita o nome novo, normalizado como no cadastro (COR-04, AC 6)", () => {
+    const resultado = entradaRenomearCategoriaSchema.safeParse({
+      categoriaId: CATEGORIA,
+      nome: "  Categoria   Dez ",
+    });
+
+    expect(resultado.success).toBe(true);
+    expect(resultado.data).toEqual({ categoriaId: CATEGORIA, nome: "Categoria Dez" });
+  });
+
+  it("recusa nome vazio com a mensagem do cadastro", () => {
+    const resultado = entradaRenomearCategoriaSchema.safeParse({
+      categoriaId: CATEGORIA,
+      nome: "   ",
+    });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.path).toEqual(["nome"]);
+    expect(resultado.error?.issues[0]?.message).toBe("Informe o nome da categoria.");
+  });
+
+  it("recusa nome além do limite", () => {
+    const resultado = entradaRenomearCategoriaSchema.safeParse({
+      categoriaId: CATEGORIA,
+      nome: "a".repeat(MAX_NOME_CATEGORIA + 1),
+    });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.path).toEqual(["nome"]);
+  });
+
+  it("recusa id que não é uuid", () => {
+    const resultado = entradaRenomearCategoriaSchema.safeParse({
+      categoriaId: "1",
+      nome: "Categoria Dez",
+    });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.path).toEqual(["categoriaId"]);
+  });
+
+  it("recusa chave a mais: renomear não troca a cor", () => {
+    const resultado = entradaRenomearCategoriaSchema.safeParse({
+      categoriaId: CATEGORIA,
+      nome: "Categoria Dez",
+      cor: "verde",
+    });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0]?.code).toBe("unrecognized_keys");
   });
 });
