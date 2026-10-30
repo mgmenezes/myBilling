@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/cor-por-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Draft (plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8)
-**Total**: 13 tasks em 5 fases
+**Status**: Implemented, com as correções da rodada 1 em andamento (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 registradas; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F5)
+**Total**: 18 tasks em 6 fases (T1–T13 e as correções F1–F5)
 
 ---
 
@@ -173,6 +173,27 @@ T11 -> T12
 ```
 
 Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8–T12).
+
+### Phase 5 — Correções da verificação (rodada 1)
+
+```
+T11 -> F1
+T11 -> F2
+T6 -> F3
+T11 -> F3
+T8 -> F4
+T7 -> F5
+F1 -> F5
+F2 -> F5
+F3 -> F5
+F4 -> F5
+```
+
+F1 a F4 fecham as lacunas 1 a 4 de `validation.md` (rodada 1, FAIL), uma cada, com o teste que a
+lacuna sugere e o mutante dela provado: o teste falha com ele e passa sem ele. A F5 fecha os pontos
+1 e 3 do autor, as lacunas de precisão A e B, pela decisão do orquestrador, que o dono pode rever: a
+categoria arquivada fica na neutra em todo lugar, e mudar só a caixa é renomear. O ponto 2, o hover
+do escuro, continua com o dono; o ponto 4 está fora da fatia.
 
 ---
 
@@ -390,6 +411,81 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 **Gate**: build
 **Commit**: `docs(categorias): fechar a fatia da cor por categoria`
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+#### F1: "Sem categoria" e a removida neutras nas páginas
+**What**: Quem decide que "Sem categoria" e a categoria fora das disponíveis vão sem cor é a página (`src/app/(app)/[competencia]/page.tsx:186` e `src/app/(app)/[competencia]/fixos/page.tsx:105`). Os testes de componente recebem `cor: null` pronto, e nenhum e2e tinha gasto sem categoria nem categoria arquivada lendo a cor: com a página tingindo os dois grupos (mutantes E1 e E2), a suíte e2e inteira passava (lacuna 1, L-014).
+**Where**: `e2e/categorias.spec.ts` (+ `spec.md`)
+**Depends on**: T11
+**Reuses**: `inserirCategoria`, `inserirFixo`, `inserirGasto`, `pillDoFixo`, `barraDaCategoria` e `corDoToken` do e2e
+**Requirement**: COR-02
+**Done when**:
+- [x] Um percurso com uma categoria arquivada e o grupo sem categoria, cada um com um fixo e um gasto de março (COR-02 AC 5)
+- [x] Em "Todo mês", a pill "Categoria removida" tem o `backgroundColor` computado de `--surface-strong`, lido do token no navegador (COR-02 AC 5)
+- [x] Na Visão geral, as barras "Sem categoria" e "Categoria removida" têm o de `--grafico-barra` (COR-02 AC 5)
+- [x] O percurso passa na HEAD. E1 falha na pill, com `rgb(215, 247, 237)` no lugar da neutra; E2, que tinge os dois grupos, falha na barra de Sem categoria; E2b, que tinge só a removida, falha na barra de Categoria removida, com `rgb(13, 156, 131)` no lugar de `rgb(91, 97, 110)`. Cada um desfeito, com `git diff --quiet`
+**Tests**: e2e
+**Gate**: quick + `pnpm lint` + e2e
+**Commit**: `test(e2e): sem categoria e removida ficam neutras nas páginas`
+
+#### F2: A ordem alfabética que discrimina
+**What**: A fixture tinha "Categoria Dois", "Categoria Três" e "Categoria Um", na mesma ordem pelo português, pelo código de caractere e pelo `ORDER BY nome` do banco de teste, que ordena como código de caractere. Tirar o `.sort` (E7) ou trocar o `Intl.Collator` por `<` (E8) em `src/app/(app)/[competencia]/cadastros/categorias/page.tsx:31-33` passava verde (lacuna 2, L-036).
+**Where**: `e2e/categorias.spec.ts` (+ `spec.md`)
+**Depends on**: T11
+**Reuses**: `inserirCategoria` e `listaDeCategorias` do e2e
+**Requirement**: COR-04
+**Done when**:
+- [ ] A fixture ganha "categoria Beta", "Categoria Ômega" e "Categoria Zeta", que só ficam em ordem pela regra do português (COR-04 AC 2)
+- [ ] A tela lista as seis na ordem do português, e a lista continua nessa ordem depois de renomear (COR-04 AC 2)
+- [ ] As contagens dos percursos seguintes acompanham as seis categorias, sem afrouxar nenhuma assertion
+- [ ] E7 e E8 falham; cada um desfeito, com `git diff --quiet`
+**Tests**: e2e
+**Gate**: quick + `pnpm lint` + e2e
+**Commit**: `test(categorias): ordem alfabética do português na tela`
+
+#### F3: O chevron medido no navegador
+**What**: O chevron do seletor tingido só tinha prova pela ausência de classe (`src/components/seletor-de-categoria.test.tsx:297-307`), e o comentário de lá citava um e2e que não existia. Um `style={{ background: … }}` no `<select>` (E13) apagava o chevron com a suíte verde (lacuna 3, L-037).
+**Where**: `e2e/categorias.spec.ts`, `src/components/seletor-de-categoria.test.tsx` (+ `spec.md`)
+**Depends on**: T6, T11
+**Reuses**: o percurso "Verde" do e2e
+**Requirement**: COR-03
+**Done when**:
+- [ ] No percurso "Verde", o `backgroundImage` computado do seletor tingido contém `url(`, junto do `backgroundColor` verde (COR-03 AC 2)
+- [ ] O comentário do teste de classe aponta para esse e2e
+- [ ] E13 falha; desfeito, com `git diff --quiet`
+**Tests**: e2e
+**Gate**: quick + `pnpm lint` + e2e
+**Commit**: `test(e2e): o chevron continua no seletor tingido`
+
+#### F4: O cadastro inline nasce sem cor
+**What**: A garantia valia no repositório (B3 morto), mas nada lia `cor` depois de `criarCategoria` da action: gravar uma cor logo depois de criar, em `src/app/actions/categorias.ts:89` (B4), passava os testes de integração (lacuna 4, L-038).
+**Where**: `src/app/actions/categorias.integration.test.ts` (+ `spec.md`)
+**Depends on**: T8
+**Reuses**: `categoria()` e o `beforeEach` do arquivo
+**Requirement**: COR-01
+**Done when**:
+- [ ] `criarCategoria` da action, com um nome novo, cria a categoria com `cor` nula no banco (COR-01 AC 5)
+- [ ] B4 falha; desfeito, com `git diff --quiet`
+**Tests**: integration
+**Gate**: full
+**Commit**: `test(categorias): o cadastro inline cria a categoria sem cor`
+
+#### F5: A arquivada neutra em todo lugar, e a spec precisa
+**What**: As lacunas de precisão A e B, com a decisão do orquestrador, que o dono pode rever. A: em Lançamentos, o chip de filtro tirava a cor de todas as categorias, arquivadas inclusive, e a mesma arquivada saía tingida no chip e neutra no seletor da linha; agora fica neutra nos dois, com o nome dela no chip. B: o Edge Case do nome igual passa a dizer a regra de igualdade que o código já segue.
+**Where**: `src/application/mes/totais-por-categoria.ts` (+ teste), `e2e/categorias.spec.ts` (+ `spec.md`)
+**Depends on**: T7, F1, F2, F3, F4
+**Reuses**: o percurso da F1
+**Requirement**: COR-02, COR-04
+**Done when**:
+- [ ] `totaisPorCategoria` devolve `cor: null` para a categoria arquivada, com o nome dela (COR-02 AC 5)
+- [ ] No percurso da F1, em Lançamentos, o chip da arquivada e o seletor do gasto dela têm o `backgroundColor` de `--surface` (COR-02 AC 5, Edge Case)
+- [ ] Sem a correção, o teste de unidade e o e2e falham
+- [ ] COR-02 AC 5 com "sem categoria, ou com categoria removida ou arquivada"; o Edge Case do nome igual com "igual depois de normalizar espaços; mudar só a caixa é renomear e grava"; `validate_spec.py` com 0 erros
+- [ ] Traceability com a proposta de `validation.md`, aguardando o Verifier na rodada 2
+**Tests**: unit + e2e
+**Gate**: quick + `pnpm lint` + e2e
+**Commit**: `fix(lancamentos): categoria arquivada neutra também no chip`
+
 ---
 
 ## Task Granularity Check
@@ -405,6 +501,9 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 | T9, T10 | 1 componente | ✅ |
 | T11 | página + e2e | ✅ |
 | T12 | seed + docs | ✅ |
+| F1, F2, F3 | 1 percurso ou 1 assertion no e2e | ✅ |
+| F4 | 1 caso de teste | ✅ |
+| F5 | 1 regra de aplicação + a prova dela + a spec | ⚠️ coeso: a decisão da spec e o código que a cumpre entram juntos |
 
 ## Diagram-Definition Cross-Check
 
@@ -423,6 +522,14 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 | T10 | T8, T4 | T8→T10, T4→T10 | ✅ |
 | T11 | T9, T10, T13 | T9→T11, T10→T11, T13→T11 | ✅ |
 | T12 | T5, T6, T7, T11 | T5→T12, T6→T12, T7→T12, T11→T12 | ✅ |
+| F1 | T11 | T11→F1 | ✅ |
+| F2 | T11 | T11→F2 | ✅ |
+| F3 | T6, T11 | T6→F3, T11→F3 | ✅ |
+| F4 | T8 | T8→F4 | ✅ |
+| F5 | T7, F1, F2, F3, F4 | T7→F5, F1→F5, F2→F5, F3→F5, F4→F5 | ✅ |
+
+`validate_tasks.py` só reconhece IDs `T<n>`. As tasks `F<n>` são validadas numa cópia com elas
+trocadas por `T10<n>`.
 
 ## Test Co-location Validation
 
@@ -436,3 +543,6 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 | T8 | schema + actions | unit + integration | unit + integration | ✅ |
 | T11 | fluxo | e2e | e2e | ✅ |
 | T12 | docs | none | none | ✅ |
+| F1, F2, F3 | fluxo | e2e | e2e | ✅ |
+| F4 | actions | integration | integration | ✅ |
+| F5 | aplicação + fluxo | unit, e2e | unit + e2e | ✅ |

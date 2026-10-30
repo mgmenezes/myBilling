@@ -157,7 +157,7 @@ async function inserirCategoria(nome: string, cor: string | null = null): Promis
 }
 
 /** Fixo só de março, em Conta Corrente: a materialização o cria ao abrir o mês. */
-async function inserirFixo(descricao: string, categoriaId: string, centavos: number) {
+async function inserirFixo(descricao: string, categoriaId: string | null, centavos: number) {
   const { rows } = await pool.query<{ id: string }>(
     `INSERT INTO recorrencia (descricao, natureza, categoria_id, usuario_id, meio_pagamento_id,
        competencia_inicio, competencia_fim, dia_vencimento)
@@ -172,7 +172,7 @@ async function inserirFixo(descricao: string, categoriaId: string, centavos: num
 
 async function inserirGasto(
   descricao: string,
-  categoriaId: string,
+  categoriaId: string | null,
   competencia: string,
   centavos: number,
 ) {
@@ -385,6 +385,34 @@ test("Verde para Categoria Um: o mesmo fundo na pill de Todo mês, no seletor e 
   expect(await fundo(trilhoDaCategoria(page, "Categoria Um"))).toBe(
     await corDoToken(page, "--grafico-trilho"),
   );
+});
+
+test('"Sem categoria" e a categoria arquivada, que vira "Categoria removida", ficam na neutra em Todo mês e na Visão geral (COR-02, AC 5)', async ({
+  page,
+}) => {
+  /* Quem decide a neutra é a página: a arquivada não está entre as
+     disponíveis, e o grupo nulo não tem categoria. Os componentes recebem a
+     cor pronta, por isso a prova é aqui, no fim da composição (L-014). Um
+     fixo e um gasto de março para cada grupo. */
+  const arquivada = await inserirCategoria("Categoria Arquivada");
+  await inserirFixo("Fixo C", arquivada, 4000);
+  await inserirGasto("Gasto C", arquivada, MARCO, 3000);
+  await pool.query("UPDATE categoria SET arquivada_em = now() WHERE id = $1", [arquivada]);
+  await inserirFixo("Fixo D", null, 1500);
+  await inserirGasto("Gasto D", null, MARCO, 2500);
+
+  await page.goto(`/${MARCO}/fixos`);
+  const removida = pillDoFixo(page, "Fixo C", "Categoria removida");
+  await expect(removida).toBeVisible();
+  expect(await fundo(removida)).toBe(await corDoToken(page, "--surface-strong"));
+
+  await navegacao(page, "Visão geral").click();
+  await expect(page).toHaveURL(new RegExp(`/${MARCO}$`));
+  const barraNeutra = await corDoToken(page, "--grafico-barra");
+  for (const grupo of ["Sem categoria", "Categoria removida"]) {
+    await expect(barraDaCategoria(page, grupo)).toBeVisible();
+    expect(await fundo(barraDaCategoria(page, grupo)), `barra de ${grupo}`).toBe(barraNeutra);
+  }
 });
 
 test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com o motivo junto do campo (COR-04, ACs 6, 7 e 9)", async ({
