@@ -252,6 +252,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: Edge Case nome igual; src/app/actions/categorias.ts:200 (spec,textos)
 - last seen: 2026-10-30T02:12:18Z
 
+### L-041 - Regra que o cliente e o servidor aplicam cada um precisa de caso de teste nos dois lados; provada só no servidor, o cliente barra a entrada com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,validacao` · harmful: 0
+- features: cor-por-categoria
+- evidence: L3c: src/components/lista-de-categorias.tsx:176 (componentes,validacao)
+- last seen: 2026-10-30T02:50:50Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

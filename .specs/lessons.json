@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 41,
+  "next_id": 42,
   "lessons": [
     {
       "id": "L-001",
@@ -731,6 +731,24 @@
       ],
       "created": "2026-10-30T02:12:18Z",
       "last_seen": "2026-10-30T02:12:18Z"
+    },
+    {
+      "id": "L-041",
+      "key": "surviving_mutant::regra que o cliente e o servidor aplicam cada um precisa de caso de teste nos dois lados provada so no servidor o cliente barra a entrada com a suite verde",
+      "text": "Regra que o cliente e o servidor aplicam cada um precisa de caso de teste nos dois lados; provada só no servidor, o cliente barra a entrada com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "componentes,validacao",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "L3c: src/components/lista-de-categorias.tsx:176 (componentes,validacao)"
+      ],
+      "created": "2026-10-30T02:50:50Z",
+      "last_seen": "2026-10-30T02:50:50Z"
     }
   ]
 }
