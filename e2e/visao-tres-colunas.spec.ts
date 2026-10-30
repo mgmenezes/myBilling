@@ -278,6 +278,36 @@ test.describe("a Visão geral em 1.920 px", () => {
     expect(proximos.x).toBeGreaterThan(categorias.x + categorias.width);
   });
 
+  /*
+   * A busca e os últimos "na coluna de ação" (L-018): as caixas são medidas
+   * contra a dos cards e a da região "Novo lançamento". Uma busca ou uma lista
+   * que fosse parar no centro passaria numa consulta à página inteira.
+   */
+  test("a busca e os últimos ficam na coluna de ação, que uma linha fina separa do centro (TRES-02, AC 1; TRES-04, AC 1; TRES-05, AC 1)", async ({
+    page,
+  }) => {
+    await page.goto(`/${ATUAL}`);
+    const ultimos = page.getByRole("region", { name: "Últimos lançamentos" });
+    await expect(ultimos).toBeVisible();
+
+    const cards = await caixa(
+      page.getByRole("link", { name: /Receitas do mês/ }).locator("xpath=.."),
+    );
+    const cadastro = page.getByRole("region", { name: "Novo lançamento" });
+    const coluna = await caixa(cadastro);
+    for (const alvo of [page.getByRole("search", { name: "Buscar lançamento" }), ultimos]) {
+      const medida = await caixa(alvo);
+      expect(medida.x).toBeGreaterThanOrEqual(cards.x + cards.width);
+      expect(Math.abs(medida.x - coluna.x)).toBeLessThanOrEqual(24);
+    }
+
+    const linha = await cadastro.locator("xpath=..").evaluate((elemento) => {
+      const estilo = getComputedStyle(elemento);
+      return { largura: estilo.borderLeftWidth, tipo: estilo.borderLeftStyle };
+    });
+    expect(linha).toEqual({ largura: "1px", tipo: "solid" });
+  });
+
   test("o cadastro está aberto na coluna de ação, sem diálogo, com as abas Avulso e Parcelado (TRES-03, AC 1)", async ({
     page,
   }) => {

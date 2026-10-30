@@ -351,8 +351,8 @@ Nada muda na tela.
 **Reuses**: `caixa`
 **Requirement**: TRES-02, TRES-04, TRES-05
 **Done when**:
-- [ ] A busca e os últimos têm `x ≥ cards.x + cards.width` e o mesmo `x` da região "Novo lançamento", com até 24 px de diferença (TRES-04 AC 1, TRES-05 AC 1)
-- [ ] A coluna de ação tem `border-left-width` computado de 1 px e estilo `solid` (TRES-02 AC 1)
+- [x] A busca e os últimos têm `x ≥ cards.x + cards.width` e o mesmo `x` da região "Novo lançamento", com até 24 px de diferença (TRES-04 AC 1, TRES-05 AC 1)
+- [x] A coluna de ação tem `border-left-width` computado de 1 px e estilo `solid` (TRES-02 AC 1)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(painel): prender a busca e os últimos à coluna de ação`
