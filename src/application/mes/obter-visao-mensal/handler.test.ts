@@ -406,6 +406,27 @@ describe("saldo dos próximos meses (SALDO-02)", () => {
     expect(maio.competenciaView.saldo).toBe(-10000);
     expect(marco.futuro[1]?.saldo).toBe(maio.competenciaView.saldo);
   });
+
+  /* A regra "fora do comprometido, dentro do saldo" mora no domínio; aqui ela
+     precisa sobreviver ao handler, que é quem escolhe o que a projeção lê. */
+  it("a despesa futura já paga fica no saldo projetado e no do mês aberto (AC 2, Edge Case)", async () => {
+    semearMesesSeguintes();
+    semear(
+      lancamento({
+        id: "paga-adiantada",
+        competencia: ABRIL,
+        valor: 20000 as Cents,
+        pagoEm: "2026-03-28",
+        meioPagamentoId: CONTA,
+      }),
+    );
+
+    const marco = await obterVisaoMensal(fakes, MARCO);
+    const abril = await obterVisaoMensal(fakes, ABRIL);
+
+    expect(marco.futuro[0]).toEqual({ competencia: "2026-04", comprometido: 30000, saldo: 50000 });
+    expect(abril.competenciaView.saldo).toBe(50000);
+  });
 });
 
 describe("mês sem lançamento (UI-02, AC 6)", () => {
