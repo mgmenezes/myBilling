@@ -3,15 +3,24 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
+import type { Cents } from "@/domain";
+import { formatarBRL } from "@/lib/formatar";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * O horizonte de meses já comprometidos.
+ * O horizonte dos próximos meses: quanto já está comprometido e quanto vai
+ * sobrar ou faltar em cada um.
  *
  * É a informação que a planilha nunca deu: quanto dos próximos meses já está
  * gasto antes de começarem. Por isso ela não é uma lista de texto, é uma
  * régua onde dá para comparar os meses de relance.
+ *
+ * **O saldo não usa o rótulo do card.** É o mesmo número do "Saldo previsto"
+ * daquele mês (SALDO-03, AC 7), mas esta seção aparece também em
+ * Movimentações, onde o rótulo do eixo competência não pode existir
+ * (MOV-03). "Vai sobrar" e "Vai faltar" são as palavras do dono, e dizem o
+ * sentido sem depender do sinal nem da cor.
  *
  * **Por que a revelação não é mais scrub.** A versão anterior amarrava a
  * opacidade ao progresso do scroll (`scrub`, de `top 85%` até `top 45%`).
@@ -44,7 +53,29 @@ gsap.registerPlugin(ScrollTrigger);
 interface MesFuturo {
   readonly competencia: string;
   readonly rotulo: string;
+  readonly comprometido: Cents;
+  readonly saldo: Cents;
+}
+
+/**
+ * O rótulo carrega o sentido e a cor só o repete (`docs/design.md`, "Semântica
+ * de valor"). Por isso o valor sai sem sinal: "Vai faltar R$ 500,00", e não
+ * "Vai faltar -R$ 500,00". O zero não é sobra nem falta, e fica sem cor. As
+ * classes ficam escritas por extenso porque o Tailwind só gera o que lê.
+ */
+function apresentarSaldo(saldo: Cents): {
+  readonly rotulo: string;
   readonly valor: string;
+  readonly classe: string;
+} {
+  if (saldo < 0) {
+    return { rotulo: "Vai faltar", valor: formatarBRL(Math.abs(saldo)), classe: "text-negativo" };
+  }
+  return {
+    rotulo: "Vai sobrar",
+    valor: formatarBRL(saldo),
+    classe: saldo > 0 ? "text-positivo" : "text-ink",
+  };
 }
 
 export function HorizonteFuturo({ meses }: { readonly meses: ReadonlyArray<MesFuturo> }) {
@@ -94,15 +125,32 @@ export function HorizonteFuturo({ meses }: { readonly meses: ReadonlyArray<MesFu
   return (
     <div ref={raiz}>
       <ul className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
-        {meses.map((mes) => (
-          <li
-            key={mes.competencia}
-            className="mes-futuro flex min-w-[9.5rem] shrink-0 snap-start flex-col gap-2 rounded-xl border border-line bg-surface p-5"
-          >
-            <span className="text-[14px] text-ink-muted">{mes.rotulo}</span>
-            <span className="tabular text-[17px]">{mes.valor}</span>
-          </li>
-        ))}
+        {meses.map((mes) => {
+          const saldo = apresentarSaldo(mes.saldo);
+          return (
+            <li
+              key={mes.competencia}
+              className="mes-futuro flex min-w-[9.5rem] shrink-0 snap-start flex-col gap-3 rounded-xl border border-line bg-surface p-5"
+            >
+              <span className="text-[14px] font-semibold">{mes.rotulo}</span>
+              {/* `dt` e `dd` ligam cada rótulo ao seu valor para o leitor de tela. */}
+              <dl className="flex flex-col gap-2">
+                <div className="flex flex-col gap-0.5">
+                  <dt className="text-[13px] text-ink-muted">Comprometido</dt>
+                  <dd className="tabular whitespace-nowrap text-[17px]">
+                    {formatarBRL(mes.comprometido)}
+                  </dd>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <dt className="text-[13px] text-ink-muted">{saldo.rotulo}</dt>
+                  <dd className={`tabular whitespace-nowrap text-[17px] ${saldo.classe}`}>
+                    {saldo.valor}
+                  </dd>
+                </div>
+              </dl>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

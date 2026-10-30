@@ -205,6 +205,13 @@ numérica em 18px, não mais longe.
 documento. E nunca andam sozinhas: o rótulo acima diz "Receitas" ou "Despesas", e um `+` ou `−`
 repete a informação em forma. Cor sozinha não distingue para quem não separa matiz.
 
+O saldo dos **próximos meses** (seção "Próximos meses" da Visão geral) é o único lugar onde a cor
+segue o sinal de um saldo: "Vai sobrar" em `--positivo`, "Vai faltar" em `--negativo`, e o zero sem
+cor. A regra continua a mesma: a palavra do rótulo diz o sentido, o valor sai sem sinal e a cor só o
+repete. O card "Saldo previsto" não ganha essa cor porque é o cartão de ênfase, invertido (abaixo).
+O rótulo do card também não se repete na seção, que aparece em Movimentações, onde o rótulo do eixo
+competência não existe (MOV-03).
+
 O que **não** recebe semântica, de propósito:
 
 - **Investimento.** Não é entrada nem saída da casa; é dinheiro que mudou de lugar. Pintá-lo

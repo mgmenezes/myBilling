@@ -18,7 +18,7 @@ import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { ImportacaoRepositoryDrizzle } from "@/infrastructure/db/repositories/importacao.repository";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
-import { descreverMeio, formatarBRL, formatarCompetencia } from "@/lib/formatar";
+import { descreverMeio, formatarCompetencia } from "@/lib/formatar";
 import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../sessao";
 
@@ -194,13 +194,14 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
       {/* Fora da árvore do Motion: veja a nota no topo do arquivo. */}
       <section aria-labelledby="titulo-futuro" className="flex flex-col gap-5">
         <h2 id="titulo-futuro" className="text-[20px]">
-          Já comprometido nos próximos meses
+          Próximos meses
         </h2>
         <HorizonteFuturo
           meses={visaoMensal.futuro.map((mes) => ({
             competencia: mes.competencia,
             rotulo: formatarCompetencia(mes.competencia),
-            valor: formatarBRL(mes.comprometido),
+            comprometido: mes.comprometido,
+            saldo: mes.saldo,
           }))}
         />
       </section>
