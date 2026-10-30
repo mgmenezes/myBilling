@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em correção depois do FAIL da rodada 1 de `validation.md`, em 2026-10-30 (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1–T8 concluídas; F0–F6 abertas)
+**Status**: Corrigida, à espera da rodada 2 do Verifier (FAIL na rodada 1 de `validation.md`, em 2026-10-30; plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1–T8 e F0–F6 concluídas)
 **Total**: 15 tasks em 5 fases (T1–T8 e as correções F0–F6), executadas inline
 
 ---
@@ -415,9 +415,9 @@ Nada muda na tela.
 **Reuses**: nenhuma
 **Requirement**: TRES-01
 **Done when**:
-- [ ] Toda medida e toda rolagem vêm depois de esperar um elemento da página pronta
-- [ ] Nenhum título de teste nem traceability diz "da altura da página"
-- [ ] O e2e inteiro passa
+- [x] Toda medida e toda rolagem vêm depois de esperar um elemento da página pronta
+- [x] Nenhum título de teste nem traceability diz "da altura da página"
+- [x] O e2e inteiro passa (111 cenários), com `pnpm verify` (1.694 unitários, 364 de integração, build)
 **Tests**: e2e
 **Gate**: build
 **Commit**: `test(moldura): esperar a página antes de medir`

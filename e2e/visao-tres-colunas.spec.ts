@@ -107,6 +107,16 @@ async function entrar(page: Page, email: string): Promise<void> {
   });
 }
 
+/**
+ * Abre a tela e espera o título dela, que toda tela autenticada tem. Medir ou
+ * rolar logo depois do `goto`, antes de o conteúdo chegar, mede uma página
+ * pela metade e dá falha de tempo, e não de layout.
+ */
+async function abrir(page: Page, caminho: string): Promise<void> {
+  await page.goto(caminho);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+}
+
 function menu(page: Page): Locator {
   return page.getByRole("complementary", { name: "Menu do myBilling" });
 }
@@ -130,11 +140,11 @@ async function transbordoHorizontal(page: Page): Promise<number> {
 test.describe("em 1.920 px", () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
 
-  test("o menu encosta na borda esquerda, da altura da página, e não há pílula no topo (TRES-01, ACs 1 e 2)", async ({
+  test("o menu encosta na borda esquerda, da altura da janela, e não há pílula no topo (TRES-01, ACs 1 e 2)", async ({
     page,
   }) => {
     for (const caminho of [`/${MARCO}/lancamentos`, `/${MARCO}`]) {
-      await page.goto(caminho);
+      await abrir(page, caminho);
 
       const medida = await caixa(menu(page));
       expect(medida.x).toBe(0);
@@ -146,7 +156,8 @@ test.describe("em 1.920 px", () => {
   test("ao rolar até o fim da Visão geral, o menu continua no alto e o pé à vista (TRES-01, AC 1)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
+    await expect(page.getByRole("region", { name: "Últimos lançamentos" })).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
 
@@ -159,7 +170,7 @@ test.describe("em 1.920 px", () => {
   test("na home do ano, o menu tem a marca e o pé, sem as áreas (TRES-01, AC 4)", async ({
     page,
   }) => {
-    await page.goto("/");
+    await abrir(page, "/");
 
     await expect(menu(page).getByRole("link", { name: "myBilling" })).toHaveAttribute("href", "/");
     await expect(menu(page).getByText("Pessoa A", { exact: true })).toBeVisible();
@@ -169,7 +180,7 @@ test.describe("em 1.920 px", () => {
   test("o pé do menu tem o nome, o tema e o importar, que abre o diálogo de importação em Lançamentos (TRES-01, ACs 5 e 6)", async ({
     page,
   }) => {
-    await page.goto(`/${MARCO}/lancamentos`);
+    await abrir(page, `/${MARCO}/lancamentos`);
 
     await expect(menu(page).getByText("Pessoa A", { exact: true })).toBeVisible();
     await expect(menu(page).getByRole("group", { name: "Tema da interface" })).toBeVisible();
@@ -184,7 +195,7 @@ test.describe("em 1.920 px", () => {
     page,
   }) => {
     for (const caminho of [`/${MARCO}/lancamentos`, `/${MARCO}`]) {
-      await page.goto(caminho);
+      await abrir(page, caminho);
 
       const seletor = await caixa(page.getByRole("navigation", { name: "Navegação entre meses" }));
       const titulo = await caixa(page.getByRole("heading", { level: 1 }));
@@ -207,7 +218,7 @@ test.describe("em 1.920 px", () => {
       `/${MARCO}/fixos`,
       `/${MARCO}/cadastros/categorias`,
     ]) {
-      await page.goto(caminho);
+      await abrir(page, caminho);
       const titulo = page.getByRole("heading", { level: 1 });
       await expect(titulo).toBeVisible();
 
@@ -225,7 +236,7 @@ test.describe("em 1.920 px", () => {
   test("Próximos meses tem uma linha por mês, uma embaixo da outra, sem rolagem lateral (TRES-02, AC 4)", async ({
     page,
   }) => {
-    await page.goto(`/${MARCO}`);
+    await abrir(page, `/${MARCO}`);
 
     const secao = page.getByRole("region", { name: "Próximos meses" });
     const linhas = secao.getByRole("listitem");
@@ -248,7 +259,7 @@ test.describe("em 1.920 px", () => {
   });
 
   test("a Visão geral não tem o importar fora do menu (TRES-02, AC 6)", async ({ page }) => {
-    await page.goto(`/${MARCO}`);
+    await abrir(page, `/${MARCO}`);
 
     await expect(menu(page).getByRole("button", { name: "Importar planilha" })).toHaveCount(1);
     await expect(
@@ -263,7 +274,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("o mês no centro, sem largura máxima, e a coluna de ação à direita, na mesma altura (TRES-02, ACs 1 a 3)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
 
     const titulo = await caixa(page.getByRole("heading", { level: 1 }));
     const alternador = await caixa(page.getByRole("navigation", { name: "Visão do mês" }));
@@ -303,7 +314,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("a busca e os últimos ficam na coluna de ação, que uma linha fina separa do centro (TRES-02, AC 1; TRES-04, AC 1; TRES-05, AC 1)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
     const ultimos = page.getByRole("region", { name: "Últimos lançamentos" });
     await expect(ultimos).toBeVisible();
 
@@ -328,7 +339,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("o cadastro está aberto na coluna de ação, sem diálogo, com as abas Avulso e Parcelado (TRES-03, AC 1)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
 
     const acao = page.getByRole("region", { name: "Novo lançamento" });
     const abas = acao.getByRole("tablist", { name: "Tipo de lançamento a cadastrar" });
@@ -340,7 +351,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("os últimos lançamentos são os 8 mais recentes até hoje, sem o de amanhã (TRES-05, AC 1)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
 
     const ultimos = page.getByRole("region", { name: "Últimos lançamentos" });
     const linhas = ultimos.getByRole("listitem");
@@ -361,7 +372,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("a pill de cada linha dos últimos tem a cor da categoria, e não a neutra (TRES-05, AC 3)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
     const linha = page
       .getByRole("region", { name: "Últimos lançamentos" })
       .getByRole("listitem")
@@ -393,7 +404,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("lançar pela coluna aumenta Despesas do mês, entra em Gastos por categoria, põe o gasto no topo dos últimos e mantém o cadastro com a confirmação (TRES-03, ACs 2 e 3)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
     const despesas = page.getByRole("link", { name: /Despesas do mês/ });
     await expect(despesas).toContainText("R$ 110,00");
     const semCategoria = page
@@ -424,7 +435,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("lançar uma compra parcelada pela coluna aumenta o comprometido do mês seguinte em Próximos meses (TRES-03, AC 2)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
     const comprometidoDoSeguinte = page
       .getByRole("region", { name: "Próximos meses" })
       .getByRole("listitem")
@@ -448,7 +459,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("buscar um termo abre Lançamentos do mês com a busca preenchida e só o que casa (TRES-04, ACs 1 e 2)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
 
     const busca = page.getByRole("search", { name: "Buscar lançamento" });
     await busca.getByLabel("Buscar lançamento").fill("Recente 02");
@@ -465,7 +476,7 @@ test.describe("a Visão geral em 1.920 px", () => {
   test("buscar vazio abre Lançamentos do mês sem filtro de busca (TRES-04, AC 3)", async ({
     page,
   }) => {
-    await page.goto(`/${ATUAL}`);
+    await abrir(page, `/${ATUAL}`);
 
     await page
       .getByRole("search", { name: "Buscar lançamento" })
@@ -486,7 +497,7 @@ test("a coluna de ação fica ao lado do centro em 1.280 px e abaixo dele em 1.2
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await page.goto(`/${ATUAL}`);
+  await abrir(page, `/${ATUAL}`);
   await expect(page.getByRole("region", { name: "Últimos lançamentos" })).toBeVisible();
   const cadastro = page.getByRole("region", { name: "Novo lançamento" });
 
@@ -504,7 +515,7 @@ test("em 768 px o menu já é a coluna da borda, presa ao rolar, com as áreas d
   page,
 }) => {
   await page.setViewportSize({ width: 768, height: 900 });
-  await page.goto(`/${ATUAL}`);
+  await abrir(page, `/${ATUAL}`);
   await expect(page.getByRole("region", { name: "Últimos lançamentos" })).toBeVisible();
 
   const coluna = await caixa(menu(page));
@@ -525,7 +536,7 @@ test("em 767 px o menu é a barra do topo, da largura da janela, e as áreas fic
   page,
 }) => {
   await page.setViewportSize({ width: 767, height: 900 });
-  await page.goto(`/${MARCO}/lancamentos`);
+  await abrir(page, `/${MARCO}/lancamentos`);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
   const topo = await caixa(menu(page));
@@ -539,7 +550,7 @@ test("em 767 px o menu é a barra do topo, da largura da janela, e as áreas fic
 
 test("em 1.024 px, a coluna de ação fica abaixo do centro (TRES-02, AC 5)", async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 900 });
-  await page.goto(`/${ATUAL}`);
+  await abrir(page, `/${ATUAL}`);
 
   const proximos = await caixa(page.getByRole("region", { name: "Próximos meses" }));
   const acao = await caixa(page.getByRole("region", { name: "Novo lançamento" }));
@@ -550,7 +561,7 @@ test("em 1.280 px, a barra de filtros compacta de Lançamentos começa depois do
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 600 });
-  await page.goto(`/${MARCO}/lancamentos`);
+  await abrir(page, `/${MARCO}/lancamentos`);
   await expect(page.getByRole("row", { name: /Fixo 15/ })).toBeVisible();
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
 
@@ -566,7 +577,7 @@ test.describe("em 400 px", () => {
   test("as áreas ficam na barra de baixo e o topo tem a marca, o importar, o tema e o nome (TRES-01, AC 9)", async ({
     page,
   }) => {
-    await page.goto(`/${MARCO}/lancamentos`);
+    await abrir(page, `/${MARCO}/lancamentos`);
 
     const areas = await caixa(
       page.getByRole("navigation", { name: "Áreas do myBilling" }).getByRole("list"),
@@ -589,7 +600,7 @@ test.describe("em 400 px", () => {
       `/${MARCO}/fixos`,
       `/${MARCO}/cadastros/categorias`,
     ]) {
-      await page.goto(caminho);
+      await abrir(page, caminho);
       await expect(menu(page)).toBeVisible();
 
       expect(await transbordoHorizontal(page), caminho).toBe(0);
