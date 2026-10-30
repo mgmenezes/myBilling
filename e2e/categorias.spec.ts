@@ -381,6 +381,12 @@ test("Verde para Categoria Um: o mesmo fundo na pill de Todo mês, no seletor e 
   const seletor = page.getByRole("combobox", { name: "Categoria de Gasto A" });
   await expect(seletor.locator("option:checked")).toHaveText("Categoria Um");
   const corDoSeletor = await fundo(seletor);
+  /* O chevron é a imagem de fundo da regra global de `select`. A cor da
+     categoria entra só por `background-color`; um `background:` no seletor
+     apagaria a imagem, e a cor sozinha não denunciaria (COR-03, AC 2). */
+  expect(
+    await seletor.evaluate((elemento) => getComputedStyle(elemento).backgroundImage),
+  ).toContain("url(");
   const chip = chipDeFiltro(page, "Categoria Um");
   await expect(chip).toHaveAttribute("aria-pressed", "false");
   const corDoChip = await fundo(chip);

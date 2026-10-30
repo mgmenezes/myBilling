@@ -450,9 +450,9 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 **Reuses**: o percurso "Verde" do e2e
 **Requirement**: COR-03
 **Done when**:
-- [ ] No percurso "Verde", o `backgroundImage` computado do seletor tingido contém `url(`, junto do `backgroundColor` verde (COR-03 AC 2)
-- [ ] O comentário do teste de classe aponta para esse e2e
-- [ ] E13 falha; desfeito, com `git diff --quiet`
+- [x] No percurso "Verde", o `backgroundImage` computado do seletor tingido contém `url(`, junto do `backgroundColor` verde (COR-03 AC 2)
+- [x] O comentário do teste de classe (`src/components/seletor-de-categoria.test.tsx`) aponta para esse e2e
+- [x] E13, um `style={{ background: "var(--cat-verde-fundo)" }}` no `<select>`, que mantém o verde, falha com `Received string: "none"`; desfeito, com `git diff --quiet`
 **Tests**: e2e
 **Gate**: quick + `pnpm lint` + e2e
 **Commit**: `test(e2e): o chevron continua no seletor tingido`

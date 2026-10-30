@@ -295,7 +295,10 @@ describe("o seletor na cor da categoria escolhida (COR-03, AC 2)", () => {
   });
 
   /* O chevron é a imagem de fundo da regra global de `select`; a cor de
-     categoria só pode mexer na cor de fundo. A medida é do e2e. */
+     categoria só pode mexer na cor de fundo. Aqui, só a ausência de classe que
+     a apagaria. A medida é do e2e: o percurso "Verde para Categoria Um" de
+     `e2e/categorias.spec.ts` exige `url(` no `backgroundImage` computado do
+     seletor tingido. */
   it("continua um select simples, sem utilitária de imagem de fundo, para manter o chevron", () => {
     montar({ categoriaId: CATEGORIA_UM });
 
