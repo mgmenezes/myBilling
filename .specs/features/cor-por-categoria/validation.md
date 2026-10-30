@@ -1,8 +1,18 @@
 # Cor por categoria — Validação
 
-## Validation: cor-por-categoria — **FAIL**
+## Validation: cor-por-categoria — **PASS**
 
-**Result**: FAIL ❌ — rodada 2 (2026-10-29, `2d5a012`). As quatro lacunas da rodada 1 estão fechadas, cada
+**Result**: PASS ✅ — rodada 3 (2026-10-30, `87537f9`). A F6 fecha a única lacuna da rodada 2. O caso
+novo, em `src/components/lista-de-categorias.test.tsx:426-438`, digita só a mudança de caixa e exige a
+chamada a `renomear` e o aviso. O L3c, reaplicado sozinho, morre nele (1 de 24), e a variante L3d também.
+O diff da F6 não toca código de produto e não tira assertion. O gate está verde: unit 1654, integração
+364, e2e da fatia 6 de 6, `typecheck`, `lint` e `build`. Os quatro mutantes repetidos das rodadas
+anteriores (E1, E7, A4 e C8), de página, action e componente, continuam morrendo. Os 29 critérios e os 4
+edge cases têm assertion sobre o resultado da spec, e todo mutante que quebra critério morre pelo gate.
+Ficam com o dono as pendências da rodada 2. Detalhe na seção [Rodada 3](#rodada-3), no fim do arquivo.
+As rodadas 1 e 2 seguem abaixo como foram escritas.
+
+**Rodada 2** (2026-10-29, `2d5a012`): FAIL ❌. As quatro lacunas da rodada 1 estão fechadas, cada
 uma com evidência própria: E1, E2, E2b, E7, E8, E13 e B4, reaplicados sozinhos, morrem. As duas lacunas de
 precisão viraram texto na spec pela F5, e a regra nova da arquivada no chip tem prova nos dois elos: M1
 morre no unit e no e2e, e M2, vivo no unit inteiro, morre no e2e, que é a prova da composição. O gate está
@@ -889,3 +899,213 @@ provada em cada elo. É um elo, o cliente, sem prova da frase nova. A M2, que é
   verdes.
 - **Próximo passo**: a F6, um caso de teste de componente já provado na sonda. Depois, a rodada 3 reaplica o
   L3c sozinho. É a última das três rodadas que `validate.md` permite antes de escalar ao dono.
+
+---
+
+## Rodada 3
+
+**Data**: 2026-10-30
+**Faixa do diff**: a fatia inteira é `8419c29..87537f9`, 22 commits. O relatório da rodada 2 é o `dcfab9b`.
+A correção é `dcfab9b..87537f9`, um commit: F6 `87537f9`.
+**Veredito**: PASS ✅.
+**Verificador**: sub-agente independente (autor ≠ verificador). Não usei relato do autor como evidência: cada
+mutante e cada sonda abaixo rodaram nesta rodada.
+
+- **Onde as mutações rodaram**: numa `git worktree` descartável, em modo detached no `87537f9`, no
+  scratchpad (`verif3-wt`), com `pnpm install --offline` próprio.
+- **Como**: cada mutante foi aplicado sozinho, por substituição exata de texto (o script recusa trecho
+  achado mais de uma vez), e desfeito com `git checkout --`. Depois de cada um, `git diff --quiet` na
+  descartável.
+- **Banco e e2e**: integração e e2e com `DATABASE_URL_TEST=…/mybilling_test_trc`, um de cada vez, na
+  porta 3100.
+- **Isolamento**: **nenhum `git stash`**. Ver [Isolamento](#isolamento-da-rodada-3).
+
+Os `file:line` desta seção valem para o `87537f9`. Desde o `2d5a012` da rodada 2, `src` e `e2e` só mudaram
+no arquivo de teste da F6, e as linhas citadas da rodada 2 continuam valendo.
+
+### O que a correção mudou
+
+`git diff --name-status dcfab9b..87537f9` lista dois arquivos:
+
+- **Teste**: `src/components/lista-de-categorias.test.tsx`, +14 −0. É um caso, `:426-438`, no bloco "o
+  nome igual ao atual (Edge Case)" (`:411`).
+- **Documento**: `tasks.md`, com a Phase 6 e a F6.
+- **Código de produto**: nenhum. `git diff --name-only dcfab9b..87537f9 -- src e2e drizzle`, sem os
+  `*.test.ts(x)` e `*.spec.ts`, sai vazio.
+
+**Nenhuma assertion foi enfraquecida.** `git diff dcfab9b..87537f9 -- src e2e` não tem linha removida.
+O diff da fatia inteira (`8419c29..87537f9 -- src e2e`) não acrescenta `skip`, `only`, `fixme`, `xit`
+nem `todo`.
+
+### A lacuna da rodada 2
+
+| # | Lacuna | Status | Evidência no `87537f9` |
+| --- | --- | --- | --- |
+| 1 | "Mudar só a caixa é renomear e grava" sem prova no cliente (Edge Case do nome igual, COR-04; L3c) | ✅ Fechada (F6) | `src/components/lista-de-categorias.test.tsx:426-438`. `:432-433`: limpa o campo e digita "categoria um" na linha de "Categoria Um" (`:36`). `:435`: `findByRole("status")` com `textContent` "Categoria renomeada.". `:436`: `toHaveBeenCalledTimes(1)`. `:437`: `toHaveBeenCalledWith({ categoriaId: UM, nome: "categoria um" })`. O L3c, em `src/components/lista-de-categorias.tsx:176`, só derruba esse caso, 1 de 24, em `:435`: `Unable to find role="status"`. Sem o L3c, 24 de 24 |
+
+### O caso novo não passa por vacuidade
+
+Cada metade do caso discrimina sozinha. A sonda rodou na descartável e foi desfeita.
+
+| Ponto | Por que não passa vazio | Evidência |
+| --- | --- | --- |
+| Digita só a mudança de caixa | `usuario.clear` antes do `type` (`:432`), e o `toHaveBeenCalledWith` (`:437`) exige exatamente "categoria um", na linha de "Categoria Um" (`:36`) | Sonda: o nome da fixture é diferente de "categoria um" e igual a ele em `toLocaleLowerCase("pt-BR")`. Verdadeiro na HEAD |
+| O aviso | A região `status` só existe enquanto há aviso (`src/components/avisos.tsx:26`, `:83`). O `findByRole` não acha uma região vazia montada antes | Com o L3c: `Unable to find role="status"` em `:435` |
+| A chamada | `toHaveBeenCalledTimes(1)` e o payload exato, separados do aviso | Sonda: o caso só com as duas assertions da chamada, atrás de um `waitFor`, sem a do aviso. Com o L3c: `expected "vi.fn()" to be called 1 times, but got 0 times`. Na HEAD, passa |
+| O caso irmão | O caso de `:412-424` continua prendendo o nome igual | L3, o guarda removido: falha em `:422`, `to not be called at all, but actually been called 1 times`, 1 de 24 |
+
+### Critérios que mudaram desde a rodada 2
+
+| Critério | Resultado definido pela spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| Edge Case: nome igual (reescrito pela F5, `spec.md:201-202`) | Igual depois de normalizar espaços: não grava nem avisa. Só a caixa mudando: renomeia e grava | Igual: `src/app/actions/categorias.integration.test.ts:367-391` e `src/components/lista-de-categorias.test.tsx:412-424`. Só a caixa: `src/app/actions/categorias.integration.test.ts:316-327`, no servidor, e `src/components/lista-de-categorias.test.tsx:435-437`, no cliente | ✅ A6c (rodada 2), L3, L3c e L3d mortos |
+
+Os 29 critérios e os outros três edge cases não mudaram desde a rodada 2, e o código deles é o mesmo. A
+rodada 2 os deixou provados, e os mutantes repetidos abaixo continuam morrendo.
+
+### Sensor da rodada 3
+
+Sete mutantes. Os de componente rodaram contra o arquivo de teste do componente. O A4 rodou contra
+`src/app/actions/categorias.integration.test.ts`. O E1 e o E7 rodaram contra `e2e/categorias.spec.ts`
+inteiro. Esse arquivo é `serial`: a primeira falha pula os testes seguintes, e a coluna "Onde morre" mostra
+essa primeira falha.
+
+| Mutante | Arquivo:linha | Falha injetada | Resultado | Onde morre |
+| --- | --- | --- | --- | --- |
+| L3c | `src/components/lista-de-categorias.tsx:176` | o cliente compara o nome em `toLocaleLowerCase("pt-BR")`: só a caixa mudando fecha o campo sem gravar nem avisar (rodada 2) | ✅ morto | `src/components/lista-de-categorias.test.tsx:435`, 1 de 24: `Unable to find role="status"` |
+| L3d | `lista-de-categorias.tsx:176` | variante nova: `localeCompare(…, "pt-BR", { sensitivity: "accent" }) === 0`, que também ignora a caixa | ✅ morto | `:435`, 1 de 24 |
+| L3 | `lista-de-categorias.tsx:176` | o guarda some: o nome igual grava, no cliente (rodada 1) | ✅ morto | `:422`, 1 de 24 |
+| E1 | `src/app/(app)/[competencia]/fixos/page.tsx:105` | "Categoria removida" com a cor automática em Todo mês (rodadas 1 e 2) | ✅ morto | `e2e/categorias.spec.ts:425`: esperado `rgb(238, 240, 243)`, recebido `rgb(215, 247, 237)` |
+| E7 | `src/app/(app)/[competencia]/cadastros/categorias/page.tsx:32` | sem ordenar: fica a ordem do banco (rodadas 1 e 2) | ✅ morto | `e2e/categorias.spec.ts:335`: o `toHaveText` acha "Categoria Ômega" e "categoria Beta" fora da ordem do português |
+| A4 | `src/app/actions/categorias.ts:214` | renomear grava `atual.cor` e não congela a automática (rodadas 1 e 2) | ✅ morto | `src/app/actions/categorias.integration.test.ts:287` e `:323`, 2 de 25 |
+| C8 | `src/components/chips-de-categoria.tsx:42-44` | o ramo do chip pressionado some: o chip ativo fica tingido (rodadas 1 e 2) | ✅ morto | `src/components/chips-de-categoria.test.tsx:248`, 1 de 18 |
+
+**Resultado**: 7 mutantes, 7 mortos.
+
+- O mutante da lacuna da rodada 2 (L3c) morre, e a variante dele (L3d) também.
+- O L3 mostra que o caso irmão, o do nome igual, não perdeu força com o caso novo no mesmo bloco.
+- Os quatro repetidos de áreas diferentes (E1 na página de Todo mês, E7 na página de Categorias, A4 na
+  action, C8 no componente de chips) morrem na mesma linha das rodadas anteriores: o sensor não perdeu
+  força.
+
+**Sensor acumulado**: 79 mutantes na rodada 1, 18 na rodada 2 e 7 nesta. O L3d é o único novo. Hoje todo
+mutante que quebra critério morre pelo gate. O C16 continua equivalente (rodada 1). O M2 vive no unit e
+morre no e2e (rodada 2), que é a prova da composição.
+
+### Gate
+
+| Comando | Resultado |
+| --- | --- |
+| `pnpm test:unit` | 1654 passed, em 102 arquivos; domínio com 100% de branches (353 de 353) |
+| `pnpm typecheck` | exit 0 |
+| `pnpm lint` | Biome em 299 arquivos, sem achado |
+| `DATABASE_URL_TEST=…/mybilling_test_trc pnpm test:integration` | 364 passed, em 23 arquivos |
+| `DATABASE_URL_TEST=…/mybilling_test_trc pnpm exec playwright test e2e/categorias.spec.ts` | 6 passed (24,8 s) |
+| `pnpm build` | exit 0 |
+
+- **Gate `build`**: os cinco comandos de `pnpm verify` rodaram um a um, todos verdes, com a integração
+  apontada para o banco de teste separado.
+- **Delta desde a rodada 2**: +1 no unit (F6). Integração e e2e não mudaram.
+- **Delta da fatia**: 1425 testes de unidade antes dela (`8419c29`, rodada 1), 1654 agora: +229.
+- **A suíte e2e inteira não foi repetida.** Desde a rodada 2, que rodou 83 de 83, só entrou um caso de
+  componente, e nenhum código de produto mudou.
+
+### Validadores
+
+- `check_commit.py`: OK na mensagem do `87537f9`.
+- `validate_spec.py cor-por-categoria`: 0 erros, 0 avisos, antes e depois da traceability desta rodada.
+- `validate_tasks.py` numa cópia com F1–F6 trocadas por T101–T106: 0 erros e 17 avisos, todos de
+  granularidade ("`Where` names multiple files"). Nenhum é da F6.
+- `validate_state.py cor-por-categoria`: 0 erros, saída 0.
+
+### Observação de processo: a F6 sem o `spec.md`
+
+O `87537f9` traz só o teste e o `tasks.md`. O `AGENTS.md` pede a traceability do `spec.md` no mesmo
+commit, e a F6 da rodada 2 pedia "a traceability do COR-04 citando-o". O `check_commit.py` não pega isso,
+porque valida só a mensagem.
+
+Não deixa critério sem prova, e por isso fica como observação. A traceability aplicada nesta rodada, no
+commit deste relatório, cita a F6 no COR-04.
+
+### Observações, fora do veredito
+
+- **O laço de contraste dos chips** (`e2e/categorias.spec.ts:611-617`) continua sem contar os chips
+  (rodada 2, L-030). O par texto/fundo está provado pela pill, com contagem exata. A sugestão continua:
+  `toHaveCount(6)` antes do laço.
+- **O hover do escuro e o aviso de hydration** estão nas pendências do dono, abaixo.
+
+### Code Quality da correção
+
+| Princípio | Status |
+| --- | --- |
+| Código mínimo | ✅ Um caso de 13 linhas, que reusa `montar` e `linhaDe` |
+| Mudanças cirúrgicas | ✅ Só o bloco do Edge Case e o `tasks.md` |
+| Resultado afirmado igual ao da spec | ✅ O aviso exato, "Categoria renomeada.", e o payload exato |
+| Todo teste mapeia um AC ou edge case | ✅ O Edge Case do nome igual, na frase "mudar só a caixa é renomear e grava" |
+| Guias do projeto (`AGENTS.md`) | ✅ O teste deriva da spec (`spec.md:201-202`), fica co-locado e usa nomes genéricos. ⚠️ O commit não trouxe o `spec.md` (observação acima) |
+
+### AD-009
+
+O caso novo usa "Categoria Um", "categoria um" e o id sintético `UM`. A mensagem do `87537f9` não traz
+dado real, e este relatório também não. ✅
+
+### Lições
+
+Nenhum sinal novo. Todo mutante que quebra critério morreu, o gate passou, e não há lacuna de precisão
+nova nem `SPEC_DEVIATION`. Pela `references/lessons.md`, um PASS limpo não grava lição, e
+`.specs/lessons.json` e `.specs/LESSONS.md` não mudam nesta rodada.
+
+| Lição | Status | Tratamento |
+| --- | --- | --- |
+| L-035 a L-038 | candidatas, x1 | Ficam como estão. F1, F2, F3 e F4 as confirmam nesta fatia |
+| L-039 e L-040 | candidatas, x1 | Ficam como estão. A F5 as resolveu na spec |
+| L-041 | candidata, x1 | Fica como está. A F6 a confirma: a regra do nome agora tem caso no cliente e no servidor |
+| L-014 | confirmada | Sem `penalize`. A falha dela não voltou: o M2 morreu no e2e na rodada 2, e o E1 morre nesta |
+
+Promover é do script, e só quando o mesmo sinal volta em outra feature. O `penalize` é só para lição
+confirmada que falhou depois de carregada.
+
+### Pendências do dono
+
+As mesmas da rodada 2. Nenhuma pesa no veredito.
+
+1. **As duas decisões da F5**, tomadas pelo orquestrador e registradas como premissas (`spec.md:52-53`):
+   - a categoria arquivada fica na neutra em todo lugar, inclusive no chip de filtro, que mantém o nome dela;
+   - mudar só a caixa do nome é renomear.
+2. **O hover do escuro**, com cerca de 2,8:1 entre a barra e o trilho composto sobre `--surface-soft`
+   (rodada 1, ponto 2).
+3. **O aviso de hydration** com movimento reduzido, que não se reproduziu (rodada 1, ponto 4).
+
+### Requirement Traceability: aplicada ao `spec.md`
+
+| Requisito | Status anterior | Novo status | Evidência que fecha |
+| --- | --- | --- | --- |
+| COR-01 | Needs Fix (rodada 1), corrigido pela F4; sem lacuna na rodada 2 | ✅ Verified (rodada 3) | AC 5: `src/app/actions/categorias.integration.test.ts:181-185`, B4 morto (rodada 2). Os outros ACs como na rodada 1 |
+| COR-02 | Needs Fix (rodada 1), corrigido pela F1 e pela F5; sem lacuna na rodada 2 | ✅ Verified (rodada 3) | AC 5: `e2e/categorias.spec.ts:425`, `:432`, `:444` e `:447`. O E1 morre de novo nesta rodada |
+| COR-03 | Needs Fix (rodada 1), corrigido pela F3; sem lacuna na rodada 2 | ✅ Verified (rodada 3) | AC 2: `e2e/categorias.spec.ts:387-389`, E13 morto (rodada 2). O C8 (AC 4) morre de novo nesta rodada |
+| COR-04 | Needs Fix (rodadas 1 e 2), corrigido pela F2, pela F5 e pela F6 | ✅ Verified (rodada 3) | AC 2: `e2e/categorias.spec.ts:335-342`, com o E7 morto de novo. AC 6: o A4 morto de novo. Edge Case do nome igual: `src/components/lista-de-categorias.test.tsx:435-437`, com L3c e L3d mortos |
+| COR-05 | Sem lacuna (rodadas 1 e 2) | ✅ Verified (rodada 3) | O código e os documentos de COR-05 não mudaram desde a rodada 1 |
+
+**Coverage**: 5 de 5 requisitos verificados. Os 29 critérios e os 4 edge cases têm assertion sobre o
+resultado da spec, e todo mutante que quebra critério morre.
+
+### Isolamento da rodada 3
+
+- **Porcelain da worktree da fatia**: vazio antes do sensor, e gravado. Depois dele, só as mudanças desta
+  rodada: este relatório, a traceability do `spec.md` e o Status do `tasks.md`.
+- **`next-env.d.ts`**: o `next dev` do e2e o reescreveu na worktree da fatia, e ele voltou ao commitado com
+  `git checkout -- next-env.d.ts`. Na descartável, o mesmo depois de cada execução.
+- **Worktree descartável**: removida com `git worktree remove --force`, e `git worktree list` não a mostra.
+- **`git stash list`**: vazio antes e depois.
+- **Fora daqui**: o checkout principal e as outras worktrees não foram tocados.
+
+### Resumo da rodada 3
+
+**Overall**: ✅ Ready.
+
+- **Lacuna da rodada 2**: fechada pela F6. O L3c morre no caso novo, e cada metade do caso, o aviso e a
+  chamada, discrimina sozinha.
+- **Sensor**: 7 mutantes, 7 mortos. Os quatro repetidos de rodadas anteriores continuam mortos.
+- **Gate**: unit 1654, integração 364, e2e da fatia 6 de 6; `typecheck`, `lint` e `build` verdes.
+- **Processo**: o commit da F6 veio sem o `spec.md`. A traceability desta rodada supre a falta.
+- **Para o dono**: as duas decisões da F5, o hover do escuro e o aviso de hydration.

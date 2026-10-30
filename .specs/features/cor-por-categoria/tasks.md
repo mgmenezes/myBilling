@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/cor-por-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Implemented, à espera da rodada 3 do Verifier (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 concluídas em 2026-10-29; FAIL na rodada 2, com a F6 concluída em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F6)
+**Status**: Verified, PASS na rodada 3 de `validation.md`, em 2026-10-30 (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 concluídas em 2026-10-29; FAIL na rodada 2, com a F6 concluída em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F6)
 **Total**: 19 tasks em 7 fases (T1–T13 e as correções F1–F6)
 
 ---
