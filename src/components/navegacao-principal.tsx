@@ -1,6 +1,11 @@
 "use client";
 
-import { ArrowsClockwiseIcon, ChartPieSliceIcon, ListBulletsIcon } from "@phosphor-icons/react";
+import {
+  ArrowsClockwiseIcon,
+  ChartPieSliceIcon,
+  ListBulletsIcon,
+  TagIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -22,6 +27,12 @@ interface Area {
   readonly slug: string;
   readonly rotulo: string;
   readonly Icone: typeof ChartPieSliceIcon;
+  /**
+   * Para onde o link leva, quando não é a raiz da área. Cadastros não tem
+   * página própria: o item abre direto a tela de Categorias, e a área inteira
+   * fica ativa em qualquer tela debaixo dela.
+   */
+  readonly destino?: string;
 }
 
 const AREAS: ReadonlyArray<Area> = [
@@ -38,7 +49,29 @@ const AREAS: ReadonlyArray<Area> = [
    * o que entra não clica numa palavra que promete conta a pagar.
    */
   { slug: "fixos", rotulo: "Todo mês", Icone: ArrowsClockwiseIcon },
+  /*
+   * A etiqueta, porque hoje a área é a das categorias (COR-04). Meio de
+   * pagamento e orçamento entram aqui depois, e o item continua o mesmo.
+   */
+  { slug: "cadastros", rotulo: "Cadastros", Icone: TagIcon, destino: "cadastros/categorias" },
 ];
+
+/**
+ * A Visão geral só no caminho exato, senão ela acenderia em toda área.
+ * Lançamentos e Todo mês pelo fim do caminho, como sempre foi. Cadastros pelo
+ * começo: a área tem telas debaixo dela, e cada uma acende o mesmo item.
+ */
+function estaAtiva(slug: string, caminho: string, competencia: string): boolean {
+  const raiz = `/${competencia}`;
+  if (slug === "") {
+    return caminho === raiz;
+  }
+  if (slug === "cadastros") {
+    const area = `${raiz}/cadastros`;
+    return caminho === area || caminho.startsWith(`${area}/`);
+  }
+  return caminho.endsWith(`/${slug}`);
+}
 
 export function NavegacaoPrincipal({ competencia }: { readonly competencia: string }) {
   const caminho = usePathname();
@@ -49,9 +82,9 @@ export function NavegacaoPrincipal({ competencia }: { readonly competencia: stri
         className="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-line bg-surface p-2 md:static md:flex-col md:gap-1 md:border-0 md:bg-transparent md:p-0"
         /* Espaço para a barra inferior não cobrir conteúdo no celular. */
       >
-        {AREAS.map(({ slug, rotulo, Icone }) => {
-          const destino = slug === "" ? `/${competencia}` : `/${competencia}/${slug}`;
-          const ativa = slug === "" ? caminho === `/${competencia}` : caminho.endsWith(`/${slug}`);
+        {AREAS.map(({ slug, rotulo, Icone, destino: subcaminho = slug }) => {
+          const destino = slug === "" ? `/${competencia}` : `/${competencia}/${subcaminho}`;
+          const ativa = estaAtiva(slug, caminho, competencia);
 
           return (
             <li key={slug} className="flex-1 md:flex-none">

@@ -334,9 +334,9 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 **Reuses**: `AREAS`
 **Requirement**: COR-04
 **Done when**:
-- [ ] Quatro links na ordem Visão geral, Lançamentos, Todo mês, Cadastros; Cadastros leva a `/<competencia>/cadastros/categorias` (COR-04 AC 1)
-- [ ] Cadastros fica com `aria-current="page"` em qualquer rota sob `/cadastros` (COR-04 AC 1)
-- [ ] As outras três áreas continuam marcando ativa como hoje
+- [x] Quatro links na ordem Visão geral, Lançamentos, Todo mês, Cadastros; Cadastros leva a `/<competencia>/cadastros/categorias` (COR-04 AC 1)
+- [x] Cadastros fica com `aria-current="page"` em qualquer rota sob `/cadastros` (COR-04 AC 1)
+- [x] As outras três áreas continuam marcando ativa como hoje
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(nav): área de cadastros na navegação`
