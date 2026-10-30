@@ -177,8 +177,14 @@ export function GradeDeIndicadores({
           },
         ];
 
+  /*
+   * As colunas seguem a largura do centro da Visão geral, e não a da janela:
+   * com o menu e a coluna de ação ao lado, uma janela de 1.280 px deixa só 656
+   * px para os cards, e quatro lado a lado quebrariam rótulo e link em duas
+   * linhas. Quem declara o `@container` é a página.
+   */
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-3 @xl:grid-cols-2 @3xl:grid-cols-4">
       {indicadores.map((indicador) => {
         const sinal = indicador.sinal ?? "neutro";
         /*

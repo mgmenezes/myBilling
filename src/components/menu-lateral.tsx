@@ -5,14 +5,16 @@ import { AlternadorDeTema } from "./alternador-de-tema";
 import { NavegacaoPrincipal } from "./navegacao-principal";
 
 /**
- * O menu encostado na borda esquerda, da altura da página (TRES-01).
+ * O menu encostado na borda esquerda, da altura da janela (TRES-01).
  *
  * Ele substitui a pílula do topo e a coluna de navegação que morava dentro dos
  * 1.024 px. Com o menu na borda, a largura que sobrava dos dois lados num
  * monitor grande passa a ser do conteúdo.
  *
- * **Uma estrutura, dois arranjos.** A partir de 768 px é uma coluna: marca,
- * áreas e, no pé, o importar, o nome e o tema. Abaixo disso vira a barra do
+ * **Uma estrutura, dois arranjos.** A partir de 768 px é uma coluna da
+ * altura da janela, presa ao rolar: marca, áreas e, no pé, o importar, o nome
+ * e o tema. Presa porque a coluna de ação da Visão geral é alta, e um menu da
+ * altura da página levaria o pé para baixo da dobra. Abaixo disso vira a barra do
  * topo, com a marca de um lado e o pé do outro. As áreas continuam na barra
  * fixa de baixo, como sempre foram no celular, porque o polegar alcança a base
  * da tela (TRES-01, AC 9).
@@ -33,7 +35,7 @@ export function MenuLateral({
   return (
     <aside
       aria-label="Menu do myBilling"
-      className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line px-4 py-3 md:w-60 md:shrink-0 md:flex-col md:flex-nowrap md:items-stretch md:justify-start md:gap-6 md:border-r md:border-b-0 md:py-5"
+      className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line px-4 py-3 md:sticky md:top-0 md:h-dvh md:w-60 md:shrink-0 md:flex-col md:flex-nowrap md:items-stretch md:justify-start md:gap-6 md:self-start md:overflow-y-auto md:border-r md:border-b-0 md:py-5"
     >
       {/* A marca leva para a home do ano, que é a porta de entrada do app. */}
       <Link

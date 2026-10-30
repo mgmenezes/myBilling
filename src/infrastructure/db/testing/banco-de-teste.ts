@@ -50,10 +50,19 @@ export interface CadastroBase {
  * Cadastros mínimos para satisfazer as chaves estrangeiras. Nomes genéricos
  * e valores escolhidos por propriedade matemática, nunca por realismo
  * (AD-009).
+ *
+ * **O usuário entra por `ON CONFLICT`.** No e2e, uma renderização do teste
+ * anterior ainda pode estar no servidor quando o próximo limpa o banco, e
+ * resolver a sessão provisiona o usuário que falta (`resolverSessao`). Ela
+ * recriava a Pessoa A entre o `limparDados` e esta semeadura, e o `INSERT`
+ * estourava `usuario_email_unique`. Com o menu lateral, cada renderização faz
+ * mais consultas e a janela cresceu. O resultado é o mesmo usuário, de um jeito
+ * ou do outro.
  */
 export async function semearCadastroBase(pool: Pool): Promise<CadastroBase> {
   const usuario = await pool.query<{ id: string }>(
-    "INSERT INTO usuario (nome, email) VALUES ($1, $2) RETURNING id",
+    `INSERT INTO usuario (nome, email) VALUES ($1, $2)
+     ON CONFLICT (email) DO UPDATE SET nome = EXCLUDED.nome RETURNING id`,
     ["Pessoa A", "pessoa-a@example.com"],
   );
   const cartao = await pool.query<{ id: string }>(

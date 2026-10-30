@@ -274,6 +274,9 @@ test("a rota do mês transmite o esqueleto de carregamento (REDE-03, AC 5)", asy
      serializada do RSC repete cada `className` no mesmo documento, e contar a
      string crua devolve o dobro — número que mudaria junto com o formato de
      serialização do framework, sem nada ter mudado no app. */
+  /* Nove: o título, os quatro cards e as duas seções do centro, mais o
+     cadastro e os últimos lançamentos da coluna de ação. Os mesmos blocos da
+     Visão geral em colunas (TRES-02). */
   const blocos = (html.match(/class="animate-pulse/g) ?? []).length;
-  expect(blocos).toBe(7);
+  expect(blocos).toBe(9);
 });

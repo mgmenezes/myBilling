@@ -234,17 +234,21 @@ test("as duas visões nunca aparecem juntas (MOV-03, UI-01 AC 4)", async ({ page
    * uma não continha a outra. Agora só uma visão existe por vez, então a
    * ausência da outra é verificável de forma direta: se o rótulo do eixo caixa
    * não está no DOM, nenhuma composição pode somá-lo ao de competência.
+   *
+   * "Saiu da conta" é procurado **exato**: o cadastro aberto na coluna de ação
+   * da Visão geral tem a caixa "Já saiu da conta", que é rótulo de campo, e não
+   * do indicador do eixo caixa (TRES-03).
    */
   await expect(page.getByText("Despesas do mês")).toBeVisible();
   await expect(page.getByText("Saldo previsto")).toBeVisible();
-  await expect(page.getByText("Saiu da conta")).toHaveCount(0);
+  await expect(page.getByText("Saiu da conta", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Saldo do período")).toHaveCount(0);
 
   // A parcela de março aparece no indicador de despesas desta visão.
   await expect(page.getByRole("link", { name: /Despesas do mês/ })).toContainText("R$ 333,34");
 
   await alternador.getByRole("link", { name: "Movimentações" }).click();
-  await expect(page.getByText("Saiu da conta")).toBeVisible();
+  await expect(page.getByText("Saiu da conta", { exact: true })).toBeVisible();
   await expect(page.getByText("Saldo do período")).toBeVisible();
   await expect(page.getByText("Despesas do mês")).toHaveCount(0);
   await expect(page.getByText("Saldo previsto")).toHaveCount(0);

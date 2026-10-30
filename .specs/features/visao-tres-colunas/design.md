@@ -31,9 +31,13 @@ os meios disponíveis e a última competência importada, que o diálogo de impo
 duas consultas que a Visão geral faz hoje para o mesmo diálogo, e que saem de lá.
 
 **`src/components/menu-lateral.tsx`** (servidor, novo). Aside com `border-line`:
-- **De 768 px para cima:** coluna de 15 rem encostada na borda, `border-r`, da altura da página
-  (`md:min-h-dvh`, esticada pelo flex, sem `sticky`). Mostra a marca, a navegação, um espaço que
-  cresce e o rodapé.
+- **De 768 px para cima:** coluna de 15 rem encostada na borda, `border-r`, da altura da janela e
+  presa ao rolar (`md:sticky md:top-0 md:h-dvh md:self-start`). Mostra a marca, a navegação, um
+  espaço que cresce e o rodapé. O primeiro desenho a esticava à altura da página; a sonda visual da
+  T7 mostrou o pé abaixo da dobra na Visão geral, que a coluna de ação deixa alta.
+- **Os cards seguem o centro, não a janela:** a `GradeDeIndicadores` usa `@xl:grid-cols-2
+  @3xl:grid-cols-4` sob o `@container` do centro. Em 1.280 px o centro tem 656 px, e quatro cards
+  lado a lado quebravam rótulo e link.
 - **Abaixo de 768 px:** barra no topo com `border-b` e `flex-wrap`. A marca fica à esquerda e o
   rodapé à direita. A navegação continua a barra fixa de baixo, como hoje.
 - **O rodapé:** `DialogoImportacao`, o nome de quem está logado e o `AlternadorDeTema`.
