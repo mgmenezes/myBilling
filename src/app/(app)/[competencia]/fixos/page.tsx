@@ -11,7 +11,7 @@ import { valorNoMesExibido } from "@/application/recorrencias/editar/handler";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FormRecorrencia } from "@/components/form-recorrencia";
 import { ListaDeFixos } from "@/components/lista-de-fixos";
-import { criarCompetencia, valeNaCompetencia, versaoVigente } from "@/domain";
+import { corDaCategoria, criarCompetencia, valeNaCompetencia, versaoVigente } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
@@ -59,7 +59,9 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
     repositorios.cadastros.listarUsuarios(),
   ]);
 
-  const nomePorCategoria = new Map(categorias.map((c) => [c.id, c.nome]));
+  /* O nome e a cor saem da mesma categoria: a que não está entre as
+     disponíveis vira "Categoria removida", na neutra (COR-02, AC 5). */
+  const categoriaPorId = new Map(categorias.map((c) => [c.id, c]));
   const nomePorMeio = new Map(meios.map((m) => [m.id, m.nome]));
 
   /* As mesmas listas no cadastro e na edição. `geraFatura` restringe o
@@ -88,6 +90,8 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
     )
     .map(({ recorrencia, versoes }) => {
       const vigente = versaoVigente(versoes, resultado.value);
+      const categoria =
+        recorrencia.categoriaId === null ? undefined : categoriaPorId.get(recorrencia.categoriaId);
       return {
         id: recorrencia.id,
         descricao: recorrencia.descricao,
@@ -97,9 +101,8 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
         valorVigente: vigente === null ? null : formatarBRL(vigente.valorPrevisto),
         diaVencimento: recorrencia.diaVencimento,
         categoria:
-          recorrencia.categoriaId === null
-            ? null
-            : (nomePorCategoria.get(recorrencia.categoriaId) ?? "Categoria removida"),
+          recorrencia.categoriaId === null ? null : (categoria?.nome ?? "Categoria removida"),
+        corDaCategoria: categoria === undefined ? null : corDaCategoria(categoria),
         meio: nomePorMeio.get(recorrencia.meioPagamentoId) ?? "Meio arquivado",
         inicio: formatarCompetencia(recorrencia.competenciaInicio),
         fim:

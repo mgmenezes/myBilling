@@ -81,6 +81,7 @@ const ITEM: ItemFixo = {
   valorVigente: "R$ 180,00",
   diaVencimento: 20,
   categoria: "Moradia",
+  corDaCategoria: "roxo",
   meio: "Conta Corrente",
   inicio: "Março de 2026",
   fim: null,
@@ -146,6 +147,77 @@ describe("lista de gastos fixos", () => {
     montar([{ ...ITEM, natureza: "RECEITA", descricao: "Salário" }]);
 
     expect(screen.getByText("Receita")).toBeTruthy();
+  });
+});
+
+/**
+ * Derivado de COR-03 (AC 1) e COR-02 (ACs 4 e 5): a pill da categoria do fixo
+ * tem o fundo e o texto da cor efetiva, que a página resolve; a categoria que
+ * saiu do cadastro fica na neutra. A pill é procurada dentro do cartão do
+ * fixo, e não na tela inteira (L-018).
+ */
+describe("a pill da categoria na cor dela (COR-03, AC 1)", () => {
+  const SEGUNDO: ItemFixo = {
+    ...ITEM,
+    id: "rec-2",
+    descricao: "Fixo B",
+    categoria: "Categoria Dois",
+    corDaCategoria: "verde-agua",
+  };
+
+  function pillDe(descricao: string, categoria: string): HTMLElement {
+    const cartao = screen.getByText(descricao).closest("li");
+    if (cartao === null) {
+      throw new Error(`o cartão de ${descricao} não está na lista`);
+    }
+    return within(cartao).getByText(categoria);
+  }
+
+  it("cada fixo mostra a pill com o fundo e o texto da cor da própria categoria", () => {
+    montar([{ ...ITEM, descricao: "Fixo A", categoria: "Categoria Um" }, SEGUNDO]);
+
+    const um = pillDe("Fixo A", "Categoria Um").className.split(/\s+/);
+    expect(um).toEqual(expect.arrayContaining(["bg-cat-roxo-fundo", "text-cat-roxo-texto"]));
+    expect(um).not.toContain("bg-surface-strong");
+
+    const dois = pillDe("Fixo B", "Categoria Dois").className.split(/\s+/);
+    expect(dois).toEqual(
+      expect.arrayContaining(["bg-cat-verde-agua-fundo", "text-cat-verde-agua-texto"]),
+    );
+  });
+
+  it("o nome da categoria continua escrito na pill (COR-02, AC 4)", () => {
+    montar([{ ...ITEM, descricao: "Fixo A", categoria: "Categoria Um" }]);
+
+    expect(pillDe("Fixo A", "Categoria Um").textContent).toBe("Categoria Um");
+  });
+
+  it('"Categoria removida" fica na neutra de hoje (COR-02, AC 5)', () => {
+    montar([
+      { ...ITEM, descricao: "Fixo A", categoria: "Categoria removida", corDaCategoria: null },
+    ]);
+
+    const classes = pillDe("Fixo A", "Categoria removida").className.split(/\s+/);
+    expect(classes).toEqual(expect.arrayContaining(["bg-surface-strong", "text-ink"]));
+    expect(classes.some((classe) => classe.startsWith("bg-cat-"))).toBe(false);
+  });
+
+  it("os selos de Receita e Encerrado não ganham a cor da categoria", () => {
+    montar([
+      {
+        ...ITEM,
+        descricao: "Fixo A",
+        natureza: "RECEITA",
+        encerrada: true,
+        categoria: "Categoria Um",
+      },
+    ]);
+
+    for (const selo of ["Receita", "Encerrado"]) {
+      const classes = pillDe("Fixo A", selo).className.split(/\s+/);
+      expect(classes).toContain("bg-surface-strong");
+      expect(classes.some((classe) => classe.startsWith("bg-cat-"))).toBe(false);
+    }
   });
 });
 

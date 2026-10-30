@@ -1,4 +1,6 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { CorDeCategoria } from "@/domain";
+import { CLASSES_DA_COR } from "./cor-de-categoria";
 
 /**
  * Primitivas visuais, escritas contra as specs de componente do `DESIGN.md`.
@@ -51,20 +53,29 @@ export function Botao({
  * é ação, e pintá-lo com a cor de ação ensina o olho a ignorar o botão de
  * verdade. Quando um selo precisa gritar, quem grita é a semântica de valor,
  * em texto.
+ *
+ * **Com `cor`, é a pill de uma categoria** (COR-03): o fundo tingido e o texto
+ * em tinta da cor dela, no lugar do cinza. `tom` e `cor` não se combinam: a
+ * cor de categoria é identidade, não semântica de valor. Quem passa `cor`
+ * passa também o nome da categoria como conteúdo, porque a cor nunca vem
+ * sozinha (`docs/design.md`, "Cor por categoria").
  */
 export function Chip({
   children,
   tom = "neutro",
+  cor,
 }: {
   readonly children: ReactNode;
   readonly tom?: "neutro" | "positivo" | "negativo";
+  readonly cor?: CorDeCategoria;
 }) {
-  const cor =
+  const tinta =
     tom === "positivo" ? "text-positivo" : tom === "negativo" ? "text-negativo" : "text-ink";
+  const pintura = cor === undefined ? `bg-surface-strong ${tinta}` : CLASSES_DA_COR[cor].pill;
 
   return (
     <span
-      className={`inline-flex w-fit items-center rounded-pill bg-surface-strong px-3 py-1 text-[12px] font-semibold ${cor}`}
+      className={`inline-flex w-fit items-center rounded-pill px-3 py-1 text-[12px] font-semibold ${pintura}`}
     >
       {children}
     </span>

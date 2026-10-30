@@ -237,9 +237,9 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Reuses**: `corDaCategoria`, `CLASSES_DA_COR`
 **Requirement**: COR-03
 **Done when**:
-- [ ] `Chip` com `cor` usa a pill da cor no lugar de `bg-surface-strong text-ink`; sem `cor`, nada muda
-- [ ] Fixo com categoria mostra a pill na cor efetiva (COR-03 AC 1)
-- [ ] "Categoria removida" fica neutra (COR-02 AC 5)
+- [x] `Chip` com `cor` usa a pill da cor no lugar de `bg-surface-strong text-ink`; sem `cor`, nada muda
+- [x] Fixo com categoria mostra a pill na cor efetiva (COR-03 AC 1)
+- [x] "Categoria removida" fica neutra (COR-02 AC 5)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(fixos): pill da categoria na cor dela`

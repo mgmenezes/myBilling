@@ -9,7 +9,7 @@ import type {
   encerrarRecorrencia,
   registrarNovaVigencia,
 } from "@/app/actions/recorrencias";
-import { parseBRL } from "@/domain";
+import { type CorDeCategoria, parseBRL } from "@/domain";
 import { Dialogo } from "./dialogo-de-cadastro";
 import { FormRecorrencia } from "./form-recorrencia";
 import { Chip } from "./ui";
@@ -47,6 +47,11 @@ export interface ItemFixo {
   readonly valorVigente: string | null;
   readonly diaVencimento: number;
   readonly categoria: string | null;
+  /**
+   * A cor em uso da categoria, já resolvida pela página com `corDaCategoria`.
+   * `null` sem categoria e na "Categoria removida", que ficam na neutra.
+   */
+  readonly corDaCategoria: CorDeCategoria | null;
   readonly meio: string;
   readonly inicio: string;
   readonly fim: string | null;
@@ -232,7 +237,9 @@ function LinhaDeFixo({
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[16px] font-semibold">{item.descricao}</span>
-          {item.categoria === null ? null : <Chip>{item.categoria}</Chip>}
+          {item.categoria === null ? null : (
+            <Chip cor={item.corDaCategoria ?? undefined}>{item.categoria}</Chip>
+          )}
           {item.natureza === "RECEITA" ? <Chip tom="positivo">Receita</Chip> : null}
           {item.encerrada ? <Chip>Encerrado</Chip> : null}
         </div>
