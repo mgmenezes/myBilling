@@ -22,6 +22,11 @@ import type { LancamentoDoMes } from "./obter-visao-mensal/handler";
  * Cada total leva a **cor em uso** da categoria (COR-03, AC 4), a escolhida ou
  * a automática, para o chip ter a mesma cor da pill e da barra. "Sem
  * categoria" e "Categoria removida" vão com cor nula e ficam na neutra.
+ *
+ * **A arquivada também vai com cor nula**, mas com o nome dela (COR-02, AC
+ * 5). O nome vem de todas as categorias, para o gasto antigo continuar
+ * reconhecível; a cor, não. Na mesma tela, o seletor da linha não tem a
+ * arquivada entre as opções e a mostra na neutra, e o chip acompanha.
  */
 
 export interface TotalPorCategoria {
@@ -37,7 +42,11 @@ export function totaisPorCategoria(
   totalGastos: Cents,
   categoriaPorId: ReadonlyMap<
     string,
-    { readonly nome: string; readonly cor: CorDeCategoria | null }
+    {
+      readonly nome: string;
+      readonly cor: CorDeCategoria | null;
+      readonly arquivadaEm: string | null;
+    }
   >,
 ): ReadonlyArray<TotalPorCategoria> {
   return resumoPorCategoria(
@@ -53,7 +62,10 @@ export function totaisPorCategoria(
         nome:
           resumo.categoriaId === null ? "Sem categoria" : (categoria?.nome ?? "Categoria removida"),
         gasto: resumo.gasto,
-        cor: categoria === undefined ? null : corDaCategoria(categoria),
+        cor:
+          categoria === undefined || categoria.arquivadaEm !== null
+            ? null
+            : corDaCategoria(categoria),
       };
     })
     .sort((a, b) => b.gasto - a.gasto);

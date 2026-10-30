@@ -405,7 +405,7 @@ test("Verde para Categoria Um: o mesmo fundo na pill de Todo mês, no seletor e 
   );
 });
 
-test('"Sem categoria" e a categoria arquivada, que vira "Categoria removida", ficam na neutra em Todo mês e na Visão geral (COR-02, AC 5)', async ({
+test('"Sem categoria" e a categoria arquivada ficam na neutra: "Categoria removida" em Todo mês e na Visão geral, e o chip e o seletor da arquivada em Lançamentos (COR-02, AC 5; Edge Case)', async ({
   page,
 }) => {
   /* Quem decide a neutra é a página: a arquivada não está entre as
@@ -431,6 +431,20 @@ test('"Sem categoria" e a categoria arquivada, que vira "Categoria removida", fi
     await expect(barraDaCategoria(page, grupo)).toBeVisible();
     expect(await fundo(barraDaCategoria(page, grupo)), `barra de ${grupo}`).toBe(barraNeutra);
   }
+
+  /* Em Lançamentos, o chip tira o nome de todas as categorias, arquivadas
+     inclusive, e por isso mostra "Categoria Arquivada". A cor, não: o chip
+     fica na neutra, como o seletor do gasto dela, que não a tem entre as
+     opções (Edge Case). Na mesma tela, os dois iguais. */
+  await navegacao(page, "Lançamentos").click();
+  await expect(page).toHaveURL(new RegExp(`/${MARCO}/lancamentos$`));
+  const neutraDoCartao = await corDoToken(page, "--surface");
+  const seletor = page.getByRole("combobox", { name: "Categoria de Gasto C" });
+  await expect(seletor.locator("option:checked")).toHaveText("Categoria Arquivada");
+  expect(await fundo(seletor), "seletor de Gasto C").toBe(neutraDoCartao);
+  const chip = chipDeFiltro(page, "Categoria Arquivada");
+  await expect(chip).toHaveAttribute("aria-pressed", "false");
+  expect(await fundo(chip), "chip de Categoria Arquivada").toBe(neutraDoCartao);
 });
 
 test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com o motivo junto do campo (COR-04, ACs 6, 7 e 9)", async ({

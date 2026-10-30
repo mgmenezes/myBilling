@@ -34,7 +34,7 @@ export interface TotalDeCategoria {
   readonly nome: string;
   /** Centavos (AD-001). */
   readonly gasto: number;
-  /** A cor em uso; `null` em "Sem categoria" e "Categoria removida". */
+  /** A cor em uso; `null` em "Sem categoria", "Categoria removida" e na arquivada. */
   readonly cor: CorDeCategoria | null;
 }
 

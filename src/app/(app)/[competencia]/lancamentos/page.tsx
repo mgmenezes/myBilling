@@ -158,7 +158,9 @@ export default async function PaginaDeLancamentos({
   /* Os chips somam o mês inteiro, e não o que sobrou do filtro: o total de
      cada categoria é o de "Gastos por categoria" na Visão geral, e não muda
      quando outro filtro entra (LST-01, AC 2). Cada um leva a cor em uso da
-     categoria, das mesmas categorias de onde sai o nome (COR-03, AC 4). */
+     categoria, das mesmas categorias de onde sai o nome (COR-03, AC 4), e a
+     arquivada vai na neutra, com o nome dela, como no seletor da linha
+     (COR-02, AC 5). */
   const gastoPorCategoria = totaisPorCategoria(
     visao.lancamentos,
     resultado.value,

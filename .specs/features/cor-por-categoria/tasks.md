@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/cor-por-categoria/spec.md`
 **Design**: inline, na seção "Design" abaixo (sem `design.md`)
-**Status**: Implemented, com as correções da rodada 1 em andamento (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 registradas; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F5)
+**Status**: Implemented, à espera da rodada 2 do Verifier (T1–T13 concluídas em 2026-10-29; FAIL na rodada 1 de `validation.md`, com F1–F5 concluídas em 2026-10-29; plano aprovado pelo dono em 2026-10-29; branch `feat/cor-por-categoria`, em worktree, a partir do `main` em `8419c29`; 2 lotes: T1–T7 e T13, T8–T12; T13 entrou no lote 2, antes da T8; mais F1–F5)
 **Total**: 18 tasks em 6 fases (T1–T13 e as correções F1–F5)
 
 ---
@@ -472,16 +472,16 @@ do escuro, continua com o dono; o ponto 4 está fora da fatia.
 
 #### F5: A arquivada neutra em todo lugar, e a spec precisa
 **What**: As lacunas de precisão A e B, com a decisão do orquestrador, que o dono pode rever. A: em Lançamentos, o chip de filtro tirava a cor de todas as categorias, arquivadas inclusive, e a mesma arquivada saía tingida no chip e neutra no seletor da linha; agora fica neutra nos dois, com o nome dela no chip. B: o Edge Case do nome igual passa a dizer a regra de igualdade que o código já segue.
-**Where**: `src/application/mes/totais-por-categoria.ts` (+ teste), `e2e/categorias.spec.ts` (+ `spec.md`)
+**Where**: `src/application/mes/totais-por-categoria.ts` (+ teste), `e2e/categorias.spec.ts`; os comentários de `src/app/(app)/[competencia]/lancamentos/page.tsx` e de `TotalDeCategoria.cor` em `src/components/chips-de-categoria.tsx` (+ `spec.md`)
 **Depends on**: T7, F1, F2, F3, F4
 **Reuses**: o percurso da F1
 **Requirement**: COR-02, COR-04
 **Done when**:
-- [ ] `totaisPorCategoria` devolve `cor: null` para a categoria arquivada, com o nome dela (COR-02 AC 5)
-- [ ] No percurso da F1, em Lançamentos, o chip da arquivada e o seletor do gasto dela têm o `backgroundColor` de `--surface` (COR-02 AC 5, Edge Case)
-- [ ] Sem a correção, o teste de unidade e o e2e falham
-- [ ] COR-02 AC 5 com "sem categoria, ou com categoria removida ou arquivada"; o Edge Case do nome igual com "igual depois de normalizar espaços; mudar só a caixa é renomear e grava"; `validate_spec.py` com 0 erros
-- [ ] Traceability com a proposta de `validation.md`, aguardando o Verifier na rodada 2
+- [x] `totaisPorCategoria` devolve `cor: null` para a categoria arquivada, com o nome dela, tenha ela cor escolhida ou não (COR-02 AC 5). A regra mora na aplicação: a página já passa a categoria inteira, com `arquivadaEm`, e o código dela não muda
+- [x] No percurso da F1, em Lançamentos, o chip da arquivada, ainda com o nome "Categoria Arquivada", e o seletor do gasto dela têm o `backgroundColor` de `--surface` (COR-02 AC 5, Edge Case)
+- [x] Na HEAD, antes da correção, o teste de unidade e o e2e falham; o e2e no chip, com `rgb(251, 236, 222)` no lugar de `rgb(255, 255, 255)`. M1, a regra desfeita em `totaisPorCategoria`, falha nos dois. M2, a página passando a arquivada como ativa, passa no unit e falha no e2e: é a prova da composição (L-014). Cada um desfeito, com `git diff --quiet`
+- [x] COR-02 AC 5 com "sem categoria, ou com categoria removida ou arquivada"; o Edge Case do nome igual com "igual depois de normalizar espaços; mudar só a caixa é renomear e grava"; as duas decisões na tabela de premissas, como do orquestrador; `validate_spec.py` com 0 erros
+- [x] Traceability com a proposta de `validation.md`: COR-01 a COR-04 com o motivo do Needs Fix e as tasks que os corrigem, COR-05 sem lacuna; todos aguardando o Verifier na rodada 2
 **Tests**: unit + e2e
 **Gate**: quick + `pnpm lint` + e2e
 **Commit**: `fix(lancamentos): categoria arquivada neutra também no chip`

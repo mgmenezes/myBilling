@@ -18,10 +18,12 @@ const ABRIL = "2026-04" as Competencia;
 const CATEGORIA_X = "55555555-5555-4555-8555-555555555555";
 const CATEGORIA_Y = "66666666-6666-4666-8666-666666666666";
 
+type CategoriaDoMapa = { nome: string; cor: CorDeCategoria | null; arquivadaEm: string | null };
+
 /* X tem cor escolhida; Y não, e usa a automática do nome (COR-01, AC 3). */
-const CATEGORIAS = new Map<string, { nome: string; cor: CorDeCategoria | null }>([
-  [CATEGORIA_X, { nome: "Categoria X", cor: "verde" }],
-  [CATEGORIA_Y, { nome: "Categoria Y", cor: null }],
+const CATEGORIAS = new Map<string, CategoriaDoMapa>([
+  [CATEGORIA_X, { nome: "Categoria X", cor: "verde", arquivadaEm: null }],
+  [CATEGORIA_Y, { nome: "Categoria Y", cor: null, arquivadaEm: null }],
 ]);
 const COR_DE_Y = corAutomatica("Categoria Y");
 
@@ -139,6 +141,22 @@ describe("a cor de cada total", () => {
     );
 
     expect(sem?.cor).toBeNull();
+  });
+
+  /* A arquivada continua com o nome no chip, mas na neutra, como no seletor
+     da mesma linha, que não a tem entre as opções. Vale para a de cor
+     escolhida (X) e para a da automática (Y). */
+  it("a categoria arquivada não tem cor, e mantém o nome (COR-02, AC 5)", () => {
+    const arquivadas = new Map<string, CategoriaDoMapa>([
+      [CATEGORIA_X, { nome: "Categoria X", cor: "verde", arquivadaEm: "2026-01-01T00:00:00.000Z" }],
+      [CATEGORIA_Y, { nome: "Categoria Y", cor: null, arquivadaEm: "2026-01-01T00:00:00.000Z" }],
+    ]);
+
+    expect(totaisPorCategoria(MES, MARCO, TOTAL_GASTOS, arquivadas)).toEqual([
+      { id: CATEGORIA_Y, nome: "Categoria Y", gasto: 5000, cor: null },
+      { id: CATEGORIA_X, nome: "Categoria X", gasto: 3000, cor: null },
+      { id: SEM_CATEGORIA, nome: "Sem categoria", gasto: 700, cor: null },
+    ]);
   });
 });
 
