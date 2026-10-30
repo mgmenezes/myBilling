@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { corAutomatica } from "@/domain";
 import { type BancoDeDados, criarCliente, criarPool } from "./client";
 import {
   COMPETENCIA_BASE_PADRAO,
@@ -155,6 +156,27 @@ describe("conteúdo do seed (T36, AD-005)", () => {
     );
 
     expect(rows[0]?.total).toBe("0");
+  });
+
+  /*
+   * Duas categorias com a cor escolhida e três na automática (T12): o
+   * ambiente de desenvolvimento mostra os dois casos da tela de Categorias.
+   * A escolhida difere da automática do nome, senão a escolha não apareceria
+   * em tela nenhuma.
+   */
+  it("tem duas categorias com cor escolhida, diferente da automática, e três na automática", async () => {
+    await semear(db, SEMENTE_PADRAO);
+
+    const { rows } = await pool.query<{ nome: string; cor: string | null }>(
+      "SELECT nome, cor FROM categoria WHERE arquivada_em IS NULL ORDER BY nome",
+    );
+    const escolhidas = rows.filter((linha) => linha.cor !== null);
+
+    expect(rows).toHaveLength(5);
+    expect(escolhidas).toHaveLength(2);
+    for (const { nome, cor } of escolhidas) {
+      expect(cor).not.toBe(corAutomatica(nome));
+    }
   });
 
   it("o relatório devolvido bate com o que foi gravado", async () => {

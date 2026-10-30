@@ -3,6 +3,7 @@ import {
   addMeses,
   type Cents,
   type Competencia,
+  type CorDeCategoria,
   criarCents,
   criarCompetencia,
   diffMeses,
@@ -108,13 +109,19 @@ function dia(comp: Competencia, numero: number): string {
   return `${comp}-${String(numero).padStart(2, "0")}`;
 }
 
+/**
+ * As categorias e a cor de cada uma (COR-01). Duas com a cor escolhida e três
+ * na automática, para a tela de Categorias mostrar os dois casos. As escolhidas
+ * diferem da automática do nome: "Categoria Dois" seria rosa e "Categoria
+ * Quatro" seria laranja. Com elas, as cinco ficam com cores diferentes.
+ */
 const CATEGORIAS = [
-  "Categoria Um",
-  "Categoria Dois",
-  "Categoria Três",
-  "Categoria Quatro",
-  "Categoria Cinco",
-] as const;
+  { nome: "Categoria Um", cor: null },
+  { nome: "Categoria Dois", cor: "azul" },
+  { nome: "Categoria Três", cor: null },
+  { nome: "Categoria Quatro", cor: "ambar" },
+  { nome: "Categoria Cinco", cor: null },
+] as const satisfies ReadonlyArray<{ nome: string; cor: CorDeCategoria | null }>;
 
 const DESCRICOES_AVULSAS = [
   "Lançamento avulso A",
@@ -277,9 +284,14 @@ export async function semear(
     fechamentoVaiParaFaturaSeguinte: true,
   });
 
+  /*
+   * A categoria nasce sem cor, como em todo caminho de criação (COR-01, AC 5),
+   * e a escolha vem depois, como a pessoa faria na tela de Categorias.
+   */
   const categorias = [];
-  for (const nome of CATEGORIAS) {
-    categorias.push(await cadastros.criarCategoria({ nome, arquivadaEm: null }));
+  for (const { nome, cor } of CATEGORIAS) {
+    const criada = await cadastros.criarCategoria({ nome, arquivadaEm: null });
+    categorias.push(cor === null ? criada : await cadastros.atualizarCategoria(criada.id, { cor }));
   }
   const categoriaArquivada = await cadastros.criarCategoria({
     nome: "Categoria Seis",

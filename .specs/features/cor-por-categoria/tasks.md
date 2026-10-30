@@ -383,9 +383,9 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 **Depends on**: T5, T6, T7, T11
 **Requirement**: COR-01 a COR-05
 **Done when**:
-- [ ] Seed com 2 categorias de cor escolhida e 3 automáticas
-- [ ] Roadmap com a cor por categoria e a tela de Categorias em "Pronto", e o item de Cadastros revisto
-- [ ] Traceability com cada requisito implementado
+- [x] Seed com 2 categorias de cor escolhida e 3 automáticas
+- [x] Roadmap com a cor por categoria e a tela de Categorias em "Pronto", e o item de Cadastros revisto
+- [x] Traceability com cada requisito implementado
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(categorias): fechar a fatia da cor por categoria`

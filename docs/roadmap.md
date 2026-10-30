@@ -17,7 +17,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Autenticação | Google OAuth com allowlist, provider de teste isolado por duas condições |
 | Visão geral | Quatro indicadores, alternador Planejamento e Movimentações, gráfico de categorias, régua de comprometimento futuro |
 | Lançamentos | Lista com busca, filtro por categoria, meio, pessoa e situação, total do filtro, categoria trocável na linha |
-| Cadastros | Categoria e meio de pagamento criados **dentro do formulário**, pelo `CadastroInline`. Valem para todo mês, porque nenhum dos dois tem competência |
+| Cadastros | Categoria e meio de pagamento criados **dentro do formulário**, pelo `CadastroInline`. Valem para todo mês, porque nenhum dos dois tem competência. A área **Cadastros**, quarto item da navegação, abre a tela de **Categorias**, que troca a cor e renomeia |
 | Identidade | Derivada do `DESIGN.md`, com contraste medido; tema claro, escuro ou do sistema |
 | Dados de desenvolvimento | Seed ancorado no relógio (dois meses atrás a três à frente) e idempotente |
 | Marcar pago | O selo de situação **é** o botão que alterna, com estado otimista. Marcar move o indicador do painel, não só a lista |
@@ -29,6 +29,7 @@ documentação: várias coisas descritas como prontas não tinham caminho até a
 | Editar gasto fixo e entrada fixa | Na área "Todo mês", "Editar" em cada cartão abre o formulário do cadastro com o que está gravado. Descrição, categoria, meio, pessoa e dia valem para todos os meses do fixo, inclusive os passados, sem mexer em pagamento marcado nem em valor confirmado. O valor muda a partir de um mês, e "Termina em" encerra ou reabre. Natureza e início ficam travados. Tudo numa transação. Spec e tasks em `.specs/features/editar-fixos/` |
 | Trocar a categoria na lista | Em Lançamentos, a categoria de todo gasto, investimento inclusive, troca num seletor na própria linha, sem formulário e sem confirmação. O alcance é o do lançamento: um fixo troca em todos os meses, inclusive os passados, uma compra em todas as parcelas, e um gasto do mês só nele, sem mexer em valor, data nem pagamento. Um toast diz até onde a troca foi; uma recusa volta o seletor e diz o motivo na linha. Toda entrada aparece como "Receita". Spec e tasks em `.specs/features/trocar-categoria/` |
 | Lista de Lançamentos enxuta | No cartão de filtros, um chip por categoria com o gasto do mês, o mesmo número de "Gastos por categoria", no lugar do select; "Sem categoria" é um chip também, e além de seis um "+N categorias" revela o resto. Cada bloco recolhe pelo cabeçalho, que diz quantos, quanto e quantos a pagar, e o bloco recolhido continua recolhido na próxima visita, já fechado no HTML do servidor. Ao rolar, uma barra fixa no topo traz a busca, os filtros ativos removíveis e "Filtros". Cada barra do gráfico da Visão geral abre a lista filtrada pela categoria. No Cartão, a parcela é a segunda linha da descrição, e a tabela cabe na coluna de conteúdo em 1024, 1280 e 1440 px. Spec e tasks em `.specs/features/lista-enxuta/` |
+| Cor por categoria | Cada categoria tem uma cor de uma paleta fechada de dez, sempre com o nome impresso ao lado: a pill de "Todo mês", o seletor da linha e os chips inativos de Lançamentos, e as barras de "Gastos por categoria". A cor se escolhe na tela de Categorias, em Cadastros, com um toque e sem botão de salvar; quem não escolhe fica com uma automática, tirada do nome. Renomear na mesma tela mantém a cor. "Sem categoria" e a categoria removida continuam neutras. Contraste medido nos dois temas: texto ≥ 4,5:1 e barra ≥ 3:1 contra o trilho e o fundo do gráfico (AD-018, `docs/design.md`, "Cor por categoria"). Spec e tasks em `.specs/features/cor-por-categoria/` |
 
 ## Lacuna conhecida: escrito, testado, e sem nenhum chamador
 
@@ -91,9 +92,11 @@ tipos está em rascunho em `.specs/features/editar-lancamentos/context.md`.
   a descrição fica com cerca de 133 px, de modo que "2/4 · (faltam 2 depois desta)" ocupa duas
   linhas, e não mais uma palavra por linha. A correção continua sendo deixar a descrição absorver a
   folga.
-- **Renomear e arquivar cadastro** não têm tela. Nascem na área "Cadastros", junto do orçamento.
-  Quando arquivar existir, a edição de fixo precisa oferecer como selecionados o meio e a categoria
-  arquivados que o fixo usa; hoje ela abre sem eles (decisão do dono em 2026-10-29).
+- **Arquivar cadastro, e renomear meio de pagamento,** não têm tela. Renomear categoria já tem: é a
+  tela de Categorias, na área "Cadastros", que também troca a cor. O resto nasce na mesma área,
+  junto do orçamento. Quando arquivar existir, a edição de fixo precisa oferecer como selecionados o
+  meio e a categoria arquivados que o fixo usa; hoje ela abre sem eles (decisão do dono em
+  2026-10-29).
 
 ## Fora do roadmap
 
