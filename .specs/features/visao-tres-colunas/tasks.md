@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 concluída)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 e T2 concluídas)
 **Total**: 8 tasks em 4 fases (T1–T8), um lote só, executado inline
 
 ---
@@ -168,9 +168,9 @@ Lote único, inline: T1 a T8, nesta ordem.
 **Reuses**: `criarCompetencia`, `estaAtiva`
 **Requirement**: TRES-01
 **Done when**:
-- [ ] Sem `competencia` nos parâmetros, ou com uma inválida, a navegação não desenha item nenhum (TRES-01 AC 4)
-- [ ] Com competência, os quatro itens apontam para ela e o ativo continua marcado como hoje (TRES-01 AC 3)
-- [ ] Os testes atuais da navegação passam sem mudar o que afirmam
+- [x] Sem `competencia` nos parâmetros, ou com uma inválida, a navegação não desenha item nenhum (TRES-01 AC 4)
+- [x] Com competência, os quatro itens apontam para ela e o ativo continua marcado como hoje (TRES-01 AC 3)
+- [x] Os testes atuais da navegação passam sem mudar o que afirmam
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `refactor(navegacao): ler a competência da rota`

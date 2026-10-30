@@ -35,7 +35,7 @@ export default async function LayoutDoMes({ children, params }: LayoutProps<"/[c
   return (
     <div className="flex flex-col gap-6 md:flex-row md:gap-8">
       <div className="md:w-52 md:shrink-0">
-        <NavegacaoPrincipal competencia={resultado.value} />
+        <NavegacaoPrincipal />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-6 pb-24 md:pb-0">

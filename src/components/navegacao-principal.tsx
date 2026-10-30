@@ -7,7 +7,8 @@ import {
   TagIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
+import { criarCompetencia } from "@/domain";
 
 /**
  * Navegação principal entre as áreas do app.
@@ -27,6 +28,12 @@ import { usePathname } from "next/navigation";
  * ia para duas linhas e a barra ficava mais alta só naquele item (COR-04, AC
  * 10). No celular o ícone fica em cima do rótulo, e o que separa um item do
  * outro é a largura de cada um, não o respiro.
+ *
+ * **A competência vem da rota, e não de prop.** A navegação mora no menu
+ * lateral, que é do layout acima de `[competencia]` e não recebe o parâmetro.
+ * Na home do ano não há competência, e ela não desenha nada: lá a página é a
+ * navegação (TRES-01, AC 4). Um segmento que não é competência também não
+ * desenha, para nenhum item apontar para um mês que não existe.
  */
 
 interface Area {
@@ -79,8 +86,14 @@ function estaAtiva(slug: string, caminho: string, competencia: string): boolean 
   return caminho.endsWith(`/${slug}`);
 }
 
-export function NavegacaoPrincipal({ competencia }: { readonly competencia: string }) {
+export function NavegacaoPrincipal() {
   const caminho = usePathname();
+  const { competencia: segmento } = useParams<{ competencia?: string }>();
+  const resultado = criarCompetencia(segmento ?? "");
+  if (!resultado.ok) {
+    return null;
+  }
+  const competencia = resultado.value;
 
   return (
     <nav aria-label="Áreas do myBilling" className="contents">

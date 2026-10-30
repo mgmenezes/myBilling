@@ -214,7 +214,7 @@ os 8 mais recentes, nenhum com data futura, na ordem da data.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| TRES-01 | P1: Uma moldura só, com o menu na borda | Design | Pending |
+| TRES-01 | P1: Uma moldura só, com o menu na borda | Execute | In progress: `navegacao-principal.test.tsx` prova que, sem competência válida na rota, a navegação não desenha nada, AC 4, e que com ela os quatro itens apontam para o mês e marcam o ativo, AC 3 (T2) |
 | TRES-02 | P1: A Visão geral em colunas | Design | Pending |
 | TRES-03 | P1: Lançar pela Visão geral | Design | Pending |
 | TRES-04 | P1: Buscar pela Visão geral | Design | Pending |
