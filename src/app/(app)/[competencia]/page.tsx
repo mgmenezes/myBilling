@@ -13,7 +13,7 @@ import { HorizonteFuturo } from "@/components/horizonte-futuro";
 import { DialogoImportacao } from "@/components/importacao/dialogo-importacao";
 import { AlternadorDeVisao, GradeDeIndicadores, type Visao } from "@/components/painel-indicadores";
 import { TransicaoMes } from "@/components/transicao-mes";
-import { addMeses, criarCompetencia, resumoPorCategoria } from "@/domain";
+import { addMeses, corDaCategoria, criarCompetencia, resumoPorCategoria } from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { ImportacaoRepositoryDrizzle } from "@/infrastructure/db/repositories/importacao.repository";
@@ -99,7 +99,9 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
     repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),
     new ImportacaoRepositoryDrizzle(db()).ultimaCompetenciaImportada(),
   ]);
-  const nomePorCategoria = new Map(categoriasDisponiveis.map((c) => [c.id, c.nome]));
+  /* O nome e a cor da barra saem da mesma categoria. A que não está entre as
+     disponíveis vira "Categoria removida", na barra neutra (COR-02, AC 5). */
+  const categoriaPorId = new Map(categoriasDisponiveis.map((c) => [c.id, c]));
 
   return (
     <div className="flex flex-col gap-8">
@@ -170,15 +172,20 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
             <GraficoCategorias
               titulo="Gastos por categoria, ordenados do maior para o menor"
               competencia={resultado.value}
-              fatias={categorias.map((categoria) => ({
-                id: categoria.categoriaId ?? SEM_CATEGORIA,
-                nome:
-                  categoria.categoriaId === null
-                    ? "Sem categoria"
-                    : (nomePorCategoria.get(categoria.categoriaId) ?? "Categoria removida"),
-                valor: categoria.gasto,
-                percentual: categoria.percentualDistribuicao,
-              }))}
+              fatias={categorias.map((resumo) => {
+                const categoria =
+                  resumo.categoriaId === null ? undefined : categoriaPorId.get(resumo.categoriaId);
+                return {
+                  id: resumo.categoriaId ?? SEM_CATEGORIA,
+                  nome:
+                    resumo.categoriaId === null
+                      ? "Sem categoria"
+                      : (categoria?.nome ?? "Categoria removida"),
+                  valor: resumo.gasto,
+                  percentual: resumo.percentualDistribuicao,
+                  cor: categoria === undefined ? null : corDaCategoria(categoria),
+                };
+              })}
             />
           </section>
         </div>

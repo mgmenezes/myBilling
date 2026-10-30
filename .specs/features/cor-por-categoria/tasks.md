@@ -251,10 +251,10 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Reuses**: `FatiaDeCategoria`, `CLASSES_DA_COR`
 **Requirement**: COR-03
 **Done when**:
-- [ ] Barra com a classe de barra da cor, trilho neutro (COR-03 AC 5)
-- [ ] "Sem categoria" com `bg-grafico-barra` (COR-02 AC 5)
-- [ ] Estouro continua com ícone e texto, e a barra não muda (COR-03 AC 7)
-- [ ] O nome acessível do link continua igual (COR-03 AC 6)
+- [x] Barra com a classe de barra da cor, trilho neutro (COR-03 AC 5)
+- [x] "Sem categoria" com `bg-grafico-barra` (COR-02 AC 5)
+- [x] Estouro continua com ícone e texto, e a barra não muda (COR-03 AC 7)
+- [x] O nome acessível do link continua igual (COR-03 AC 6)
 **Tests**: componentes
 **Gate**: quick + `pnpm lint`
 **Commit**: `feat(painel): barras do gráfico na cor da categoria`

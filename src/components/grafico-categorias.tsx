@@ -1,19 +1,22 @@
 import { WarningIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import type { Competencia } from "@/domain";
+import type { Competencia, CorDeCategoria } from "@/domain";
 import { formatarBRL, formatarPercentual } from "@/lib/formatar";
+import { CLASSES_DA_COR } from "./cor-de-categoria";
 
 /**
  * Gastos por categoria, em barras horizontais ordenadas por valor.
  *
- * **Uma cor só para todas as barras.** A pergunta aqui é de magnitude de uma
- * única medida, não de identidade entre séries: toda barra mede gasto. Quem
- * identifica a categoria é o rótulo ao lado, não o matiz. Vinte cores seria o
- * anti-padrão clássico deste gráfico, indistinguível para quem não separa
- * cores e desnecessário para quem separa.
+ * **Cada barra tem a cor da categoria dela** (COR-03, AC 5), a mesma da pill
+ * de "Todo mês", do seletor e do chip de Lançamentos: é o que liga a linha da
+ * lista à barra daqui. A pergunta continua sendo de magnitude, e quem
+ * identifica a categoria continua sendo o rótulo ao lado. A cor só ajuda a
+ * reconhecer. A paleta é fechada e medida, e os limites estão em
+ * `docs/design.md`, "Cor por categoria". "Sem categoria" e "Categoria
+ * removida" chegam com `cor` nula e ficam na barra neutra.
  *
- * O laranja fica **reservado** para sinalizar estouro de orçamento, e vem
- * acompanhado de ícone e texto: cor nunca carrega significado sozinha.
+ * O estouro de orçamento é sinalizado por ícone e texto, e não pela cor da
+ * barra: cor nunca carrega significado sozinha.
  *
  * A barra tem extremidade arredondada de 4px ancorada na linha de base, e o
  * trilho é recessivo. Sem grade, sem eixo numérico: o valor está impresso na
@@ -39,6 +42,8 @@ export interface FatiaDeCategoria {
   readonly percentual: number;
   /** Preenchido apenas quando existe limite cadastrado para o mês. */
   readonly limite?: number | null;
+  /** A cor em uso da categoria; `null` em "Sem categoria" e "Categoria removida". */
+  readonly cor: CorDeCategoria | null;
 }
 
 export function GraficoCategorias({
@@ -99,15 +104,17 @@ export function GraficoCategorias({
                 O trilho existe para dar referência de escala à barra curta.
                 Ele é recessivo o bastante para não competir com o dado.
 
-                **A barra do estouro não muda de cor.** A semântica negativa do
-                sistema é cor de texto e nunca preenchimento, e o azul de ação
-                seria pior ainda: quatro barras de azul gastariam a única cor
-                que significa "aja aqui". Quem sinaliza o estouro é o par ícone
-                mais texto acima, que também funciona sem enxergar matiz.
+                **A barra do estouro não muda de cor.** Ela fica na cor da
+                categoria: a cor é identidade, não semântica, e a semântica
+                negativa do sistema é cor de texto, nunca preenchimento. Quem
+                sinaliza o estouro é o par ícone mais texto acima, que também
+                funciona sem enxergar matiz.
               */}
                 <div className="h-2.5 w-full overflow-hidden rounded-pill bg-grafico-trilho">
                   <div
-                    className="h-full rounded-pill bg-grafico-barra"
+                    className={`h-full rounded-pill ${
+                      fatia.cor === null ? "bg-grafico-barra" : CLASSES_DA_COR[fatia.cor].barra
+                    }`}
                     style={{ width: `${largura}%` }}
                   />
                 </div>
