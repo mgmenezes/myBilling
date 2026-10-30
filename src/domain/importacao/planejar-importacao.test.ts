@@ -89,7 +89,7 @@ const DECISOES_DE_NOVEMBRO = decisoes(
 );
 
 function categoria(id: string, nome: string, arquivadaEm: string | null = null): Categoria {
-  return { id, nome, arquivadaEm };
+  return { id, nome, arquivadaEm, cor: null };
 }
 
 function vigente(id: string, descricao: string, meio: string, valor: number): RecorrenciaVigente {

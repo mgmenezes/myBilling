@@ -235,8 +235,13 @@ describe("FakeCadastroRepository: categorias da importação (T12, IMP-03 AC 9-1
   it("listarTodasAsCategorias inclui as arquivadas", async () => {
     const { cadastros, estado } = criarFakes();
     estado.categorias.push(
-      { id: "cat-ativa", nome: "Categoria Um", arquivadaEm: null },
-      { id: "cat-arquivada", nome: "Categoria Dois", arquivadaEm: "2026-09-01T00:00:00.000Z" },
+      { id: "cat-ativa", nome: "Categoria Um", arquivadaEm: null, cor: null },
+      {
+        id: "cat-arquivada",
+        nome: "Categoria Dois",
+        arquivadaEm: "2026-09-01T00:00:00.000Z",
+        cor: null,
+      },
     );
 
     const todas = await cadastros.listarTodasAsCategorias();
@@ -250,6 +255,7 @@ describe("FakeCadastroRepository: categorias da importação (T12, IMP-03 AC 9-1
       id: "cat-arquivada",
       nome: "Categoria Dois",
       arquivadaEm: "2026-09-01T00:00:00.000Z",
+      cor: null,
     });
 
     expect((await cadastros.buscarCategoriaPorNome("CATEGORIA dois"))?.id).toBe("cat-arquivada");
@@ -262,13 +268,19 @@ describe("FakeCadastroRepository: categorias da importação (T12, IMP-03 AC 9-1
       id: "cat-arquivada",
       nome: "Categoria Dois",
       arquivadaEm: "2026-09-01T00:00:00.000Z",
+      cor: null,
     });
 
     const criada = await cadastros.criarCategoria({ nome: "Categoria Três", arquivadaEm: null });
     const reativada = await cadastros.reativarCategoria("cat-arquivada");
 
     expect(criada).toMatchObject({ nome: "Categoria Três", arquivadaEm: null });
-    expect(reativada).toEqual({ id: "cat-arquivada", nome: "Categoria Dois", arquivadaEm: null });
+    expect(reativada).toEqual({
+      id: "cat-arquivada",
+      nome: "Categoria Dois",
+      arquivadaEm: null,
+      cor: null,
+    });
     expect((await cadastros.listarCategoriasDisponiveis()).map((cat) => cat.nome)).toEqual([
       "Categoria Dois",
       "Categoria Três",

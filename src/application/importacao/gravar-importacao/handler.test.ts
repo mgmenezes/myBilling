@@ -308,12 +308,13 @@ describe("gravarImportacao: outubro num banco vazio (T18, IMP-03)", () => {
       id: "categoria-arquivada",
       nome: "lazer",
       arquivadaEm: "2026-09-01T12:00:00.000Z",
+      cor: null,
     });
 
     await gravarImportacao(fakes.transacao, outubro());
 
     expect(fakes.estado.categorias.filter((cat) => cat.nome.toLowerCase() === "lazer")).toEqual([
-      { id: "categoria-arquivada", nome: "lazer", arquivadaEm: null },
+      { id: "categoria-arquivada", nome: "lazer", arquivadaEm: null, cor: null },
     ]);
   });
 

@@ -201,11 +201,11 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: Phases 3 e 4 (T8–T12).
 **Reuses**: `CadastroRepositoryDrizzle`, padrão de `criarUsuario` fora da port
 **Requirement**: COR-01
 **Done when**:
-- [ ] Categoria criada pelo repositório nasce com `cor` nula (COR-01 AC 5)
-- [ ] `atualizarCategoria(id, { cor })` grava e lê de volta; `{ cor: null }` apaga (COR-01 AC 2)
-- [ ] `atualizarCategoria(id, { nome, cor })` grava os dois numa escrita
-- [ ] O banco recusa `cor = 'dourado'` pelo `CHECK` (COR-01 AC 4)
-- [ ] A migration revisada tem só `ADD COLUMN` e `ADD CONSTRAINT`
+- [x] Categoria criada pelo repositório nasce com `cor` nula (COR-01 AC 5)
+- [x] `atualizarCategoria(id, { cor })` grava e lê de volta; `{ cor: null }` apaga (COR-01 AC 2)
+- [x] `atualizarCategoria(id, { nome, cor })` grava os dois numa escrita
+- [x] O banco recusa `cor = 'dourado'` pelo `CHECK` (COR-01 AC 4)
+- [x] A migration revisada tem só `ADD COLUMN` e `ADD CONSTRAINT`
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(categorias): gravar a cor da categoria`

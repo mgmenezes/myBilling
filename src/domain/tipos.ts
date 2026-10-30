@@ -1,3 +1,4 @@
+import type { CorDeCategoria } from "./categoria/cor-da-categoria";
 import type { Competencia } from "./shared/competencia";
 import type { Cents } from "./shared/money";
 
@@ -19,6 +20,8 @@ export interface Categoria {
   readonly nome: string;
   /** Arquivar remove a categoria dos formulários sem apagar histórico. */
   readonly arquivadaEm: string | null;
+  /** A escolhida na tela de Categorias, ou `null`: quem exibe usa `corDaCategoria` (COR-01). */
+  readonly cor: CorDeCategoria | null;
 }
 
 export interface MeioPagamentoBase {

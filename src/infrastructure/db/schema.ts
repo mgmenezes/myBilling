@@ -83,11 +83,32 @@ export const meioPagamento = pgTable(
   ],
 );
 
-export const categoria = pgTable("categoria", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nome: text("nome").notNull().unique(),
-  arquivadaEm: timestamp("arquivada_em", { withTimezone: true }),
-});
+/**
+ * `cor` é o **nome** de um matiz da paleta fechada, ou nula quando ninguém
+ * escolheu (COR-01). Nunca hex: o hex mora nos tokens de `globals.css`, e
+ * remedir um tom não pede migração. Texto com `CHECK`, e não enum do Postgres,
+ * porque valor de enum não se remove e a paleta é o que mais deve mudar.
+ *
+ * A lista do `CHECK` é a de `CORES_DE_CATEGORIA` em `src/domain`, copiada
+ * aqui porque este arquivo não importa o domínio. O teste de integração do
+ * repositório grava cada cor do domínio contra este `CHECK`: se as duas
+ * listas divergirem, ele falha.
+ */
+export const categoria = pgTable(
+  "categoria",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    nome: text("nome").notNull().unique(),
+    arquivadaEm: timestamp("arquivada_em", { withTimezone: true }),
+    cor: text("cor"),
+  },
+  (t) => [
+    check(
+      "categoria_cor_valida",
+      sql`${t.cor} IS NULL OR ${t.cor} IN ('vermelho', 'laranja', 'ambar', 'verde', 'verde-agua', 'ciano', 'azul', 'roxo', 'rosa', 'marrom')`,
+    ),
+  ],
+);
 
 export const orcamentoCategoria = pgTable(
   "orcamento_categoria",

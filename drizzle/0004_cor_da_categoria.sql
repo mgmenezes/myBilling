@@ -1,0 +1,2 @@
+ALTER TABLE "categoria" ADD COLUMN "cor" text;--> statement-breakpoint
+ALTER TABLE "categoria" ADD CONSTRAINT "categoria_cor_valida" CHECK ("categoria"."cor" IS NULL OR "categoria"."cor" IN ('vermelho', 'laranja', 'ambar', 'verde', 'verde-agua', 'ciano', 'azul', 'roxo', 'rosa', 'marrom'));

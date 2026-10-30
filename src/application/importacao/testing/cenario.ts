@@ -49,7 +49,12 @@ export function criarCenario(): Fakes {
     cartao(VERDE, "Cartão Verde"),
     cartao(AZUL, "Cartão Azul"),
   );
-  fakes.estado.categorias.push({ id: "categoria-um", nome: "Categoria Um", arquivadaEm: null });
+  fakes.estado.categorias.push({
+    id: "categoria-um",
+    nome: "Categoria Um",
+    arquivadaEm: null,
+    cor: null,
+  });
   return fakes;
 }
 

@@ -89,7 +89,9 @@ function tagsDoJournal(): string[] {
 }
 
 describe("migration 0003 (T11)", () => {
-  it("recriarBancoDeTeste aplica 0000 a 0003 num banco limpo e cria as duas tabelas", async () => {
+  /* A lista é a do journal inteiro: a 0004 (cor da categoria) entrou depois,
+     e a 0003 continua aplicando num banco limpo junto com ela. */
+  it("recriarBancoDeTeste aplica 0000 a 0004 num banco limpo e cria as duas tabelas", async () => {
     await recriarBancoDeTeste(pool);
 
     expect(tagsDoJournal()).toEqual([
@@ -97,11 +99,12 @@ describe("migration 0003 (T11)", () => {
       "0001_valor_previsto_positivo",
       "0002_movimento_valor_positivo",
       "0003_registro_de_importacao",
+      "0004_cor_da_categoria",
     ]);
     const { rows } = await pool.query<{ total: string }>(
       "SELECT count(*)::text AS total FROM drizzle.__drizzle_migrations",
     );
-    expect(rows[0]?.total).toBe("4");
+    expect(rows[0]?.total).toBe("5");
     const tabelas = await listarTabelas(pool);
     expect(tabelas).toContain("importacao");
     expect(tabelas).toContain("importacao_decisao");
@@ -180,6 +183,7 @@ describe("pnpm db:sql (T11)", () => {
       { encoding: "utf-8" },
     );
     expect(bloco).toContain("-- 0003_registro_de_importacao");
+    expect(bloco).toContain("-- 0004_cor_da_categoria");
     expect(bloco).toMatch(/AS veredito;/);
 
     await pool.query("DROP SCHEMA IF EXISTS drizzle CASCADE");
@@ -191,7 +195,7 @@ describe("pnpm db:sql (T11)", () => {
       }>;
       const conferencia = resultados.at(-1)?.rows[0];
 
-      expect(conferencia).toMatchObject({ tabelas: "12", migrations: "4", veredito: "TUDO OK" });
+      expect(conferencia).toMatchObject({ tabelas: "12", migrations: "5", veredito: "TUDO OK" });
     } finally {
       await recriarBancoDeTeste(pool);
     }

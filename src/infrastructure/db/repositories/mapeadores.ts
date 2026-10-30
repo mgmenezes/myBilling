@@ -4,8 +4,10 @@ import {
   type Categoria,
   type Cents,
   type Competencia,
+  type CorDeCategoria,
   criarCents,
   criarCompetencia,
+  ehCorDeCategoria,
   type Lancamento,
   type MeioPagamento,
   ZERO_CENTS,
@@ -97,11 +99,23 @@ export function paraLancamento(linha: LinhaMovimento): Lancamento {
   };
 }
 
+/** O `CHECK` `categoria_cor_valida` garante a paleta; cor fora dela é corrupção. */
+function paraCor(cor: string | null, id: string): CorDeCategoria | null {
+  if (cor === null) {
+    return null;
+  }
+  if (!ehCorDeCategoria(cor)) {
+    throw new DadoInvalidoNoBanco("categoria.cor", id, `cor fora da paleta: ${cor}`);
+  }
+  return cor;
+}
+
 export function paraCategoria(linha: LinhaCategoria): Categoria {
   return {
     id: linha.id,
     nome: linha.nome,
     arquivadaEm: paraInstante(linha.arquivadaEm),
+    cor: paraCor(linha.cor, linha.id),
   };
 }
 

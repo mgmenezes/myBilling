@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import type { CadastroRepository, Usuario } from "@/application/ports/repositories";
-import type { Cartao, Categoria, MeioPagamento, MeioSemFatura } from "@/domain";
+import type { Cartao, Categoria, CorDeCategoria, MeioPagamento, MeioSemFatura } from "@/domain";
 import type { Executor } from "../client";
 import { categoria, meioPagamento, usuario } from "../schema";
 import { paraCategoria, paraMeioPagamento, paraUsuario } from "./mapeadores";
@@ -17,12 +17,21 @@ import { paraCategoria, paraMeioPagamento, paraUsuario } from "./mapeadores";
  * As escritas de usuário e de meio ficam nesta classe e fora da port: quem as
  * faz é o seed e a tela de cadastro, e nenhum caso de uso de mês ou de compra
  * precisa delas. As de categoria subiram para a port porque a importação cria
- * e reativa categorias (IMP-03 AC 9 a 11).
+ * e reativa categorias (IMP-03 AC 9 a 11). `atualizarCategoria` fica aqui, e
+ * não na port, pelo mesmo motivo de `criarUsuario`: só a tela de Categorias
+ * troca a cor e renomeia (COR-04).
  */
 
 export type NovoUsuario = Omit<Usuario, "id">;
 export type NovoMeioPagamento = Omit<MeioSemFatura, "id"> | Omit<Cartao, "id">;
-export type NovaCategoria = Omit<Categoria, "id">;
+/** Sem `cor`: quem cria categoria não escolhe cor, e ela nasce nula (COR-01, AC 5). */
+export type NovaCategoria = Omit<Categoria, "id" | "cor">;
+
+/** O que muda numa categoria pela tela de Categorias. Ausente fica como está. */
+export interface MudancasDaCategoria {
+  readonly nome?: string;
+  readonly cor?: CorDeCategoria | null;
+}
 
 function paraInstante(iso: string | null): Date | null {
   return iso === null ? null : new Date(iso);
@@ -177,10 +186,28 @@ export class CadastroRepositoryDrizzle implements CadastroRepository {
   async criarCategoria(nova: NovaCategoria): Promise<Categoria> {
     const [linha] = await this.db
       .insert(categoria)
-      .values({ nome: nova.nome, arquivadaEm: paraInstante(nova.arquivadaEm) })
+      .values({ nome: nova.nome, arquivadaEm: paraInstante(nova.arquivadaEm), cor: null })
       .returning();
     if (!linha) {
       throw new Error("insert de categoria não retornou linha");
+    }
+    return paraCategoria(linha);
+  }
+
+  /**
+   * Nome e cor num `UPDATE` só. Renomear grava junto a cor que estava em uso,
+   * e as duas mudanças entram ou ficam de fora juntas: um nome recusado pelo
+   * `UNIQUE` não deixa a cor gravada pela metade. `cor: null` apaga a
+   * escolha e devolve a categoria à cor automática.
+   */
+  async atualizarCategoria(id: string, mudancas: MudancasDaCategoria): Promise<Categoria> {
+    const [linha] = await this.db
+      .update(categoria)
+      .set(mudancas)
+      .where(eq(categoria.id, id))
+      .returning();
+    if (!linha) {
+      throw new Error("update de categoria não retornou linha");
     }
     return paraCategoria(linha);
   }

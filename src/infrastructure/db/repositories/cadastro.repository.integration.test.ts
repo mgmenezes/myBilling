@@ -1,9 +1,10 @@
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { geraFatura } from "@/domain";
+import { CORES_DE_CATEGORIA, geraFatura } from "@/domain";
 import { type BancoDeDados, criarCliente, criarPool } from "../client";
 import { limparDados, recriarBancoDeTeste, URL_BANCO_DE_TESTE } from "../testing/banco-de-teste";
 import { CadastroRepositoryDrizzle } from "./cadastro.repository";
+import { DadoInvalidoNoBanco, paraCategoria } from "./mapeadores";
 
 const ARQUIVADO_EM = "2026-01-15T12:00:00.000Z";
 
@@ -184,5 +185,149 @@ describe("CadastroRepository: quais meios geram fatura (BLOCO-01, AC 6)", () => 
     });
 
     expect(await repo.idsDeMeiosComFatura()).toEqual(new Set());
+  });
+});
+
+/**
+ * Testes derivados de COR-01 (ACs 2, 4 e 5) e do Done-when de T2.
+ *
+ * A cor é um nome da paleta fechada, ou nada. Quem cria categoria não escolhe
+ * cor; quem troca a cor ou renomeia passa por `atualizarCategoria`, que grava
+ * nome e cor numa escrita só. Nomes genéricos (AD-009).
+ */
+describe("CadastroRepository: a cor da categoria (T2, COR-01)", () => {
+  interface ErroPostgres {
+    readonly code?: string;
+    readonly constraint?: string;
+    readonly cause?: ErroPostgres;
+  }
+
+  /** O erro do driver, também quando o Drizzle o embrulha em `cause`. */
+  async function erroDoBanco(acao: () => Promise<unknown>): Promise<ErroPostgres> {
+    try {
+      await acao();
+    } catch (erro) {
+      const capturado = erro as ErroPostgres;
+      return capturado.code === undefined && capturado.cause !== undefined
+        ? capturado.cause
+        : capturado;
+    }
+    throw new Error("o banco aceitou um dado que deveria ter sido recusado");
+  }
+
+  it("a categoria criada pelo repositório nasce sem cor escolhida (AC 5)", async () => {
+    const criada = await repo.criarCategoria({ nome: "Categoria Um", arquivadaEm: null });
+
+    expect(criada.cor).toBeNull();
+    expect((await repo.buscarCategoria(criada.id))?.cor).toBeNull();
+    expect((await repo.listarCategoriasDisponiveis()).map((c) => c.cor)).toEqual([null]);
+  });
+
+  it("atualizarCategoria grava a cor, e ela volta em toda leitura (AC 2)", async () => {
+    const criada = await repo.criarCategoria({ nome: "Categoria Um", arquivadaEm: null });
+
+    const atualizada = await repo.atualizarCategoria(criada.id, { cor: "verde" });
+
+    expect(atualizada).toEqual({
+      id: criada.id,
+      nome: "Categoria Um",
+      arquivadaEm: null,
+      cor: "verde",
+    });
+    expect(await repo.buscarCategoria(criada.id)).toEqual(atualizada);
+    expect(await repo.listarCategoriasDisponiveis()).toEqual([atualizada]);
+    expect(await repo.listarTodasAsCategorias()).toEqual([atualizada]);
+    expect(await repo.buscarCategoriaPorNome("categoria um")).toEqual(atualizada);
+  });
+
+  it("{ cor: null } apaga a cor escolhida (AC 2)", async () => {
+    const criada = await repo.criarCategoria({ nome: "Categoria Um", arquivadaEm: null });
+    await repo.atualizarCategoria(criada.id, { cor: "roxo" });
+
+    const apagada = await repo.atualizarCategoria(criada.id, { cor: null });
+
+    expect(apagada.cor).toBeNull();
+    expect(apagada.nome).toBe("Categoria Um");
+    expect((await repo.buscarCategoria(criada.id))?.cor).toBeNull();
+  });
+
+  it("atualizarCategoria grava o nome e a cor juntos", async () => {
+    const criada = await repo.criarCategoria({ nome: "Categoria Um", arquivadaEm: null });
+
+    const atualizada = await repo.atualizarCategoria(criada.id, {
+      nome: "Categoria Dez",
+      cor: "roxo",
+    });
+
+    expect(atualizada).toEqual({
+      id: criada.id,
+      nome: "Categoria Dez",
+      arquivadaEm: null,
+      cor: "roxo",
+    });
+    expect(await repo.buscarCategoria(criada.id)).toEqual(atualizada);
+  });
+
+  /* A prova de que é uma escrita só: o nome repetido derruba a escrita, e a
+     cor que vinha junto não fica gravada pela metade. */
+  it("nome e cor numa escrita: se o nome é recusado, a cor também não muda", async () => {
+    await repo.criarCategoria({ nome: "Categoria Um", arquivadaEm: null });
+    const dois = await repo.criarCategoria({ nome: "Categoria Dois", arquivadaEm: null });
+
+    const erro = await erroDoBanco(() =>
+      repo.atualizarCategoria(dois.id, { nome: "Categoria Um", cor: "roxo" }),
+    );
+
+    expect(erro.code).toBe("23505");
+    expect(await repo.buscarCategoria(dois.id)).toEqual({
+      id: dois.id,
+      nome: "Categoria Dois",
+      arquivadaEm: null,
+      cor: null,
+    });
+  });
+
+  it("atualizar uma categoria que não existe é recusado", async () => {
+    await expect(
+      repo.atualizarCategoria("00000000-0000-0000-0000-000000000000", { cor: "verde" }),
+    ).rejects.toThrow("update de categoria não retornou linha");
+  });
+
+  it("o banco aceita cada uma das dez cores da paleta (AC 4)", async () => {
+    for (const cor of CORES_DE_CATEGORIA) {
+      await pool.query("INSERT INTO categoria (nome, cor) VALUES ($1, $2)", [
+        `Categoria ${cor}`,
+        cor,
+      ]);
+    }
+
+    const { rows } = await pool.query<{ cor: string }>("SELECT cor FROM categoria ORDER BY cor");
+    expect(rows.map((linha) => linha.cor)).toEqual([...CORES_DE_CATEGORIA].sort());
+  });
+
+  it.each([["dourado"], [""], ["Verde"], ["âmbar"]])(
+    "o banco recusa a cor %p pelo CHECK, ao inserir e ao atualizar (AC 4)",
+    async (cor) => {
+      const naInsercao = await erroDoBanco(() =>
+        pool.query("INSERT INTO categoria (nome, cor) VALUES ($1, $2)", ["Categoria Um", cor]),
+      );
+      expect(naInsercao.code).toBe("23514");
+      expect(naInsercao.constraint).toBe("categoria_cor_valida");
+
+      const criada = await repo.criarCategoria({ nome: "Categoria Dois", arquivadaEm: null });
+      const naAtualizacao = await erroDoBanco(() =>
+        pool.query("UPDATE categoria SET cor = $1 WHERE id = $2", [cor, criada.id]),
+      );
+      expect(naAtualizacao.code).toBe("23514");
+      expect(naAtualizacao.constraint).toBe("categoria_cor_valida");
+    },
+  );
+
+  /* O CHECK garante que isto não acontece; se acontecer, é corrupção e o
+     mapeador não deixa a cor desconhecida subir para a tela. */
+  it("o mapeador trata cor fora da paleta como dado inválido no banco", () => {
+    expect(() =>
+      paraCategoria({ id: "cat-1", nome: "Categoria Um", arquivadaEm: null, cor: "dourado" }),
+    ).toThrow(DadoInvalidoNoBanco);
   });
 });

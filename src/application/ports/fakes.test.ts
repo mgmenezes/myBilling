@@ -352,8 +352,8 @@ describe("FakeCadastroRepository (T32)", () => {
   it("esconde a categoria arquivada dos formulários mas a resolve em relatório", async () => {
     const { cadastros, estado } = criarFakes();
     estado.categorias.push(
-      { id: "ativa", nome: "Categoria Um", arquivadaEm: null },
-      { id: "arquivada", nome: "Categoria Dois", arquivadaEm: "2026-01-01T00:00:00Z" },
+      { id: "ativa", nome: "Categoria Um", arquivadaEm: null, cor: null },
+      { id: "arquivada", nome: "Categoria Dois", arquivadaEm: "2026-01-01T00:00:00Z", cor: null },
     );
 
     const disponiveis = await cadastros.listarCategoriasDisponiveis();

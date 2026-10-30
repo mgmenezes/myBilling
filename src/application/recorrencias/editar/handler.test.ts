@@ -37,8 +37,8 @@ async function cenario(inicio = "2026-10") {
     { id: "arquivado", nome: "Cartão Azul", tipo: "ROTULO", arquivadoEm: ANTES },
   );
   fakes.estado.categorias.push(
-    { id: "cat-1", nome: "Categoria Um", arquivadaEm: null },
-    { id: "cat-2", nome: "Categoria Dois", arquivadaEm: null },
+    { id: "cat-1", nome: "Categoria Um", arquivadaEm: null, cor: null },
+    { id: "cat-2", nome: "Categoria Dois", arquivadaEm: null, cor: null },
   );
   const criada = await fakes.recorrencias.criar({
     dados: {

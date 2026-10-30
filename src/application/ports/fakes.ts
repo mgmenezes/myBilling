@@ -467,6 +467,7 @@ export class FakeCadastroRepository implements CadastroRepository {
       id: `categoria-${this.proximaCategoria++}`,
       nome: nova.nome,
       arquivadaEm: nova.arquivadaEm,
+      cor: null,
     };
     this.estado.categorias.push(categoria);
     return categoria;

@@ -29,6 +29,13 @@
       "when": 1792899229842,
       "tag": "0003_registro_de_importacao",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793320334571,
+      "tag": "0004_cor_da_categoria",
+      "breakpoints": true
     }
   ]
 }

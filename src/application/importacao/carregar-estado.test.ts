@@ -167,13 +167,19 @@ describe("carregarEstadoParaImportacao (T17)", () => {
       id: "categoria-arquivada",
       nome: "Moradia",
       arquivadaEm: "2026-09-01T12:00:00.000Z",
+      cor: null,
     });
 
     const estado = await carregarEstadoParaImportacao(fakes, c("2026-11"));
 
     expect(estado.categorias).toEqual([
-      { id: "categoria-um", nome: "Categoria Um", arquivadaEm: null },
-      { id: "categoria-arquivada", nome: "Moradia", arquivadaEm: "2026-09-01T12:00:00.000Z" },
+      { id: "categoria-um", nome: "Categoria Um", arquivadaEm: null, cor: null },
+      {
+        id: "categoria-arquivada",
+        nome: "Moradia",
+        arquivadaEm: "2026-09-01T12:00:00.000Z",
+        cor: null,
+      },
     ]);
   });
 });

@@ -62,9 +62,9 @@ async function cenario() {
     arquivadoEm: null,
   });
   fakes.estado.categorias.push(
-    { id: "cat-1", nome: "Categoria Um", arquivadaEm: null },
-    { id: "cat-2", nome: "Categoria Dois", arquivadaEm: null },
-    { id: "cat-arquivada", nome: "Categoria Três", arquivadaEm: ARQUIVADA_EM },
+    { id: "cat-1", nome: "Categoria Um", arquivadaEm: null, cor: null },
+    { id: "cat-2", nome: "Categoria Dois", arquivadaEm: null, cor: null },
+    { id: "cat-arquivada", nome: "Categoria Três", arquivadaEm: ARQUIVADA_EM, cor: null },
   );
 
   const recorrenciaId = await criarFixo(fakes);

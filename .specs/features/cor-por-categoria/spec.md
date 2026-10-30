@@ -203,7 +203,7 @@ medições, para a próxima mudança saber por que a cor existe e até onde vai.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| COR-01 | P1: A categoria tem uma cor | Execute | Implementing: `CORES_DE_CATEGORIA` com as dez cores na ordem do AC 1, `corAutomatica` sempre uma das dez, igual para nomes que diferem só em caixa, acento ou espaços, e derivada do nome, AC 3, nome normalizado vazio na primeira cor, Edge Case, `corDaCategoria` com a escolhida vencendo a automática e a automática quando nula, ACs 2 e 3, `ehCorDeCategoria` aceitando só as dez (T1) |
+| COR-01 | P1: A categoria tem uma cor | Execute | Implementing: `CORES_DE_CATEGORIA` com as dez cores na ordem do AC 1, `corAutomatica` sempre uma das dez, igual para nomes que diferem só em caixa, acento ou espaços, e derivada do nome, AC 3, nome normalizado vazio na primeira cor, Edge Case, `corDaCategoria` com a escolhida vencendo a automática e a automática quando nula, ACs 2 e 3, `ehCorDeCategoria` aceitando só as dez (T1); `categoria.cor` texto nulável com o `CHECK` `categoria_cor_valida`, que aceita as dez e recusa `dourado`, AC 4, migration `0004_cor_da_categoria` só com `ADD COLUMN` e `ADD CONSTRAINT`, categoria criada pelo repositório nascendo com `cor` nula, AC 5, e `atualizarCategoria` gravando a cor, apagando com `null` e gravando nome e cor numa escrita só, AC 2 (T2) |
 | COR-02 | P1: Paleta medida nos dois temas | Tasks | Pending |
 | COR-03 | P1: A cor aparece onde a categoria aparece | Tasks | Pending |
 | COR-04 | P1: Tela de Categorias | Tasks | Pending |
