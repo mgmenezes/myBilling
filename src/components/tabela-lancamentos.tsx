@@ -12,7 +12,6 @@ import {
   type BlocoDoMes,
   type Cents,
   type Competencia,
-  type Natureza,
   resolverValorEfetivo,
   somar,
   ZERO_CENTS,
@@ -26,6 +25,7 @@ import { BotaoPago } from "./botao-pago";
 import { SeletorDeCategoria, type SeletorDeCategoriaProps } from "./seletor-de-categoria";
 import { Chip } from "./ui";
 import { ValorConfirmavel } from "./valor-confirmavel";
+import { corDaNatureza, ValorDaNatureza } from "./valor-da-natureza";
 
 /**
  * Os lançamentos do mês, segmentados em quatro blocos: Entradas, Fixos, Cartão
@@ -399,20 +399,7 @@ function BlocoDeLancamentos({
                         confirmar={confirmarValor}
                       />
                     ) : (
-                      <>
-                        {/*
-                        O sinal repete em forma o que a cor diz, para a linha não
-                        depender de matiz. O rótulo completo vai só para leitor
-                        de tela: na coluna ele seria ruído.
-                      */}
-                        {lancamento.natureza === "INVESTIMENTO" ? null : (
-                          <span aria-hidden="true">
-                            {lancamento.natureza === "RECEITA" ? "+" : "−"}
-                          </span>
-                        )}
-                        {formatarBRL(lancamento.valor)}
-                        <span className="sr-only"> {rotuloDaNatureza(lancamento.natureza)}</span>
-                      </>
+                      <ValorDaNatureza natureza={lancamento.natureza} valor={lancamento.valor} />
                     )}
                   </td>
                 </tr>
@@ -423,24 +410,4 @@ function BlocoDeLancamentos({
       )}
     </BlocoRecolhivel>
   );
-}
-
-/**
- * A semântica de valor do sistema, em cor de texto e nunca em preenchimento.
- * Investimento fica neutro de propósito: ele não é nem entrada nem saída da
- * casa, é dinheiro que mudou de lugar, e pintá-lo de verde ou de vermelho
- * afirmaria uma coisa que o app não sabe.
- */
-function corDaNatureza(natureza: Natureza): string {
-  if (natureza === "RECEITA") {
-    return "text-positivo";
-  }
-  return natureza === "INVESTIMENTO" ? "text-ink" : "text-negativo";
-}
-
-function rotuloDaNatureza(natureza: Natureza): string {
-  if (natureza === "RECEITA") {
-    return "de entrada";
-  }
-  return natureza === "INVESTIMENTO" ? "de investimento" : "de despesa";
 }

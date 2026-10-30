@@ -1,13 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { criarCategoria } from "@/app/actions/categorias";
-import { criarCompra } from "@/app/actions/compras";
-import {
-  cancelarLancamento,
-  criarLancamentoAvulso,
-  trocarCategoria,
-} from "@/app/actions/lancamentos";
-import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
+import { cancelarLancamento, trocarCategoria } from "@/app/actions/lancamentos";
 import { alternarPagamento, confirmarValorDaOcorrencia } from "@/app/actions/pagamentos";
 import {
   contarFiltrosAtivos,
@@ -26,9 +19,6 @@ import { AreaEstreita } from "@/components/area-estreita";
 import { BarraDeFiltrosCompacta } from "@/components/barra-de-filtros-compacta";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
-import { FormCompra } from "@/components/form-compra";
-import { FormLancamentoAvulso } from "@/components/form-lancamento-avulso";
-import { SeletorDeFormulario } from "@/components/seletor-de-formulario";
 import { TabelaLancamentos } from "@/components/tabela-lancamentos";
 import {
   type Cents,
@@ -46,6 +36,7 @@ import { COOKIE_BLOCOS_RECOLHIDOS, lerBlocosRecolhidos } from "@/lib/blocos-reco
 import { formatarBRL } from "@/lib/formatar";
 import { hojeEm } from "@/lib/relogio";
 import { sessaoDaUI } from "../../sessao";
+import { CadastroDeLancamento } from "../cadastro-de-lancamento";
 
 /**
  * Lançamentos do mês, com busca e filtros.
@@ -54,9 +45,9 @@ import { sessaoDaUI } from "../../sessao";
  * indicador do painel usa para montar o link. É isso que garante que a soma
  * dos lançamentos listados bata com o número que foi clicado lá.
  *
- * O cadastro mora aqui, e não no painel: quem abre a visão geral quer entender
- * o mês, não preencher formulário. Quem abre Lançamentos está no modo de
- * manutenção.
+ * O cadastro mora aqui num diálogo, e também aberto na coluna de ação da
+ * Visão geral (TRES-03): o dono quer lançar sem sair dela. Os dois lugares
+ * montam o mesmo `CadastroDeLancamento`.
  *
  * **O cadastro abre num diálogo, a partir de um botão no topo.** Ele ficava no
  * rodapé, e com oito ou dez gastos fixos na lista cadastrar algo exigia rolar
@@ -198,47 +189,12 @@ export default async function PaginaDeLancamentos({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
           <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
-            <SeletorDeFormulario
-              rotuloDoGrupo="Tipo de lançamento a cadastrar"
-              abas={[
-                {
-                  id: "avulso",
-                  rotulo: "Avulso",
-                  conteudo: (
-                    <FormLancamentoAvulso
-                      competencia={resultado.value}
-                      dataPadrao={dataPadrao}
-                      /* `geraFatura` decide o padrão da caixa "já saiu da conta". */
-                      meios={meios.map((meio) => ({
-                        id: meio.id,
-                        nome: meio.nome,
-                        geraFatura: meio.tipo === "CARTAO_CREDITO",
-                      }))}
-                      categorias={opcoesDeCategoria}
-                      usuarios={opcoesDeUsuario}
-                      enviar={criarLancamentoAvulso}
-                      criarCategoria={criarCategoria}
-                      criarMeioDePagamento={criarMeioDePagamento}
-                    />
-                  ),
-                },
-                {
-                  id: "parcelado",
-                  rotulo: "Parcelado",
-                  conteudo: (
-                    <FormCompra
-                      competencia={resultado.value}
-                      dataPadrao={dataPadrao}
-                      meios={meios.map((meio) => ({ id: meio.id, nome: meio.nome }))}
-                      categorias={opcoesDeCategoria}
-                      usuarios={opcoesDeUsuario}
-                      enviar={criarCompra}
-                      criarCategoria={criarCategoria}
-                      criarMeioDePagamento={criarMeioDePagamento}
-                    />
-                  ),
-                },
-              ]}
+            <CadastroDeLancamento
+              competencia={resultado.value}
+              dataPadrao={dataPadrao}
+              meios={meios}
+              categorias={opcoesDeCategoria}
+              usuarios={opcoesDeUsuario}
             />
           </DialogoDeCadastro>
         </div>

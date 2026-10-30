@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/visao-tres-colunas/spec.md`
 **Design**: `.specs/features/visao-tres-colunas/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T3 concluídas)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/visao-tres-colunas`, em worktree, a partir do `main` em `3b42f3c`; T1 a T4 concluídas)
 **Total**: 8 tasks em 4 fases (T1–T8), um lote só, executado inline
 
 ---
@@ -322,8 +322,8 @@ Nada muda na tela.
 **Reuses**: `SeletorDeFormulario`, `FormLancamentoAvulso`, `FormCompra`, `dataPadraoDoLancamento`
 **Requirement**: TRES-03, TRES-05
 **Done when**:
-- [ ] `ValorDaNatureza`: a entrada com "+" e `text-positivo`, a despesa com "−" e `text-negativo`, o investimento sem sinal e em `text-ink`, cada um com o rótulo só para leitor de tela (TRES-05 AC 3)
-- [ ] Os testes atuais da tabela e o e2e de lançamento avulso e de compra parcelada passam sem mudar o que afirmam (TRES-03 AC 4)
+- [x] `ValorDaNatureza`: a entrada com "+" e `text-positivo`, a despesa com "−" e `text-negativo`, o investimento sem sinal e em `text-ink`, cada um com o rótulo só para leitor de tela (TRES-05 AC 3)
+- [x] Os testes atuais da tabela e o e2e de lançamento avulso e de compra parcelada passam sem mudar o que afirmam (TRES-03 AC 4)
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `refactor(lancamentos): um cadastro de lançamento reutilizável`
