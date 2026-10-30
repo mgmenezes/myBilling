@@ -14,6 +14,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: mutante M24 (ciclo 1) e N2 (ciclo 3) — src/app/(app)/[competencia]/fixos/page.tsx:66-72 (app-router,paginas) (+1 more)
 - last seen: 2026-10-25T05:06:38Z
 
+### L-010 - AC com duas cláusulas precisa de uma assertion para cada uma; provar só uma deixa a outra livre para regredir.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
+- features: importar-planilha, saldo-futuro
+- evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria) (+1 more)
+- last seen: 2026-10-30T13:55:49Z
+
 ### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,composicao` · harmful: 1
 - features: importar-planilha, trocar-categoria
@@ -76,12 +82,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites` · harmful: 0
 - features: importar-planilha
 - evidence: mutantes M29 (competencia-do-arquivo.ts:30, IMP-02 AC 1) e M30 (celula.ts:63, IMP-01 AC 11) (testes,limites)
-- last seen: 2026-10-25T05:06:38Z
-
-### L-010 - AC com duas cláusulas precisa de uma assertion para cada uma; provar só uma deixa a outra livre para regredir.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
-- features: importar-planilha
-- evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria)
 - last seen: 2026-10-25T05:06:38Z
 
 ### L-011 - AC que manda parear 'por ordem' precisa dizer a ordem dos dois lados, inclusive a dos registros que já estão no banco, senão o pareamento não tem resultado verificável.
@@ -257,6 +257,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: cor-por-categoria
 - evidence: L3c: src/components/lista-de-categorias.tsx:176 (componentes,validacao)
 - last seen: 2026-10-30T02:50:50Z
+
+### L-042 - Teste de composição precisa de fixture com cada edge case cuja garantia mora num elo interno; só com o caminho feliz, o elo do meio filtra o caso e a suíte fica verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,composicao` · harmful: 0
+- features: saldo-futuro
+- evidence: validation.md rodada 1: H1 (src/application/mes/obter-visao-mensal/handler.ts:91, SALDO-02 AC 2, edge case da despesa futura paga) (testes,composicao)
+- last seen: 2026-10-30T13:55:49Z
 
 ## Quarantined (failed when applied - ignore)
 
