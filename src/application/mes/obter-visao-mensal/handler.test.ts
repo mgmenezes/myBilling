@@ -340,9 +340,9 @@ describe("comprometimento futuro (MOV-06, AC 3)", () => {
     const visao = await obterVisaoMensal(fakes, MARCO);
 
     expect(visao.futuro).toEqual([
-      { competencia: "2026-04", comprometido: 33333 },
-      { competencia: "2026-05", comprometido: 33333 },
-      { competencia: "2026-06", comprometido: 0 },
+      { competencia: "2026-04", comprometido: 33333, saldo: -33333 },
+      { competencia: "2026-05", comprometido: 33333, saldo: -33333 },
+      { competencia: "2026-06", comprometido: 0, saldo: 0 },
     ]);
   });
 });

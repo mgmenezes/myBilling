@@ -144,5 +144,7 @@ export interface ResumoMensal {
   readonly futuro: ReadonlyArray<{
     readonly competencia: Competencia;
     readonly comprometido: Cents;
+    /** Entradas − despesas − investimentos daquela competência, isolada (SALDO-01). */
+    readonly saldo: Cents;
   }>;
 }

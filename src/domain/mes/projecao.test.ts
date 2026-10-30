@@ -3,6 +3,7 @@ import { addMeses, type Competencia } from "../shared/competencia";
 import type { Cents } from "../shared/money";
 import type { Lancamento } from "../tipos";
 import { projetarProximosMeses } from "./projecao";
+import { resumoMensal } from "./resumo-mensal";
 
 const MARCO = "2026-03" as Competencia;
 const ABRIL = "2026-04" as Competencia;
@@ -44,8 +45,8 @@ describe("projetarProximosMeses — lista por competência (MOV-06, AC 3)", () =
     );
 
     expect(projecao).toEqual([
-      { competencia: ABRIL, comprometido: 40000 },
-      { competencia: MAIO, comprometido: 70000 },
+      { competencia: ABRIL, comprometido: 40000, saldo: -40000 },
+      { competencia: MAIO, comprometido: 70000, saldo: -70000 },
     ]);
   });
 
@@ -57,7 +58,7 @@ describe("projetarProximosMeses — lista por competência (MOV-06, AC 3)", () =
     );
 
     expect(projecao.map((p) => p.competencia)).toEqual([ABRIL, MAIO, JUNHO]);
-    expect(projecao[2]).toEqual({ competencia: JUNHO, comprometido: 0 });
+    expect(projecao[2]).toEqual({ competencia: JUNHO, comprometido: 0, saldo: 0 });
   });
 });
 
@@ -96,7 +97,9 @@ describe("projetarProximosMeses — o que entra na projeção", () => {
       1,
     );
 
-    expect(projecao).toEqual([{ competencia: ABRIL, comprometido: 40000 }]);
+    /* A paga sai do comprometido e fica no saldo; a cancelada sai dos dois
+       (SALDO-01, ACs 1 e 2): 900000 − (40000 + 900000) − 900000. */
+    expect(projecao).toEqual([{ competencia: ABRIL, comprometido: 40000, saldo: -940000 }]);
   });
 
   it("compra 8/10 cadastrada em março contribui para abril e maio e para nenhum mês anterior", () => {
@@ -118,9 +121,9 @@ describe("projetarProximosMeses — o que entra na projeção", () => {
     );
 
     expect(projecao).toEqual([
-      { competencia: ABRIL, comprometido: 50000 },
-      { competencia: MAIO, comprometido: 50000 },
-      { competencia: JUNHO, comprometido: 0 },
+      { competencia: ABRIL, comprometido: 50000, saldo: -50000 },
+      { competencia: MAIO, comprometido: 50000, saldo: -50000 },
+      { competencia: JUNHO, comprometido: 0, saldo: 0 },
     ]);
     expect(projecao.map((p) => p.competencia)).not.toContain(MARCO);
   });
@@ -140,10 +143,146 @@ describe("projetarProximosMeses — janela limitada (REC-02, AC 5)", () => {
     const projecao = projetarProximosMeses(semFim, MARCO, 3);
 
     expect(projecao).toEqual([
-      { competencia: ABRIL, comprometido: 30000 },
-      { competencia: MAIO, comprometido: 30000 },
-      { competencia: JUNHO, comprometido: 30000 },
+      { competencia: ABRIL, comprometido: 30000, saldo: -30000 },
+      { competencia: MAIO, comprometido: 30000, saldo: -30000 },
+      { competencia: JUNHO, comprometido: 30000, saldo: -30000 },
     ]);
     expect(projecao).toHaveLength(3);
+  });
+});
+
+describe("projetarProximosMeses — saldo de cada mês seguinte (SALDO-01)", () => {
+  it("é entradas menos despesas menos investimentos da competência (AC 1)", () => {
+    const projecao = projetarProximosMeses(
+      [
+        lancamento({
+          id: "entrada",
+          competencia: ABRIL,
+          natureza: "RECEITA",
+          valor: 100000 as Cents,
+        }),
+        lancamento({ id: "despesa", competencia: ABRIL, valor: 30000 as Cents }),
+        lancamento({
+          id: "investimento",
+          competencia: ABRIL,
+          natureza: "INVESTIMENTO",
+          valor: 10000 as Cents,
+        }),
+      ],
+      MARCO,
+      1,
+    );
+
+    expect(projecao).toEqual([{ competencia: ABRIL, comprometido: 30000, saldo: 60000 }]);
+  });
+
+  it("deixa de fora a entrada, o investimento e a despesa cancelados (AC 1)", () => {
+    const projecao = projetarProximosMeses(
+      [
+        lancamento({
+          id: "entrada",
+          competencia: ABRIL,
+          natureza: "RECEITA",
+          valor: 100000 as Cents,
+        }),
+        lancamento({
+          id: "entrada-cancelada",
+          competencia: ABRIL,
+          natureza: "RECEITA",
+          valor: 50000 as Cents,
+          canceladoEm: "2026-03-20",
+        }),
+        lancamento({
+          id: "investimento-cancelado",
+          competencia: ABRIL,
+          natureza: "INVESTIMENTO",
+          valor: 20000 as Cents,
+          canceladoEm: "2026-03-20",
+        }),
+        lancamento({
+          id: "despesa-cancelada",
+          competencia: ABRIL,
+          valor: 30000 as Cents,
+          canceladoEm: "2026-03-20",
+        }),
+      ],
+      MARCO,
+      1,
+    );
+
+    expect(projecao[0]?.saldo).toBe(100000);
+  });
+
+  it("conta a despesa já paga no saldo, e não no comprometido (AC 2)", () => {
+    const projecao = projetarProximosMeses(
+      [
+        lancamento({
+          id: "entrada",
+          competencia: ABRIL,
+          natureza: "RECEITA",
+          valor: 100000 as Cents,
+        }),
+        lancamento({
+          id: "paga-adiantada",
+          competencia: ABRIL,
+          valor: 30000 as Cents,
+          pagoEm: "2026-03-25",
+        }),
+      ],
+      MARCO,
+      1,
+    );
+
+    expect(projecao).toEqual([{ competencia: ABRIL, comprometido: 0, saldo: 70000 }]);
+  });
+
+  it("calcula cada mês isolado, sem somar o saldo de outro (AC 3)", () => {
+    const projecao = projetarProximosMeses(
+      [
+        lancamento({
+          id: "corrente",
+          competencia: MARCO,
+          natureza: "RECEITA",
+          valor: 500000 as Cents,
+        }),
+        lancamento({
+          id: "abril",
+          competencia: ABRIL,
+          natureza: "RECEITA",
+          valor: 100000 as Cents,
+        }),
+        lancamento({ id: "junho", competencia: JUNHO, valor: 20000 as Cents }),
+      ],
+      MARCO,
+      3,
+    );
+
+    expect(projecao.map((p) => p.saldo)).toEqual([100000, 0, -20000]);
+  });
+
+  it("dá o mesmo saldo que o card Saldo previsto da competência (AC 4)", () => {
+    const lista = [
+      lancamento({
+        id: "entrada",
+        competencia: ABRIL,
+        natureza: "RECEITA",
+        valor: 123456 as Cents,
+      }),
+      lancamento({ id: "fixo", competencia: ABRIL, origem: "RECORRENCIA", valor: 23456 as Cents }),
+      lancamento({ id: "paga", competencia: ABRIL, valor: 1000 as Cents, pagoEm: "2026-04-05" }),
+      lancamento({
+        id: "investimento",
+        competencia: ABRIL,
+        natureza: "INVESTIMENTO",
+        valor: 9000 as Cents,
+      }),
+      lancamento({ id: "maio", competencia: MAIO, natureza: "RECEITA", valor: 77777 as Cents }),
+    ];
+
+    const projecao = projetarProximosMeses(lista, MARCO, 1);
+    const cardDeAbril = resumoMensal(lista, ABRIL, new Set()).competenciaView.saldo;
+
+    expect(projecao[0]?.saldo).toBe(90000);
+    expect(projecao[0]?.saldo).toBe(cardDeAbril);
   });
 });

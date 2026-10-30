@@ -48,6 +48,27 @@ export function despesasDaCompetencia(
 }
 
 /**
+ * O saldo do eixo competência: entradas menos despesas menos investimentos,
+ * só com lançamentos vigentes daquela competência (MOV-05, AC 5).
+ *
+ * É a **única** definição de saldo previsto. O card "Saldo previsto" e o
+ * saldo de cada mês seguinte na projeção chamam esta mesma função, de modo que
+ * o número que a Visão geral mostra para abril é o mesmo que abril mostra ao
+ * ser aberto (SALDO-01, AC 4). A despesa já paga entra: pagar adiantado tira
+ * a conta do comprometido, mas não muda o que sobra no mês.
+ */
+export function saldoPrevistoDaCompetencia(
+  lancamentos: readonly Lancamento[],
+  competencia: Competencia,
+): Cents {
+  const doMes = lancamentos.filter((l) => vigente(l) && l.competencia === competencia);
+  const entradas = total(doMes.filter((l) => l.natureza === "RECEITA"));
+  const investimentos = total(doMes.filter((l) => l.natureza === "INVESTIMENTO"));
+  const despesas = total(despesasDaCompetencia(lancamentos, competencia));
+  return subtrair(subtrair(entradas, despesas), investimentos);
+}
+
+/**
  * Os três segmentos de despesa saem de `blocoDoLancamento`, a **mesma** função
  * que a tela usa para decidir em qual bloco cada linha aparece. Somar por
  * `origem` aqui e agrupar por meio de pagamento lá faria o indicador "Cartão"
@@ -107,7 +128,7 @@ export function resumoMensal(
       entradas,
       investimentos,
       pendente: total(despesas.filter((l) => l.pagoEm === null)),
-      saldo: subtrair(subtrair(entradas, totalGastos), investimentos),
+      saldo: saldoPrevistoDaCompetencia(lancamentos, competencia),
     },
     caixaView: {
       saidas,
