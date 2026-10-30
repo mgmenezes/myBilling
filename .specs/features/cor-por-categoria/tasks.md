@@ -365,12 +365,12 @@ Lote 1: Phases 0 a 2 (T1–T7). Lote 2: T13, da Phase 1, e as Phases 3 e 4 (T8�
 **Reuses**: `sessaoDaUI`, `listarCategoriasDisponiveis`, helpers de `e2e/lista-enxuta.spec.ts`
 **Requirement**: COR-02, COR-03, COR-04
 **Done when**:
-- [ ] Pela navegação, Cadastros abre a tela com as categorias em ordem alfabética (COR-04 AC 1, 2)
-- [ ] Escolher "Verde" para uma categoria: o `backgroundColor` computado da pill em "Todo mês", do seletor e do chip em Lançamentos é o mesmo, e a barra da Visão geral tem a cor de barra verde (COR-03 AC 1, 2, 4, 5, COR-04 AC 9)
-- [ ] Nos temas claro e escuro, o contraste calculado das cores computadas é ≥ 4,5:1 no texto das pills e ≥ 3:1 na barra (COR-02 AC 2, 3)
-- [ ] Renomear mantém a cor; nome repetido mostra o motivo (COR-04 AC 6, 7)
-- [ ] Em 400 px, a tela e a navegação de quatro itens sem rolagem horizontal, e os radios com alvo de 44×44 (COR-04 AC 10)
-- [ ] A suíte e2e inteira passa
+- [x] Pela navegação, Cadastros abre a tela com as categorias em ordem alfabética (COR-04 AC 1, 2)
+- [x] Escolher "Verde" para uma categoria: o `backgroundColor` computado da pill em "Todo mês", do seletor e do chip em Lançamentos é o mesmo, e a barra da Visão geral tem a cor de barra verde (COR-03 AC 1, 2, 4, 5, COR-04 AC 9)
+- [x] Nos temas claro e escuro, o contraste calculado das cores computadas é ≥ 4,5:1 no texto das pills e ≥ 3:1 na barra (COR-02 AC 2, 3)
+- [x] Renomear mantém a cor; nome repetido mostra o motivo (COR-04 AC 6, 7)
+- [x] Em 400 px, a tela e a navegação de quatro itens sem rolagem horizontal, e os radios com alvo de 44×44 (COR-04 AC 10)
+- [x] A suíte e2e inteira passa
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `feat(categorias): tela de categorias com cor`

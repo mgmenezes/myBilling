@@ -21,6 +21,12 @@ import { usePathname } from "next/navigation";
  *
  * Lateral a partir de 768px, barra inferior abaixo disso: no celular o polegar
  * alcança a base da tela, não o topo.
+ *
+ * **Na barra inferior, quase sem respiro lateral.** São quatro itens em 400
+ * px, e "Lançamentos" não quebra. Com o respiro do computador, "Visão geral"
+ * ia para duas linhas e a barra ficava mais alta só naquele item (COR-04, AC
+ * 10). No celular o ícone fica em cima do rótulo, e o que separa um item do
+ * outro é a largura de cada um, não o respiro.
  */
 
 interface Area {
@@ -91,7 +97,7 @@ export function NavegacaoPrincipal({ competencia }: { readonly competencia: stri
               <Link
                 href={destino}
                 aria-current={ativa ? "page" : undefined}
-                className={`relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-pill px-3 py-2 text-[13px] transition-colors duration-200 md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:text-[15px] ${
+                className={`relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-pill px-1 py-2 text-[13px] transition-colors duration-200 md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:px-3 md:text-[15px] ${
                   ativa
                     ? "bg-surface-strong font-semibold text-ink"
                     : "font-normal text-ink-muted hover:text-ink"
