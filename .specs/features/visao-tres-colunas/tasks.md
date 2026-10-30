@@ -402,8 +402,8 @@ Nada muda na tela.
 **Reuses**: o formulário "Lançamento avulso" e o de compra parcelada da coluna
 **Requirement**: TRES-03
 **Done when**:
-- [ ] Depois do avulso de R$ 100,00 sem categoria, "Gastos por categoria" mostra "Sem categoria" com R$ 100,00 (TRES-03 AC 2)
-- [ ] Depois de uma compra de R$ 300,00 em 3 parcelas, o mês seguinte em "Próximos meses" passa de R$ 0,00 a R$ 100,00 de comprometido (TRES-03 AC 2)
+- [x] Depois do avulso de R$ 100,00 sem categoria, "Gastos por categoria" mostra "Sem categoria" com R$ 100,00 (TRES-03 AC 2)
+- [x] Depois de uma compra de R$ 300,00 em 3 parcelas, o mês seguinte em "Próximos meses" passa de R$ 0,00 a R$ 100,00 de comprometido (TRES-03 AC 2)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(painel): lançar atualiza categorias e próximos meses`

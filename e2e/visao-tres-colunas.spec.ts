@@ -390,12 +390,17 @@ test.describe("a Visão geral em 1.920 px", () => {
     expect(fundoDaPill).not.toBe(neutro);
   });
 
-  test("lançar pela coluna aumenta Despesas do mês, põe o gasto no topo dos últimos e mantém o cadastro com a confirmação (TRES-03, ACs 2 e 3)", async ({
+  test("lançar pela coluna aumenta Despesas do mês, entra em Gastos por categoria, põe o gasto no topo dos últimos e mantém o cadastro com a confirmação (TRES-03, ACs 2 e 3)", async ({
     page,
   }) => {
     await page.goto(`/${ATUAL}`);
     const despesas = page.getByRole("link", { name: /Despesas do mês/ });
     await expect(despesas).toContainText("R$ 110,00");
+    const semCategoria = page
+      .getByRole("list", { name: "Gastos por categoria, ordenados do maior para o menor" })
+      .getByRole("listitem")
+      .filter({ hasText: "Sem categoria" });
+    await expect(semCategoria).toHaveCount(0);
 
     const form = page
       .getByRole("region", { name: "Novo lançamento" })
@@ -409,9 +414,35 @@ test.describe("a Visão geral em 1.920 px", () => {
     await expect(form.getByRole("status")).toContainText("Item novo");
     await expect(form).toBeVisible();
     await expect(despesas).toContainText("R$ 210,00");
+    await expect(semCategoria).toContainText("R$ 100,00");
     await expect(
       page.getByRole("region", { name: "Últimos lançamentos" }).getByRole("listitem").first(),
     ).toContainText("Item novo");
+  });
+
+  /* "Próximos meses" também acompanha: a compra parcelada põe a 2ª parcela no mês seguinte. */
+  test("lançar uma compra parcelada pela coluna aumenta o comprometido do mês seguinte em Próximos meses (TRES-03, AC 2)", async ({
+    page,
+  }) => {
+    await page.goto(`/${ATUAL}`);
+    const comprometidoDoSeguinte = page
+      .getByRole("region", { name: "Próximos meses" })
+      .getByRole("listitem")
+      .first()
+      .locator("dt", { hasText: "Comprometido" })
+      .locator("xpath=following-sibling::dd[1]");
+    await expect(comprometidoDoSeguinte).toHaveText("R$ 0,00");
+
+    const cadastro = page.getByRole("region", { name: "Novo lançamento" });
+    await cadastro.getByRole("tab", { name: "Parcelado" }).click();
+    const form = cadastro.getByRole("form", { name: "Nova compra" });
+    await form.getByLabel("Descrição", { exact: true }).fill("Compra A");
+    await form.getByLabel("Valor total (R$)").fill("300,00");
+    await form.getByLabel("Quantidade de parcelas").fill("3");
+    await form.getByRole("button", { name: "Cadastrar compra" }).click();
+
+    await expect(form.getByRole("status")).toContainText("Compra A");
+    await expect(comprometidoDoSeguinte).toHaveText("R$ 100,00");
   });
 
   test("buscar um termo abre Lançamentos do mês com a busca preenchida e só o que casa (TRES-04, ACs 1 e 2)", async ({
