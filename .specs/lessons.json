@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 35,
+  "next_id": 41,
   "lessons": [
     {
       "id": "L-001",
@@ -253,14 +253,14 @@
         "trocar-categoria"
       ],
       "recurrence": 2,
-      "harmful": 0,
+      "harmful": 1,
       "evidence": [
         "validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao)",
         "N9r: planejar-importacao.ts:394 invertendo as receitas vigentes; validation.md, rodada 3 (testes,composicao)",
         "P2, P3 — src/app/(app)/[competencia]/lancamentos/page.tsx:151 e :154 (validation.md, rodada 1) (testes,composicao)"
       ],
       "created": "2026-10-25T06:12:20Z",
-      "last_seen": "2026-10-29T16:16:13Z"
+      "last_seen": "2026-10-30T02:12:18Z"
     },
     {
       "id": "L-015",
@@ -623,6 +623,114 @@
       ],
       "created": "2026-10-29T19:49:06Z",
       "last_seen": "2026-10-29T19:49:06Z"
+    },
+    {
+      "id": "L-035",
+      "key": "surviving_mutant::prova de composicao precisa atravessar tambem o ramo neutro que a pagina decide e nao so o caso com valor provado so o colorido a pagina tinge o neutro com a suite verde",
+      "text": "Prova de composição precisa atravessar também o ramo neutro que a página decide, e não só o caso com valor; provado só o colorido, a página tinge o neutro com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,composicao",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E1/E2; src/app/(app)/[competencia]/page.tsx:186; src/app/(app)/[competencia]/fixos/page.tsx:105 (e2e,composicao)"
+      ],
+      "created": "2026-10-30T02:12:18Z",
+      "last_seen": "2026-10-30T02:12:18Z"
+    },
+    {
+      "id": "L-036",
+      "key": "surviving_mutant::fixture que prova uma ordenacao precisa de itens cuja ordem esperada difira da do banco e da do codigo de caractere senao tirar a ordenacao passa verde",
+      "text": "Fixture que prova uma ordenação precisa de itens cuja ordem esperada difira da do banco e da do código de caractere; senão tirar a ordenação passa verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,fixtures",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E7/E8; src/app/(app)/[competencia]/cadastros/categorias/page.tsx:31-33; e2e/categorias.spec.ts:326 (testes,fixtures)"
+      ],
+      "created": "2026-10-30T02:12:18Z",
+      "last_seen": "2026-10-30T02:12:18Z"
+    },
+    {
+      "id": "L-037",
+      "key": "surviving_mutant::efeito visual que um ac manda manter precisa de assertion no estilo computado do navegador proibir nomes de classe nao pega o mesmo efeito desfeito por estilo em linha",
+      "text": "Efeito visual que um AC manda manter precisa de assertion no estilo computado do navegador; proibir nomes de classe não pega o mesmo efeito desfeito por estilo em linha.",
+      "signal": "surviving_mutant",
+      "scope": "componentes,css",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E13; src/components/seletor-de-categoria.test.tsx:299 (componentes,css)"
+      ],
+      "created": "2026-10-30T02:12:18Z",
+      "last_seen": "2026-10-30T02:12:18Z"
+    },
+    {
+      "id": "L-038",
+      "key": "surviving_mutant::ac que vale para varios caminhos de criacao precisa de assertion em cada porta de entrada provar so o repositorio comum deixa um caminho gravar o campo depois de criar",
+      "text": "AC que vale para vários caminhos de criação precisa de assertion em cada porta de entrada; provar só o repositório comum deixa um caminho gravar o campo depois de criar.",
+      "signal": "surviving_mutant",
+      "scope": "integracao,actions",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "B4; src/app/actions/categorias.ts:89 (integracao,actions)"
+      ],
+      "created": "2026-10-30T02:12:18Z",
+      "last_seen": "2026-10-30T02:12:18Z"
+    },
+    {
+      "id": "L-039",
+      "key": "spec_precision_gap::ac que trata removido de um jeito precisa dizer se arquivado conta como removido em cada tela senao a mesma entidade sai neutra num componente e colorida no vizinho",
+      "text": "AC que trata 'removido' de um jeito precisa dizer se arquivado conta como removido em cada tela; senão a mesma entidade sai neutra num componente e colorida no vizinho.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,estados",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "COR-02 AC 5; src/app/(app)/[competencia]/lancamentos/page.tsx:166 (spec,estados)"
+      ],
+      "created": "2026-10-30T02:12:18Z",
+      "last_seen": "2026-10-30T02:12:18Z"
+    },
+    {
+      "id": "L-040",
+      "key": "spec_precision_gap::edge case de valor igual ao atual precisa dizer a regra de igualdade caixa acento espaco senao quem decide e o codigo",
+      "text": "Edge case de 'valor igual ao atual' precisa dizer a regra de igualdade (caixa, acento, espaço); senão quem decide é o código.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,textos",
+      "status": "candidate",
+      "features": [
+        "cor-por-categoria"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "Edge Case nome igual; src/app/actions/categorias.ts:200 (spec,textos)"
+      ],
+      "created": "2026-10-30T02:12:18Z",
+      "last_seen": "2026-10-30T02:12:18Z"
     }
   ]
 }

@@ -15,10 +15,10 @@ Corroborated across multiple features. Safe to apply as guidance.
 - last seen: 2026-10-25T05:06:38Z
 
 ### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
-- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,composicao` · harmful: 0
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,composicao` · harmful: 1
 - features: importar-planilha, trocar-categoria
 - evidence: validation.md rodada 2: N9 (src/domain/importacao/planejar-importacao.ts:362) e N6 (src/components/importacao/dialogo-importacao.tsx:184) (testes,composicao) (+2 more)
-- last seen: 2026-10-29T16:16:13Z
+- last seen: 2026-10-30T02:12:18Z
 
 ### L-018 - AC que situa um elemento ('na seção X', 'junto do botão Y') precisa de consulta restrita àquela região, com within ou vizinhança no DOM; consulta em screen inteiro não prova o lugar.
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `componentes,testes` · harmful: 0
@@ -215,6 +215,42 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: lista-enxuta
 - evidence: validation.md rodada 2, ⚠️ C; mutante INV vivo em src/application/mes/filtrar-lancamentos.ts:67 (spec,filtros)
 - last seen: 2026-10-29T19:49:06Z
+
+### L-035 - Prova de composição precisa atravessar também o ramo neutro que a página decide, e não só o caso com valor; provado só o colorido, a página tinge o neutro com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,composicao` · harmful: 0
+- features: cor-por-categoria
+- evidence: E1/E2; src/app/(app)/[competencia]/page.tsx:186; src/app/(app)/[competencia]/fixos/page.tsx:105 (e2e,composicao)
+- last seen: 2026-10-30T02:12:18Z
+
+### L-036 - Fixture que prova uma ordenação precisa de itens cuja ordem esperada difira da do banco e da do código de caractere; senão tirar a ordenação passa verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,fixtures` · harmful: 0
+- features: cor-por-categoria
+- evidence: E7/E8; src/app/(app)/[competencia]/cadastros/categorias/page.tsx:31-33; e2e/categorias.spec.ts:326 (testes,fixtures)
+- last seen: 2026-10-30T02:12:18Z
+
+### L-037 - Efeito visual que um AC manda manter precisa de assertion no estilo computado do navegador; proibir nomes de classe não pega o mesmo efeito desfeito por estilo em linha.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,css` · harmful: 0
+- features: cor-por-categoria
+- evidence: E13; src/components/seletor-de-categoria.test.tsx:299 (componentes,css)
+- last seen: 2026-10-30T02:12:18Z
+
+### L-038 - AC que vale para vários caminhos de criação precisa de assertion em cada porta de entrada; provar só o repositório comum deixa um caminho gravar o campo depois de criar.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `integracao,actions` · harmful: 0
+- features: cor-por-categoria
+- evidence: B4; src/app/actions/categorias.ts:89 (integracao,actions)
+- last seen: 2026-10-30T02:12:18Z
+
+### L-039 - AC que trata 'removido' de um jeito precisa dizer se arquivado conta como removido em cada tela; senão a mesma entidade sai neutra num componente e colorida no vizinho.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,estados` · harmful: 0
+- features: cor-por-categoria
+- evidence: COR-02 AC 5; src/app/(app)/[competencia]/lancamentos/page.tsx:166 (spec,estados)
+- last seen: 2026-10-30T02:12:18Z
+
+### L-040 - Edge case de 'valor igual ao atual' precisa dizer a regra de igualdade (caixa, acento, espaço); senão quem decide é o código.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,textos` · harmful: 0
+- features: cor-por-categoria
+- evidence: Edge Case nome igual; src/app/actions/categorias.ts:200 (spec,textos)
+- last seen: 2026-10-30T02:12:18Z
 
 ## Quarantined (failed when applied - ignore)
 
