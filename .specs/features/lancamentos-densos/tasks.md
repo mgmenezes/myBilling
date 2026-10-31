@@ -462,7 +462,7 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 - [x] O DENS-01 AC 5, a premissa "Valor confirmável do fixo", o `design.md` e o AD-020 dizem "a partir de 1.280 px", com a decisão do dono e a data
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `fix(lancamentos): previsão do fixo embaixo do valor abaixo de 1.280 px`
+**Commit**: `fix(lancamentos): previsão do fixo embaixo do valor abaixo de 1.280 px` (`5479bcd`)
 
 #### F10: O resumo preso junto do título
 **What**: no teste do título preso, em 1.536 px, depois de rolar até o meio de "Fixos", o resumo do bloco ("2 · R$ 155,00 · 2 a pagar") fica inteiro na tela, com `toBeInViewport({ ratio: 1 })`, e com o topo e o pé dentro da faixa do título (Fix 2 da rodada 3, sonda D, L-010).
@@ -471,8 +471,8 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 **Reuses**: `abrir`, `caixa`, `rolarAteOMeioDosFixos`
 **Requirement**: DENS-04
 **Done when**:
-- [ ] Em 1.536 px, rolando até o meio de "Fixos", o resumo do bloco está inteiro na tela, com o topo e o pé dentro da faixa do título preso (DENS-04, AC 1)
-- [ ] O teste falha com F3 (o `span` do resumo fora da `div` presa)
+- [x] Em 1.536 px, rolando até o meio de "Fixos", o resumo do bloco está inteiro na tela, com o topo e o pé dentro da faixa do título preso (DENS-04, AC 1)
+- [x] O teste falha com F3 (o `span` do resumo fora da `div` presa)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): o resumo fica preso junto do título`

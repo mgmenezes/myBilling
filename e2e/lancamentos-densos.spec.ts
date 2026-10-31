@@ -680,6 +680,16 @@ test('em 1.536 px o título "Fixos" fica preso no alto ao rolar até o meio do b
   await rolarAteOMeioDosFixos(page);
   expect(Math.abs((await caixa(titulo)).y)).toBeLessThanOrEqual(1);
   await expect(linha(page, "Fixo B")).toBeInViewport();
+  /* O resumo fica preso junto: inteiro na tela, e não só um pedaço, e na
+     faixa do título (L-010). */
+  const resumo = page
+    .getByRole("region", { name: "Fixos" })
+    .getByText("2 · R$ 155,00 · 2 a pagar", { exact: true });
+  await expect(resumo).toBeInViewport({ ratio: 1 });
+  const faixa = await caixa(titulo);
+  const caixaDoResumo = await caixa(resumo);
+  expect(caixaDoResumo.y).toBeGreaterThanOrEqual(faixa.y);
+  expect(caixaDoResumo.y + caixaDoResumo.height).toBeLessThanOrEqual(faixa.y + faixa.height);
 
   await page.setViewportSize({ width: 1535, height: 420 });
   await abrir(page, `/${MARCO}/lancamentos`);
