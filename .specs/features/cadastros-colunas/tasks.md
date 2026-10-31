@@ -380,7 +380,7 @@ na importação. Os dois testes do ponto de virada estão em `campos-do-meio.tes
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(cadastros): coluna de cadastro com o painel do item`
+**Commit**: `feat(cadastros): coluna de cadastro com o painel do item` (`9c2ef9c`)
 **Nota**: a coluna ganhou a guarda de foco de Todo mês (`painel-do-fixo.tsx`), que o design não
 listava: o botão de envio que se desabilita enquanto grava perde o foco para o `body`, e o `Escape`
 deixaria de alcançar o painel. A guarda devolve o foco ao título com `preventScroll`, para a
@@ -397,10 +397,10 @@ essa marca que a coluna o acha para dar o foco.
 **Reuses**: nenhuma
 **Requirement**: CADCOL-01
 **Done when**:
-- [ ] `h1` "Cadastros"; navegação "Cadastros" com "Categorias" para `/2026-03/cadastros/categorias` e "Meios de pagamento" para `/2026-03/cadastros/meios-de-pagamento` (CADCOL-01 ACs 1 e 2)
-- [ ] `aria-current="page"` só no link da aba recebida, testado com cada aba (CADCOL-01 AC 3)
-- [ ] A ação recebida aparece dentro do cabeçalho, depois do `h1` (CADCOL-01 AC 6)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] `h1` "Cadastros"; navegação "Cadastros" com "Categorias" para `/2026-03/cadastros/categorias` e "Meios de pagamento" para `/2026-03/cadastros/meios-de-pagamento` (CADCOL-01 ACs 1 e 2)
+- [x] `aria-current="page"` só no link da aba recebida, testado com cada aba (CADCOL-01 AC 3)
+- [x] A ação recebida aparece dentro do cabeçalho, depois do `h1` (CADCOL-01 AC 6)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(cadastros): título e abas de Cadastros`
