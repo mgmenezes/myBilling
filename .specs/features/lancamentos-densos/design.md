@@ -71,7 +71,7 @@ filtros, que muda de lugar só por CSS:
   para uma ação só.
 - **Tamanho:** 44×44 px no toque e abaixo de 768 px; 32×32 px com ponteiro fino a partir de 768 px.
 
-A tabela renderiza o `MenuDaLinha` só na linha de avulso, no lugar do `BotaoExcluir`, na célula da situação, ao lado do selo. O protótipo punha o "⋯" no fim da linha; numa coluna própria ele deixaria uma coluna vazia em toda linha de parcela e de fixo, e o teste de LST-05 exige exatamente cinco colunas.
+A tabela renderiza o `MenuDaLinha` só na linha de avulso, no lugar do `BotaoExcluir`, na célula da situação, ao lado do selo. O protótipo punha o "⋯" no fim da linha; numa coluna própria ele deixaria uma coluna vazia em toda linha de parcela e de fixo, e o teste de LST-05 exige exatamente cinco colunas. O dono confirmou esse lugar em 2026-10-30, quando perguntado depois da rodada 1 do Verifier: com o "⋯" ao lado do selo, os valores ficam alinhados numa coluna só (DENS-02, AC 1).
 
 ## Títulos presos (DENS-04)
 

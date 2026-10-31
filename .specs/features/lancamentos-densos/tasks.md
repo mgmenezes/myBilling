@@ -295,9 +295,9 @@ ficaram para trás.
 **Reuses**: `linha`, `caixa`
 **Requirement**: DENS-02
 **Done when**:
-- [ ] DENS-02 AC 1 pede o "⋯" na célula da Situação, logo depois do selo e do "Vencido"; a premissa registra a confirmação do dono, a data e o motivo
-- [ ] Em 1.920 px, a caixa do "⋯" de Entrada A, Item A e Item B fica dentro da célula da Situação e à direita do selo; no vencido, também à direita de "Vencido" (DENS-02 AC 1)
-- [ ] O `design.md` diz o mesmo lugar, com a confirmação do dono
+- [x] DENS-02 AC 1 pede o "⋯" na célula da Situação, logo depois do selo e do "Vencido"; a premissa registra a confirmação do dono, a data e o motivo
+- [x] Em 1.920 px, a caixa do "⋯" de Entrada A, Item A e Item B fica dentro da célula da Situação e à direita do selo; no vencido, também à direita de "Vencido" (DENS-02 AC 1)
+- [x] O `design.md` diz o mesmo lugar, com a confirmação do dono
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): o menu da linha fica ao lado do selo`

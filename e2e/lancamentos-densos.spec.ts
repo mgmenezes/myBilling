@@ -265,6 +265,45 @@ test.describe("o menu da linha, em 1.920 px", () => {
     await expect(page.getByRole("button", { name: /^Excluir/ })).toHaveCount(0);
   });
 
+  /* O lugar que o dono confirmou: ao lado do selo, e não no fim da linha, para
+     os valores ficarem alinhados numa coluna só. Tudo medido dentro da linha
+     (L-018). */
+  test('o "⋯" fica na célula da Situação, à direita do selo e do "Vencido" (DENS-02, AC 1)', async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+
+    for (const avulso of ["Entrada A", "Item A", "Item B"]) {
+      const item = linha(page, avulso);
+      /* A quarta coluna da tabela desta linha é a Situação. */
+      await expect(item.locator("xpath=ancestor::table[1]").getByRole("columnheader")).toHaveText([
+        "Descrição",
+        "Categoria",
+        "Data",
+        "Situação",
+        "Valor",
+      ]);
+      const situacao = await caixa(item.getByRole("cell").nth(3));
+      const selo = await caixa(
+        item.getByRole("button", { name: new RegExp(`^(Pago|Previsto)\\s*, ${avulso}`) }),
+      );
+      const menu = await caixa(item.getByRole("button", { name: `Mais ações para ${avulso}` }));
+
+      expect(menu.x, avulso).toBeGreaterThanOrEqual(situacao.x);
+      expect(menu.x + menu.width, avulso).toBeLessThanOrEqual(situacao.x + situacao.width);
+      expect(menu.y, avulso).toBeGreaterThanOrEqual(situacao.y);
+      expect(menu.y + menu.height, avulso).toBeLessThanOrEqual(situacao.y + situacao.height);
+      expect(menu.x, avulso).toBeGreaterThanOrEqual(selo.x + selo.width);
+    }
+
+    const vencido = linha(page, "Item B");
+    const chip = await caixa(vencido.getByText("Vencido", { exact: true }));
+    const menuDoVencido = await caixa(
+      vencido.getByRole("button", { name: "Mais ações para Item B" }),
+    );
+    expect(menuDoVencido.x).toBeGreaterThanOrEqual(chip.x + chip.width);
+  });
+
   test('Escape fecha o menu e devolve o foco ao "⋯"; excluir pelo menu, em dois toques, tira a linha e baixa o total do bloco (DENS-02, ACs 3 a 5)', async ({
     page,
   }) => {
