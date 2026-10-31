@@ -1,6 +1,17 @@
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
-import type { CadastroRepository, Usuario } from "@/application/ports/repositories";
-import type { Cartao, Categoria, CorDeCategoria, MeioPagamento, MeioSemFatura } from "@/domain";
+import type {
+  CadastroRepository,
+  EdicaoDeMeioRepository,
+  Usuario,
+} from "@/application/ports/repositories";
+import type {
+  Cartao,
+  Categoria,
+  CorDeCategoria,
+  MeioPagamento,
+  MeioSemFatura,
+  MudancasDoMeio,
+} from "@/domain";
 import type { Executor } from "../client";
 import { categoria, meioPagamento, usuario } from "../schema";
 import { paraCategoria, paraMeioPagamento, paraUsuario } from "./mapeadores";
@@ -14,12 +25,16 @@ import { paraCategoria, paraMeioPagamento, paraUsuario } from "./mapeadores";
  * precisam mostrar o nome do cartão ou da categoria de quando o gasto
  * aconteceu (CART-03, AC 6).
  *
- * As escritas de usuário e de meio ficam nesta classe e fora da port: quem as
- * faz é o seed e a tela de cadastro, e nenhum caso de uso de mês ou de compra
- * precisa delas. As de categoria subiram para a port porque a importação cria
- * e reativa categorias (IMP-03 AC 9 a 11). `atualizarCategoria` fica aqui, e
- * não na port, pelo mesmo motivo de `criarUsuario`: só a tela de Categorias
- * troca a cor e renomeia (COR-04).
+ * A escrita de usuário e a criação de meio ficam nesta classe e fora das
+ * ports: quem as faz é o seed e a action de criar meio, e nenhum caso de uso de
+ * mês ou de compra precisa delas. As de categoria subiram para a port porque a
+ * importação cria e reativa categorias (IMP-03 AC 9 a 11). `atualizarCategoria`
+ * fica aqui, e não na port, pelo mesmo motivo de `criarUsuario`: só a tela de
+ * Categorias troca a cor e renomeia (COR-04).
+ *
+ * A edição do meio tem port própria, `EdicaoDeMeioRepository`, que esta classe
+ * também implementa: o caso de uso de editar meio a recebe, e só ele. Só a tela
+ * de Cadastros renomeia um meio e corrige os dias do cartão (CADCOL-07).
  */
 
 export type NovoUsuario = Omit<Usuario, "id">;
@@ -37,7 +52,7 @@ function paraInstante(iso: string | null): Date | null {
   return iso === null ? null : new Date(iso);
 }
 
-export class CadastroRepositoryDrizzle implements CadastroRepository {
+export class CadastroRepositoryDrizzle implements CadastroRepository, EdicaoDeMeioRepository {
   constructor(private readonly db: Executor) {}
 
   async listarUsuarios(): Promise<ReadonlyArray<Usuario>> {
@@ -109,6 +124,28 @@ export class CadastroRepositoryDrizzle implements CadastroRepository {
       .returning();
     if (!linha) {
       throw new Error("insert de meio_pagamento não retornou linha");
+    }
+    return paraMeioPagamento(linha);
+  }
+
+  /**
+   * Nome e dias num `UPDATE` só, com as chaves presentes: o Drizzle deixa fora
+   * do `SET` o que vem `undefined`. Tipo, `gera_fatura`, o fechamento na fatura
+   * seguinte e `arquivado_em` não estão em `MudancasDoMeio` e ficam como estão.
+   * Os `CHECK` de `meio_pagamento` continuam sendo a última guarda dos dias.
+   */
+  async atualizarMeioDePagamento(id: string, mudancas: MudancasDoMeio): Promise<MeioPagamento> {
+    const [linha] = await this.db
+      .update(meioPagamento)
+      .set({
+        nome: mudancas.nome,
+        diaFechamento: mudancas.diaFechamento,
+        diaVencimento: mudancas.diaVencimento,
+      })
+      .where(eq(meioPagamento.id, id))
+      .returning();
+    if (!linha) {
+      throw new Error("update de meio_pagamento não retornou linha");
     }
     return paraMeioPagamento(linha);
   }

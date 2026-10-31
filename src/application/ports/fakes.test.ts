@@ -407,6 +407,104 @@ describe("FakeCadastroRepository (T32)", () => {
   });
 });
 
+/* O mesmo contrato que `cadastro.repository.integration.test.ts` prova contra o
+   Postgres. Discordarem aqui faria o caso de uso da edição do meio passar no
+   unitário e gravar errado (CADCOL-07). */
+describe("FakeCadastroRepository: editar um meio de pagamento (CADCOL-07)", () => {
+  function comMeios() {
+    const fakes = criarFakes();
+    fakes.estado.meiosDePagamento.push(
+      {
+        id: "cartao",
+        nome: "Cartão Roxo",
+        tipo: "CARTAO_CREDITO",
+        arquivadoEm: "2026-01-01T00:00:00Z",
+        diaFechamento: 25,
+        diaVencimento: 5,
+        fechamentoVaiParaFaturaSeguinte: false,
+      },
+      { id: "conta", nome: "Conta Corrente", tipo: "CONTA_CORRENTE", arquivadoEm: null },
+    );
+    return fakes;
+  }
+
+  it("com { nome }, grava só o nome, e o resto do meio fica como estava", async () => {
+    const { cadastros } = comMeios();
+    const antes = await cadastros.buscarMeioDePagamento("cartao");
+
+    const gravado = await cadastros.atualizarMeioDePagamento("cartao", { nome: "Cartão Lilás" });
+
+    expect(gravado).toEqual({ ...antes, nome: "Cartão Lilás" });
+    expect(await cadastros.buscarMeioDePagamento("cartao")).toEqual(gravado);
+  });
+
+  it("com os dois dias, grava só os dias, e o resto do meio fica como estava", async () => {
+    const { cadastros } = comMeios();
+    const antes = await cadastros.buscarMeioDePagamento("cartao");
+
+    const gravado = await cadastros.atualizarMeioDePagamento("cartao", {
+      diaFechamento: 10,
+      diaVencimento: 17,
+    });
+
+    expect(gravado).toEqual({ ...antes, diaFechamento: 10, diaVencimento: 17 });
+    expect(await cadastros.buscarMeioDePagamento("cartao")).toEqual(gravado);
+  });
+
+  it("os dias 1 e 31 gravam", async () => {
+    const { cadastros } = comMeios();
+
+    const gravado = await cadastros.atualizarMeioDePagamento("cartao", {
+      diaFechamento: 1,
+      diaVencimento: 31,
+    });
+
+    expect(gravado).toMatchObject({ diaFechamento: 1, diaVencimento: 31 });
+  });
+
+  it.each([
+    ["fechamento 0", { diaFechamento: 0 }],
+    ["fechamento 32", { diaFechamento: 32 }],
+    ["vencimento 0", { diaVencimento: 0 }],
+    ["vencimento 32", { diaVencimento: 32 }],
+  ])("%s lança, como o CHECK de dias, e nada muda", async (_caso, mudancas) => {
+    const { cadastros, estado } = comMeios();
+    const antes = structuredClone(estado.meiosDePagamento);
+
+    await expect(cadastros.atualizarMeioDePagamento("cartao", mudancas)).rejects.toThrow(
+      "meio_pagamento_dias_validos",
+    );
+    expect(estado.meiosDePagamento).toEqual(antes);
+  });
+
+  it("dias numa conta lançam, como o CHECK do ciclo, e nada muda", async () => {
+    const { cadastros, estado } = comMeios();
+    const antes = structuredClone(estado.meiosDePagamento);
+
+    await expect(
+      cadastros.atualizarMeioDePagamento("conta", { diaFechamento: 10, diaVencimento: 17 }),
+    ).rejects.toThrow("meio_pagamento_cartao_tem_ciclo");
+    expect(estado.meiosDePagamento).toEqual(antes);
+  });
+
+  it("id inexistente lança, sem gravar nada", async () => {
+    const { cadastros, estado } = comMeios();
+    const antes = structuredClone(estado.meiosDePagamento);
+
+    await expect(
+      cadastros.atualizarMeioDePagamento("fantasma", { nome: "Cartão Lilás" }),
+    ).rejects.toThrow("update de meio_pagamento não retornou linha");
+    expect(estado.meiosDePagamento).toEqual(antes);
+  });
+
+  it("a busca por nome ignora caixa e acha só entre os ativos, como o Drizzle", async () => {
+    const { cadastros } = comMeios();
+
+    expect((await cadastros.buscarMeioDePagamentoAtivoPorNome("conta corrente"))?.id).toBe("conta");
+    expect(await cadastros.buscarMeioDePagamentoAtivoPorNome("cartão roxo")).toBeNull();
+  });
+});
+
 describe("fronteira dos fakes (DADO-01)", () => {
   it("não depende de nenhum módulo de infraestrutura", async () => {
     const { readFileSync } = await import("node:fs");

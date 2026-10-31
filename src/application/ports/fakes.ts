@@ -11,6 +11,7 @@ import {
   err,
   type Lancamento,
   type MeioPagamento,
+  type MudancasDoMeio,
   ocorrenciaProtegida,
   ok,
   type ParcelaDaCompra,
@@ -23,6 +24,7 @@ import {
   type CadastroRepository,
   type CompraPersistida,
   type CompraRepository,
+  type EdicaoDeMeioRepository,
   type EntradaCriarRecorrencia,
   type EntradaLancamentoAvulso,
   type EntradaSalvarCompra,
@@ -88,6 +90,11 @@ export class ViolacaoDeUnicidade extends Error {
     super(`violação de unicidade: ${restricao}`);
     this.name = "ViolacaoDeUnicidade";
   }
+}
+
+/** O `BETWEEN 1 AND 31` de `meio_pagamento_dias_validos`. */
+function diaDoCiclo(dia: number): boolean {
+  return dia >= 1 && dia <= 31;
 }
 
 function somarParcelas(parcelas: ReadonlyArray<{ readonly valor: Cents }>): Cents {
@@ -421,7 +428,7 @@ export class FakeMovimentoRepository implements MovimentoRepository {
   }
 }
 
-export class FakeCadastroRepository implements CadastroRepository {
+export class FakeCadastroRepository implements CadastroRepository, EdicaoDeMeioRepository {
   private proximaCategoria = 1;
 
   constructor(private readonly estado: EstadoEmMemoria) {}
@@ -440,6 +447,46 @@ export class FakeCadastroRepository implements CadastroRepository {
 
   async listarCategoriasDisponiveis(): Promise<ReadonlyArray<Categoria>> {
     return this.estado.categorias.filter((c) => c.arquivadaEm === null);
+  }
+
+  /** Ignora caixa e acha só entre os ativos, igual ao `lower()` e ao `IS NULL` do Drizzle. */
+  async buscarMeioDePagamentoAtivoPorNome(nome: string): Promise<MeioPagamento | null> {
+    const alvo = nome.toLowerCase();
+    return (
+      this.estado.meiosDePagamento.find(
+        (m) => m.arquivadoEm === null && m.nome.toLowerCase() === alvo,
+      ) ?? null
+    );
+  }
+
+  /**
+   * Os dois `CHECK` dos dias de `meio_pagamento` lançam aqui como lançam no
+   * Postgres, e o id inexistente lança como o `UPDATE` sem linha do Drizzle.
+   * Em todos os casos, nada é gravado.
+   */
+  async atualizarMeioDePagamento(id: string, mudancas: MudancasDoMeio): Promise<MeioPagamento> {
+    const indice = this.estado.meiosDePagamento.findIndex((m) => m.id === id);
+    const atual = this.estado.meiosDePagamento[indice];
+    if (!atual) {
+      throw new Error("update de meio_pagamento não retornou linha");
+    }
+    const nome = mudancas.nome ?? atual.nome;
+    let gravado: MeioPagamento;
+    if (atual.tipo === "CARTAO_CREDITO") {
+      const diaFechamento = mudancas.diaFechamento ?? atual.diaFechamento;
+      const diaVencimento = mudancas.diaVencimento ?? atual.diaVencimento;
+      if (!diaDoCiclo(diaFechamento) || !diaDoCiclo(diaVencimento)) {
+        throw new Error("violação de CHECK: meio_pagamento_dias_validos");
+      }
+      gravado = { ...atual, nome, diaFechamento, diaVencimento };
+    } else {
+      if (mudancas.diaFechamento !== undefined || mudancas.diaVencimento !== undefined) {
+        throw new Error("violação de CHECK: meio_pagamento_cartao_tem_ciclo");
+      }
+      gravado = { ...atual, nome };
+    }
+    this.estado.meiosDePagamento[indice] = gravado;
+    return gravado;
   }
 
   async buscarCategoria(id: string): Promise<Categoria | null> {

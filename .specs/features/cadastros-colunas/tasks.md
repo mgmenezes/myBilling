@@ -4,7 +4,7 @@
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
 worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 a
-T3 concluídas)
+T4 concluídas)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -244,7 +244,7 @@ lançamentos do mês.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): o que muda ao editar um meio de pagamento`
+**Commit**: `feat(domain): o que muda ao editar um meio de pagamento` (`27bbb93`)
 **Nota**: a mensagem do código novo ganhou um teste em `src/lib/erros.test.ts`, arquivo que não
 estava em **Where**. Sem ele, o item da mensagem não teria assertion: `erros.ts` não tinha teste, e
 o domínio não pode importar `@/lib`.
@@ -260,13 +260,13 @@ o domínio não pode importar `@/lib`.
 **Reuses**: `paraMeioPagamento`, os `CHECK` de `schema.ts:69-83`
 **Requirement**: CADCOL-07
 **Done when**:
-- [ ] Com `{ nome }`, grava só o nome; com os dois dias, grava só os dias; tipo, `gera_fatura`, `fechamento_vai_para_fatura_seguinte` e `arquivado_em` ficam como estavam, lidos do banco
-- [ ] Dia 0 ou 32 é recusado pelo `CHECK` `meio_pagamento_dias_validos`, e a linha fica como estava
-- [ ] Dias numa conta são recusados pelo `CHECK` `meio_pagamento_cartao_tem_ciclo`
-- [ ] Id inexistente lança, sem gravar
-- [ ] O fake cumpre o mesmo contrato, com teste
-- [ ] O comentário de `cadastro.repository.ts:17-22` diz quem escreve meio agora
-- [ ] Gate full passa; a contagem de testes só cresce
+- [x] Com `{ nome }`, grava só o nome; com os dois dias, grava só os dias; tipo, `gera_fatura`, `fechamento_vai_para_fatura_seguinte` e `arquivado_em` ficam como estavam, lidos do banco
+- [x] Dia 0 ou 32 é recusado pelo `CHECK` `meio_pagamento_dias_validos`, e a linha fica como estava
+- [x] Dias numa conta são recusados pelo `CHECK` `meio_pagamento_cartao_tem_ciclo`
+- [x] Id inexistente lança, sem gravar
+- [x] O fake cumpre o mesmo contrato, com teste
+- [x] O comentário de `cadastro.repository.ts:17-22` diz quem escreve meio agora
+- [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(cadastros): gravar nome e dias de um meio de pagamento`

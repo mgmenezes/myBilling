@@ -331,3 +331,167 @@ describe("CadastroRepository: a cor da categoria (T2, COR-01)", () => {
     ).toThrow(DadoInvalidoNoBanco);
   });
 });
+
+describe("CadastroRepository: editar um meio de pagamento (CADCOL-07)", () => {
+  interface ErroPostgres {
+    readonly code?: string;
+    readonly constraint?: string;
+    readonly cause?: ErroPostgres;
+  }
+
+  /** O erro do driver, também quando o Drizzle o embrulha em `cause`. */
+  async function erroDoBanco(acao: () => Promise<unknown>): Promise<ErroPostgres> {
+    try {
+      await acao();
+    } catch (erro) {
+      const capturado = erro as ErroPostgres;
+      return capturado.code === undefined && capturado.cause !== undefined
+        ? capturado.cause
+        : capturado;
+    }
+    throw new Error("o banco aceitou um dado que deveria ter sido recusado");
+  }
+
+  interface LinhaDoMeio {
+    readonly nome: string;
+    readonly tipo: string;
+    readonly gera_fatura: boolean;
+    readonly dia_fechamento: number | null;
+    readonly dia_vencimento: number | null;
+    readonly fechamento_vai_para_fatura_seguinte: boolean;
+    readonly arquivado_em: Date | null;
+  }
+
+  /** As colunas como o banco as guarda, inclusive as que o tipo de domínio não mostra. */
+  async function linhaNoBanco(id: string): Promise<LinhaDoMeio | undefined> {
+    const { rows } = await pool.query<LinhaDoMeio>(
+      `SELECT nome, tipo::text AS tipo, gera_fatura, dia_fechamento, dia_vencimento,
+              fechamento_vai_para_fatura_seguinte, arquivado_em
+         FROM meio_pagamento WHERE id = $1`,
+      [id],
+    );
+    return rows[0];
+  }
+
+  /* Valores que diferem do padrão de cada coluna, para a escrita que os
+     sobrescrevesse aparecer: fechamento na fatura do mês e cartão arquivado. */
+  async function cartaoRoxo() {
+    return repo.criarMeioDePagamento({
+      nome: "Cartão Roxo",
+      tipo: "CARTAO_CREDITO",
+      arquivadoEm: ARQUIVADO_EM,
+      diaFechamento: 25,
+      diaVencimento: 5,
+      fechamentoVaiParaFaturaSeguinte: false,
+    });
+  }
+
+  it("com { nome }, grava só o nome, e o resto da linha fica como estava", async () => {
+    const cartao = await cartaoRoxo();
+    const antes = await linhaNoBanco(cartao.id);
+
+    await repo.atualizarMeioDePagamento(cartao.id, { nome: "Cartão Lilás" });
+
+    expect(await linhaNoBanco(cartao.id)).toEqual({ ...antes, nome: "Cartão Lilás" });
+    expect(antes).toEqual({
+      nome: "Cartão Roxo",
+      tipo: "CARTAO_CREDITO",
+      gera_fatura: true,
+      dia_fechamento: 25,
+      dia_vencimento: 5,
+      fechamento_vai_para_fatura_seguinte: false,
+      arquivado_em: new Date(ARQUIVADO_EM),
+    });
+  });
+
+  it("com os dois dias, grava só os dias, e o resto da linha fica como estava", async () => {
+    const cartao = await cartaoRoxo();
+    const antes = await linhaNoBanco(cartao.id);
+
+    await repo.atualizarMeioDePagamento(cartao.id, { diaFechamento: 10, diaVencimento: 17 });
+
+    expect(await linhaNoBanco(cartao.id)).toEqual({
+      ...antes,
+      dia_fechamento: 10,
+      dia_vencimento: 17,
+    });
+  });
+
+  it("devolve o meio gravado, igual ao que a leitura por id devolve", async () => {
+    const cartao = await cartaoRoxo();
+
+    const gravado = await repo.atualizarMeioDePagamento(cartao.id, {
+      nome: "Cartão Lilás",
+      diaFechamento: 10,
+    });
+
+    expect(gravado).toEqual({
+      id: cartao.id,
+      nome: "Cartão Lilás",
+      tipo: "CARTAO_CREDITO",
+      arquivadoEm: ARQUIVADO_EM,
+      diaFechamento: 10,
+      diaVencimento: 5,
+      fechamentoVaiParaFaturaSeguinte: false,
+    });
+    expect(await repo.buscarMeioDePagamento(cartao.id)).toEqual(gravado);
+  });
+
+  it("os dias 1 e 31 gravam", async () => {
+    const cartao = await cartaoRoxo();
+
+    await repo.atualizarMeioDePagamento(cartao.id, { diaFechamento: 1, diaVencimento: 31 });
+
+    const depois = await linhaNoBanco(cartao.id);
+    expect([depois?.dia_fechamento, depois?.dia_vencimento]).toEqual([1, 31]);
+  });
+
+  it.each([
+    ["fechamento 0", { diaFechamento: 0 }],
+    ["fechamento 32", { diaFechamento: 32 }],
+    ["vencimento 0", { diaVencimento: 0 }],
+    ["vencimento 32", { diaVencimento: 32 }],
+  ])("%s é recusado pelo CHECK de dias, e a linha fica como estava", async (_caso, mudancas) => {
+    const cartao = await cartaoRoxo();
+    const antes = await linhaNoBanco(cartao.id);
+
+    const erro = await erroDoBanco(() => repo.atualizarMeioDePagamento(cartao.id, mudancas));
+
+    expect(erro.code).toBe("23514");
+    expect(erro.constraint).toBe("meio_pagamento_dias_validos");
+    expect(await linhaNoBanco(cartao.id)).toEqual(antes);
+  });
+
+  it("dias numa conta são recusados pelo CHECK do ciclo, e a linha fica como estava", async () => {
+    const conta = await repo.criarMeioDePagamento({
+      nome: "Conta Corrente",
+      tipo: "CONTA_CORRENTE",
+      arquivadoEm: null,
+    });
+    const antes = await linhaNoBanco(conta.id);
+
+    const erro = await erroDoBanco(() =>
+      repo.atualizarMeioDePagamento(conta.id, { diaFechamento: 10, diaVencimento: 17 }),
+    );
+
+    expect(erro.code).toBe("23514");
+    expect(erro.constraint).toBe("meio_pagamento_cartao_tem_ciclo");
+    expect(await linhaNoBanco(conta.id)).toEqual(antes);
+  });
+
+  it("id inexistente lança, sem gravar nada", async () => {
+    const cartao = await cartaoRoxo();
+    const antes = await linhaNoBanco(cartao.id);
+
+    await expect(
+      repo.atualizarMeioDePagamento("00000000-0000-0000-0000-000000000000", {
+        nome: "Cartão Lilás",
+      }),
+    ).rejects.toThrow("update de meio_pagamento não retornou linha");
+    expect(await linhaNoBanco(cartao.id)).toEqual(antes);
+    const { rows } = await pool.query<{ total: number }>(
+      "SELECT COUNT(*)::int AS total FROM meio_pagamento",
+    );
+    expect(rows[0]).toEqual({ total: 1 });
+  });
+});

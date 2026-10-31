@@ -8,6 +8,7 @@ import type {
   DomainError,
   Lancamento,
   MeioPagamento,
+  MudancasDoMeio,
   Natureza,
   ParcelaDaCompra,
   PlanoParcelamento,
@@ -354,6 +355,28 @@ export interface CadastroRepository {
   reativarCategoria(id: string): Promise<Categoria>;
   /** Todas, **inclusive arquivadas**: a importação reconhece por nome também as que saíram dos formulários. */
   listarTodasAsCategorias(): Promise<ReadonlyArray<Categoria>>;
+}
+
+/**
+ * A edição do meio de pagamento (CADCOL-07). Só a tela de Cadastros edita meio.
+ * Separada de `CadastroRepository` para que nenhum caso de uso de mês, de compra
+ * ou de importação receba esse poder.
+ */
+export interface EdicaoDeMeioRepository {
+  /** Resolve por id mesmo arquivado: quem chama decide o que fazer com ele. */
+  buscarMeioDePagamento(id: string): Promise<MeioPagamento | null>;
+  /**
+   * Por nome **ignorando caixa**, só entre os **ativos**. O banco não tem
+   * `UNIQUE` em `meio_pagamento.nome`, e o nome de um arquivado fica livre.
+   */
+  buscarMeioDePagamentoAtivoPorNome(nome: string): Promise<MeioPagamento | null>;
+  /**
+   * Grava só as chaves presentes, num `UPDATE` só, e devolve o meio gravado.
+   * Tipo, fatura e arquivamento ficam como estão. Id inexistente lança; dia fora
+   * de 1 a 31, ou dia num meio que não é cartão, é recusado pelos `CHECK` do
+   * banco e lança, sem gravar nada.
+   */
+  atualizarMeioDePagamento(id: string, mudancas: MudancasDoMeio): Promise<MeioPagamento>;
 }
 
 /** Uma aba gravada: a competência confirmada, o arquivo e quem importou. */
