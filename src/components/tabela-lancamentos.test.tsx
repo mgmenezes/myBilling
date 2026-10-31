@@ -33,26 +33,28 @@ function categoriaSelecionada(escopo: HTMLElement, descricao: string): string | 
 }
 
 /**
- * A segunda linha da célula de descrição (LST-05, AC 1). Procurada **dentro
- * da célula** da descrição, e depois dela: achar o texto em qualquer lugar da
- * linha da tabela não provaria que ele está sob a descrição (lição L-018).
+ * A parcela na célula da descrição, **na mesma linha** dela (DENS-01, AC 2,
+ * que substitui a segunda linha de LST-05, AC 1). Procurada dentro da célula
+ * da descrição, e depois dela: achar o texto em qualquer lugar da linha da
+ * tabela não provaria que ele está ao lado da descrição (lição L-018). A
+ * altura da linha, que é o que "mesma linha" quer dizer na tela, é medida no
+ * e2e; aqui se prova que o trecho não é um bloco próprio.
  */
-function linhaDaParcela(escopo: HTMLElement, descricao: string): HTMLElement {
+function parcelaDaLinha(escopo: HTMLElement, descricao: string): HTMLElement {
   const celula = within(escopo).getByText(descricao).closest("td");
   if (celula === null) {
     throw new Error(`"${descricao}" não está numa célula`);
   }
   expect(celula.firstChild?.textContent).toBe(descricao);
-  const linha = celula.lastElementChild;
-  if (!(linha instanceof HTMLElement) || linha === celula.firstChild) {
-    throw new Error(`a célula de "${descricao}" não tem segunda linha`);
+  const trecho = celula.lastElementChild;
+  if (!(trecho instanceof HTMLElement) || trecho === celula.firstChild) {
+    throw new Error(`a célula de "${descricao}" não tem a parcela`);
   }
-  /* Segunda linha, e não continuação da mesma: um bloco próprio, menor e
-     apagado, como a Design da fatia pede. */
-  expect(linha.className.split(" ")).toEqual(
-    expect.arrayContaining(["block", "text-[13px]", "text-ink-muted"]),
-  );
-  return linha;
+  /* Em linha, menor e apagado: nada de bloco próprio. */
+  const classes = trecho.className.split(" ");
+  expect(classes).toEqual(expect.arrayContaining(["text-[13px]", "text-ink-muted"]));
+  expect(classes).not.toContain("block");
+  return trecho;
 }
 
 /** O mês aberto nestes testes. Igual à competência corrente, salvo onde o
@@ -337,7 +339,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
 
     const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
     expect(within(cartao).getByText(/8\/10/)).toBeDefined();
-    expect(within(cartao).getByText("(faltam 2 depois desta)")).toBeDefined();
+    expect(parcelaDaLinha(cartao, "Compra parcelada B").textContent).toBe("8/10 · faltam 2");
   });
 
   it("na última parcela diz que é a última, em vez de faltam 0", () => {
@@ -366,17 +368,22 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
       />,
     );
 
-    expect(screen.getByText("(última)")).toBeDefined();
-    expect(screen.getByText(/10\/10/)).toBeDefined();
+    expect(
+      parcelaDaLinha(
+        screen.getByRole("region", { name: "Cartão de Crédito" }),
+        "Compra parcelada B",
+      ).textContent,
+    ).toBe("10/10 · última");
   });
 });
 
 /**
- * Testes derivados de LST-05 (ACs 1 e 2) e do Done-when de T6. A coluna
- * Parcela apertava "(faltam 3 depois desta)" até quebrar palavra por palavra;
- * a parcela passou para baixo da descrição, com os textos de PARC-08 iguais.
+ * Testes derivados de LST-05 (AC 2) e de DENS-01 (AC 2), que substitui o AC 1
+ * de LST-05. A coluna Parcela apertava "(faltam 3 depois desta)" até quebrar
+ * palavra por palavra; a parcela foi para baixo da descrição e, na lista
+ * densa, para a mesma linha dela, curta.
  */
-describe("parcela sob a descrição (LST-05)", () => {
+describe("parcela na linha da descrição (LST-05, DENS-01)", () => {
   function montar(itens: ReadonlyArray<LancamentoDoMes>) {
     return render(
       <TabelaLancamentos
@@ -405,27 +412,27 @@ describe("parcela sob a descrição (LST-05)", () => {
     );
   }
 
-  it("sob Compra B, na mesma célula, a linha 2/4 · (faltam 2 depois desta), com o número tabular (AC 1)", () => {
+  it("ao lado de Compra B, na mesma célula, 2/4 · faltam 2, com o número tabular (DENS-01, AC 2)", () => {
     montar([parcelaDaCompraB(2, 2)]);
 
     const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
-    const linha = linhaDaParcela(cartao, "Compra B");
-    expect(linha.textContent).toBe("2/4 · (faltam 2 depois desta)");
-    expect(within(linha).getByText("2/4").className).toContain("tabular");
+    const trecho = parcelaDaLinha(cartao, "Compra B");
+    expect(trecho.textContent).toBe("2/4 · faltam 2");
+    expect(within(trecho).getByText("2/4").className).toContain("tabular");
   });
 
-  it("na última, 4/4 · (última) (AC 1)", () => {
+  it("na última, 4/4 · última (DENS-01, AC 2)", () => {
     montar([parcelaDaCompraB(4, 0)]);
 
     const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
-    expect(linhaDaParcela(cartao, "Compra B").textContent).toBe("4/4 · (última)");
+    expect(parcelaDaLinha(cartao, "Compra B").textContent).toBe("4/4 · última");
   });
 
-  it("na penúltima, ainda 3/4 · (faltam 1 depois desta), e não (última) (AC 1)", () => {
+  it("na penúltima, ainda 3/4 · faltam 1, e não última (DENS-01, AC 2)", () => {
     montar([parcelaDaCompraB(3, 1)]);
 
     const cartao = screen.getByRole("region", { name: "Cartão de Crédito" });
-    expect(linhaDaParcela(cartao, "Compra B").textContent).toBe("3/4 · (faltam 1 depois desta)");
+    expect(parcelaDaLinha(cartao, "Compra B").textContent).toBe("3/4 · faltam 1");
   });
 
   it("nenhum bloco tem a coluna Parcela, nem o do Cartão (AC 2)", () => {
@@ -522,9 +529,7 @@ describe("categoria na lista", () => {
     const bloco = screen.getByRole("region", { name: "Cartão de Crédito" });
     expect(within(bloco).getByRole("columnheader", { name: "Categoria" })).toBeTruthy();
     expect(within(bloco).queryByRole("columnheader", { name: "Parcela" })).toBeNull();
-    expect(linhaDaParcela(bloco, "Lançamento avulso A").textContent).toBe(
-      "1/3 · (faltam 2 depois desta)",
-    );
+    expect(parcelaDaLinha(bloco, "Lançamento avulso A").textContent).toBe("1/3 · faltam 2");
     expect(categoriaSelecionada(bloco, "Lançamento avulso A")).toBe("Categoria Um");
   });
 

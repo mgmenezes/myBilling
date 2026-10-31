@@ -450,20 +450,28 @@ for (const largura of [1024, 1280, 1440]) {
         expect(larguraDoSeletor, `largura do seletor com ${nome}`).toBeCloseTo(176, 0);
       }
 
-      /* A parcela é a segunda linha da célula da descrição, e não outra coluna. */
+      /* A parcela fica na célula da descrição, e não noutra coluna, e na mesma
+         linha dela, curta (DENS-01, AC 2, que substitui a segunda linha de
+         LST-05, AC 1). */
       const descricao = linha(page, "Compra B").getByRole("cell").first();
       await expect(descricao).toContainText("Compra B");
-      await expect(descricao.getByText("2/4 · (faltam 2 depois desta)")).toBeVisible();
-      /* "Sob": o topo da parcela não sobe acima do pé do texto da descrição. */
-      const { peDaDescricao, topoDaParcela } = await descricao.evaluate((celula) => {
-        const texto = document.createRange();
-        texto.selectNodeContents(celula.firstChild as Node);
-        return {
-          peDaDescricao: texto.getBoundingClientRect().bottom,
-          topoDaParcela: celula.lastElementChild?.getBoundingClientRect().top ?? -1,
-        };
-      });
-      expect(topoDaParcela).toBeGreaterThanOrEqual(peDaDescricao - 1);
+      await expect(descricao.getByText("2/4 · faltam 2")).toBeVisible();
+      /* "Mesma linha": a caixa da parcela cruza a altura do texto da descrição. */
+      const { topoDaDescricao, peDaDescricao, topoDaParcela, peDaParcela } =
+        await descricao.evaluate((celula) => {
+          const texto = document.createRange();
+          texto.selectNodeContents(celula.firstChild as Node);
+          const caixaDoTexto = texto.getBoundingClientRect();
+          const caixaDaParcela = celula.lastElementChild?.getBoundingClientRect();
+          return {
+            topoDaDescricao: caixaDoTexto.top,
+            peDaDescricao: caixaDoTexto.bottom,
+            topoDaParcela: caixaDaParcela?.top ?? -1,
+            peDaParcela: caixaDaParcela?.bottom ?? -1,
+          };
+        });
+      expect(topoDaParcela).toBeLessThan(peDaDescricao);
+      expect(peDaParcela).toBeGreaterThan(topoDaDescricao);
       await expect(
         page.getByRole("region", { name: "Cartão de Crédito" }).getByRole("columnheader"),
       ).toHaveText(["Descrição", "Categoria", "Data", "Situação", "Valor"]);

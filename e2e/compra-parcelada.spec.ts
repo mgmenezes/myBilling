@@ -173,15 +173,13 @@ test("cadastrar uma compra 8/10 cria 3 parcelas e nenhum lançamento em competê
   });
 
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("8/10");
-  await expect(descricaoDaParcela(page, "Compra parcelada B")).toContainText(
-    "8/10 · (faltam 2 depois desta)",
-  );
+  await expect(descricaoDaParcela(page, "Compra parcelada B")).toContainText("8/10 · faltam 2");
 
   await page.goto("/2026-04/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("9/10");
   await page.goto("/2026-05/lancamentos");
   await expect(linhaDaParcela(page, "Compra parcelada B")).toContainText("10/10");
-  await expect(descricaoDaParcela(page, "Compra parcelada B")).toContainText("10/10 · (última)");
+  await expect(descricaoDaParcela(page, "Compra parcelada B")).toContainText("10/10 · última");
 
   // Os sete meses anteriores não ganharam despesa nenhuma (AD-005).
   await page.goto("/2026-02");

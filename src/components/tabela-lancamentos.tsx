@@ -23,6 +23,7 @@ import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
 import { SeletorDeCategoria, type SeletorDeCategoriaProps } from "./seletor-de-categoria";
+import { restoDaParcela } from "./texto-da-parcela";
 import { Chip } from "./ui";
 import { ValorConfirmavel } from "./valor-confirmavel";
 import { corDaNatureza, ValorDaNatureza } from "./valor-da-natureza";
@@ -298,17 +299,14 @@ function BlocoDeLancamentos({
                 >
                   <td className={`${CELULA} font-medium`}>
                     {lancamento.descricao}
+                    {/* A parcela na mesma linha, curta e apagada (DENS-01, AC 2):
+                        a segunda linha de antes dobrava a altura da linha. */}
                     {parcela === null ? null : (
-                      <span className="block text-[13px] font-normal text-ink-muted">
+                      <span className="ml-2 text-[13px] font-normal text-ink-muted">
                         <span className="tabular">
                           {parcela.numero}/{parcela.total}
                         </span>{" "}
-                        ·{" "}
-                        <span>
-                          {parcela.restantes === 0
-                            ? "(última)"
-                            : `(faltam ${parcela.restantes} depois desta)`}
-                        </span>
+                        · {restoDaParcela(parcela.restantes)}
                       </span>
                     )}
                   </td>
