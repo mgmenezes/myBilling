@@ -89,19 +89,29 @@ export function TodoMes({
   const botaoNovo = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
+  /* O `fixo` do último endereço pedido. Pelo `router.replace`, a URL só muda
+     quando o servidor responde, uns 100 ms depois; até lá `window.location`
+     ainda mostra o endereço de antes. Comparar com ele errava quem fechava
+     logo depois de abrir, ou reabria logo depois de fechar (FIXCOL-09, ACs 1
+     e 4). Vale o último pedido, porque o Next descarta a navegação pendente
+     quando chega outra. Começa com o `?fixo=` da carga, mesmo fora da lista:
+     é o que está na URL, e abrir o cadastro o tira. */
+  const fixoPedido = useRef<string | null>(fixoInicial);
+
   /** Põe ou tira `?fixo=`, sem mexer nos outros parâmetros, sem entrada nova no histórico e sem rolar. */
   function mudarEndereco(id: string | null): void {
+    if (id === fixoPedido.current) {
+      return;
+    }
+    fixoPedido.current = id;
     const parametros = new URLSearchParams(window.location.search);
     if (id === null) {
       parametros.delete("fixo");
     } else {
       parametros.set("fixo", id);
     }
-    const busca = parametros.toString() === "" ? "" : `?${parametros.toString()}`;
-    if (busca === window.location.search) {
-      return;
-    }
-    router.replace(busca === "" ? window.location.pathname : busca, { scroll: false });
+    const busca = parametros.toString();
+    router.replace(busca === "" ? window.location.pathname : `?${busca}`, { scroll: false });
   }
 
   function abrirFixo(id: string): void {

@@ -95,7 +95,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   refresh.mockReset();
-  navegar.mockClear();
+  navegar.mockReset();
 });
 
 interface Opcoes {
@@ -377,5 +377,59 @@ describe("fechar e o foco de volta (FIXCOL-08, AC 4; FIXCOL-09, AC 4)", () => {
 
     expect(nadaAberto()).toBe(true);
     expect(document.activeElement).toBe(botaoNovo());
+  });
+});
+
+/**
+ * Até a resposta do servidor, o `router.replace` do Next não muda a URL: a
+ * barra ainda mostra o endereço de antes por uns 100 ms. Aqui o `replace` do
+ * mock também não a muda. O que conta é o último endereço pedido, porque o
+ * Next descarta a navegação pendente quando chega outra (FIXCOL-09, ACs 1 e 4;
+ * L-058).
+ */
+describe("o endereço com a navegação pendente (FIXCOL-09, ACs 1 e 4)", () => {
+  beforeEach(() => {
+    navegar.mockImplementation(() => undefined);
+  });
+
+  it("abrir B e logo fechar pede o endereço sem `?fixo=`", async () => {
+    const { usuario } = montar();
+    await usuario.click(botaoDaLinha("Fixo B"));
+
+    await usuario.click(screen.getByRole("button", { name: "Fechar" }));
+
+    expect(navegar).toHaveBeenLastCalledWith("?outro=1", { scroll: false });
+  });
+
+  it("com B aberto e a URL com ele, fechar e logo reabrir B pede o endereço com `?fixo=rec-b`", async () => {
+    window.history.replaceState(null, "", `${ENDERECO}?outro=1&fixo=rec-b`);
+    const { usuario } = montar({ fixoInicial: "rec-b" });
+
+    await usuario.click(screen.getByRole("button", { name: "Fechar" }));
+    await usuario.click(botaoDaLinha("Fixo B"));
+
+    expect(tituloDoPainel().textContent).toBe("Fixo B");
+    expect(navegar).toHaveBeenLastCalledWith("?outro=1&fixo=rec-b", { scroll: false });
+  });
+
+  it('abrir B e logo "+ Novo fixo" pede o endereço sem `?fixo=`', async () => {
+    const { usuario } = montar();
+    await usuario.click(botaoDaLinha("Fixo B"));
+
+    await usuario.click(botaoNovo());
+
+    expect(tituloDoPainel().textContent).toBe("Novo gasto fixo ou entrada");
+    expect(navegar).toHaveBeenLastCalledWith("?outro=1", { scroll: false });
+  });
+
+  /* O último pedido começa com o `?fixo=` da carga, mesmo fora da lista: é o
+     que está na URL, e abrir o cadastro o tira (FIXCOL-09, ACs 3 e 4). */
+  it("um `?fixo=` fora da lista, na carga, sai do endereço ao abrir o cadastro", async () => {
+    window.history.replaceState(null, "", `${ENDERECO}?outro=1&fixo=rec-de-outro-mes`);
+    const { usuario } = montar({ fixoInicial: "rec-de-outro-mes" });
+
+    await usuario.click(botaoNovo());
+
+    expect(navegar).toHaveBeenLastCalledWith("?outro=1", { scroll: false });
   });
 });

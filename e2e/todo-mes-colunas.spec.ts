@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, type Request as Pedido, test } from "@playwright/test";
 import type { Pool } from "pg";
 import {
   type CadastroBase,
@@ -1286,4 +1286,99 @@ test("em 1.920 × 480, abrir um fixo com a página rolada até o fim deixa a pá
      não ir ao alto. */
   await expect(ultima).toBeInViewport();
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+});
+
+/*
+ * O endereço com a navegação pendente (FIXCOL-09, ACs 1 e 4; L-058). Pelo
+ * `router.replace`, a URL só muda quando o servidor responde. Os passos vão
+ * sem esperar a URL, e o endereço é conferido depois que toda leitura de
+ * página pedida terminou: só então nenhuma navegação pendente pode mudá-lo.
+ */
+
+/**
+ * Segura cada leitura de página (`_rsc`) por 600 ms, como numa rede lenta. O
+ * servidor local responde em uns 60 ms, antes do clique seguinte do
+ * Playwright, e sem o atraso a corrida não aconteceria no teste. Na rede de
+ * verdade ela acontece com a pessoa.
+ */
+async function redeLenta(page: Page): Promise<void> {
+  await page.route(/_rsc=/, async (rota) => {
+    await new Promise((pronto) => setTimeout(pronto, 600));
+    await rota.continue();
+  });
+}
+
+/** Acompanha as leituras de página (`_rsc`) pedidas daqui em diante. */
+function vigiarLeituras(page: Page): { terminar: () => Promise<void> } {
+  const pendentes = new Set<Pedido>();
+  let vistas = 0;
+  page.on("request", (pedido) => {
+    if (pedido.url().includes("_rsc=")) {
+      pendentes.add(pedido);
+      vistas += 1;
+    }
+  });
+  const fim = (pedido: Pedido) => {
+    pendentes.delete(pedido);
+  };
+  page.on("requestfinished", fim);
+  page.on("requestfailed", fim);
+  return {
+    /** Espera ao menos uma leitura, todas terminarem, e mais dois quadros para o commit. */
+    terminar: async () => {
+      await expect.poll(() => vistas).toBeGreaterThan(0);
+      await expect.poll(() => pendentes.size).toBe(0);
+      await doisQuadros(page);
+    },
+  };
+}
+
+test("abrir A e logo fechar com `Escape`, sem esperar a URL, termina sem `?fixo=` (FIXCOL-09, AC 4)", async ({
+  page,
+}) => {
+  await abrir(page, `/${MARCO}/fixos`);
+  await redeLenta(page);
+  const leituras = vigiarLeituras(page);
+
+  /* O foco já está no título quando o clique volta: o efeito de abrir roda no
+     mesmo evento. */
+  await botaoDaLinha(page, "Fixo A").click();
+  await page.keyboard.press("Escape");
+
+  await leituras.terminar();
+  await expect(botaoDaLinha(page, "Fixo A")).toHaveAttribute("aria-expanded", "false");
+  expect(new URL(page.url()).searchParams.has("fixo")).toBe(false);
+});
+
+test("com A aberto e a URL com ele, fechar com `Escape` e logo reabrir A, sem esperar a URL, termina com `?fixo=<A>` (FIXCOL-09, AC 1)", async ({
+  page,
+}) => {
+  await abrir(page, `/${MARCO}/fixos?fixo=${ids.a}`);
+  await expect(tituloDoPainel(page)).toHaveText("Fixo A");
+  /* A carga com `?fixo=` não leva o foco ao painel (FIXCOL-09, AC 2). */
+  await tituloDoPainel(page).focus();
+  await redeLenta(page);
+  const leituras = vigiarLeituras(page);
+
+  await page.keyboard.press("Escape");
+  await botaoDaLinha(page, "Fixo A").click();
+
+  await leituras.terminar();
+  await expect(tituloDoPainel(page)).toHaveText("Fixo A");
+  expect(new URL(page.url()).searchParams.get("fixo")).toBe(ids.a);
+});
+
+test('abrir A e logo "+ Novo fixo", sem esperar a URL, termina sem `?fixo=`, com o cadastro (FIXCOL-09, AC 4)', async ({
+  page,
+}) => {
+  await abrir(page, `/${MARCO}/fixos`);
+  await redeLenta(page);
+  const leituras = vigiarLeituras(page);
+
+  await botaoDaLinha(page, "Fixo A").click();
+  await page.getByRole("button", { name: "+ Novo fixo" }).click();
+
+  await leituras.terminar();
+  await expect(tituloDoPainel(page)).toHaveText("Novo gasto fixo ou entrada");
+  expect(new URL(page.url()).searchParams.has("fixo")).toBe(false);
 });

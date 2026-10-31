@@ -666,19 +666,25 @@ Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 d
 **Reuses**: o mock do roteador de `todo-mes.test.tsx`, `botaoDaLinha`, `painel`, `doisQuadros`
 **Requirement**: FIXCOL-09
 **Done when**:
-- [ ] Em `todo-mes.test.tsx`, o `replace` do mock não muda a URL, como o do Next antes da resposta. A última chamada é a do endereço certo em três casos (FIXCOL-09 ACs 1 e 4):
+- [x] Em `todo-mes.test.tsx`, o `replace` do mock não muda a URL, como o do Next antes da resposta. A última chamada é a do endereço certo em três casos (FIXCOL-09 ACs 1 e 4):
   - abrir B e logo fechar;
   - com B aberto e a URL com ele, fechar e logo reabrir B;
   - abrir B e logo "+ Novo fixo".
-- [ ] Com um `?fixo=` fora da lista na carga, abrir o cadastro tira o parâmetro (FIXCOL-09 ACs 3 e 4)
-- [ ] No e2e, sem esperar a URL entre os passos, e conferindo o endereço depois de todas as leituras de página terminarem:
+- [x] Com um `?fixo=` fora da lista na carga, abrir o cadastro tira o parâmetro (FIXCOL-09 ACs 3 e 4)
+- [x] No e2e, sem esperar a URL entre os passos, e conferindo o endereço depois de todas as leituras de página terminarem:
   - clicar em A e apertar `Escape` termina sem `?fixo=`;
   - com A aberto e a URL com ele, `Escape` e clicar em A termina com `?fixo=<A>` e A no painel;
   - clicar em A e logo em "+ Novo fixo" termina sem `?fixo=`, com o cadastro.
-- [ ] Os testes de corrida falham no código de `8d4ce41`: a comparação com `window.location` é aplicada de volta e desfeita. Eles passam com a correção. Os testes de endereço de antes passam sem mudança no corpo
+- [x] Os testes de corrida falham no código de `8d4ce41`: a comparação com `window.location` é aplicada de volta e desfeita. Eles passam com a correção. Os testes de endereço de antes passam sem mudança no corpo
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `fix(fixos): o endereço segue o último fixo pedido, e não a barra`
+**Nota**:
+- **A rede lenta no e2e.** No servidor local, a página chega uns 60 ms depois do clique, antes do clique seguinte do Playwright (uns 100 ms), e a corrida não acontecia no teste. Uma sonda mostrou a URL já trocada na hora do segundo clique. Os três testes seguram cada leitura de página (`_rsc`) por 600 ms com `page.route`, como numa rede lenta. Antes, "abrir e logo fechar" falhava 1 de 3 no código de `8d4ce41`, e "abrir e logo o cadastro" passava 3 de 3. Com a rede lenta, os três falham 3 de 3 no código de `8d4ce41` e passam 3 de 3 com a correção. Nenhum tempo de teste mudou.
+- **O que espera o quê.** O e2e confere o endereço depois de todas as leituras de página pedidas terminarem, e de mais dois quadros: só então nenhuma navegação pendente pode mudá-lo. O primeiro teste aperta `Escape` logo depois do clique, sem `toBeFocused`: o foco no título já está lá quando o clique volta, e esperá-lo daria tempo à navegação.
+- **Os mutantes na unidade.** Com a comparação com `window.location` de volta, os três testes de corrida falham. Com o `ref` iniciado só com o `fixoInicial` válido, como o Verifier propôs, falha o do `?fixo=` fora da lista. Esse teste passa no código de `8d4ce41`, que tirava o parâmetro: ele guarda a escolha desta task, e não a corrida.
+- **O mock.** Na unidade, o `afterEach` passa de `mockClear` a `mockReset`, que no Vitest 5 devolve ao `navegar` a implementação de `vi.fn(impl)`, a que muda a URL. Só o `describe` novo a troca por uma que não muda.
+- **O gate passa:** 93 testes nos 7 arquivos de e2e que abrem Todo mês, 1.832 unitários (eram 1.828), `typecheck` e `lint`.
 
 #### F9: O teste do endereço prova o componente, e não o mock
 **What**: a observação 4 da rodada 2. O teste "põe `?fixo=<id>` na URL por replaceState" (`todo-mes.test.tsx:254`) espia o `history.replaceState`, que é o mock do roteador quem chama, e não o componente. Ele passa a afirmar o que o componente faz:
