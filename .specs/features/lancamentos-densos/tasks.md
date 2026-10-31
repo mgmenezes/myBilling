@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 3 de `validation.md`, em 2026-10-31, por uma lacuna maior (a tabela Fixos fora da coluna em 1.024 px com um fixo confirmado) e duas menores (o resumo do título preso e a confirmação armada com clique fora); o dono escolheu o caminho A do Fix 1 em 2026-10-31; correções F9–F12 concluídas, à espera da rodada 4 do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F12 concluídas)
-**Total**: 18 tasks em 6 fases (T1–T6 e as correções F1–F12), executadas inline
+**Status**: FAIL na rodada 4 de `validation.md`, em 2026-10-31, por uma lacuna menor (a previsão do fixo alinhada à direita na ponta de 768 px da faixa do DENS-01, AC 5); o dono escolheu em 2026-10-31 corrigir e conferir só essa lacuna, sem uma rodada inteira; correção F13 a fazer (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F12 concluídas)
+**Total**: 19 tasks em 7 fases (T1–T6 e as correções F1–F13), executadas inline
 
 ---
 
@@ -149,6 +149,17 @@ fatia (mutante F2). Assim a tabela Fixos volta a caber na coluna em 1.024 px com
 (LST-05, AC 3; sondas G e B). A F10 e a F11 acrescentam, cada uma, o teste que a sonda do Verifier
 provou: passa na HEAD e falha com o mutante (F3 e F6). A F12 fecha as observações 4 e 10: o
 TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `lista-enxuta.spec.ts`.
+
+### Phase 7 — Correção da verificação (rodada 4)
+
+```
+F13
+```
+
+A F13 fecha o Fix 1 da rodada 4 de `validation.md` (FAIL, uma lacuna menor): a ponta de 768 px da
+faixa "de 768 a 1.279 px" do DENS-01, AC 5, onde o código liga o alinhamento à direita (mutante G1,
+sonda H, L-052). O dono escolheu em 2026-10-31 que um Verifier novo confira só essa lacuna, sem uma
+rodada inteira.
 
 ---
 
@@ -510,4 +521,24 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 - [x] `pnpm verify` e o e2e inteiro passam: 1.705 unitários, 364 de integração, build e 134 e2e
 **Tests**: e2e
 **Gate**: build
-**Commit**: `docs(lancamentos-densos): o selo denso e a espera antes de medir`
+**Commit**: `docs(lancamentos-densos): o selo denso e a espera antes de medir` (`33c9567`)
+
+### Phase 7 — Correção da verificação (rodada 4)
+
+#### F13: A previsão do fixo alinhada à direita já em 768 px
+**What**: o teste da previsão do fixo mede também em 768 px o que mede em 1.279 px: no Fixo A ("confirmado · previa R$ 100,00") e no Fixo B ("previsto"), a previsão embaixo do valor e a borda direita das duas a até 1 px (Fix 1 da rodada 4, sonda H, L-029, L-052). O fim da tabela não é medido em 768 px: as tabelas já saíam da coluna nessa largura antes da fatia, e nenhum AC fixa essa largura. A lista de limiares das Global Constraints passa a ter 768 px também para a previsão do fixo.
+**Where**:
+- `e2e/lancamentos-densos.spec.ts`
+- `.specs/features/lancamentos-densos/tasks.md` (Global Constraints)
+- `.specs/features/lancamentos-densos/spec.md` (Traceability)
+
+**Depends on**: F12
+**Reuses**: `abrir`, `valorEPrevisao`
+**Requirement**: DENS-01
+**Done when**:
+- [ ] Em 768 px, a previsão do Fixo A e a do Fixo B ficam embaixo do valor, com a borda direita a até 1 px da dele (DENS-01, AC 5)
+- [ ] O teste falha com G1 (`md:items-end` → `lg:items-end` em `valor-confirmavel.tsx`)
+- [ ] As Global Constraints listam 768 px também para a previsão do fixo
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): previsão do fixo alinhada à direita em 768 px`

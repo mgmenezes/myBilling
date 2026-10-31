@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 52,
+  "next_id": 53,
   "lessons": [
     {
       "id": "L-001",
@@ -893,6 +893,24 @@
       ],
       "created": "2026-10-31T04:36:51Z",
       "last_seen": "2026-10-31T04:36:51Z"
+    },
+    {
+      "id": "L-052",
+      "key": "surviving_mutant::uma faixa de x a y px num ac traz dois limiares e cada um precisa de caso colado nele a lista que so procura abaixo de e a partir de deixa a ponta antiga da faixa provada longe dela",
+      "text": "Uma faixa 'de X a Y px' num AC traz dois limiares, e cada um precisa de caso colado nele; a lista que só procura 'abaixo de' e 'a partir de' deixa a ponta antiga da faixa provada longe dela.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites,layout",
+      "status": "candidate",
+      "features": [
+        "lancamentos-densos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 4: G1 (src/components/valor-confirmavel.tsx:70, md:items-end → lg:items-end); DENS-01 AC 5, faixa 'de 768 a 1.279 px'; sonda H (testes,limites,layout)"
+      ],
+      "created": "2026-10-31T13:03:06Z",
+      "last_seen": "2026-10-31T13:03:06Z"
     }
   ]
 }

@@ -300,6 +300,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md rodada 3: F6 (src/components/menu-da-linha.tsx:89-96), edge case 'confirmação aberta e clique fora'; sonda F (componentes,testes)
 - last seen: 2026-10-31T04:36:51Z
 
+### L-052 - Uma faixa 'de X a Y px' num AC traz dois limiares, e cada um precisa de caso colado nele; a lista que só procura 'abaixo de' e 'a partir de' deixa a ponta antiga da faixa provada longe dela.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites,layout` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md rodada 4: G1 (src/components/valor-confirmavel.tsx:70, md:items-end → lg:items-end); DENS-01 AC 5, faixa 'de 768 a 1.279 px'; sonda H (testes,limites,layout)
+- last seen: 2026-10-31T13:03:06Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
