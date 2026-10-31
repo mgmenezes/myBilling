@@ -314,7 +314,7 @@ ficaram para trás.
 - [x] O teste falha com M12 (`md:min-h-8` no lugar de `md:pointer-fine:min-h-8` no "⋯" e no "Excluir") e com a mesma troca no `BotaoPago`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): alvos de 44 px no toque acima de 768 px`
+**Commit**: `test(lancamentos): alvos de 44 px no toque acima de 768 px` (`7ac8cbf`)
 
 #### F3: Uma descrição longa no bloco do vencido
 **What**: semear um avulso de descrição longa e genérica em "Gastos do Mês", o bloco do Item B vencido. Em 1.280 e 1.536 px, as outras linhas continuam com até 48 px e só a longa passa disso (Fix 3, sonda P1, L-045). Os testes que contam as linhas e o resumo do bloco passam a contar a linha nova, sem afrouxar o que provam.
@@ -323,9 +323,9 @@ ficaram para trás.
 **Reuses**: `semearAvulso`, `linha`
 **Requirement**: DENS-01
 **Done when**:
-- [ ] Em 1.280 e 1.536 px, com ponteiro fino, as seis linhas de antes medem até 48 px e a de descrição longa mede mais de 48 px (DENS-01 AC 1; edge case "Descrição longa")
-- [ ] A contagem das linhas passa de 6 para 7, com a linha longa nomeada; o resumo de "Gastos do Mês" conta a linha nova antes e depois da exclusão
-- [ ] O teste falha com M11 (sem `xl:pointer-fine:flex-nowrap` no grupo da situação)
+- [x] Em 1.280 e 1.536 px, com ponteiro fino, as seis linhas de antes medem até 48 px e a de descrição longa mede mais de 48 px (DENS-01 AC 1; edge case "Descrição longa")
+- [x] A contagem das linhas passa de 6 para 7, com a linha longa nomeada; o resumo de "Gastos do Mês" conta a linha nova antes e depois da exclusão
+- [x] O teste falha com M11 (sem `xl:pointer-fine:flex-nowrap` no grupo da situação)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): só a linha de descrição longa cresce`

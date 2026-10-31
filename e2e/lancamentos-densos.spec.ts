@@ -14,7 +14,9 @@ import {
  * Março de 2026 já passou, então o que não foi pago aparece como "Vencido":
  * o mês tem, de propósito, uma linha de cada tipo que pode crescer. São elas
  * uma parcela de compra, um fixo com o valor confirmado, um fixo ainda
- * previsto, um avulso pago, um avulso vencido e uma entrada.
+ * previsto, um avulso pago, um avulso vencido e uma entrada. No bloco do
+ * vencido há ainda um avulso de descrição longa, a única linha que pode
+ * crescer (edge case "Descrição longa").
  *
  * Layout se prova no navegador, com a caixa medida e o estilo computado. Toda
  * medida espera a página pronta antes. Nomes genéricos e valores redondos
@@ -23,6 +25,9 @@ import {
 
 const EMAIL_PERMITIDO = "pessoa-a@example.com";
 const MARCO = "2026-03";
+/** Longa o bastante para quebrar linha em 1.280, 1.536 e 1.920 px. */
+const DESCRICAO_LONGA =
+  "Item C com uma descrição longa de propósito, que não cabe numa linha só da tabela e quebra para a linha de baixo";
 
 let pool: Pool;
 let base: CadastroBase;
@@ -48,6 +53,16 @@ test.beforeAll(async ({ browser }, testInfo) => {
   await semearRecorrencia("Fixo B", 5000);
   await semearAvulso("Item A", "DESPESA", base.categoriaId, `${MARCO}-05`, `${MARCO}-05`, 2000);
   await semearAvulso("Item B", "DESPESA", base.categoriaId, `${MARCO}-08`, null, 3000);
+  /* No mesmo bloco do Item B vencido: a descrição longa aperta a coluna da
+     Situação, e só a linha dela pode crescer (L-045). */
+  await semearAvulso(
+    DESCRICAO_LONGA,
+    "DESPESA",
+    base.categoriaId,
+    `${MARCO}-09`,
+    `${MARCO}-09`,
+    1000,
+  );
   await semearAvulso("Entrada A", "RECEITA", null, `${MARCO}-02`, `${MARCO}-02`, 100000);
   await cadastrarCompraPelaInterface(browser, testInfo.project.use.baseURL);
 });
@@ -156,28 +171,50 @@ async function caixa(
   return medida;
 }
 
+/**
+ * A altura de cada linha das tabelas, separada em duas listas: as linhas de
+ * descrição curta e a de descrição longa.
+ */
+async function alturasDasLinhas(page: Page): Promise<{
+  curtas: Array<{ linha: string; altura: number }>;
+  longas: Array<{ linha: string; altura: number }>;
+}> {
+  const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
+    linhas.map((tr) => ({
+      linha: tr.querySelector("td")?.textContent ?? "",
+      altura: tr.getBoundingClientRect().height,
+    })),
+  );
+  return {
+    curtas: alturas.filter(({ linha: nome }) => nome !== DESCRICAO_LONGA),
+    longas: alturas.filter(({ linha: nome }) => nome === DESCRICAO_LONGA),
+  };
+}
+
 /*
  * A linha baixa a partir de 1.280 px (DENS-01, AC 1): no notebook comum, com
  * os filtros no topo, e em 1.536 px, a janela mais estreita com a coluna de
  * filtros aberta, que é onde a lista tem menos largura.
  */
 for (const largura of [1280, 1536]) {
-  test(`em ${largura} px, com ponteiro fino, toda linha das tabelas mede até 48 px (DENS-01, AC 1)`, async ({
+  test(`em ${largura} px, com ponteiro fino, toda linha das tabelas mede até 48 px, e só a de descrição longa cresce (DENS-01, AC 1)`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: largura, height: 900 });
     await abrir(page, `/${MARCO}/lancamentos`);
     await expect(linha(page, "Compra A")).toContainText("1/3 · faltam 2");
 
-    const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
-      linhas.map((tr) => ({
-        linha: tr.querySelector("td")?.textContent ?? "",
-        altura: tr.getBoundingClientRect().height,
-      })),
-    );
-    expect(alturas).toHaveLength(6);
-    for (const { linha: nome, altura } of alturas) {
+    /* Sete linhas: as seis de descrição curta e a longa. */
+    const { curtas, longas } = await alturasDasLinhas(page);
+    /* Entrada A, Fixo A, Fixo B, Compra A, Item A e Item B. */
+    expect(curtas).toHaveLength(6);
+    for (const { linha: nome, altura } of curtas) {
       expect(altura, nome).toBeLessThanOrEqual(48);
+    }
+    /* A longa quebra linha e cresce, sozinha (edge case "Descrição longa"). */
+    expect(longas).toHaveLength(1);
+    for (const { linha: nome, altura } of longas) {
+      expect(altura, nome).toBeGreaterThan(48);
     }
   });
 }
@@ -185,7 +222,7 @@ for (const largura of [1280, 1536]) {
 test.describe("em 1.920 px, com ponteiro fino", () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
 
-  test("toda linha das tabelas mede até 48 px, inclusive a parcela, o fixo confirmado e o vencido (DENS-01, AC 1)", async ({
+  test("toda linha das tabelas mede até 48 px, inclusive a parcela, o fixo confirmado e o vencido, e só a de descrição longa cresce (DENS-01, AC 1)", async ({
     page,
   }) => {
     await abrir(page, `/${MARCO}/lancamentos`);
@@ -195,16 +232,15 @@ test.describe("em 1.920 px, com ponteiro fino", () => {
     await expect(linha(page, "Fixo A")).toContainText("confirmado · previa");
     await expect(linha(page, "Item B")).toContainText("Vencido");
 
-    const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
-      linhas.map((tr) => ({
-        linha: tr.querySelector("td")?.textContent ?? "",
-        altura: tr.getBoundingClientRect().height,
-      })),
-    );
+    const { curtas, longas } = await alturasDasLinhas(page);
     /* Entrada A, Fixo A, Fixo B, Compra A, Item A e Item B. */
-    expect(alturas).toHaveLength(6);
-    for (const { linha: nome, altura } of alturas) {
+    expect(curtas).toHaveLength(6);
+    for (const { linha: nome, altura } of curtas) {
       expect(altura, nome).toBeLessThanOrEqual(48);
+    }
+    expect(longas).toHaveLength(1);
+    for (const { linha: nome, altura } of longas) {
+      expect(altura, nome).toBeGreaterThan(48);
     }
   });
 
@@ -309,7 +345,8 @@ test.describe("o menu da linha, em 1.920 px", () => {
   }) => {
     await abrir(page, `/${MARCO}/lancamentos`);
     const gastos = page.getByRole("region", { name: "Gastos do Mês" });
-    await expect(gastos).toContainText("2 · R$ 50,00");
+    /* Item A, Item B e a linha longa. */
+    await expect(gastos).toContainText("3 · R$ 60,00");
 
     const item = linha(page, "Item A");
     const gatilho = item.getByRole("button", { name: "Mais ações para Item A" });
@@ -325,7 +362,7 @@ test.describe("o menu da linha, em 1.920 px", () => {
     await item.getByRole("button", { name: /^Confirmar/ }).click();
 
     await expect(linha(page, "Item A")).toHaveCount(0);
-    await expect(gastos).toContainText("1 · R$ 30,00");
+    await expect(gastos).toContainText("2 · R$ 40,00");
   });
 });
 
