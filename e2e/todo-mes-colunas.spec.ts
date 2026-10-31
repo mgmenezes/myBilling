@@ -217,6 +217,39 @@ async function semearDescricoesLongas(): Promise<void> {
   });
 }
 
+/**
+ * Com ponteiro fino, toda linha das duas tabelas mede até 48 px, e só as de
+ * descrição longa crescem (FIXCOL-01, AC 10; edge case "Descrição longa").
+ * Percorre todas as linhas (L-030).
+ */
+async function linhasDeAte48(page: Page): Promise<void> {
+  expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+  const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
+    linhas.map((tr) => ({
+      nome: tr.querySelector("button")?.firstChild?.textContent ?? "",
+      altura: tr.getBoundingClientRect().height,
+    })),
+  );
+  const longas = [SAIDA_LONGA, ENTRADA_LONGA];
+  const curtas = alturas.filter(({ nome }) => !longas.includes(nome));
+  /* Entrada A, Fixo D, Fixo A, Fixo B e Fixo C. */
+  expect(curtas.map(({ nome }) => nome).sort()).toEqual([
+    "Entrada A",
+    "Fixo A",
+    "Fixo B",
+    "Fixo C",
+    "Fixo D",
+  ]);
+  for (const { nome, altura } of curtas) {
+    expect(altura, nome).toBeLessThanOrEqual(48);
+  }
+  const crescidas = alturas.filter(({ nome }) => longas.includes(nome));
+  expect(crescidas).toHaveLength(2);
+  for (const { nome, altura } of crescidas) {
+    expect(altura, nome).toBeGreaterThan(48);
+  }
+}
+
 /** Abre a tela e espera o título e as linhas, antes de medir qualquer coisa. */
 async function abrir(page: Page, caminho: string): Promise<void> {
   await page.goto(caminho);
@@ -569,33 +602,8 @@ test.describe("em 1.280 px", () => {
   }) => {
     await semearDescricoesLongas();
     await abrir(page, `/${MARCO}/fixos`);
-    expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
 
-    const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
-      linhas.map((tr) => ({
-        nome: tr.querySelector("button")?.firstChild?.textContent ?? "",
-        altura: tr.getBoundingClientRect().height,
-      })),
-    );
-    const longas = [SAIDA_LONGA, ENTRADA_LONGA];
-    const curtas = alturas.filter(({ nome }) => !longas.includes(nome));
-    /* Entrada A, Fixo D, Fixo A, Fixo B e Fixo C. */
-    expect(curtas.map(({ nome }) => nome).sort()).toEqual([
-      "Entrada A",
-      "Fixo A",
-      "Fixo B",
-      "Fixo C",
-      "Fixo D",
-    ]);
-    for (const { nome, altura } of curtas) {
-      expect(altura, nome).toBeLessThanOrEqual(48);
-    }
-    /* Edge case "Descrição longa": quebra linha, e só aquela linha cresce. */
-    const crescidas = alturas.filter(({ nome }) => longas.includes(nome));
-    expect(crescidas).toHaveLength(2);
-    for (const { nome, altura } of crescidas) {
-      expect(altura, nome).toBeGreaterThan(48);
-    }
+    await linhasDeAte48(page);
   });
 
   test("abrir a última linha, com a página rolada, traz o título do painel para dentro da janela (FIXCOL-08, AC 5)", async ({
@@ -768,4 +776,157 @@ test.describe("com ponteiro grosso, em 1.280 px", () => {
 
     await alvosDeToque(page);
   });
+});
+
+/** O invólucro do painel: a coluna da direita a partir de 1.536 px. */
+function coluna(page: Page): Locator {
+  return painel(page).locator("xpath=..");
+}
+
+async function rolarAteOFim(page: Page): Promise<void> {
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+}
+
+/* O limiar da coluna, dos dois lados, com o painel aberto e sem nada aberto
+   (FIXCOL-07, ACs 1, 3, 5 e 6; L-029). */
+test("em 1.535 px o painel aberto fica acima das seções e, sem nada aberto, não aparece; em 1.536 px fica à direita e, sem nada aberto, mostra a dica (FIXCOL-07, ACs 1, 3, 5 e 6)", async ({
+  page,
+}) => {
+  const entradas = page.getByRole("region", { name: "Entradas fixas" });
+  const dica =
+    "Escolha um fixo na lista para ver o valor ao longo dos meses e para mudar o valor, editar ou encerrar.";
+
+  await page.setViewportSize({ width: 1535, height: 900 });
+  await abrir(page, `/${MARCO}/fixos`);
+  await expect(painel(page)).toHaveCount(0);
+  await expect(page.getByText(dica)).toBeHidden();
+
+  await botaoDaLinha(page, "Fixo B").click();
+  await expect(tituloDoPainel(page)).toHaveText("Fixo B");
+  const acima = await caixa(painel(page));
+  expect(acima.y + acima.height).toBeLessThanOrEqual((await caixa(entradas)).y);
+
+  await page.setViewportSize({ width: 1536, height: 900 });
+  const aDireita = await caixa(painel(page));
+  const lista = await caixa(entradas);
+  expect(aDireita.x).toBeGreaterThanOrEqual(lista.x + lista.width);
+
+  /* Sem nada aberto, a coluna fica com a dica, à direita da lista. */
+  await abrir(page, `/${MARCO}/fixos`);
+  await expect(tituloDoPainel(page)).toHaveText("Nenhum fixo aberto");
+  await expect(painel(page).getByText(dica)).toBeVisible();
+  expect((await caixa(painel(page))).x).toBeGreaterThanOrEqual(
+    (await caixa(entradas)).x + (await caixa(entradas)).width,
+  );
+
+  await page.setViewportSize({ width: 1535, height: 900 });
+  await expect(painel(page)).toHaveCount(0);
+  await expect(page.getByText(dica)).toBeHidden();
+});
+
+test("em 1.535 px, com um fixo aberto, o título, os totais, o painel e as seções medem até 1.024 px (FIXCOL-07, AC 5)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1535, height: 900 });
+  await abrir(page, `/${MARCO}/fixos`);
+  await botaoDaLinha(page, "Fixo A").click();
+  await expect(tituloDoPainel(page)).toHaveText("Fixo A");
+
+  for (const [nome, alvo] of [
+    ["título", page.getByRole("heading", { level: 1 }).locator("xpath=..")],
+    ["totais", page.locator("dl").filter({ hasText: "Saídas fixas em Março de 2026" })],
+    ["painel", painel(page)],
+    ["Entradas fixas", page.getByRole("region", { name: "Entradas fixas" })],
+    ["Saídas fixas", page.getByRole("region", { name: "Saídas fixas" })],
+  ] as const) {
+    expect((await caixa(alvo)).width, nome).toBeLessThanOrEqual(1024);
+  }
+});
+
+/* A coluna e a lista centrada, colada no limiar e longe dele (L-029). */
+for (const largura of [1536, 1920]) {
+  test(`em ${largura} px, a coluna mede 384 px, com a linha fina à esquerda, e o título, os totais e as seções medem até 1.100 px, centrados entre o menu e a coluna (FIXCOL-07, ACs 1 e 4)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 900 });
+    await abrir(page, `/${MARCO}/fixos`);
+    await botaoDaLinha(page, "Fixo A").click();
+    await expect(tituloDoPainel(page)).toHaveText("Fixo A");
+
+    const daColuna = await caixa(coluna(page));
+    expect(Math.abs(daColuna.width - 384)).toBeLessThanOrEqual(1);
+    const linhaFina = await coluna(page).evaluate((elemento) => {
+      const estilo = getComputedStyle(elemento);
+      return { largura: estilo.borderLeftWidth, tipo: estilo.borderLeftStyle };
+    });
+    expect(linhaFina).toEqual({ largura: "1px", tipo: "solid" });
+
+    const menu = await caixa(page.getByRole("complementary", { name: "Menu do myBilling" }));
+    for (const [nome, alvo] of [
+      ["título", page.getByRole("heading", { level: 1 }).locator("xpath=..")],
+      ["totais", page.locator("dl").filter({ hasText: "Saídas fixas em Março de 2026" })],
+      ["Entradas fixas", page.getByRole("region", { name: "Entradas fixas" })],
+      ["Saídas fixas", page.getByRole("region", { name: "Saídas fixas" })],
+    ] as const) {
+      const medida = await caixa(alvo);
+      expect(medida.width, nome).toBeLessThanOrEqual(1100);
+      const folgaEsquerda = medida.x - (menu.x + menu.width);
+      const folgaDireita = daColuna.x - (medida.x + medida.width);
+      expect(Math.abs(folgaEsquerda - folgaDireita), nome).toBeLessThanOrEqual(1);
+    }
+  });
+
+  test(`em ${largura} px, com ponteiro fino, toda linha das duas tabelas mede até 48 px, e só as de descrição longa crescem (FIXCOL-01, AC 10)`, async ({
+    page,
+  }) => {
+    await semearDescricoesLongas();
+    await page.setViewportSize({ width: largura, height: 900 });
+    await abrir(page, `/${MARCO}/fixos`);
+
+    await linhasDeAte48(page);
+  });
+
+  test(`rolando até o fim em ${largura} × 480, o título do painel continua à vista (FIXCOL-07, AC 2)`, async ({
+    page,
+  }) => {
+    await semearDescricoesLongas();
+    await page.setViewportSize({ width: largura, height: 480 });
+    await abrir(page, `/${MARCO}/fixos`);
+    await botaoDaLinha(page, "Fixo A").click();
+    await expect(tituloDoPainel(page)).toHaveText("Fixo A");
+
+    await rolarAteOFim(page);
+
+    await expect(tituloDoPainel(page)).toBeInViewport();
+  });
+}
+
+/* Edge case "O formulário de edição é mais alto que a janela, a partir de
+   1.536 px": a coluna fica presa no alto e rola por conta própria. */
+test("em 1.920 × 480, a edição mais alta que a janela rola dentro da coluna, que continua presa no alto", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 480 });
+  await abrir(page, `/${MARCO}/fixos`);
+  await botaoDaLinha(page, "Fixo A").click();
+  await painel(page).getByRole("button", { name: "Editar", exact: true }).click();
+  const salvar = painel(page).getByRole("button", { name: "Salvar alterações" });
+  await expect(salvar).toBeAttached();
+
+  const rolagem = await painel(page).evaluate((aside) => ({
+    altura: aside.clientHeight,
+    conteudo: aside.scrollHeight,
+    estouro: getComputedStyle(aside).overflowY,
+  }));
+  expect(rolagem.altura).toBeLessThanOrEqual(480);
+  expect(rolagem.conteudo).toBeGreaterThan(rolagem.altura);
+  expect(rolagem.estouro).toBe("auto");
+
+  await rolarAteOFim(page);
+  await expect(tituloDoPainel(page)).toBeInViewport();
+  /* O fim do formulário chega rolando a coluna, e não a página. */
+  await salvar.scrollIntoViewIfNeeded();
+  await expect(salvar).toBeInViewport();
+  expect(await painel(page).evaluate((aside) => aside.scrollTop)).toBeGreaterThan(0);
 });

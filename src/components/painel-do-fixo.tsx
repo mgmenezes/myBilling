@@ -123,7 +123,10 @@ export function PainelDoFixo({
           titulo.current?.focus();
         }
       }}
-      className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5"
+      /* Abaixo de 1.536 px, um cartão entre os totais e a lista. Na coluna, o
+         cartão perde a moldura, fica preso no alto e rola por conta própria
+         quando é mais alto que a janela (FIXCOL-07, AC 2). */
+      className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto 2xl:rounded-none 2xl:border-0 2xl:bg-transparent 2xl:px-6 2xl:py-10"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">

@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 no lote 2; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 e T9 no lote 2; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `33c9567`, que já traz
 `lancamentos-densos` (AD-020); os hashes da T1 à T6 são os de depois do rebase)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -334,7 +334,7 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e os cinco e2e antigos desta task
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
+**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (`f09dbfd`; o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
 **Nota**:
 - **A linha de até 48 px, medida no navegador.** Em 1.280 px toda linha media de 50 a 53 px. O botão da linha era `inline-flex` e ganhava a folga da letra na linha de texto da célula; com a descrição longa, a pill da categoria ainda quebrava em duas linhas. O botão virou `flex`, como o selo de Lançamentos, e a pill, o dia e o meio não quebram a partir de 768 px: quem cede largura é a descrição, e só a linha dela cresce. O botão ganhou `min-w-11`, porque "Fixo B" media 43,6 px de largura em 400 px (TOQUE-01). Mexe em `tabela-de-fixos.tsx`, fora da lista desta task, sem mudar teste dele.
 - **O foco ao trocar de modo**, pedido no lote 2. "Mudar valor", "Encerrar" e "Editar" levam o foco ao título do modo novo; "Cancelar", "Voltar" e "Registrar" o devolvem ao título do painel. O botão de envio que se desabilita enquanto grava ("Gravando…") também devolve o foco ao título do painel. Sem isso, o Chrome tirava o foco para o `body`, e o `Escape` depois de salvar não fechava o painel (`editar-fixo.spec.ts`). Mexe em `painel-do-fixo.tsx` e `ciclo-do-fixo.tsx`, com nove testes novos em `painel-do-fixo.test.tsx`. Nenhum AC muda: é a regra do FIXCOL-08.
@@ -355,17 +355,23 @@ quando nada está aberto; o laço do TRES-01 AC 8 deixa Todo mês.
 **Reuses**: a grade de `lancamentos/page.tsx:199-237`
 **Requirement**: FIXCOL-07, FIXCOL-01
 **Done when**:
-- [ ] Em 1.535 px, o painel aberto fica acima das seções e, sem nada aberto, não aparece; em 1.536 px, fica à direita e, sem nada aberto, mostra a dica (FIXCOL-07 ACs 1, 3, 5 e 6, L-029)
-- [ ] Em 1.535 px, título, totais, painel e seções medem até 1.024 px (FIXCOL-07 AC 5)
-- [ ] Em 1.536 e em 1.920 px, a coluna mede 384 px (± 1) e tem `border-left` computado de 1 px; título, totais e seções medem até 1.100 px e ficam centrados entre o menu e a coluna, com folgas que diferem em até 1 px (FIXCOL-07 ACs 1 e 4)
-- [ ] Em 1.920 × 480, rolando até o fim, o título do painel continua dentro da janela (FIXCOL-07 AC 2)
-- [ ] Em 1.536 e em 1.920 px com ponteiro fino, toda linha mede até 48 px (FIXCOL-01 AC 10)
-- [ ] O laço de TRES-01 AC 8 fica só com Categorias; os outros testes de `visao-tres-colunas.spec.ts` passam sem mudança
-- [ ] Se a medida pedir outra largura, o desvio fica registrado aqui e no design
-- [ ] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
+- [x] Em 1.535 px, o painel aberto fica acima das seções e, sem nada aberto, não aparece; em 1.536 px, fica à direita e, sem nada aberto, mostra a dica (FIXCOL-07 ACs 1, 3, 5 e 6, L-029)
+- [x] Em 1.535 px, título, totais, painel e seções medem até 1.024 px (FIXCOL-07 AC 5)
+- [x] Em 1.536 e em 1.920 px, a coluna mede 384 px (± 1) e tem `border-left` computado de 1 px; título, totais e seções medem até 1.100 px e ficam centrados entre o menu e a coluna, com folgas que diferem em até 1 px (FIXCOL-07 ACs 1 e 4)
+- [x] Em 1.920 × 480, rolando até o fim, o título do painel continua dentro da janela (FIXCOL-07 AC 2)
+- [x] Em 1.536 e em 1.920 px com ponteiro fino, toda linha mede até 48 px (FIXCOL-01 AC 10)
+- [x] O laço de TRES-01 AC 8 fica só com Categorias; os outros testes de `visao-tres-colunas.spec.ts` passam sem mudança
+- [x] Se a medida pedir outra largura, o desvio fica registrado aqui e no design
+- [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px`
+**Nota**:
+- **O painel sempre montado.** A coluna existe sempre, com a dica quando nada está aberto, e abaixo de 1.536 px leva `hidden 2xl:block`, como o design pedia. O jsdom não aplica o CSS. Por isso, os seis testes de `todo-mes.test.tsx` que esperavam o painel fora do DOM passam a esperar o painel em "Nenhum fixo aberto", numa coluna com `hidden 2xl:block`. Os dois testes do painel aberto ganham a coluna sem `hidden`. A prova de que nada aparece abaixo de 1.536 px fica no e2e, em 1.280 e 1.535 px. A regra que eles provam (FIXCOL-07, ACs 5 e 6) não muda: muda o jeito de esconder, que a T7 fazia desmontando.
+- **A quarta linha da grade.** A partir de 1.536 px as linhas são `auto auto auto 1fr`, e a coluna ocupa as quatro. Sem a linha flexível, um painel mais alto que a lista, como a edição num mês de poucos fixos, abriria espaço entre o título, os totais e as seções.
+- **O cartão na coluna** perde a borda e o fundo, fica preso no alto e rola por conta própria com `max-h-dvh`. Isso mora no `aside`, em `painel-do-fixo.tsx`, fora da lista de arquivos desta task.
+- **Medidas**, sem desvio do design: em 1.536 px, a coluna mede 384 px e as seções, 864 px; em 1.920 px, a coluna mede 384 px e o título, 1.100 px, com 98 px de folga de cada lado. Em 1.535 px, tudo mede 976 px, dentro dos 1.024 px.
+- **Além do plano:** o edge case "O formulário de edição é mais alto que a janela" ganhou um teste em 1.920 × 480, e o título preso ao rolar foi medido também em 1.536 × 480, colado no limiar (L-029).
 
 #### T10: O formulário de fixo pela largura do contêiner
 **What**: `FormRecorrencia` com `@container` e `@md:` no lugar de `sm:`, e o e2e que mede o

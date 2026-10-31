@@ -12,7 +12,7 @@ import type { ItemDeFixo } from "./tabela-de-fixos";
 import { TodoMes } from "./todo-mes";
 
 /**
- * Derivado de FIXCOL-03 (AC 1), FIXCOL-06 (ACs 1 e 2), FIXCOL-07 (ACs 5 e 6,
+ * Derivado de FIXCOL-03 (AC 1), FIXCOL-06 (ACs 1 e 2), FIXCOL-07 (ACs 3, 5 e 6,
  * na ordem do DOM; a medida é do e2e), FIXCOL-08 (ACs 2 e 4) e FIXCOL-09.
  *
  * O endereço é o do jsdom: o teste lê `window.location` depois de cada gesto,
@@ -136,6 +136,30 @@ function tituloDoPainel(): HTMLElement {
   return within(painel).getByRole("heading", { level: 2 });
 }
 
+/**
+ * Nada aberto: o painel diz "Nenhum fixo aberto", e a coluna que o envolve só
+ * aparece a partir de 1.536 px, por `hidden 2xl:block` (FIXCOL-07, ACs 3 e 6).
+ * O jsdom não aplica o CSS: a medida dos dois lados de 1.536 px é do e2e.
+ */
+function nadaAberto(): boolean {
+  const painel = oPainel();
+  if (painel === null) {
+    return false;
+  }
+  const coluna = painel.parentElement?.className.split(/\s+/) ?? [];
+  return (
+    tituloDoPainel().textContent === "Nenhum fixo aberto" &&
+    coluna.includes("hidden") &&
+    coluna.includes("2xl:block")
+  );
+}
+
+/** A coluna do painel aparece em toda largura: nada a esconde. */
+function colunaAVista(): boolean {
+  const coluna = oPainel()?.parentElement?.className.split(/\s+/) ?? ["hidden"];
+  return !coluna.includes("hidden");
+}
+
 function botaoDaLinha(descricao: string): HTMLElement {
   return screen.getByRole("button", { name: descricao });
 }
@@ -175,10 +199,10 @@ describe("o alto da tela (FIXCOL-06, AC 1; FIXCOL-03, AC 1)", () => {
 });
 
 describe("o painel na ordem da tela (FIXCOL-07, ACs 5 e 6)", () => {
-  it("sem nada aberto, não há painel", () => {
+  it('sem nada aberto, o painel diz "Nenhum fixo aberto" e a coluna dele some abaixo de 1.536 px', () => {
     montar();
 
-    expect(oPainel()).toBeNull();
+    expect(nadaAberto()).toBe(true);
   });
 
   it("com um fixo aberto, o painel fica entre os totais e as seções", async () => {
@@ -188,6 +212,7 @@ describe("o painel na ordem da tela (FIXCOL-07, ACs 5 e 6)", () => {
 
     const painel = oPainel();
     expect(painel).not.toBeNull();
+    expect(colunaAVista()).toBe(true);
     const totais = screen.getByText("Entradas fixas em Março de 2026", { selector: "dt" });
     expect(antes(totais, painel as HTMLElement)).toBe(true);
     expect(
@@ -201,6 +226,7 @@ describe("o painel na ordem da tela (FIXCOL-07, ACs 5 e 6)", () => {
     await usuario.click(botaoNovo());
 
     const painel = oPainel() as HTMLElement;
+    expect(colunaAVista()).toBe(true);
     expect(
       antes(screen.getByText("Saídas fixas em Março de 2026", { selector: "dt" }), painel),
     ).toBe(true);
@@ -245,7 +271,7 @@ describe("abrir um fixo e o endereço (FIXCOL-09, ACs 1 a 3; FIXCOL-08, AC 2)", 
   it("`fixoInicial` que não está na lista deixa o painel fechado, sem erro", () => {
     montar({ fixoInicial: "rec-de-outro-mes" });
 
-    expect(oPainel()).toBeNull();
+    expect(nadaAberto()).toBe(true);
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getByRole("region", { name: "Saídas fixas" })).toBeTruthy();
   });
@@ -274,7 +300,7 @@ describe("fechar e o foco de volta (FIXCOL-08, AC 4; FIXCOL-09, AC 4)", () => {
 
     await usuario.click(screen.getByRole("button", { name: "Fechar" }));
 
-    expect(oPainel()).toBeNull();
+    expect(nadaAberto()).toBe(true);
     expect(document.activeElement).toBe(botaoDaLinha("Fixo B"));
     expect(botaoDaLinha("Fixo B").getAttribute("aria-expanded")).toBe("false");
     expect(new URLSearchParams(window.location.search).has("fixo")).toBe(false);
@@ -287,7 +313,7 @@ describe("fechar e o foco de volta (FIXCOL-08, AC 4; FIXCOL-09, AC 4)", () => {
 
     await usuario.keyboard("{Escape}");
 
-    expect(oPainel()).toBeNull();
+    expect(nadaAberto()).toBe(true);
     expect(document.activeElement).toBe(botaoDaLinha("Fixo A"));
     expect(new URLSearchParams(window.location.search).has("fixo")).toBe(false);
   });
@@ -298,7 +324,7 @@ describe("fechar e o foco de volta (FIXCOL-08, AC 4; FIXCOL-09, AC 4)", () => {
 
     await usuario.click(screen.getByRole("button", { name: "Fechar" }));
 
-    expect(oPainel()).toBeNull();
+    expect(nadaAberto()).toBe(true);
     expect(document.activeElement).toBe(botaoNovo());
   });
 
@@ -320,7 +346,7 @@ describe("fechar e o foco de volta (FIXCOL-08, AC 4; FIXCOL-09, AC 4)", () => {
 
     await usuario.click(screen.getByRole("button", { name: "Fechar" }));
 
-    expect(oPainel()).toBeNull();
+    expect(nadaAberto()).toBe(true);
     expect(document.activeElement).toBe(botaoNovo());
   });
 });

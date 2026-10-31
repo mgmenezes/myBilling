@@ -213,12 +213,15 @@ test.describe("em 1.920 px", () => {
   /*
    * Lançamentos saiu deste laço: em 1.920 px ela tem a lista densa com a
    * coluna de filtros (DENS-03, AC 8, que substitui TRES-01, AC 8 nessa tela),
-   * provada em `e2e/lancamentos-densos.spec.ts`.
+   * provada em `e2e/lancamentos-densos.spec.ts`. Todo mês saiu também: em
+   * 1.920 px ela tem a lista com o fixo aberto numa coluna (FIXCOL-07, AC 4,
+   * que substitui TRES-01, AC 8 nessa tela), provada em
+   * `e2e/todo-mes-colunas.spec.ts`.
    */
-  test("Todo mês e Categorias ficam em até 1.024 px, centrados na área à direita do menu (TRES-01, AC 8)", async ({
+  test("Categorias fica em até 1.024 px, centrada na área à direita do menu (TRES-01, AC 8)", async ({
     page,
   }) => {
-    for (const caminho of [`/${MARCO}/fixos`, `/${MARCO}/cadastros/categorias`]) {
+    for (const caminho of [`/${MARCO}/cadastros/categorias`]) {
       await abrir(page, caminho);
       const titulo = page.getByRole("heading", { level: 1 });
       await expect(titulo).toBeVisible();
