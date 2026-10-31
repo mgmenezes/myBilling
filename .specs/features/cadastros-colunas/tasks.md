@@ -695,7 +695,7 @@ ajuda e as mensagens de hoje.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(meios): formulário de novo meio no painel`
+**Commit**: `feat(meios): formulário de novo meio no painel` (`e5124e9`)
 **Nota**:
 - **Cada mensagem fica junto do campo dela**, pela prop `erros` do `CamposDoMeio` (T17), e não no
   alerta único do cadastro inline, que mostra só a primeira. O nome, sem `maxLength` no painel,
@@ -717,17 +717,31 @@ e `?meio=`.
 **Reuses**: `ColunaDeCadastro`, `CabecalhoDeCadastros`, `TabelaDeMeios`, `DetalheDoMeio`, `NovoMeio`, `useParametroNaUrl` (era `trocarParametroNaUrl`; ver a Nota da T14)
 **Requirement**: CADCOL-01, CADCOL-07, CADCOL-08, CADCOL-10, CADCOL-11
 **Done when**:
-- [ ] "+ Novo meio" no cabeçalho, antes do painel e da tabela (CADCOL-01 AC 6)
-- [ ] Abrir uma linha mostra o meio e grava `?meio=<id>` por `replaceState`; `meioInicial` da lista abre sem foco; id fora da lista é ignorado (CADCOL-07 AC 1, CADCOL-11 ACs 1 a 3)
-- [ ] "+ Novo meio" fecha o aberto, mostra o formulário e tira `?meio=` (CADCOL-08 AC 1, CADCOL-11 AC 4)
-- [ ] Depois de criar: o painel abre no meio criado, com o id na URL, o foco no título e "Meio de pagamento criado." (CADCOL-08 AC 4, CADCOL-10 AC 2)
-- [ ] "Fechar" e `Escape` devolvem o foco ao botão da linha ou ao "+ Novo meio" e tiram `?meio=` (CADCOL-10 AC 4, CADCOL-11 AC 4)
-- [ ] Trocar de meio com algo digitado descarta o digitado (CADCOL-07 AC 15)
-- [ ] O meio aberto que some dos itens, numa renderização nova, volta o painel ao vazio e tira o parâmetro
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] "+ Novo meio" no cabeçalho, antes do painel e da tabela (CADCOL-01 AC 6)
+- [x] Abrir uma linha mostra o meio e grava `?meio=<id>` por `replaceState`; `meioInicial` da lista abre sem foco; id fora da lista é ignorado (CADCOL-07 AC 1, CADCOL-11 ACs 1 a 3) — pelo `router.replace(…, { scroll: false })` de `useParametroNaUrl`, e não por `replaceState`, como a T14 (Nota)
+- [x] "+ Novo meio" fecha o aberto, mostra o formulário e tira `?meio=` (CADCOL-08 AC 1, CADCOL-11 AC 4)
+- [x] Depois de criar: o painel abre no meio criado, com o id na URL, o foco no título e "Meio de pagamento criado." (CADCOL-08 AC 4, CADCOL-10 AC 2)
+- [x] "Fechar" e `Escape` devolvem o foco ao botão da linha ou ao "+ Novo meio" e tiram `?meio=` (CADCOL-10 AC 4, CADCOL-11 AC 4)
+- [x] Trocar de meio com algo digitado descarta o digitado (CADCOL-07 AC 15)
+- [x] O meio aberto que some dos itens, numa renderização nova, volta o painel ao vazio e tira o parâmetro
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(meios): o estado da aba de meios, com o aberto no endereço`
+**Nota** (desvios, os mesmos da T14):
+- **O endereço vai por `useParametroNaUrl("meio", meioInicial)`**, o `router.replace(…, { scroll:
+  false })` com a ref do último valor pedido (L-058), e não por `history.replaceState`, como o
+  Done-when ainda dizia. O teste da navegação pendente prova abrir e logo fechar, fechar e logo
+  reabrir, e o `?meio=` de fora da lista saindo ao abrir o "+ Novo meio".
+- **O meio aberto só fecha quando estava na lista anterior e não está na nova.** O Next resolve o
+  pedido de `criarMeioDePagamento` antes de desenhar a página relida, e o meio criado pode chegar
+  ao painel antes de chegar à tabela. O foco no título dele espera a lista. O teste da lista
+  atrasada passa por uma página relida sem ele antes da lista nova (mutantes M12 e M13 mortos).
+- **"+ Novo meio" leva `aria-controls` e `aria-expanded`**, como o "+ Nova categoria".
+- **Um teste além do Done-when:** sem nada aberto, o vazio com "Nenhum meio aberto" e a dica no DOM
+  (CADCOL-09, AC 3, os textos; a coluna em que ele aparece é medida na T21).
+- **Mutante equivalente:** abrir o estado num `meioInicial` fora da lista, em vez de "nada", não
+  muda nada à vista: o painel não tem o que desenhar e nenhuma linha casa com o id.
 
 #### T20: A aba Meios de pagamento de ponta a ponta
 **What**:
