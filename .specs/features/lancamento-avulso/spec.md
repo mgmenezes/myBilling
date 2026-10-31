@@ -211,7 +211,8 @@ carregar um número falso para sempre.
    `pago_em` inalterado
 6. The system SHALL exibir o controle de excluir apenas nas linhas de lançamento avulso
 7. WHEN o controle de excluir é acionado pela primeira vez THEN o sistema SHALL pedir confirmação na
-   própria linha, e SHALL só excluir no segundo acionamento
+   própria linha, e SHALL só excluir no segundo acionamento. Desde `lancamentos-densos`, o controle
+   mora no menu "⋯" da linha, e a confirmação acontece dentro dele, ainda na linha (DENS-02)
 8. WHEN a exclusão é concluída THEN o sistema SHALL revalidar `/[competencia]` e
    `/[competencia]/lancamentos`
 

@@ -127,7 +127,9 @@ topo.
 
 1. WHILE o cartão de filtros está fora da tela o sistema SHALL mostrar fixa no topo uma barra com o
    campo de busca, os filtros ativos e o botão "Filtros"
-2. WHILE o cartão de filtros está visível o sistema SHALL esconder a barra compacta
+2. WHILE o cartão de filtros está visível o sistema SHALL esconder a barra compacta. **ACs 1 e 2
+   valem abaixo de 1.536 px** desde `lancamentos-densos` (DENS-03, AC 6): a partir dessa largura o
+   cartão é a coluna da direita, presa, e a barra não aparece
 3. WHEN a pessoa digita na busca da barra THEN o sistema SHALL filtrar pelo mesmo parâmetro `busca`
    da URL, com a mesma espera de 250 ms do cartão
 4. The system SHALL mostrar cada filtro ativo na barra como um botão com o nome do filtro e "×", com
@@ -176,10 +178,13 @@ o texto quebrar palavra por palavra.
 
 1. WHERE a despesa do bloco Cartão de Crédito é parcela de compra parcelada the system SHALL mostrar,
    numa segunda linha sob a descrição, o número e o total da parcela seguidos de "(faltam N depois
-   desta)" ou "(última)", por exemplo "2/4 · (faltam 2 depois desta)"
+   desta)" ou "(última)", por exemplo "2/4 · (faltam 2 depois desta)". **Substituído por DENS-01,
+   ACs 1 e 2** (`lancamentos-densos`, 2026-10-30): a parcela fica curta, logo depois da descrição,
+   "2/4 · faltam 2" ou "4/4 · última"
 2. The system SHALL não exibir a coluna "Parcela" em nenhum bloco; este AC substitui o BLOCO-01 AC 7
 3. WHILE a largura é de 1024, 1280 ou 1440 px nenhuma tabela da lista SHALL ser mais larga que a
-   coluna de conteúdo
+   coluna de conteúdo. A partir de 1.536 px, a coluna de conteúdo é a lista, e o cartão de filtros
+   é a coluna da direita (DENS-03)
 4. WHILE o ponteiro é fino (`pointer: fine`) o seletor de categoria da linha SHALL ter 36 px de
    altura; no toque SHALL manter 44 px
 5. The system SHALL dar ao seletor de categoria uma largura fixa a partir de `md`, com o nome

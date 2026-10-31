@@ -271,10 +271,11 @@
   --color-cat-marrom-barra: var(--cat-marrom-barra);
 
   /*
-   * A largura de leitura das telas de lista (Lançamentos, Todo mês,
-   * Categorias e a home), pela `AreaEstreita`. A moldura não tem largura
-   * máxima: o menu fica na borda e a Visão geral usa a sobra do monitor grande
-   * em colunas, e não em linhas mais compridas (AD-019).
+   * A largura de leitura das telas de lista (Todo mês, Categorias, a home e
+   * Lançamentos abaixo de 1536px), pela `AreaEstreita`. A moldura não tem
+   * largura máxima: o menu fica na borda, e a Visão geral e Lançamentos usam a
+   * sobra do monitor grande em colunas, e não em linhas mais compridas (AD-019,
+   * AD-020).
    *
    * **1024px.** Já foram 1440px, apostando que tabela lida todo dia quer
    * largura. Não quer: numa linha de 1440px a descrição fica numa ponta e o

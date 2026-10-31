@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T5 concluídas)
+**Status**: Implementada, à espera do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 concluídas)
 **Total**: 6 tasks em 3 fases (T1–T6), um lote só, executado inline
 
 ---
@@ -258,9 +258,9 @@ Lote único, inline: T1 a T6, nesta ordem.
 **Reuses**: nenhuma
 **Requirement**: DENS-01, DENS-02, DENS-03
 **Done when**:
-- [ ] AD-020 registrado, com o que ele revê (AD-019 em Lançamentos)
-- [ ] Cada critério substituído aponta para o DENS que o substitui
-- [ ] `pnpm verify` e o e2e inteiro passam
+- [x] AD-020 registrado, com o que ele revê (AD-019 em Lançamentos)
+- [x] Cada critério substituído aponta para o DENS que o substitui
+- [x] `pnpm verify` e o e2e inteiro passam: 1.703 unitários, 364 de integração, build e 125 e2e
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(lancamentos-densos): registrar a lista densa`

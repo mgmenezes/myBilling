@@ -4,7 +4,9 @@ import { useState, useTransition } from "react";
 import type { cancelarLancamento as cancelarAction } from "@/app/actions/lancamentos";
 
 /**
- * Excluir um lançamento avulso, em dois toques na própria linha.
+ * Excluir um lançamento avulso, em dois toques na própria linha. Na lista densa
+ * ele mora dentro do menu "⋯" da linha (`MenuDaLinha`, DENS-02), e os dois
+ * toques acontecem com o menu aberto.
  *
  * **Dois toques, e não um modal.** Modal exigiria foco gerenciado, tecla de
  * escape, retorno do foco à origem e uma camada acima da tabela — e devolveria

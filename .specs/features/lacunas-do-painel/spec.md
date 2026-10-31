@@ -150,7 +150,8 @@ a lado em cada linha.
 **Acceptance Criteria**
 
 1. The system SHALL apresentar o controle de situação com ao menos 44 por 44 pixels de área
-2. The system SHALL apresentar o controle de excluir com ao menos 44 por 44 pixels de área
+2. The system SHALL apresentar o controle de excluir com ao menos 44 por 44 pixels de área. Desde
+   `lancamentos-densos`, valem o "⋯" da linha e o "Excluir" do menu aberto, no toque (DENS-02, AC 7)
 3. The system SHALL verificar essa área pela geometria renderizada, e SHALL não se satisfazer com a
    presença de uma classe
 

@@ -74,12 +74,11 @@ import { corDaNatureza, ValorDaNatureza } from "./valor-da-natureza";
  * já está montado, de modo que a posição do cadastro deixa de ser uma
  * informação que o texto precisa acertar (VAZIO-01, ACs 1 e 4).
  *
- * **A parcela fica sob a descrição, e não numa coluna** (LST-05, que
+ * **A parcela fica junto da descrição, e não numa coluna** (LST-05, que
  * substitui o BLOCO-01 AC 7). A coluna "Parcela" existia só no bloco do
  * Cartão, e lá era a mais estreita de seis: "(faltam 3 depois desta)" quebrava
- * palavra por palavra e a tabela passava da margem. Como segunda linha da
- * descrição ela ocupa a largura que a descrição já tem, com os textos de
- * PARC-08 iguais. No lugar da coluna fica a categoria, que é o dado que
+ * palavra por palavra e a tabela passava da margem. Na lista densa ela fica
+ * curta, logo depois da descrição, "2/4 · faltam 2" (DENS-01). No lugar da coluna fica a categoria, que é o dado que
  * faltava para saber o que foi cada gasto sem abrir nada.
  *
  * **Na entrada a categoria é "Receita"; no gasto, um seletor.** A entrada é

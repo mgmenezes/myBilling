@@ -119,9 +119,11 @@ padrão de 80% das superfícies é chapado; o cartão sobre canvas branco é sep
 esquerda, com 240px, da altura da janela e preso ao rolar, e o `<main>` ocupa o resto. Cada tela
 decide a própria largura.
 
-`--container-conteudo`, **1024px**, continua sendo a largura de leitura das telas de lista:
-Lançamentos, Todo mês, Categorias e a home, pela `AreaEstreita`, centradas no espaço à direita do
-menu.
+`--container-conteudo`, **1024px**, continua sendo a largura de leitura de Todo mês, de Categorias e
+da home, pela `AreaEstreita`, centradas no espaço à direita do menu. Lançamentos também, abaixo de
+1536px. A partir de 1536px, Lançamentos vira lista densa (AD-020): a lista com até 1100px e os
+filtros numa coluna de 288px, presa à direita. São cinco colunas ocupando a largura, e não uma
+linha esticada.
 
 **Já foram 1440px, e foi erro.** A aposta era que tabela de lançamento lida todo dia quer largura, e
 que os "~1200px centered" do `DESIGN.md` valiam só para página de marketing. Na tela real a aposta

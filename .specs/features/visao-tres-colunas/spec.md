@@ -83,7 +83,8 @@ conteúdo ocupando o resto da tela, para não ter metade do monitor vazia.
 7. WHILE uma competência está aberta THE system SHALL exibir o seletor de competência no topo da
    área à direita da coluna lateral, acima do conteúdo da tela
 8. WHILE Lançamentos, Todo mês ou Cadastros está aberto THE system SHALL limitar o conteúdo da tela a
-   1.024 px de largura, centrado na área à direita da coluna lateral
+   1.024 px de largura, centrado na área à direita da coluna lateral. Em Lançamentos, a partir de
+   1.536 px, **substituído por DENS-03, AC 8** (`lancamentos-densos`, AD-020)
 9. WHEN a janela tem menos de 768 px THEN o sistema SHALL exibir a navegação na barra inferior, como
    hoje, e no topo uma barra com a marca, "Importar planilha", o alternador de tema e o nome
 10. WHEN qualquer tela autenticada é exibida em 400 px de largura THEN o sistema SHALL caber sem
