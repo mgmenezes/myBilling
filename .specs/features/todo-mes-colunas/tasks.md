@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 e T2 concluídas; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T3 concluídas; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
 duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -179,7 +179,7 @@ chama `fixosDoMes`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências`
+**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`4cb8c23`)
 
 ### Phase 2 — As peças da tela
 
@@ -191,17 +191,17 @@ os selos, o valor do mês, a linha aberta e os vazios; e o tipo `ItemDeFixo`.
 **Reuses**: `Chip`, a `CELULA` de `tabela-lancamentos.tsx`
 **Requirement**: FIXCOL-01, FIXCOL-02, FIXCOL-04
 **Done when**:
-- [ ] "Entradas fixas" antes de "Saídas fixas", cada uma com Descrição, Categoria, "Vence" ou "Cai", "Meio" ou "Onde cai" e "Valor em Março" (FIXCOL-01 AC 1)
-- [ ] Título de cada seção com "N · R$ X", procurado dentro da região da seção (FIXCOL-01 AC 4)
-- [ ] Pill com a cor da categoria nas saídas; "Sem categoria" e "Categoria removida" na neutra; "Receita" nas entradas; selos sem a cor da categoria; tudo procurado dentro da linha (FIXCOL-01 ACs 5 e 6)
-- [ ] O único botão de cada linha é o da descrição (FIXCOL-01 AC 7)
-- [ ] Selos "Encerrado" e "Começa em Junho de 2026", e "—" no valor de quem começa depois (FIXCOL-01 ACs 8 e 9)
-- [ ] "confirmado" na célula do valor, só na linha confirmada (FIXCOL-02 AC 2)
-- [ ] Mês sem fixo: um aviso só, sem seções; seção vazia: a linha de texto dela (FIXCOL-01 ACs 12 e 13)
-- [ ] Clicar na célula do valor chama `aoAbrir` com o id; acionar o botão da descrição também: uma assertion para cada (FIXCOL-04 AC 1, L-010)
-- [ ] Botão da linha aberta com `aria-expanded="true"` e `aria-controls="painel-do-fixo"`, as outras com `"false"` (FIXCOL-04 AC 7)
-- [ ] Os testes de `lista-de-fixos.test.tsx` das linhas 119, 125, 132, 138 (selo), 146, 176, 189, 195 e 205 têm equivalente aqui
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] "Entradas fixas" antes de "Saídas fixas", cada uma com Descrição, Categoria, "Vence" ou "Cai", "Meio" ou "Onde cai" e "Valor em Março" (FIXCOL-01 AC 1)
+- [x] Título de cada seção com "N · R$ X", procurado dentro da região da seção (FIXCOL-01 AC 4)
+- [x] Pill com a cor da categoria nas saídas; "Sem categoria" e "Categoria removida" na neutra; "Receita" nas entradas; selos sem a cor da categoria; tudo procurado dentro da linha (FIXCOL-01 ACs 5 e 6)
+- [x] O único botão de cada linha é o da descrição (FIXCOL-01 AC 7)
+- [x] Selos "Encerrado" e "Começa em Junho de 2026", e "—" no valor de quem começa depois (FIXCOL-01 ACs 8 e 9)
+- [x] "confirmado" na célula do valor, só na linha confirmada (FIXCOL-02 AC 2)
+- [x] Mês sem fixo: um aviso só, sem seções; seção vazia: a linha de texto dela (FIXCOL-01 ACs 12 e 13)
+- [x] Clicar na célula do valor chama `aoAbrir` com o id; acionar o botão da descrição também: uma assertion para cada (FIXCOL-04 AC 1, L-010)
+- [x] Botão da linha aberta com `aria-expanded="true"` e `aria-controls="painel-do-fixo"`, as outras com `"false"` (FIXCOL-04 AC 7)
+- [x] Os testes de `lista-de-fixos.test.tsx` das linhas 119, 125, 132, 138 (selo), 146, 176, 189, 195 e 205 têm equivalente aqui
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(fixos): a tabela de fixos em duas seções`
