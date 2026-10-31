@@ -281,7 +281,7 @@ export function FormCompra({
       /* Sem `<h2>` próprio: o diálogo já titula e a aba já distingue. O nome
          acessível permanece "Nova compra", que é como a tela o identifica. */
       aria-label="Nova compra"
-      className="flex w-full flex-col gap-5"
+      className="@container flex w-full flex-col gap-5"
     >
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
 
@@ -341,7 +341,7 @@ export function FormCompra({
         {erroValor.no}
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO_CLASSE} htmlFor={`${id}-qtd`}>
             Quantidade de parcelas
@@ -375,7 +375,7 @@ export function FormCompra({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <CadastroInline
           rotulo="Meio de pagamento"
           idDoControle={`${id}-meio`}
@@ -444,7 +444,7 @@ export function FormCompra({
                 dado que a gravação rejeitaria.
               */}
               {tipoMeio === "CARTAO_CREDITO" ? (
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex flex-col gap-2 @md:flex-row">
                   <div className="flex w-full flex-col gap-1">
                     <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-fechamento`}>
                       Dia de fechamento
@@ -548,7 +548,7 @@ export function FormCompra({
         </CadastroInline>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO_CLASSE} htmlFor={`${id}-usuario`}>
             De quem é a compra

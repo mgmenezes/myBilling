@@ -254,7 +254,7 @@ export function FormLancamentoAvulso({
          mesma coisa é o leitor de tela anunciando redundância. O nome acessível
          fica, porque é o que distingue este formulário do outro na mesma tela. */
       aria-label="Lançamento avulso"
-      className="flex w-full flex-col gap-5"
+      className="@container flex w-full flex-col gap-5"
     >
       <fieldset className="flex flex-col gap-2">
         <legend className={ROTULO_CLASSE}>O que é</legend>
@@ -309,7 +309,7 @@ export function FormLancamentoAvulso({
         {erroValor.no}
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <CadastroDeMeioInline
           rotulo={rotuloDoMeio}
           idDoControle={`${id}-meio`}
@@ -402,7 +402,7 @@ export function FormLancamentoAvulso({
         </CadastroInline>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO_CLASSE} htmlFor={`${id}-usuario`}>
             De quem é o lançamento
