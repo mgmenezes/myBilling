@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-30, por uma lacuna menor (o limiar de 768 px); correção F8 em andamento (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F7 concluídas)
+**Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-30, por uma lacuna menor (o limiar de 768 px); correção F8 concluída, à espera da rodada 3 do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F8 concluídas)
 **Total**: 14 tasks em 5 fases (T1–T6 e as correções F1–F8), executadas inline
 
 ---
@@ -47,7 +47,8 @@ operação remota exigem autorização separada.
   id="linhas-…"` do bloco não ganha atributo.
 - **O valor fica num `td` só,** alinhado à direita, em algarismos tabulares (REDE-03, AC 2).
 - **Layout:** a prova se mede no navegador, com `boundingBox` e estilo computado. Todo limiar
-  (1.280 px para a linha baixa e 1.536 px para a coluna) é provado dos dois lados (L-029). A consulta que situa um elemento fica presa
+  (768 px para os alvos de 44 px, 1.280 px para a linha baixa e 1.536 px para a coluna) é provado
+  dos dois lados (L-029, L-048). A consulta que situa um elemento fica presa
   à região dele (L-018).
 - **Gate:** o de toda task inclui `pnpm typecheck` (L-016). Medir só depois de esperar a página
   pronta.
@@ -417,9 +418,9 @@ alvos de 44 px, que só era medido em 400 px (sonda P6, mutantes N11 e N11b).
 **Reuses**: `abrir`, `linha`, `caixa`
 **Requirement**: DENS-02 (e TOQUE-01, AC 1, para o selo)
 **Done when**:
-- [ ] Em 767 px, com ponteiro fino, o selo, o "⋯" e o "Excluir" do menu aberto medem ao menos 44 × 44 (DENS-02 AC 7; TOQUE-01 AC 1)
-- [ ] O teste falha com N11 (`sm:pointer-fine:` no "⋯" e no "Excluir") e com N11b (o mesmo no selo)
-- [ ] As Global Constraints listam o limiar de 768 px entre os provados dos dois lados
+- [x] Em 767 px, com ponteiro fino, o selo, o "⋯" e o "Excluir" do menu aberto medem ao menos 44 × 44 (DENS-02 AC 7; TOQUE-01 AC 1)
+- [x] O teste falha com N11 (`sm:pointer-fine:` no "⋯" e no "Excluir") e com N11b (o mesmo no selo)
+- [x] As Global Constraints listam o limiar de 768 px entre os provados dos dois lados
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): alvos de 44 px logo abaixo de 768 px`

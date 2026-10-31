@@ -404,6 +404,39 @@ test.describe("com ponteiro grosso, em 1.920 px", () => {
   });
 });
 
+/*
+ * O outro lado do limiar de 768 px: com o ponteiro fino do projeto, em 767 px
+ * os alvos ainda têm 44 px. Medir só em 400 px deixaria passar a densidade
+ * começando antes, em 640 px (L-029, L-048).
+ */
+test.describe("com ponteiro fino, em 767 px", () => {
+  test.use({ viewport: { width: 767, height: 900 } });
+
+  test('o selo, o "⋯" e o "Excluir" do menu medem ao menos 44 × 44 (DENS-02, AC 7; TOQUE-01, AC 1)', async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+    expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+
+    const item = linha(page, "Item B");
+    const gatilho = item.getByRole("button", { name: "Mais ações para Item B" });
+    const selo = await caixa(item.getByRole("button", { name: /^Previsto\s*, Item B/ }));
+    const menu = await caixa(gatilho);
+    await gatilho.click();
+    await expect(gatilho).toHaveAttribute("aria-expanded", "true");
+    const excluir = await caixa(item.getByRole("button", { name: /^Excluir/ }));
+
+    for (const [nome, alvo] of [
+      ["selo", selo],
+      ["⋯", menu],
+      ["Excluir", excluir],
+    ] as const) {
+      expect(alvo.width, nome).toBeGreaterThanOrEqual(44);
+      expect(alvo.height, nome).toBeGreaterThanOrEqual(44);
+    }
+  });
+});
+
 /** O cartão de filtros, que a partir de 1.536 px é a coluna da direita. */
 function cartao(page: Page): Locator {
   return page.locator("#cartao-de-filtros");
