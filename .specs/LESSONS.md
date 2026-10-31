@@ -15,10 +15,10 @@ Corroborated across multiple features. Safe to apply as guidance.
 - last seen: 2026-10-25T05:06:38Z
 
 ### L-010 - AC com duas cláusulas precisa de uma assertion para cada uma; provar só uma deixa a outra livre para regredir.
-- signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
-- features: importar-planilha, saldo-futuro, visao-tres-colunas
-- evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria) (+2 more)
-- last seen: 2026-10-30T22:13:51Z
+- signal: `surviving_mutant` · recurrence: 4 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
+- features: importar-planilha, saldo-futuro, visao-tres-colunas, lancamentos-densos
+- evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria) (+3 more)
+- last seen: 2026-10-31T04:36:51Z
 
 ### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
 - signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,composicao` · harmful: 1
@@ -44,27 +44,15 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: E5; e2e/lista-enxuta.spec.ts:382-390 (e2e,layout) (+1 more)
 - last seen: 2026-10-30T22:13:51Z
 
+### L-031 - Objetivo de legibilidade precisa virar AC mensurável, em linhas ou largura; sem número, quebrar em duas linhas passa como resolvido.
+- signal: `spec_precision_gap` · recurrence: 2 feature(s) · scope: `spec,layout` · harmful: 0
+- features: lista-enxuta, lancamentos-densos
+- evidence: LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout) (+1 more)
+- last seen: 2026-10-31T04:36:51Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
-
-### L-002 - Teste de paridade entre duas fontes precisa afirmar as duas direções; a unidirecional não pega remoção.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `integridade,banco` · harmful: 0
-- features: lancamento-avulso
-- evidence: mutante M28 (ciclo 1) — src/infrastructure/db/restricoes.integration.test.ts:222-262 (integridade,banco)
-- last seen: 2026-09-15T04:13:17Z
-
-### L-003 - Comportamento que só aparece em tabela de dimensões ou em decisão, sem acceptance criterion numerado, passa despercebido: promova-o a AC antes de mapear requisito para ele.
-- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
-- features: lancamento-avulso
-- evidence: spec.md:91 (tabela de dimensões) e traceability de AVUL-04 — ciclo 2 (spec)
-- last seen: 2026-09-15T04:13:17Z
-
-### L-004 - Correção de lacuna apontada por verificação precisa ser confirmada pela mesma mutação que revelou a lacuna, antes de declará-la fechada.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `verificacao` · harmful: 0
-- features: lancamento-avulso
-- evidence: mutante N10 (ciclo 2) — e2e/recorrencias.spec.ts:87 (verificacao)
-- last seen: 2026-09-15T04:13:17Z
 
 ### L-005 - Achado de relatório de subagente vira decisão só depois de reler o código que o originou: a transcrição inverteu o mecanismo da divergência e o exemplo concreto passou a descrever algo que não acontece.
 - signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `specs,decisoes` · harmful: 0
@@ -192,12 +180,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: LST-01 AC 1; src/components/chips-de-categoria.tsx:83-85 (componentes,css)
 - last seen: 2026-10-29T19:06:31Z
 
-### L-031 - Objetivo de legibilidade precisa virar AC mensurável, em linhas ou largura; sem número, quebrar em duas linhas passa como resolvido.
-- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,layout` · harmful: 0
-- features: lista-enxuta
-- evidence: LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout)
-- last seen: 2026-10-29T19:06:31Z
-
 ### L-032 - AC de filtro precisa nomear as naturezas que alcança quando a lista rotula alguma de outro jeito; senão quem decide é o teste.
 - signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,filtros` · harmful: 0
 - features: lista-enxuta
@@ -299,6 +281,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: lancamentos-densos
 - evidence: validation.md rodada 2: N11 (src/components/menu-da-linha.tsx:84, botao-excluir.tsx:32) e N11b (botao-pago.tsx:32); DENS-02 AC 7, limiar de 768 px; sonda P6 (testes,limites)
 - last seen: 2026-10-31T03:31:54Z
+
+### L-049 - Mudança que alarga uma célula precisa reabrir o AC de largura que a fatia mantém, com fixture do conteúdo mais largo nas larguras dele; o teste antigo, com conteúdo curto, continua verde enquanto a tabela sai da coluna.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `e2e,fixtures,layout` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md rodada 3, Lacuna 1: LST-05 AC 3 em 1.024 px com fixo confirmado; src/components/valor-confirmavel.tsx:67; sonda G (Fixos 1.091,8 contra 1.000) (e2e,fixtures,layout)
+- last seen: 2026-10-31T04:36:51Z
+
+### L-050 - Regra de layout que um AC pede sem dizer largura precisa de prova colada no breakpoint em que o código a liga; provada só no monitor grande, o breakpoint muda com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites,layout` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md rodada 3: F2 (src/components/valor-confirmavel.tsx:67), DENS-01 AC 5 entre 768 e 1.279 px; sonda B (testes,limites,layout)
+- last seen: 2026-10-31T04:36:51Z
+
+### L-051 - Edge case que junta dois estados precisa de um teste com os dois ao mesmo tempo; provar cada estado num teste separado deixa a junção regredir com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md rodada 3: F6 (src/components/menu-da-linha.tsx:89-96), edge case 'confirmação aberta e clique fora'; sonda F (componentes,testes)
+- last seen: 2026-10-31T04:36:51Z
 
 ## Quarantined (failed when applied - ignore)
 

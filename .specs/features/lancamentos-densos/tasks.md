@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-30, por uma lacuna menor (o limiar de 768 px); correção F8 concluída, à espera da rodada 3 do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F8 concluídas)
-**Total**: 14 tasks em 5 fases (T1–T6 e as correções F1–F8), executadas inline
+**Status**: FAIL na rodada 3 de `validation.md`, em 2026-10-31, por uma lacuna maior (a tabela Fixos fora da coluna em 1.024 px com um fixo confirmado) e duas menores (o resumo do título preso e a confirmação armada com clique fora); o dono escolheu o caminho A do Fix 1 em 2026-10-31; correções F9–F12 em andamento (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F8 concluídas)
+**Total**: 18 tasks em 6 fases (T1–T6 e as correções F1–F12), executadas inline
 
 ---
 
@@ -133,6 +133,22 @@ F8
 
 A F8 fecha o Fix 1 da rodada 2 (FAIL, uma lacuna menor): o lado de baixo do limiar de 768 px dos
 alvos de 44 px, que só era medido em 400 px (sonda P6, mutantes N11 e N11b).
+
+### Phase 6 — Correções da verificação (rodada 3)
+
+```
+F9 -> F10
+F10 -> F11
+F11 -> F12
+```
+
+A F9 a F11 fecham os Fixes 1 a 3 da rodada 3 de `validation.md` (FAIL, uma lacuna maior e duas
+menores). A F9 segue o caminho A que o dono escolheu para o Fix 1 em 2026-10-31: a previsão do fixo
+fica na linha do valor só a partir de 1.280 px, e abaixo disso volta para baixo dele, como antes da
+fatia (mutante F2). Assim a tabela Fixos volta a caber na coluna em 1.024 px com um fixo confirmado
+(LST-05, AC 3; sondas G e B). A F10 e a F11 acrescentam, cada uma, o teste que a sonda do Verifier
+provou: passa na HEAD e falha com o mutante (F3 e F6). A F12 fecha as observações 4 e 10: o
+TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `lista-enxuta.spec.ts`.
 
 ---
 
@@ -423,4 +439,75 @@ alvos de 44 px, que só era medido em 400 px (sonda P6, mutantes N11 e N11b).
 - [x] As Global Constraints listam o limiar de 768 px entre os provados dos dois lados
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): alvos de 44 px logo abaixo de 768 px`
+**Commit**: `test(lancamentos): alvos de 44 px logo abaixo de 768 px` (`92139e2`)
+
+### Phase 6 — Correções da verificação (rodada 3)
+
+#### F9: A previsão do fixo na linha do valor só a partir de 1.280 px
+**What**: o caminho A que o dono escolheu em 2026-10-31 para o Fix 1 da rodada 3. No `ValorConfirmavel` fechado, "previsto" ou "confirmado · previa R$ X" fica na linha do valor, à esquerda dele, só a partir de 1.280 px, o mesmo limiar da linha baixa (`md:` → `xl:`, o mutante F2). Abaixo disso, volta para baixo do valor, alinhado à direita, como antes da fatia. Em 1.024 px, com um fixo confirmado, a tabela Fixos volta a caber na coluna de conteúdo (LST-05, AC 3). O DENS-01 AC 5, a premissa dele, o `design.md` e o AD-020 passam a dizer 1.280 px, com a decisão do dono (sondas G e B, L-029, L-049, L-050).
+**Where**:
+- `src/components/valor-confirmavel.tsx`
+- `e2e/lancamentos-densos.spec.ts`
+- `.specs/features/lancamentos-densos/spec.md`
+- `.specs/features/lancamentos-densos/design.md`
+- `.specs/STATE.md` (AD-020)
+
+**Depends on**: F8
+**Reuses**: `abrir`, `linha`, `caixa`
+**Requirement**: DENS-01 (e LST-05, AC 3, que a fatia mantém)
+**Done when**:
+- [ ] Em 1.024, 1.280 e 1.440 px, com o Fixo A confirmado na tela, toda tabela termina dentro da coluna de conteúdo, e a página não rola de lado (LST-05, AC 3); em 1.024 px, o teste falha na `92139e2`
+- [ ] Em 1.279 px, a previsão do Fixo A e a do Fixo B ficam embaixo do valor; em 1.280 px, na mesma linha, à esquerda dele (DENS-01, AC 5)
+- [ ] O código de antes (`md:`) falha nos testes novos, e o F2 é o código
+- [ ] O DENS-01 AC 5, a premissa "Valor confirmável do fixo", o `design.md` e o AD-020 dizem "a partir de 1.280 px", com a decisão do dono e a data
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `fix(lancamentos): previsão do fixo embaixo do valor abaixo de 1.280 px`
+
+#### F10: O resumo preso junto do título
+**What**: no teste do título preso, em 1.536 px, depois de rolar até o meio de "Fixos", o resumo do bloco ("2 · R$ 155,00 · 2 a pagar") fica inteiro na tela, com `toBeInViewport({ ratio: 1 })`, e com o topo e o pé dentro da faixa do título (Fix 2 da rodada 3, sonda D, L-010).
+**Where**: `e2e/lancamentos-densos.spec.ts`
+**Depends on**: F9
+**Reuses**: `abrir`, `caixa`, `rolarAteOMeioDosFixos`
+**Requirement**: DENS-04
+**Done when**:
+- [ ] Em 1.536 px, rolando até o meio de "Fixos", o resumo do bloco está inteiro na tela, com o topo e o pé dentro da faixa do título preso (DENS-04, AC 1)
+- [ ] O teste falha com F3 (o `span` do resumo fora da `div` presa)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): o resumo fica preso junto do título`
+
+#### F11: A confirmação armada e o clique fora
+**What**: no teste do `MenuDaLinha`, sem foco dentro, como no Safari: abrir o menu, armar o "Excluir", clicar fora, reabrir e achar "Excluir" de novo, sem "Confirmar" (Fix 3 da rodada 3, sonda F, L-051).
+**Where**: `src/components/menu-da-linha.test.tsx`
+**Depends on**: F10
+**Reuses**: `montar`, `gatilho`
+**Requirement**: DENS-02 (edge case "Confirmação aberta e clique fora")
+**Done when**:
+- [ ] Com o "Excluir" armado e sem foco dentro, um `pointerdown` fora fecha o menu; reaberto, ele mostra "Excluir, Almoço" e nenhum "Confirmar" (edge case; DENS-02, AC 5)
+- [ ] O teste falha com F6 (o painel sempre montado, com `hidden={!aberto}`)
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(lancamentos): clicar fora desfaz a confirmação de excluir`
+
+#### F12: O TOQUE-01 AC 1 substituído em parte, e a espera antes de medir
+**What**: as observações 4 e 10 da rodada 3.
+- Observação 4: com ponteiro fino, a partir de 768 px, o selo mede 32 px de altura, para a linha caber em 48 px (DENS-01, AC 1). O TOQUE-01 AC 1 entra em "O que esta fatia substitui" e no AD-020, e ganha a nota de substituição, como o AC 2.
+- Observação 10: o teste de LST-05 em `e2e/lista-enxuta.spec.ts` espera a página pronta antes de medir o cartão, como o `abrir` de `lancamentos-densos.spec.ts`. Nenhuma assertion muda.
+
+**Where**:
+- `.specs/features/lancamentos-densos/spec.md`
+- `.specs/STATE.md` (AD-020)
+- `.specs/features/lacunas-do-painel/spec.md`
+- `e2e/lista-enxuta.spec.ts`
+
+**Depends on**: F11
+**Reuses**: nenhuma
+**Requirement**: DENS-01, DENS-02
+**Done when**:
+- [ ] O TOQUE-01 AC 1 está em "O que esta fatia substitui" e no AD-020, e a nota dele aponta para DENS-01, AC 1 e DENS-02, AC 7
+- [ ] `lista-enxuta.spec.ts` espera o título da página antes do `boundingBox()` do cartão; nenhuma assertion muda
+- [ ] `pnpm verify` e o e2e inteiro passam
+**Tests**: e2e
+**Gate**: build
+**Commit**: `docs(lancamentos-densos): o selo denso e a espera antes de medir`

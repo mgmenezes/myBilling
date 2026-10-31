@@ -1,90 +1,115 @@
 # Lançamentos em lista densa — Validação
 
-## Validation: lancamentos-densos (rodada 2) — **FAIL**
+## Validation: lancamentos-densos (rodada 3) — **FAIL**
 
-**Result**: FAIL ❌ — rodada 2 (2026-10-30, `12ef0ca`).
+**Result**: FAIL ❌ — rodada 3 (2026-10-31, `92139e2`). É a última rodada que o processo permite: as
+lacunas abaixo vão ao dono.
 
-As cinco lacunas da rodada 1 estão fechadas:
-- o "⋯" ao lado do selo tem prova de lugar, e a spec diz o mesmo que o código;
-- os quatro mutantes que tinham sobrevivido (M11, M12 nas duas variantes, M13 e M17) morrem, cada um
-  no teste novo que mira a sua lacuna.
+A lacuna da rodada 2 está fechada:
+- a F8 (`92139e2`) mede em 767 px, com o ponteiro fino do projeto, o selo, o "⋯" e o "Excluir" do menu
+  aberto com 44 × 44 (`e2e/lancamentos-densos.spec.ts:434-435`);
+- N11 e N11b, que passavam na suíte inteira, morrem ali: o "⋯" com 32 px de largura em `:434`, e o
+  selo com 32 px de altura em `:435`.
 
 O gate está verde:
-- unit 1.704, integração 364, e2e 129 de 129, sem retry e sem `flaky`;
+- unit 1.704, integração 364, e2e 130 de 130, sem retry, sem `flaky` e sem `skip`;
 - `typecheck`, `lint` e `build` passam.
 
-O veredito é FAIL por **uma lacuna nova, Minor**, que a rodada 1 não viu:
+O veredito é FAIL por **três lacunas**, que as rodadas 1 e 2 não trataram como lacuna:
 
-1. **Minor: o limiar de 768 px dos alvos de 44 px não tem caso (DENS-02, AC 7; TOQUE-01, AC 1;
-   N11 e N11b).**
-   - O AC pede o "⋯" e o "Excluir" com ao menos 44 × 44 "abaixo de 768 px". O selo segue a mesma
-     regra (TOQUE-01). Os três só encolhem com `md:pointer-fine:`, uma redução nova desta fatia.
-   - O lado de baixo do limiar só é medido em 400 px (`e2e/acessibilidade.spec.ts:138-139`), longe
-     dele.
-   - Dois mutantes passam na suíte inteira (unit 1.704 e e2e 129 de 129):
-     - N11, o "⋯" e o "Excluir" densos já a partir de 640 px (`sm:pointer-fine:`);
-     - N11b, a mesma troca no selo.
-   - Com ponteiro fino, de 640 a 767 px, os alvos ficariam com 32 px.
-   - A sonda P6, com ponteiro fino em 767 px, passa na HEAD (44 × 44 nos três) e mata os dois
-     mutantes (32 px). É a L-029: o `tasks.md` listou os limiares de 1.280 e 1.536 px e deixou de
-     fora o de 768 px.
+1. **Major: com um fixo confirmado, a tabela Fixos passa da coluna de conteúdo em 1.024 px (LST-05
+   AC 3), por causa da previsão na mesma linha do valor (DENS-01 AC 5).**
+   - Na HEAD, em 1.024 px, a tabela termina em 1.091,8 px, e a coluna em 1.000 px. A página rola
+     68 px de lado.
+   - Antes da fatia, com o mesmo conteúdo, eram 27 px e 3 px.
+   - Com a previsão abaixo do valor até 1.279 px (o mutante F2), a tabela cabe: termina em 1.000 px.
+   - Nenhum teste vê isso:
+     - o de LST-05 AC 3 (`e2e/lista-enxuta.spec.ts:409`) só tem fixos "previstos";
+     - o desta fatia tem o fixo confirmado, mas só mede de 1.280 px para cima;
+     - F2 passa na suíte inteira.
+   - O LST-05 AC 3 continua valendo abaixo de 1.536 px. Esta fatia reescreveu o texto dele, e o
+     `design.md` diz que, em 1.024 px, ele "não muda".
+   - Os dois ACs se chocam em 1.024 px com um fixo confirmado. **Pede uma decisão do dono.**
+2. **Minor: DENS-04 AC 1, "com o resumo" (F3).** Nenhuma assertion olha o resumo do título preso.
+   Tirar o resumo da `div` presa passa na suíte inteira: ao rolar, o título fica no alto, e o resumo
+   some por baixo dele.
+3. **Minor: edge case "confirmação aberta e clique fora" (F6).** Nenhum teste arma a confirmação e
+   depois clica fora. Esconder o painel em vez de desmontá-lo passa na suíte inteira. No Safari, que
+   não dá foco ao botão clicado, o menu reabre já em "Confirmar?".
 
-Mais 13 mutantes novos ou reaplicados morrem, entre eles:
-- o "⋯" depois do valor, ou entre o selo e "Vencido";
-- a parcela com o resto errado por um;
-- o título preso já em 1.280 px;
-- a barra compacta escondida em 1.535 px;
-- a descrição longa sem quebrar.
+Nas Lacunas 2 e 3, o código da HEAD faz o que a spec pede (sondas D e F); falta o teste. Na Lacuna 1,
+o código descumpre um AC que esta fatia mantém.
 
-Um mutante sobrevive fora da spec: N5, o menu que não fecha quando o foco sai dele. Nenhum AC pede
-isso, só o `design.md`, então ele fica como observação.
+Dos 14 mutantes desta rodada:
+- 9 morrem;
+- 3 vivos são as lacunas acima (F2, F3 e F6);
+- 2 vivos ficam como observação:
+  - C1 quebra algo que nenhum critério pede;
+  - C2 só quebra com uma regra nova, que o código não tem.
 
-**Data**: 2026-10-30
+**Data**: 2026-10-31
 **Spec**: `.specs/features/lancamentos-densos/spec.md` (DENS-01 a DENS-04, 23 critérios, 7 edge cases;
 DENS-02 AC 1 emendado pelo dono em 2026-10-30)
 **Faixa do diff**:
-- a fatia inteira é `b42f9b6..12ef0ca`;
+- a fatia inteira é `b42f9b6..92139e2`;
 - as tasks T1 a T6 são `b42f9b6..514ab25`;
-- o relatório da rodada 1 e as correções F1 a F7 são `514ab25..12ef0ca`: `7525e40`, `d0c67cb`,
-  `7ac8cbf`, `7153dfd`, `0b73ecd`, `c4cf6ad`, `15ea1ee` e `12ef0ca`.
+- as correções F1 a F7 da rodada 1 são `514ab25..12ef0ca`;
+- o relatório da rodada 2 é `9ca13cb`;
+- a correção F8 da rodada 2 é `92139e2`. Ela traz:
+  - um e2e novo em `e2e/lancamentos-densos.spec.ts:412-438`;
+  - o limiar de 768 px nas Global Constraints do `tasks.md`;
+  - a traceability do DENS-02.
 
-`git diff --stat 514ab25..12ef0ca` só toca spec, `design.md`, `tasks.md`, lições, três e2e e dois
-testes de componente. Nenhum arquivo de produção mudou desde a rodada 1.
+Nenhum arquivo de produção mudou desde a rodada 1 (`git diff --stat 514ab25..92139e2 -- src` só
+toca dois testes de componente).
 
-**Verificador**: sub-agente independente da rodada 2 (autor ≠ verificador). Leu código e testes sem
-mudá-los. No worktree real, escreveu só este arquivo e os dois de lições.
+**Verificador**: sub-agente independente da rodada 3 (autor ≠ verificador). Leu código e testes sem
+mudá-los. No worktree real, escreveu só este arquivo e os de lições.
 
-- **Onde rodaram as mutações:** numa `git worktree` descartável, detached em `12ef0ca`, no scratchpad
-  da sessão, com `pnpm install --frozen-lockfile` próprio.
-  - O gate da HEAD também rodou lá, antes de qualquer mutação, porque `next build` reescreve o
-    `next-env.d.ts`.
+- **Onde rodaram o gate, as mutações e as sondas:** numa `git worktree` descartável, detached em
+  `92139e2`, no scratchpad da sessão, com `pnpm install --frozen-lockfile` próprio.
   - Cada mutante entrou sozinho, por uma troca de texto exata que tinha de casar o número esperado de
     vezes, e saiu com `git checkout -- src`.
-  - As sondas viveram num arquivo `e2e/sonda-r2.spec.ts` só da worktree descartável. No fim, a
-    worktree foi removida.
-- **Isolamento:** o `git status --porcelain` do worktree real foi comparado com o de antes
-  (` M next-env.d.ts`, md5 `aa94238a…`) no meio e no fim do trabalho. Não houve `git stash`, e nada
-  foi commitado.
+  - As sondas viveram em `e2e/sonda-r3.spec.ts` e `src/components/sonda-r3.test.tsx`. Foram copiadas
+    para a worktree descartável só durante a sonda e apagadas em seguida.
+  - Nenhuma corrida que decide "morto" ou "vivo" incluiu uma sonda.
+  - Para comparar com antes da fatia, a sonda G rodou também numa segunda worktree descartável,
+    detached em `b42f9b6`.
+  - No fim, as duas worktrees foram removidas.
+- **Isolamento:** o `git status --porcelain` do worktree real estava vazio antes, no meio e ao fim do
+  sensor. Não houve `git stash`, e nada foi commitado.
+- **Banco:** o de teste da sessão, só desta verificação.
 
 ---
 
-## Rodada 1 (2026-10-30, `514ab25`): FAIL
+## Rodada 1 (2026-10-30, `514ab25`): FAIL, cinco lacunas, fechadas
 
-O gate estava verde (unit 1.703, e2e 125), e 13 de 17 mutantes morriam. Cinco lacunas:
+O gate estava verde (unit 1.703, e2e 125), e 13 de 17 mutantes morriam.
 
-| # | Lacuna da rodada 1 | Correção | Prova na HEAD (`file:line` + assertion) | Mutante reaplicado |
+| # | Lacuna | Correção | Prova na HEAD | Mutante reaplicado na rodada 2 |
 | --- | --- | --- | --- | --- |
-| 1 | Major: o AC pedia o "⋯" no fim da linha, e o código o põe ao lado do selo (DENS-02 AC 1) | F1 `d0c67cb`: o dono confirmou o lugar; AC, premissa e `design.md` reescritos; e2e de lugar | `e2e/lancamentos-densos.spec.ts:328-329` - `menu.x >= situacao.x`, `menu.x + menu.width <= situacao.x + situacao.width`; `:332` - `menu.x >= selo.x + selo.width`; `:340` - `menuDoVencido.x >= chip.x + chip.width` | N3 e N4 (novos) morrem em `:329` e `:340` |
-| 2 | Major: 44 px com ponteiro grosso acima de 768 px sem prova (DENS-02 AC 7; M12) | F2 `7ac8cbf`: `describe` com `hasTouch` em 1.920 px | `:386` - `matchMedia("(pointer: coarse)").matches).toBe(true)`; `:401-402` - `alvo.width`/`alvo.height` `toBeGreaterThanOrEqual(44)` para selo, "⋯" e "Excluir" | M12a: morto em `:401`, "⋯" com 32; M12b: morto em `:402`, selo com 32 |
-| 3 | Major: descrição longa sem caso (edge case; DENS-01 AC 1; M11) | F3 `7153dfd`: Item C de descrição longa em "Gastos do Mês" | `:212` - `expect(altura, nome).toBeLessThanOrEqual(48)` nas seis curtas; `:217` - `toBeGreaterThan(48)` na longa | M11: morto em `:212`, Item B com 81 px |
-| 4 | Minor: coluna presa e barra compacta só em 1.920 px (DENS-03 ACs 2 e 6; M13) | F4 `0b73ecd`: o teste roda em 1.536 e 1.920 × 480; caso novo em 1.535 × 480 | `:499` - `toBeInViewport()` e `:500` - `toHaveCount(0)` em 1.536 e 1.920 px; `:515` - `not.toBeInViewport()` e `:516` - `toBeVisible()` em 1.535 px | M13: morto em `:499` (1.536 px, `viewport ratio 0`); N10 (novo): morto em `:516` |
-| 5 | Minor: clique fora só provado com o foco dentro (DENS-02 AC 5; M17) | F5 `c4cf6ad`: unit com `fireEvent.click` e `fireEvent.pointerDown(document.body)` | `src/components/menu-da-linha.test.tsx:96` - `activeElement).toBe(document.body)`; `:100` - `toBe("false")`; `:101` - `toBeNull()` | M17: morto em `:100` |
+| 1 | Major: o AC pedia o "⋯" no fim da linha; o código o põe ao lado do selo (DENS-02 AC 1) | F1 `d0c67cb`: o dono confirmou o lugar; AC, premissa e `design.md` reescritos | `e2e/lancamentos-densos.spec.ts:328-332`, `:340` | N3 e N4 morrem |
+| 2 | Major: 44 px com ponteiro grosso acima de 768 px sem prova (DENS-02 AC 7) | F2 `7ac8cbf`: `hasTouch` em 1.920 px | `:386`, `:401-402` | M12a e M12b morrem |
+| 3 | Major: descrição longa sem caso (edge case; DENS-01 AC 1) | F3 `7153dfd`: Item C de descrição longa | `:212`, `:217`, `:239`, `:243` | M11 morre |
+| 4 | Minor: coluna presa e barra compacta só em 1.920 px (DENS-03 ACs 2 e 6) | F4 `0b73ecd`: 1.536 × 480 e 1.535 × 480 | `:532-533`, `:548-549` | M13 morre |
+| 5 | Minor: clique fora provado só com o foco dentro (DENS-02 AC 5) | F5 `c4cf6ad`: `pointerdown` sem foco | `src/components/menu-da-linha.test.tsx:96`, `:100-101` | M17 morre |
 
 As observações 5 e 7 da rodada 1 também foram fechadas:
-- **Observação 5, F6 (`15ea1ee`):** o foco vai ao "Excluir" antes do `Escape` (`:358-359`), e o
-  `toBeFocused()` de `:362` agora discrimina. M6 morre no e2e, e não só no unit.
-- **Observação 7, F7 (`12ef0ca`):** os textos que ficaram para trás foram corrigidos. Nenhum arquivo da
-  fatia ainda diz "reticências", "segunda linha" ou "sob a descrição" para a parcela.
+- a F6 (`15ea1ee`) leva o foco ao "Excluir" antes do `Escape` (`:358-362`);
+- a F7 (`12ef0ca`) corrige os textos que ficaram para trás.
+
+## Rodada 2 (2026-10-30, `12ef0ca`): FAIL, uma lacuna, fechada
+
+A lacuna era o limiar de 768 px dos alvos de 44 px (DENS-02 AC 7; TOQUE-01 AC 1):
+- o lado de baixo só era medido em 400 px;
+- N11 e N11b (os alvos densos já a partir de 640 px) passavam na suíte inteira.
+
+A F8 (`92139e2`) fecha a lacuna:
+- `e2e/lancamentos-densos.spec.ts:419` confere `matchMedia("(pointer: fine)")` em 767 px;
+- `:434-435` mede o selo, o "⋯" e o "Excluir" do menu aberto com ≥ 44 × 44;
+- reaplicados nesta rodada, N11 morre em `:434` (o "⋯" com 32 px), e N11b em `:435` (o selo com
+  32 px);
+- as Global Constraints do `tasks.md` listam agora 768, 1.280 e 1.536 px.
 
 ---
 
@@ -92,92 +117,139 @@ As observações 5 e 7 da rodada 1 também foram fechadas:
 
 | Task | Commit | Status | Notas |
 | --- | --- | --- | --- |
-| T1 parcela curta | `de84baa` | ✅ Done | N1 morre em 6 testes de componente |
-| T2 linha baixa | `4349d77` | ✅ Done | M11 e N9 morrem com a descrição longa da F3; N8 morre no lugar de "confirmado · previa" |
-| T3 excluir no menu | `b967cb6` | ⚠️ Partial | Lugar, toque, `Escape` e clique fora provados. O limiar de 768 px do AC 7 não tem caso (N11 vivo) |
-| T4 coluna de filtros | `7f029ad` | ✅ Done | M13, N6 e N10 morrem; limiar de 1.536 px provado dos dois lados |
-| T5 títulos presos | `284cbb1` | ✅ Done | N7 morre do lado de 1.535 px |
+| T1 parcela curta | `de84baa` | ✅ Done | Texto e lugar provados na composição |
+| T2 linha baixa | `4349d77` | ❌ Needs Fix | A linha baixa está provada em 1.280, 1.536 e 1.920 px. A previsão na mesma linha do valor faz a tabela Fixos passar da coluna em 1.024 px com um fixo confirmado (Lacuna 1) |
+| T3 excluir no menu | `b967cb6` | ⚠️ Partial | Lugar, toque, `Escape`, clique fora e o limiar de 768 px provados. O edge case "confirmação aberta e clique fora" não tem caso (Lacuna 3) |
+| T4 coluna de filtros | `7f029ad` | ✅ Done | Limiar de 1.536 px dos dois lados; a coluna à direita (F8 morre em `:455`) |
+| T5 títulos presos | `284cbb1` | ⚠️ Partial | O título preso está provado dos dois lados de 1.536 px. O resumo junto dele, não (Lacuna 2) |
 | T6 decisão registrada | `514ab25` | ✅ Done | AD-020 diz o mesmo lugar do "⋯" que a spec emendada |
-| F1 a F7 | `d0c67cb`…`12ef0ca` | ✅ Done | Cada uma mata o mutante que a motivou (tabela da Rodada 1) |
+| F1 a F7 | `d0c67cb`…`12ef0ca` | ✅ Done | Cada uma mata o mutante que a motivou |
+| F8 | `92139e2` | ✅ Done | N11 e N11b morrem em `:434-435`; `check_commit.py` OK |
 
 ---
 
 ## Spec-Anchored Acceptance Criteria
 
 Toda medida de layout é de caixa (`boundingBox`, `getBoundingClientRect`) ou de estilo computado:
-- no Chrome do projeto, a 1.280 × 720 com ponteiro fino, salvo onde o teste muda a janela;
-- `matchMedia("(pointer: fine)")` é verdadeiro no projeto padrão, conferido na sonda.
+- no Chrome do projeto, a 1.280 × 720 com ponteiro fino;
+- salvo onde o teste muda a janela ou o ponteiro.
 
-As linhas citadas são as da `12ef0ca`.
+As linhas citadas são as da `92139e2`. `:N` sozinho é `e2e/lancamentos-densos.spec.ts`.
+
+### Os limiares, dos dois lados
+
+| Limiar | AC que o diz | Lado de baixo | Lado de cima | Juízo |
+| --- | --- | --- | --- | --- |
+| 768 px | DENS-02 AC 7: "abaixo de 768 px ou com ponteiro grosso", ≥ 44 × 44 | 767 px, ponteiro fino: `:434-435` (F8). Também 400 px: `e2e/acessibilidade.spec.ts:138-139` | Ponteiro grosso em 1.920 px: `:401-402`. Com ponteiro fino a partir de 768 px, o AC não pede nada | ✅ O lado que o AC promete está colado no limiar. N11 e N11b morrem |
+| 1.280 px | DENS-01 AC 1: "a partir de 1.280 px com ponteiro fino", ≤ 48 px | A spec não promete altura abaixo de 1.280 px (premissa "Onde a linha baixa é garantida") | 1.280 px: `:212` | ✅ Colado no lado prometido. F10 (`flex-nowrap` só a partir de 1.281 px) morre em `:212`. F11 (já a partir de 1.024 px) morre em `e2e/lista-enxuta.spec.ts:428` |
+| 1.536 px | DENS-03 ACs 1, 2, 5, 6 e 8; DENS-04 AC 1 | 1.535 px: `:561`, `:548-549`, `:600` | 1.536 px: `:566`, `:532-533`, `:594`; o `:212` também roda em 1.536 px | ✅ Dos dois lados. No AC 8, o teto de 1.100 px só aperta a partir de ~1.628 px (sonda E: a lista mede 960 px em 1.536 px). O teste roda em 1.920 px |
 
 ### DENS-01: uma linha por lançamento
 
 | Critério | Resultado da spec | `file:line` + assertion | Resultado |
 | --- | --- | --- | --- |
-| AC 1: a partir de 1.280 px com ponteiro fino, toda linha ≤ 48 px, inclusive parcela, fixo confirmado e vencido | as seis linhas curtas ≤ 48 em 1.280, 1.536 e 1.920 px; só a de descrição longa passa disso | `e2e/lancamentos-densos.spec.ts:210` - `expect(curtas).toHaveLength(6)`, `:212` - `expect(altura, nome).toBeLessThanOrEqual(48)`, `:215` - `expect(longas).toHaveLength(1)`, `:217` - `toBeGreaterThan(48)`, em 1.280 e 1.536 px; `:231-233` (parcela, "confirmado · previa" e "Vencido" na tela) e `:237-243` em 1.920 px | ✅ PASS. Na HEAD: curtas com 40 a 45 px e a longa com 76 px, nas três larguras. O limiar é medido colado nele (1.280 px); abaixo dele a spec não promete altura |
-| AC 2: a parcela logo depois da descrição, na mesma célula, menor e apagada: "2/4 · faltam 2" e "4/4 · última" | o primeiro nó da célula é a descrição e o último é a parcela; textos exatos; a parcela na altura da descrição a partir de 1.280 px | `src/components/texto-da-parcela.test.ts:10`, `:14`, `:18` - `toBe("faltam 2")`, `toBe("faltam 1")`, `toBe("última")`; `src/components/tabela-lancamentos.test.tsx:48` - `celula.firstChild?.textContent).toBe(descricao)`, `:55-56` - classes `text-[13px]` e `text-ink-muted`, sem `block`; `:420` - `toBe("2/4 · faltam 2")`, `:428` - `toBe("4/4 · última")`, `:435` - `toBe("3/4 · faltam 1")`; `e2e/lista-enxuta.spec.ts:476-477` em 1.280 e 1.440 px; `e2e/compra-parcelada.spec.ts:176`, `:182` | ✅ PASS. "Menor e apagado" é provado pelo nome da classe (Observação 4) |
-| AC 3: o selo "Pago"/"Previsto" alterna o pagamento, com o mesmo nome acessível | `/^Previsto\s*, Item B/` com `aria-pressed="false"`; depois do clique, `/^Pago\s*, Item B/` com `"true"` | `e2e/lancamentos-densos.spec.ts:272` - `toHaveAttribute("aria-pressed", "false")`, `:275` - `pago).toHaveAttribute("aria-pressed", "true")`, `:278-281` (volta). O "compacto" é preso pela altura da linha em `:212` | ✅ PASS |
-| AC 4: "Vencido" ao lado do selo | "Vencido" à direita do selo, na mesma faixa | `:269` - `vencido.x).toBeGreaterThanOrEqual(caixaDoSelo.x + caixaDoSelo.width)`, `:270` - `vencido.y).toBeLessThan(caixaDoSelo.y + caixaDoSelo.height)` | ✅ PASS |
-| AC 5: "previsto" ou "confirmado · previa R$ X" na linha do valor, à esquerda dele | o texto termina antes do valor e cruza a altura dele | `:255` - `previsao.x + previsao.width).toBeLessThanOrEqual(valor.x + 1)`, `:256-257` - sobreposição vertical, para "confirmado · previa R$ 100,00" | ✅ PASS (N8 morre em `:255`). Só a variante "confirmado" é medida (Observação 1) |
-| AC 6: as cinco colunas e o seletor de categoria de hoje | cabeçalhos exatos; seletor com o comportamento de TRC | `e2e/lista-enxuta.spec.ts:480-481` - `toHaveText(["Descrição", "Categoria", "Data", "Situação", "Valor"])` em 1.024, 1.280 e 1.440 px; `e2e/lancamentos-densos.spec.ts:315-321` - o mesmo em 1.920 px, nas tabelas dos três avulsos; TRC em `src/components/tabela-lancamentos.test.tsx` e `e2e/trocar-categoria.spec.ts`, sem mudança e verdes | ✅ PASS |
+| AC 1: a partir de 1.280 px com ponteiro fino, toda linha ≤ 48 px, inclusive parcela, fixo confirmado e vencido | as seis linhas curtas ≤ 48 px em 1.280, 1.536 e 1.920 px | `:210` - `expect(curtas).toHaveLength(6)`; `:212` - `expect(altura, nome).toBeLessThanOrEqual(48)`, em 1.280 e 1.536 px; `:231-233` (parcela, "confirmado · previa" e "Vencido" na tela) e `:237-239` em 1.920 px | ✅ PASS. Sonda A: em 1.279 px o Item B mede 81 px, então a garantia começa exatamente em 1.280 px |
+| AC 2: a parcela logo depois da descrição, na mesma célula, menor e apagada: "2/4 · faltam 2" e "4/4 · última" | primeiro nó = descrição, último = parcela; textos exatos; na altura da descrição a partir de 1.280 px | `src/components/texto-da-parcela.test.ts:10`, `:14`, `:18`; `src/components/tabela-lancamentos.test.tsx:48` - `celula.firstChild?.textContent).toBe(descricao)`, `:55-56` (classes `text-[13px]` e `text-ink-muted`, sem `block`), `:420` - `toBe("2/4 · faltam 2")`, `:428` - `toBe("4/4 · última")`, `:435`; pela página: `:205` - `toContainText("1/3 · faltam 2")`, `e2e/compra-parcelada.spec.ts:176`, `:182`, `e2e/lista-enxuta.spec.ts:476-477` | ✅ PASS. "Menor e apagado" é provado pela classe (observação 7) |
+| AC 3: selo "Pago"/"Previsto" que alterna o pagamento, com o mesmo nome | `aria-pressed` `false` → `true` → `false`, nome `/^Previsto\s*, Item B/` | `:272`, `:275`, `:278-281` | ✅ PASS |
+| AC 4: "Vencido" ao lado do selo | à direita do selo, na mesma faixa | `:269` - `vencido.x >= caixaDoSelo.x + caixaDoSelo.width`; `:270` | ✅ PASS. F1 (o "Vencido" antes do selo) morre em `:269` |
+| AC 5: "previsto" ou "confirmado · previa R$ X" na linha do valor, à esquerda dele | vale onde a lista é tabela, de 768 px para cima; abaixo disso é cartão, fora de escopo | `:255` - `previsao.x + previsao.width <= valor.x + 1`, `:256-257` (sobreposição vertical), só em 1.920 px; a altura do Fixo A e do Fixo B ≤ 48 em `:212` (1.280 e 1.536 px) | ❌ GAP (Lacuna 1). De 768 a 1.279 px não há prova: F2 (`md:` → `xl:` no `ValorConfirmavel`) passa na suíte inteira. A HEAD cumpre o AC em 768, 800, 1.024 e 1.279 px nos dois fixos (sonda B). Mas, em 1.024 px, cumpri-lo com um fixo confirmado é o que quebra o LST-05 AC 3 (abaixo). A variante "previsto" fica protegida pela altura: F7 morre em `:212` (Fixo B com 53,5 px) |
+| AC 6: as cinco colunas e o seletor de hoje | cabeçalhos exatos; TRC sem mudança | `:315-321` em 1.920 px; `e2e/lista-enxuta.spec.ts:481` em 1.024, 1.280 e 1.440 px; `e2e/trocar-categoria.spec.ts` verde | ✅ PASS |
+
+### O AC de outra fatia que esta mantém
+
+A seção "O que esta fatia substitui" só tira o LST-05 AC 3 a partir de 1.536 px. A fatia reescreveu o
+texto dele (`.specs/features/lista-enxuta/spec.md:185-187`). O `design.md` diz, da linha de
+`lista-enxuta.spec.ts:409-431`: "Nada muda: o cartão continua no topo nessas larguras".
+
+| Critério | Resultado da spec | `file:line` + assertion | Resultado |
+| --- | --- | --- | --- |
+| LST-05 AC 3: em 1.024, 1.280 e 1.440 px, nenhuma tabela mais larga que a coluna de conteúdo | o fim de cada tabela ≤ o fim do cartão de filtros, também com o fixo confirmado | `e2e/lista-enxuta.spec.ts:428` - `caixa.x + caixa.width <= coluna.x + coluna.width + 0.5`, com uma semeadura sem fixo confirmado | ❌ **Quebrado na HEAD em 1.024 px** (Lacuna 1). Sonda G, com a semeadura desta fatia: a tabela Fixos termina em 1.091,8 px, contra 1.000 px da coluna, e a página rola 68 px. Em 1.280 e 1.440 px, cabe |
 
 ### DENS-02: excluir no menu da linha
 
 | Critério | Resultado da spec | `file:line` + assertion | Resultado |
 | --- | --- | --- | --- |
-| AC 1 (emendado): na célula da Situação de cada avulso, logo depois do selo e do "Vencido", um "⋯" com o nome "Mais ações para <descrição>" | o "⋯" com esse nome dentro da célula da Situação, à direita do selo e, no vencido, de "Vencido" | Nome: `src/components/menu-da-linha.test.tsx:34` (`gatilho()`, `name: "Mais ações para Almoço"`), `:41`; `e2e/lancamentos-densos.spec.ts:294-296` - `toBeVisible()` em Entrada A, Item A e Item B. Lugar: `:328-331` - a caixa do "⋯" dentro da 4ª célula, `:332` - `menu.x >= selo.x + selo.width`, `:340` - `menuDoVencido.x >= chip.x + chip.width`, com `:315-321` confirmando que a 4ª coluna é "Situação" (L-018) | ✅ PASS. Spec, premissa (`y`, com data e motivo), `design.md`, AD-020 e código dizem o mesmo lugar. Sonda: em 1.920 px, o "⋯" do Item B fica em x 1.314–1.346, a Situação em 1.143–1.358 e o Valor em 1.358–1.462. N3 e N4 morrem |
-| AC 2: sem "⋯" na parcela e no fixo | zero "⋯" nessas linhas | `src/components/tabela-lancamentos.test.tsx:745`, `:765` - `queryByRole("button", { name: /^Mais ações/ })).toBeNull()`; `e2e/lancamentos-densos.spec.ts:299` - `toHaveCount(0)` em Fixo A, Fixo B e Compra A; `e2e/lancamento-avulso.spec.ts:296` | ✅ PASS (N2 morre no unit `:765` e no e2e `:299`, pela página) |
-| AC 3: acionar o "⋯" abre o menu com "Excluir" | `aria-expanded="true"` e o botão "Excluir, <descrição>" | `src/components/menu-da-linha.test.tsx:50-51`; `e2e/lancamentos-densos.spec.ts:354`, `:365` | ✅ PASS |
-| AC 4: dois toques, e então exclui como hoje | o 1º toque não chama a ação; o 2º chama com o id; na página, a linha some e o bloco cai | `src/components/menu-da-linha.test.tsx:59` - `not.toHaveBeenCalled()`, `:63` - `toHaveBeenCalledWith("l-1")`; `e2e/lancamentos-densos.spec.ts:349` - `toContainText("3 · R$ 60,00")`, `:366` - a linha ainda na tela depois do 1º toque, `:369` - `toHaveCount(0)`, `:370` - `toContainText("2 · R$ 40,00")` | ✅ PASS |
-| AC 5: `Escape` ou clique fora fecham; no `Escape`, o foco volta ao "⋯" | `aria-expanded="false"`, nada do painel, foco no "⋯" | `src/components/menu-da-linha.test.tsx:73-75` (Escape com a confirmação armada); `:84-85` (clique fora com foco dentro); `:96`, `:100-101` (aberto sem foco, `pointerdown` fora fecha); `e2e/lancamentos-densos.spec.ts:359` - `excluir).toBeFocused()`, `:361` - `toHaveAttribute("aria-expanded", "false")`, `:362` - `gatilho).toBeFocused()` | ✅ PASS (M6 morre no e2e `:362`, e M17 no unit `:100`) |
-| AC 6: nenhum "Excluir" fora do menu, em nenhuma largura | zero "Excluir" com o menu fechado | `e2e/lancamentos-densos.spec.ts:301` - `page.getByRole("button", { name: /^Excluir/ })).toHaveCount(0)`; `src/components/tabela-lancamentos.test.tsx:714`; `src/components/menu-da-linha.test.tsx:42` | ✅ PASS. O "Excluir" só é renderizado com o menu aberto (`menu-da-linha.tsx:89-96`), em qualquer largura |
-| AC 7: abaixo de 768 px **ou** com ponteiro grosso, "⋯" e "Excluir" com ≥ 44 × 44 | as duas caixas ≥ 44 nos dois casos, com o lado de baixo do limiar colado em 768 px | Abaixo de 768 px: `e2e/acessibilidade.spec.ts:138-139` - `alvo.largura`/`alvo.altura` `toBeGreaterThanOrEqual(ALVO_MINIMO)` em **400 px**. Ponteiro grosso: `e2e/lancamentos-densos.spec.ts:386`, `:401-402` em 1.920 px | ❌ GAP parcial. O ponteiro grosso está provado (M12a e M12b morrem). O limiar de 768 px não tem caso colado: N11 e N11b (densos a partir de 640 px) passam na suíte inteira (Lacuna 1) |
+| AC 1: na célula da Situação de cada avulso, logo depois do selo e do "Vencido", o "⋯" "Mais ações para <descrição>" | o "⋯" com esse nome dentro da 4ª célula, à direita do selo e de "Vencido" | `:294-296` - `toBeVisible()` nos três avulsos; `:315-321` (a 4ª coluna é "Situação"); `:328-331` (dentro da célula); `:332` - `menu.x >= selo.x + selo.width`; `:340` - `menuDoVencido.x >= chip.x + chip.width`; nome também em `src/components/menu-da-linha.test.tsx:34` | ✅ PASS, com a consulta presa à linha e à célula (L-018) |
+| AC 2: sem "⋯" na parcela e no fixo | zero "⋯" | `:299` - `toHaveCount(0)` em Fixo A, Fixo B e Compra A; `src/components/tabela-lancamentos.test.tsx:745`, `:765`; `e2e/lancamento-avulso.spec.ts:296` | ✅ PASS |
+| AC 3: o "⋯" abre o menu com "Excluir" | `aria-expanded="true"` e o botão "Excluir, <descrição>" | `src/components/menu-da-linha.test.tsx:50-51`; `:354`, `:365` | ✅ PASS |
+| AC 4: dois toques, e então exclui como hoje | 1º toque não exclui; 2º exclui; a linha some e o bloco cai de "3 · R$ 60,00" para "2 · R$ 40,00" | `src/components/menu-da-linha.test.tsx:59`, `:63`; `:349`, `:366`, `:369`, `:370` | ✅ PASS. F5 (o toque dentro fecha o menu) morre em `menu-da-linha.test.tsx:60` e em `:367` |
+| AC 5: `Escape` ou clique fora fecham; no `Escape`, o foco volta ao "⋯" | `aria-expanded="false"`, painel fora, foco no "⋯" | `src/components/menu-da-linha.test.tsx:73-75`, `:84-85`, `:96`, `:100-101`; `:359`, `:361`, `:362` | ✅ PASS. F4 (o `Escape` não fecha) morre em `menu-da-linha.test.tsx:73` e em `:361` |
+| AC 6: nenhum "Excluir" fora do menu, em nenhuma largura | zero "Excluir" com o menu fechado | `:301` - `page.getByRole("button", { name: /^Excluir/ })).toHaveCount(0)`; `src/components/menu-da-linha.test.tsx:42`; `src/components/tabela-lancamentos.test.tsx:714` | ✅ PASS. A prova no DOM do jsdom não depende de largura: fechado, o "Excluir" não existe |
+| AC 7: abaixo de 768 px ou com ponteiro grosso, "⋯" e "Excluir" ≥ 44 × 44 | ≥ 44 nos dois casos, colado no limiar | 767 px fino: `:419`, `:434-435`; 400 px fino: `e2e/acessibilidade.spec.ts:138-139`; 1.920 px com toque: `:386`, `:401-402` | ✅ PASS. A lacuna da rodada 2 está fechada. O celular com toque (as duas condições juntas) não é medido (observação 3) |
 
 ### DENS-03: filtros numa coluna à direita
 
 | Critério | Resultado da spec | `file:line` + assertion | Resultado |
 | --- | --- | --- | --- |
-| AC 1: a partir de 1.536 px, coluna à direita, com linha fina, busca, categorias com total, situação, meio e pessoa | coluna à direita da lista; `border-left` 1px sólido; os cinco controles no `search` da coluna | `e2e/lancamentos-densos.spec.ts:422` - `coluna.x >= entradas.x + entradas.width`, `:430` - `toEqual({ largura: "1px", tipo: "solid" })`, `:433-437` - busca, `list` "Categoria", "Meio de pagamento", "Pessoa" e "Situação" `toBeVisible()`; `:533` em 1.536 px | ✅ PASS |
-| AC 2: rolando a partir de 1.536 px, a coluna à vista | a busca da coluna na tela depois de rolar até o fim | `:499` - `toBeInViewport()` em 1.536 × 480 e 1.920 × 480; do outro lado, `:515` - `not.toBeInViewport()` em 1.535 × 480 | ✅ PASS, com o limiar dos dois lados (M13 morre) |
-| AC 3: contagem e total no alto da coluna | o `status` acima da busca | `:440` - `contagem.y + contagem.height).toBeLessThanOrEqual(busca.y)` | ✅ PASS |
-| AC 4: os chips de hoje, quebrando na largura da coluna | o chip dentro das bordas da coluna; escolher marca `aria-pressed` | `:451-452` - o chip dentro de `coluna.x` e `coluna.x + coluna.width`; `:456-459` - `toHaveAttribute("aria-pressed", "true")`; cor e "+N" em `e2e/categorias.spec.ts` e `e2e/lista-enxuta.spec.ts`, abaixo de 1.536 px | ✅ PASS. A quebra e o "+N" dentro dos 288 px não são exercitados (Observação 2) |
-| AC 5: abaixo de 1.536 px, filtros no topo | o cartão termina acima da lista em 1.535 px | `:528` - `noTopo.y + noTopo.height).toBeLessThanOrEqual(entradas.y)`; o outro lado em `:533` | ✅ PASS |
-| AC 6: rolando a partir de 1.536 px, sem barra compacta | zero `search` "Busca e filtros ativos" a partir de 1.536 px; a barra de hoje abaixo | `:500` - `toHaveCount(0)` em 1.536 e 1.920 × 480; `:511` - `toHaveCount(0)` antes de rolar e `:516` - `toBeVisible()` depois, em 1.535 × 480; `e2e/lista-enxuta.spec.ts` (LST-03) em 1.280 px | ✅ PASS (N10 morre em `:516`) |
-| AC 7: mesmos parâmetros e resultados | `categoriaId=` na URL e a entrada fora da lista | `:455` - `toHaveURL(/categoriaId=/)`, `:460` - `linha(page, "Entrada A")).toHaveCount(0)`; `busca-e-filtros`, `lista-enxuta` e `categorias` verdes, sem mudança | ✅ PASS |
-| AC 8: a partir de 1.536 px, lista ≤ 1.100 px, centrada entre o menu e a coluna | largura ≤ 1.100; folgas iguais, com 1 px de tolerância | `:471` - `lista.width).toBeLessThanOrEqual(1100)`, `:474` - `Math.abs(folgaEsquerda - folgaDireita)).toBeLessThanOrEqual(1)` | ✅ PASS (N6 morre em `:474`: 292 px de diferença) |
+| AC 1: a partir de 1.536 px, coluna à direita, com linha fina, busca, categorias com total, situação, meio e pessoa | coluna à direita; `border-left` 1px sólido; os cinco controles no `search` da coluna | `:455` - `coluna.x >= entradas.x + entradas.width`; `:463` - `toEqual({ largura: "1px", tipo: "solid" })`; `:466-470`; em 1.536 px, `:566` | ✅ PASS. F8 (a coluna à esquerda) morre em `:455` |
+| AC 2: rolando a partir de 1.536 px, a coluna à vista | a busca da coluna na tela depois de rolar até o fim | `:532` - `toBeInViewport()` em 1.536 e 1.920 × 480; `:548` - `not.toBeInViewport()` em 1.535 × 480 | ✅ PASS |
+| AC 3: contagem e total no alto da coluna | o `status` acima da busca | `:473` - `contagem.y + contagem.height <= busca.y` | ✅ PASS |
+| AC 4: os chips de hoje, quebrando na largura da coluna | o chip dentro da coluna; escolher marca `aria-pressed` | `:484-485`; `:489-492` | ✅ PASS. A quebra e o "+N" na coluna não são exercitados com uma categoria só (observação 8) |
+| AC 5: abaixo de 1.536 px, filtros no topo | o cartão acima da lista em 1.535 px | `:561`; o outro lado em `:566` | ✅ PASS |
+| AC 6: a partir de 1.536 px, sem barra compacta | zero barra a partir de 1.536 px; a barra aparece em 1.535 px | `:533`; `:544`, `:549` | ✅ PASS |
+| AC 7: mesmos parâmetros e resultados | `categoriaId=` na URL e a entrada fora da lista | `:488`, `:493`; `e2e/busca-e-filtros.spec.ts`, `e2e/lista-enxuta.spec.ts` e `e2e/categorias.spec.ts` verdes e sem mudança | ✅ PASS |
+| AC 8: a partir de 1.536 px, lista ≤ 1.100 px, centrada | largura ≤ 1.100; folgas iguais | `:504` - `lista.width <= 1100`; `:507` - `Math.abs(folgaEsquerda - folgaDireita) <= 1` | ✅ PASS. Mede a região "Entradas" (1.052 px), e não o contêiner (observação 9) |
 
 ### DENS-04: títulos dos blocos presos ao rolar
 
 | Critério | Resultado da spec | `file:line` + assertion | Resultado |
 | --- | --- | --- | --- |
-| AC 1: a partir de 1.536 px, o título do bloco, com o resumo, preso no alto enquanto as linhas passam | título em y ≈ 0 com "Fixo B" na tela em 1.536 px; solto em 1.535 px | `e2e/lancamentos-densos.spec.ts:561` - `Math.abs((await caixa(titulo)).y)).toBeLessThanOrEqual(1)`, `:562` - `toBeInViewport()`, `:567` - `toBeLessThan(-1)` em 1.535 px | ✅ PASS, com o limiar dos dois lados (N7 morre em `:567`). O resumo mora na mesma `div` presa (`src/components/bloco-recolhivel.tsx:80-98`) e não é medido (Observação 3) |
-| AC 2: recolher e expandir, com a escolha guardada | `aria-expanded` alterna, as linhas somem e voltam, e o cookie é gravado | `:578-579`, `:582-583`; `src/components/tabela-lancamentos.test.tsx:1069-1070`, `:1076-1078`, `:1087-1093` (LST-02, sem mudança) | ✅ PASS |
+| AC 1: a partir de 1.536 px, o título do bloco, **com o resumo**, preso no alto enquanto as linhas passam | título e resumo no alto, com "Fixo B" na tela, em 1.536 px; soltos em 1.535 px | `:594` - `Math.abs((await caixa(titulo)).y)).toBeLessThanOrEqual(1)`; `:595` - `toBeInViewport()` em "Fixo B"; `:600` - `toBeLessThan(-1)` em 1.535 px. Para o resumo, nenhuma assertion | ❌ GAP parcial (Lacuna 2). O título preso está provado dos dois lados do limiar. A cláusula "com o resumo" não tem prova: F3 (o resumo fora da `div` presa) passa na suíte inteira. Na HEAD, o resumo fica em y = 11,5, ao lado do título (sonda D) |
+| AC 2: recolher e expandir, com a escolha guardada | `aria-expanded` alterna, as linhas somem e voltam, o cookie é gravado e lido | `:611-612`, `:615-616`; `src/components/tabela-lancamentos.test.tsx:1087`, `:1090`, `:1093`; `e2e/lista-enxuta.spec.ts:335-347` (LST-02, sem mudança) | ✅ PASS |
 
-**Status**: ❌ uma lacuna. DENS-02 AC 7 tem o limiar de 768 px sem caso colado. Os outros 22
-critérios têm assertion sobre o resultado da spec. Nenhuma lacuna de precisão na spec.
+**Status**: ❌ três lacunas.
+- O LST-05 AC 3, que a fatia mantém, está quebrado em 1.024 px com um fixo confirmado, e o DENS-01
+  AC 5 não tem prova abaixo de 1.280 px (Lacuna 1).
+- A cláusula "com o resumo" do DENS-04 AC 1 não tem prova (Lacuna 2).
+- Um edge case não tem caso (Lacuna 3).
+
+Os outros 21 dos 23 critérios têm assertion sobre o resultado da spec. Há ainda uma lacuna de
+precisão na spec, num edge case (abaixo).
 
 ---
 
 ## Edge Cases
 
-- [x] **Bloco recolhido:** o título continua no lugar. `e2e/lancamentos-densos.spec.ts:577-583`.
-- [x] **Vencido e pago ao mesmo tempo não existe.** `src/components/tabela-lancamentos.test.tsx:841-842`.
-- [x] **Descrição longa: quebra linha, e só aquela linha cresce.**
-  - `e2e/lancamentos-densos.spec.ts:212` e `:217`, em 1.280, 1.536 e 1.920 px.
-  - Na HEAD, a longa mede 76 px e as do mesmo bloco medem 44,5 e 45 px.
-  - N9 (a descrição sem quebrar, `whitespace-nowrap`) morre em `:217`, com a longa em 44,5 px.
-  - M11 morre em `:212`.
-- [x] **Confirmação aberta e clique fora: o menu fecha e a confirmação se desfaz.** O `BotaoExcluir`
-  é desmontado com o painel. O `Escape` com a confirmação armada é provado em
-  `src/components/menu-da-linha.test.tsx:69-74`; o clique fora, em `:84-85` e `:100-101`.
-- [x] **Entre 768 e 1.536 px:** linhas densas, filtros no topo, barra compacta e títulos soltos.
-  - Linhas densas: `:212` em 1.280 px.
-  - Filtros no topo: `:528` em 1.535 px.
-  - Barra compacta: `:516` em 1.535 px.
-  - Títulos soltos: `:567` em 1.535 px.
-  - "Linhas densas" entre 768 e 1.280 px não tem número na spec, e só a ponta de 1.280 px é medida.
-- [x] **Valor do fixo em edição ocupa mais de uma linha.** O ramo aberto de `ValorConfirmavel` não
-  mudou (`src/components/valor-confirmavel.tsx:88`), e `valor-confirmavel.test.tsx` está verde.
+- [x] **Bloco recolhido: o título continua no lugar.** `:611-616`; LST-02 em
+  `e2e/lista-enxuta.spec.ts:335-347`.
+- [x] **Vencido e pago ao mesmo tempo não existe.**
+  `src/components/tabela-lancamentos.test.tsx:841-842`.
+- [x] **Descrição longa: quebra linha, e só aquela linha cresce.** `:212` e `:217` em 1.280 e 1.536 px;
+  `:239` e `:243` em 1.920 px. Na HEAD, a longa mede 76 px, e as curtas, de 40 a 45 px.
+- [ ] **Confirmação aberta e clique fora: o menu fecha e a confirmação se desfaz.** Sem caso (Lacuna 3).
+  - Os testes citados até a rodada 2 provam cada metade em separado:
+    - o clique fora sem a confirmação armada (`src/components/menu-da-linha.test.tsx:78-86`,
+      `:92-102`);
+    - a confirmação armada desfeita pelo `Escape` (`:66-76`).
+  - Nenhum arma a confirmação e depois clica fora.
+  - F6 (o painel escondido com `hidden`, em vez de desmontado) passa na suíte inteira.
+  - No Chrome, o clique fora tira o foco do "Confirmar?", e o `onBlur` do `BotaoExcluir` desarma.
+  - No Safari, o clique não dá foco ao botão. Com F6, o menu fecha armado, reabre em "Confirmar?", e o
+    próximo toque exclui.
+  - A sonda F (`fireEvent`, sem foco, como a F5 da rodada 1) passa na HEAD e mata F6.
+- [ ] **Entre 768 e 1.536 px: linhas densas, filtros no topo, barra compacta e títulos soltos.**
+  - Filtros no topo: `:561`. Barra compacta: `:549`. Títulos soltos: `:600`. Todos em 1.535 px.
+  - Nessa faixa, em 1.024 px, a tabela Fixos sai da coluna com um fixo confirmado (Lacuna 1).
+  - ⚠️ **Lacuna de precisão na spec: "linhas densas" não tem número abaixo de 1.280 px.** A sonda A
+    mediu, na HEAD, com ponteiro fino (altura da linha, em px):
+
+    | Janela | Entrada A | Fixo A e Fixo B | Compra A | Item A | Item B (vencido) | A longa |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | 768 e 800 px | 80 | 74,5 | 75,5 | 80,5 | 115 | 323,5 |
+    | 1.023 e 1.024 px | 40 | 74,5 | 74 | 80,5 | 115 | 143,5 |
+    | 1.279 px | 40 | 44,5 | 44 | 44,5 | 81 | 76 |
+    | 1.280 px | ≤ 45 | ≤ 45 | ≤ 45 | ≤ 45 | ≤ 45 | 76 |
+
+  - O edge case só admite que, entre 768 e 1.280 px, "a parcela de uma descrição longa pode quebrar
+    para baixo".
+  - Na HEAD, quem cresce abaixo de 1.280 px é o grupo da Situação. Ele quebra de propósito
+    (`src/components/tabela-lancamentos.tsx:347-351`), para a tabela caber. F11 prova que, sem a
+    quebra, a tabela sai da coluna em 1.024 px.
+  - Nada disso quebra um AC: o DENS-01 AC 1 só promete 48 px a partir de 1.280 px.
+  - Mas "linhas densas" nessa faixa não tem como ser provado nem desmentido. Isso não pesa no
+    veredito.
+- [x] **Valor do fixo em edição ocupa mais de uma linha.** O ramo aberto do `ValorConfirmavel` não
+  mudou, e `valor-confirmavel.test.tsx` está verde.
 - [x] **Erro ao trocar a categoria cresce a linha.** O seletor não mudou, e
   `e2e/trocar-categoria.spec.ts` está verde.
 
@@ -185,8 +257,8 @@ critérios têm assertion sobre o resultado da spec. Nenhuma lacuna de precisão
 
 ## Gate Check
 
-Na HEAD `12ef0ca`, na worktree descartável limpa, com `DATABASE_URL_TEST` no banco de teste da
-fatia. Comandos: `pnpm verify` e, depois, `pnpm exec playwright test`.
+Na HEAD `92139e2`, na worktree descartável limpa, com `DATABASE_URL_TEST` no banco de teste da
+sessão. Comandos: `pnpm verify` e, depois, `pnpm exec playwright test`.
 
 | Comando | Resultado |
 | --- | --- |
@@ -195,7 +267,7 @@ fatia. Comandos: `pnpm verify` e, depois, `pnpm exec playwright test`.
 | `pnpm test:unit` | 109 arquivos, **1.704 de 1.704**; `src/domain` com 100% de branches (355/355) |
 | `pnpm test:integration` | 23 arquivos, **364 de 364** |
 | `pnpm build` | compilou |
-| `pnpm exec playwright test` | **129 de 129** em 5,8 min, sem retry, sem `flaky` e sem `skip` |
+| `pnpm exec playwright test` | **130 de 130** em 4,5 min, sem retry, sem `flaky` e sem `skip` |
 
 **Contagem**:
 
@@ -203,101 +275,75 @@ fatia. Comandos: `pnpm verify` e, depois, `pnpm exec playwright test`.
 | --- | --- | --- |
 | Antes da fatia (`b42f9b6`) | 1.694 | 111 |
 | Rodada 1 (`514ab25`) | 1.703 | 125 |
-| HEAD | 1.704 | 129 |
+| Rodada 2 (`12ef0ca`) | 1.704 | 129 |
+| HEAD (`92139e2`) | 1.704 | 130 |
 
-As diferenças da HEAD:
-- unit, +1: o clique fora sem foco, em `menu-da-linha.test.tsx`;
-- e2e, +4 em `lancamentos-densos.spec.ts`: o lugar do "⋯", o toque em 1.920 px, a coluna presa também
-  em 1.536 px e a barra compacta em 1.535 px.
+A diferença da HEAD é o e2e da F8, em 767 px.
 
-**Integridade dos testes**: nenhum teste apagado, pulado, com `only` ou com `fixme`. Na faixa
-`514ab25..12ef0ca`:
-- `tabela-lancamentos.test.tsx`, `compra-parcelada.spec.ts` e `lista-enxuta.spec.ts` só mudam título
-  e comentário;
-- as assertions mudam só em `lancamentos-densos.spec.ts`, pela F3.
-
-**A F3 não afrouxa nada:**
-
-| Teste | Antes (`514ab25`) | Depois (`12ef0ca`) | Juízo |
-| --- | --- | --- | --- |
-| Alturas em 1.280, 1.536 e 1.920 px | `alturas).toHaveLength(6)` e cada uma ≤ 48 | `curtas).toHaveLength(6)` e cada uma ≤ 48 (`:210-212`, `:237-239`); `longas).toHaveLength(1)` e a longa > 48 (`:215-217`, `:241-243`) | Mais forte. As seis de antes são as mesmas, com o mesmo teto. A longa é separada por igualdade exata com o texto: se a célula dela mudar, ela cai nas curtas e quebra a contagem de 6 |
-| Exclusão pelo menu | bloco "2 · R$ 50,00" → "1 · R$ 30,00" | "3 · R$ 60,00" → "2 · R$ 40,00" (`:349`, `:370`) | Mesma força. Nos dois casos sai uma linha e R$ 20,00, os do Item A. Excluir o Item B daria "2 · R$ 30,00", e o Item C, "2 · R$ 50,00": os dois falham |
-
-**Quem mata o M11**: é a assertion das linhas curtas (`:212`), com o Item B em 81 px. O que a torna
-capaz de matar é a linha longa semeada no mesmo bloco, que aperta a coluna da Situação.
-- A assertion da própria longa (`:217`) passa com o M11: a longa mede 76 px em 1.280 e 1.536 px, e
-  53,5 px em 1.920 px.
-- Ela mata outro mutante, o N9: a descrição que não quebra.
-- As duas assertions juntas provam o edge case inteiro: só aquela linha cresce, e ela cresce.
-
-**O teste com `hasTouch` discrimina.** A sonda em 1.920 px com `hasTouch` leu:
-
-| Media query | Valor |
-| --- | --- |
-| `(pointer: coarse)` | `true` |
-| `(pointer: fine)` | `false` |
-| `(any-pointer: fine)` | `false` |
-| `(hover: hover)` | `false` |
-
-No projeto padrão, `(pointer: fine)` é `true`. Os alvos na HEAD:
-- com toque, 44 × 44 no "⋯" e no selo, e 63 × 44 no "Excluir";
-- com ponteiro fino, 32 px.
-
-O `md:pointer-fine:` desliga no toque, e M12a e M12b (32 px) morrem em `:401-402`.
+**Integridade dos testes**: na faixa `12ef0ca..92139e2`, só um teste entra. Nenhum sai, é pulado,
+ganha `only` ou `fixme`, ou perde assertion. A F8:
+- reaproveita `abrir()`, `linha()` e `caixa()`;
+- confere o ponteiro fino antes de medir (`:419`), como o teste de toque confere o grosso (`:386`).
 
 ---
 
 ## Discrimination Sensor
 
-**Profundidade**: ampliada (P1 de interface), com 18 mutantes de comportamento, um por vez:
-- os 5 vivos da rodada 1 (M11, M12a, M12b, M13 e M17);
-- o M6, para conferir a F6;
-- 12 novos (N1 a N11b).
+**Profundidade**: ampliada (P1 de interface), com 14 mutantes de comportamento, um por vez:
+- N11 e N11b, da rodada 2;
+- dois primos dos sobreviventes de antes, C1 e C2, pedidos pelo orquestrador;
+- dez novos, F1 a F8, F10 e F11, que as rodadas 1 e 2 não tentaram.
 
 **Como rodaram**:
 - **Unit:** `pnpm exec vitest run --project domain --project componentes`.
-- **e2e:** `pnpm exec playwright test --retries=1 <specs>`.
-- `lancamentos-densos.spec.ts` é `serial`: a coluna "morto por" cita o primeiro teste que falha e a
-  assertion.
-- **Sobreviventes:** cada um rodou também no unit inteiro. N11 e N11b rodaram ainda no e2e inteiro
-  (129 de 129).
+- **e2e:** `pnpm exec playwright test --retries=0 <specs>`, primeiro nos arquivos da fatia.
+- `lancamentos-densos.spec.ts` é `serial`: "morto por" cita o primeiro teste que falha e a assertion.
+- **Vivos:** C1, C2, F2, F3 e F6 rodaram de novo, cada um sozinho:
+  - no unit inteiro: 1.704 de 1.704 nos cinco;
+  - no e2e inteiro, sem sonda: 130 de 130 nos cinco.
+- Uma falha fora do alvo, em `e2e/lista-enxuta.spec.ts:416` com C2, passou ao rodar o arquivo
+  sozinho (observação 10).
 
 | # | `file:line` | Mutação | Morto por |
 | --- | --- | --- | --- |
-| M11 | `src/components/tabela-lancamentos.tsx:351` | grupo da situação sem `xl:pointer-fine:flex-nowrap` | ✅ e2e `lancamentos-densos.spec.ts:200` (1.280 px), assertion de `:212`: Item B com 81 px |
-| M12a | `src/components/menu-da-linha.tsx:84`, `botao-excluir.tsx:32` | "⋯" e "Excluir" com `md:min-h-8`/`md:min-w-8`, densos também no toque | ✅ e2e `:382`, assertion de `:401`: "⋯" com 32 px |
-| M12b | `src/components/botao-pago.tsx:32` | selo com `md:min-h-8`, denso também no toque | ✅ e2e `:382`, assertion de `:402`: selo com 32 px |
-| M13 | `src/app/(app)/[competencia]/lancamentos/page.tsx:219` | `2xl:sticky` → `min-[1600px]:sticky` | ✅ e2e `:491` em 1.536 px, `:499`: `viewport ratio 0` |
-| M17 | `src/components/menu-da-linha.tsx:68` | sem o ouvinte de `pointerdown` no `document` | ✅ unit `menu-da-linha.test.tsx:100`: `expected 'true' to be 'false'` |
-| M6 | `src/components/menu-da-linha.tsx:53` | o `Escape` fecha sem devolver o foco | ✅ e2e `:343`, assertion de `:362` (`Received: inactive`); na rodada 1 só o unit matava |
-| N1 | `src/components/tabela-lancamentos.tsx:314` | `restoDaParcela(parcela.restantes + 1)`: o resto errado por um, na composição | ✅ unit `tabela-lancamentos.test.tsx:342`, `:376`, `:420`, `:428`, `:435`, `:532` (6 testes). A função pura passa: só a composição mostra o erro (L-014) |
-| N2 | `src/components/tabela-lancamentos.tsx:363` | `origem === "AVULSO"` → `origem !== "PARCELA"`: "⋯" também no fixo | ✅ unit `tabela-lancamentos.test.tsx:765`; e2e `:299` (Fixo A com 1) |
-| N3 | `src/components/tabela-lancamentos.tsx:361-369` | o "⋯" vai para depois do valor, na célula do Valor | ✅ unit `tabela-lancamentos.test.tsx:882`; e2e `:307`, assertion de `:329` (borda em 1.450 contra 1.150) |
-| N4 | `src/components/tabela-lancamentos.tsx:358-369` | o "⋯" entre o selo e "Vencido" | ✅ e2e `:307`, assertion de `:340` (1.234 contra ≥ 1.346). O unit passa: o contêiner é o mesmo |
-| N5 | `src/components/menu-da-linha.tsx:67` | sem o ouvinte de `focusout`: o foco sair do menu não o fecha | ⚠️ **sobreviveu**: unit 1.704; e2e `lancamentos-densos`, `lancamento-avulso` e `acessibilidade`, 39 de 39. Nenhum AC pede isso; só o `design.md` (Observação 6) |
-| N6 | `page.tsx:237` | a lista sem `2xl:mx-auto` | ✅ e2e `:463`, assertion de `:474`: 292 px de diferença |
-| N7 | `src/components/bloco-recolhivel.tsx:80` | `2xl:sticky 2xl:top-0` → `xl:sticky xl:top-0`: título preso já em 1.280 px | ✅ e2e `:553`, assertion de `:567` em 1.535 px: y = 0 |
-| N8 | `src/components/valor-confirmavel.tsx:67` | `md:flex-row-reverse` → `md:flex-row`: a previsão à direita do valor | ✅ e2e `:247`, assertion de `:255` |
-| N9 | `src/components/tabela-lancamentos.tsx:302` | célula da descrição com `whitespace-nowrap`: a longa não quebra | ✅ e2e `:200`, assertion de `:217`: a longa com 44,5 px |
-| N10 | `src/components/barra-de-filtros-compacta.tsx:86` | barra compacta com `xl:hidden`: some já em 1.280 px | ✅ e2e `:506`, assertion de `:516` em 1.535 px |
-| N11 | `src/components/menu-da-linha.tsx:84`, `botao-excluir.tsx:32` | `md:pointer-fine:` → `sm:pointer-fine:`: "⋯" e "Excluir" densos já a partir de 640 px | ❌ **sobreviveu**: unit 1.704 de 1.704; e2e inteiro, 129 de 129 → Lacuna 1 |
-| N11b | `src/components/botao-pago.tsx:32` | a mesma troca no selo | ❌ **sobreviveu**: unit 1.704 de 1.704; e2e inteiro, 129 de 129 → Lacuna 1 |
+| N11 | `src/components/menu-da-linha.tsx:84`, `botao-excluir.tsx:32` | `md:pointer-fine:` → `sm:pointer-fine:`: "⋯" e "Excluir" densos já a partir de 640 px | ✅ e2e `:415`, assertion de `:434`: o "⋯" com 32 px |
+| N11b | `src/components/botao-pago.tsx:32` | a mesma troca no selo | ✅ e2e `:415`, assertion de `:435`: o selo com 32 px |
+| C1 | `src/components/menu-da-linha.tsx:84` | `md:pointer-fine:` → `lg:pointer-fine:`: o "⋯" denso só a partir de 1.024 px | ⚠️ **vivo** (unit 1.704; e2e 130 de 130). Nenhum critério pede 32 px entre 768 e 1.023 px: o DENS-02 AC 7 só pede o mínimo de 44 px. Observação 2 |
+| C2 | `src/components/botao-pago.tsx:32` | `+ max-md:pointer-coarse:min-h-8`: o selo perde os 44 px só no celular com toque | ⚠️ **vivo** (unit 1.704; e2e 130 de 130). A sonda C (400 px com `hasTouch`) mata: o selo com 32 px. Observação 3 |
+| F1 | `src/components/tabela-lancamentos.tsx:352-360` | o "Vencido" antes do selo | ✅ e2e `:260`, assertion de `:269` (1.155 contra ≥ 1.306) |
+| F2 | `src/components/valor-confirmavel.tsx:67` | `md:flex-row-reverse md:items-baseline md:justify-start md:gap-2` → `xl:`: a previsão na linha do valor só a partir de 1.280 px | ❌ **vivo** (unit 1.704; e2e 130 de 130) → Lacuna 1. A sonda B mata em 768 e 800 px: a previsão termina em 983, à direita do valor, que começa em 780. Com F2, a sonda G mostra a tabela Fixos dentro da coluna em 1.024 px |
+| F3 | `src/components/bloco-recolhivel.tsx:98` | o `span` do resumo sai da `div` presa e vira irmão dela | ❌ **vivo** (unit 1.704; e2e 130 de 130) → Lacuna 2. A sonda D mata: o resumo em y = −4, por baixo do título preso, com 81% na tela |
+| F4 | `src/components/menu-da-linha.tsx:51` | `evento.key === "Escape"` → `"Esc"`: o `Escape` não fecha | ✅ unit `menu-da-linha.test.tsx:73`; e2e `:343`, assertion de `:361` |
+| F5 | `src/components/menu-da-linha.tsx:62` | `!conjunto?.contains(...)` → `conjunto?.contains(...)`: o toque dentro fecha, o de fora não | ✅ unit `menu-da-linha.test.tsx:60`, `:100`, `:110`; e2e `:343`, em `:367` |
+| F6 | `src/components/menu-da-linha.tsx:89-96` | o painel sempre montado, com `hidden={!aberto}`, em vez de desmontado | ❌ **vivo** (unit 1.704; e2e 130 de 130) → Lacuna 3. A sonda F, sem foco, mata: o menu reabre em "Confirmar?" |
+| F7 | `src/components/valor-confirmavel.tsx:77-82` | o "previsto" sai do contêiner do valor | ✅ e2e `:200`, assertion de `:212`: Fixo B com 53,5 px em 1.280 px |
+| F8 | `src/app/(app)/[competencia]/lancamentos/page.tsx:199-237` | a grade invertida: a coluna de filtros à esquerda da lista | ✅ e2e `:448`, assertion de `:455` (241 contra ≥ 1.750) |
+| F10 | `src/components/tabela-lancamentos.tsx:351` | `xl:pointer-fine:flex-nowrap` → `min-[1281px]:`: um pixel acima do limiar | ✅ e2e `:200`, assertion de `:212`: Item B com 81 px em 1.280 px |
+| F11 | `src/components/tabela-lancamentos.tsx:351` | `xl:pointer-fine:flex-nowrap` → `lg:`: o grupo da Situação sem quebrar já em 1.024 px | ✅ e2e `e2e/lista-enxuta.spec.ts:409`, assertion de `:428`: a tabela Fixos termina em 1.014 px, fora da coluna (≤ 1.000,5) |
 
-**Resultado do sensor**: 18 aplicados, 15 mortos e 3 vivos.
-- N11 e N11b quebram um critério (DENS-02 AC 7; TOQUE-01 AC 1): FAIL ❌.
-- N5 quebra só uma promessa do `design.md`.
+**Resultado do sensor**: 14 aplicados, 9 mortos e 5 vivos.
+- F2, F3 e F6 quebram um critério ou edge case da spec: FAIL ❌.
+- C1 não quebra critério nenhum.
+- C2 só quebra o celular com toque por meio de uma regra nova, que junta as duas condições do AC 7 e
+  que o código não tem. As duas condições estão provadas, cada uma sozinha.
+- N5 (sem o ouvinte de `focusout`) não foi reaplicado:
+  - nenhum critério pede o que ele quebra;
+  - `menu-da-linha.tsx` não mudou desde a rodada 2.
 
 ### Sondas
 
-O arquivo `e2e/sonda-r2.spec.ts`, só na worktree descartável, copia a semeadura de
-`lancamentos-densos.spec.ts`.
+`e2e/sonda-r3.spec.ts` copia a semeadura de `lancamentos-densos.spec.ts`. `sonda-r3.test.tsx` monta o
+`MenuDaLinha`.
 
-| Sonda | O que mede | HEAD | Com o mutante |
+| Sonda | O que mede | HEAD | Com o mutante, ou antes da fatia |
 | --- | --- | --- | --- |
-| Alturas | a altura de cada linha em 1.280, 1.536 e 1.920 px | curtas com 40 a 45 px e a longa com 76 px, nas três | M11: Item B com 81 px nas três. N9: a longa com 44,5 px |
-| Toque | as media queries e os alvos com `hasTouch` em 1.920 px | `pointer: coarse` verdadeiro e `pointer: fine` falso; selo 71,5 × 44, "⋯" 44 × 44, "Excluir" 63 × 44 | — |
-| Lugar | as caixas do "⋯", da Situação e do Valor em 1.920 px | o "⋯" dentro da Situação nos três avulsos | — |
-| **P6** | com ponteiro fino em 767 px, o selo, o "⋯" e o "Excluir" do menu aberto ≥ 44 × 44; em 768 px, só o registro | ✅ passa: 44 nos três em 767 px; 32 em 768 px | ✅ N11 morre (o "⋯" com 32 px); ✅ N11b morre (o selo com 32 px) |
+| A | com ponteiro fino em 767, 768, 800, 1.023, 1.024 e 1.279 px, os alvos e a altura de cada linha | 767 px: selo 72 × 44, "⋯" 44 × 44, "Excluir" 63 × 44. De 768 px para cima, 32 px de altura nos três. As alturas estão na tabela das Edge Cases | — |
+| B | em 768, 800, 1.024, 1.279 e 1.920 px, a previsão à esquerda do valor e na mesma faixa, no Fixo A e no Fixo B | ✅ passa nas cinco, nos dois fixos | F2: falha em 768 e 800 px. F7: falha em 1.920 px (o "previsto" do Fixo B à direita do valor) |
+| C | em 400 px com `hasTouch`: `pointer: coarse` e os três alvos ≥ 44 × 44 | ✅ selo 72 × 44, "⋯" 44 × 44, "Excluir" 63 × 44 | C2: falha, com o selo em 32 px |
+| D | em 1.536 × 420, rolando 60 e 120 px para dentro de "Fixos": título em y ≈ 0, resumo inteiro na tela e dentro da faixa do título | ✅ título em y = 0, resumo em y = 11,5 | F3: falha, com o resumo em y = −4 e 81% na tela. Uma `toBeInViewport()` sem `ratio` passaria |
+| E | em 1.536, 1.600 e 1.920 px, as larguras do menu, da coluna e da lista | menu 240 px, coluna 288 px; lista com 960, 1.024 e 1.052 px | — |
+| F | no componente, a confirmação armada e o clique fora, sem foco (Safari) e com foco (Chrome); depois reabre | ✅ reabre em "Excluir" nos dois | F6: sem foco, reabre em "Confirmar?"; com foco, passa |
+| G | em 768, 800, 1.024, 1.100, 1.200, 1.279, 1.280 e 1.440 px, com o Fixo A confirmado: o fim de cada tabela contra o fim da coluna de conteúdo, e a rolagem lateral da página | Fixos termina em 1.091,8 px de 768 a 1.100 px. Em 1.024 px, a coluna termina em 1.000, e a página rola 68 px. Em 1.100 px, a coluna termina em 1.076. De 1.200 px para cima, cabe | Com F2: Fixos em 995,3 px; cabe em 1.024 e 1.100 px. Em `b42f9b6`, antes da fatia: Fixos em 1.027,3 px, e a página rola 3 px em 1.024 px. Nas três versões, de 768 a 800 px, as quatro tabelas saem da coluna (observação 1) |
 
 ---
 
@@ -311,66 +357,123 @@ Não feita: o verificador é um sub-agente sem o dono na conversa.
 
 | Princípio | Status |
 | --- | --- |
-| Código mínimo | ✅ As correções só acrescentam testes; nenhum arquivo de produção mudou desde a rodada 1 |
-| Mudanças cirúrgicas | ✅ A F7 só mexe em títulos, comentários e documentos, e nenhuma assertion muda |
+| Código mínimo | ✅ A F8 só acrescenta um teste e uma linha nas Global Constraints |
+| Mudanças cirúrgicas | ✅ Nenhum arquivo de produção mudou desde a rodada 1 |
 | Sem escopo extra | ✅ |
-| Segue os padrões | ✅ `abrir()`, `linha()` e `caixa()` reaproveitados; títulos de teste citam o AC |
-| Resultados da spec nas assertions | ⚠️ DENS-02 AC 7 sem o limiar de 768 px colado |
+| Segue os padrões | ✅ `abrir()`, `linha()` e `caixa()` reaproveitados; o teste confere o ponteiro antes de medir; o título cita o AC e as lições |
+| Resultados da spec nas assertions | ❌ LST-05 AC 3 sem fixo confirmado; DENS-01 AC 5 abaixo de 1.280 px, DENS-04 AC 1 ("com o resumo") e o edge case da confirmação aberta sem assertion que discrimine |
 | Cobertura por camada | ✅ Domínio intocado, com 100% de branches |
-| Todo teste mapeia um AC | ✅ Os quatro e2e novos e o unit novo citam o AC e a lição no título ou no comentário |
-| Regras do projeto (`AGENTS.md`) | ✅ Sem dado real: "Item C com uma descrição longa de propósito…", R$ 10,00, `example.com`. Commits limpos, Conventional Commits, uma correção por commit. Sem mudança de banco |
+| Todo teste mapeia um AC | ✅ |
+| Regras do projeto (`AGENTS.md`) | ✅ Sem dado real: "Item B", "Fixo A", R$ 10,00, `example.com`. Conventional Commits, uma correção por commit (`check_commit.py` OK na F8). Sem mudança de banco |
 
 ---
 
 ## Fix Plans
 
-### Fix 1 (rodada 2): o limiar de 768 px dos alvos de 44 px (DENS-02 AC 7; TOQUE-01 AC 1) — Minor
+Esta é a rodada 3. Pelo processo, as três lacunas vão ao dono, que decide se viram correções ou
+ficam registradas.
 
-- **Causa**: a densidade nova (`md:pointer-fine:min-h-8`) tem um limiar em 768 px.
-  - O AC 7 promete 44 × 44 "abaixo de 768 px", mas o lado de baixo só é medido em 400 px.
-  - O `tasks.md` (Global Constraints) aplicou a L-029 a 1.280 e a 1.536 px e não a 768 px.
-- **Tarefa**: acrescentar a `e2e/lancamentos-densos.spec.ts` (ou a `e2e/acessibilidade.spec.ts`) um
-  teste em 767 × 900, com o ponteiro fino do projeto (sonda P6). Ele deve:
-  - afirmar `matchMedia("(pointer: fine)").matches`;
-  - abrir o "⋯" de um avulso;
-  - medir o selo, o "⋯" e o "Excluir" com ≥ 44 × 44.
+### Fix 1 (rodada 3): a previsão do fixo e a tabela em 1.024 px (DENS-01 AC 5 × LST-05 AC 3) — Major
+
+- **Causa**:
+  - na mesma linha, "confirmado · previa R$ 100,00 −R$ 105,00" ocupa uns 300 px numa célula
+    `whitespace-nowrap` (`src/components/valor-confirmavel.tsx:67`,
+    `src/components/tabela-lancamentos.tsx:373`);
+  - abaixo do valor, ocupava uns 200 px;
+  - em 1.024 px, a coluna de conteúdo não comporta essa largura;
+  - o teste do LST-05 AC 3 não tem fixo confirmado, que é o conteúdo que aperta (como na L-045);
+  - o DENS-01 AC 5 não tem prova abaixo de 1.280 px.
+- **Decisão do dono**: os dois ACs não cabem juntos em 1.024 px com um fixo confirmado. Há três
+  caminhos.
+  - **A. A previsão na linha do valor só a partir de 1.280 px.**
+    - É o mesmo limiar da linha baixa (DENS-01 AC 1).
+    - No código, `md:` vira `xl:` em `valor-confirmavel.tsx:67`, como o mutante F2.
+    - O DENS-01 AC 5 ganha "a partir de 1.280 px".
+    - A sonda G mostra a tabela dentro da coluna em 1.024, 1.100, 1.200 e 1.279 px. Em 1.024 px,
+      fica até melhor que antes da fatia, que já passava 27 px.
+    - É o que as medidas apoiam.
+  - **B. A previsão quebra para baixo do valor quando não cabe.** O AC 5 precisa admitir isso, e a
+    largura em que quebra fica com o conteúdo.
+  - **C. Aceitar a tabela mais larga que a coluna em 1.024 px.** Precisa emendar o LST-05 AC 3. A
+    página rolaria 68 px de lado.
+- **Tarefa, qualquer que seja o caminho**:
+  - um teste do LST-05 AC 3 em 1.024 px com um fixo confirmado (sonda G);
+  - a prova do AC 5 colada no limiar escolhido, dos dois lados (sonda B).
 - **Pronto quando**:
-  - N11 (`sm:pointer-fine:` no "⋯" e no "Excluir") e N11b (o mesmo no selo) morrem;
-  - a Global Constraint de limiares do `tasks.md` lista também 768 px.
+  - a sonda G passa em 1.024 px;
+  - o teste novo falha na HEAD de hoje;
+  - F2 morre ou vira a correção, conforme o caminho.
+
+### Fix 2 (rodada 3): o resumo preso junto do título (DENS-04 AC 1) — Minor
+
+- **Causa**: o AC tem duas cláusulas, o título e o resumo, e só o título tem assertion (L-010). Hoje o
+  resumo fica preso porque mora na mesma `div`, e nada segura isso.
+- **Tarefa**: no teste de `e2e/lancamentos-densos.spec.ts:586`, em 1.536 px, depois de rolar, medir o
+  resumo de "Fixos" (`2 · R$ 155,00 · 2 a pagar`):
+  - com `toBeInViewport({ ratio: 1 })`, porque sem `ratio` o resumo de F3, com 81% na tela, passa;
+  - com o topo e o pé do resumo dentro da faixa do título.
+- **Pronto quando**: F3 morre (sonda D).
+
+### Fix 3 (rodada 3): a confirmação aberta e o clique fora (edge case) — Minor
+
+- **Causa**: o edge case junta dois estados, a confirmação armada e o clique fora. Cada um é provado
+  num teste diferente, e a junção não tem caso.
+- **Tarefa**: em `src/components/menu-da-linha.test.tsx`, sem foco, como no teste de `:92`:
+  1. abrir com `fireEvent.click`;
+  2. armar com `fireEvent.click` no "Excluir";
+  3. fechar com `fireEvent.pointerDown(document.body)`;
+  4. reabrir;
+  5. afirmar o botão "Excluir, Almoço" e nenhum "Confirmar".
+- **Pronto quando**: F6 morre (sonda F).
 
 ---
 
 ## Observações para o dono
 
-Fora do veredito; nenhuma muda o que a tela faz hoje. As de número 1 a 5 vêm da rodada 1 e continuam
-observações: nada nas correções as tocou, e cada uma só quebraria com uma mudança que separe o que
-hoje divide o mesmo contêiner ou a mesma regra.
+Fora do veredito.
 
-1. **DENS-01 AC 5 só mede "confirmado".** A variante "previsto" (Fixo B) usa a mesma regra de CSS, e a
-   altura da linha passa, mas o lugar dela não tem assertion (L-010).
-2. **Chips na coluna com uma categoria só.** A quebra e o "+N categorias" dentro dos 288 px não são
-   exercitados a partir de 1.536 px.
-3. **O resumo do título preso não é medido (DENS-04 AC 1).**
-   - Ele está na mesma `div` presa do título (`src/components/bloco-recolhivel.tsx:80-98`).
-   - Tirá-lo de lá deixaria a cláusula "com o resumo" sem prova.
-   - Uma assertion de `toBeInViewport()` no resumo, em `:561`, fecharia isso.
-4. **"Menor e apagado" (DENS-01 AC 2) é provado pelo nome da classe**, e não pelo estilo computado
+1. **De 768 a 800 px, as tabelas já saíam da coluna antes desta fatia.**
+   - Na sonda G, as quatro tabelas passam da coluna, em `b42f9b6` e na HEAD.
+   - A página rola de 227 a 324 px de lado.
+   - Nenhum critério cobre essas larguras: o LST-05 AC 3 vale em 1.024, 1.280 e 1.440 px, e o
+     TRES-01 AC 10, em 400 px.
+2. **C1: entre 768 e 1.023 px, nada prova que o "⋯" fica com 32 px.**
+   - Nenhum critério pede isso: o DENS-02 AC 7 só pede o mínimo de 44 px abaixo de 768 px ou no
+     toque.
+   - A densidade a partir de 768 px é decisão do autor (premissa "Linha baixa", `n`).
+3. **C2: o celular com toque não é medido.**
+   - Os testes de 400 px rodam com o ponteiro fino do Chrome de desktop.
+   - Até esta fatia, o tamanho não dependia do ponteiro, e 400 px bastava. Agora depende.
+   - As duas condições do AC 7 estão provadas, cada uma sozinha: 767 px com ponteiro fino e 1.920 px
+     com toque.
+   - Para quebrar só o celular com toque, alguém precisaria escrever uma regra nova, só para o toque
+     estreito.
+   - Rodar `e2e/acessibilidade.spec.ts:123` com `hasTouch` faria o teste de TOQUE-01 medir o
+     celular de verdade (sonda C).
+4. **TOQUE-01 AC 1 ainda diz que o selo tem 44 × 44 sempre.**
+   - Com ponteiro fino, a partir de 768 px, o selo mede 32 px. É isso que deixa a linha com 48 px
+     (DENS-01 AC 1).
+   - A seção "O que esta fatia substitui" e o AD-020 listam o TOQUE-01 AC 2, mas não o AC 1.
+   - Em `.specs/features/lacunas-do-painel/spec.md:152`, falta o "no toque" que o AC 2 ganhou.
+5. **N5: o menu não tem teste de fechar quando o foco sai dele.** Nenhum critério pede isso. Só o
+   `design.md` e o comentário do componente prometem (`menu-da-linha.tsx:56-60`).
+6. **"O dobro de linhas por tela" (Success Criteria) não é medido.** Na HEAD, de 1.280 px para cima,
+   a linha mede de 40 a 45 px, contra uns 65 px antes.
+7. **"Menor e apagado" (DENS-01 AC 2) é provado pelo nome da classe**, e não pelo estilo computado
    (candidata L-037).
-5. **"O dobro de linhas por tela" (Success Criteria) não é medido.**
-   - Na HEAD a linha mede de 40 a 45 px, contra uns 65 px antes.
-   - Os ~330 px de filtros saíram do topo a partir de 1.536 px.
-6. **Novo: o menu não tem teste de fechar quando o foco sai dele (N5).**
-   - O `design.md` e o comentário do componente prometem isso (`menu-da-linha.tsx:56-60`, `:67`).
-   - Sem o ouvinte, quem sai do menu com Tab o deixa aberto sobre a linha de baixo. A confirmação
-     armada continua se desfazendo (`botao-excluir.tsx:78`).
-   - O DENS-02 AC 5 só pede o `Escape` e o clique fora. Se o dono quiser essa garantia, ela pede um
-     critério e um teste com `userEvent.tab()`.
-7. **Novo: DENS-03 AC 8 mede a região "Entradas", com 1.052 px.**
-   - São os 1.100 px do contêiner menos os 24 px de respiro de cada lado.
-   - Um `max-w` de até ~1.148 px ainda passaria. O teste lê "lista" como o conteúdo visível, o que é
-     uma leitura razoável do AC.
-8. **`lancamentos-densos.spec.ts` continua `serial`.** Um defeito mostra só o primeiro critério
-   quebrado. Isso atrapalha o diagnóstico, não a detecção.
+8. **Chips na coluna com uma categoria só.** A quebra e o "+N categorias" dentro dos 288 px não são
+   exercitados a partir de 1.536 px.
+9. **DENS-03 AC 8 mede a região "Entradas", com 1.052 px.**
+   - São os 1.100 px do contêiner menos 24 px de respiro de cada lado.
+   - Um `max-w` de até ~1.148 px ainda passaria.
+   - O teste lê "lista" como o conteúdo visível, o que é uma leitura razoável do AC.
+10. **`e2e/lista-enxuta.spec.ts:414` mede o cartão logo depois do `goto`, sem esperar a página.**
+    - Com o `next dev` recompilando um mutante, falhou uma vez ("a coluna de conteúdo não foi
+      desenhada").
+    - Passou ao rodar o arquivo sozinho.
+    - Na HEAD, passou nas corridas inteiras.
+11. **`lancamentos-densos.spec.ts` continua `serial`.** Um defeito mostra só o primeiro critério
+    quebrado.
 
 ---
 
@@ -378,59 +481,82 @@ hoje divide o mesmo contêiner ou a mesma regra.
 
 Pelo `lessons.py add`, com a fonte de cada sinal:
 
-- **L-048** (candidata nova), de N11 e N11b (`surviving_mutant`): a lista de limiares a provar sai de
-  todo AC que diz "abaixo de" ou "a partir de", inclusive do breakpoint antigo que a fatia reaproveita.
-- **L-029** (confirmada) não foi penalizada.
-  - A orientação funcionou em todo limiar a que foi aplicada: 1.280 e 1.536 px, agora com os dois
-    lados.
-  - A falha foi na lista de limiares, que deixou 768 px de fora. Por isso a lição nova, e não a
-    penalidade.
-- **L-044, L-045 e L-046** (candidatas da rodada 1) foram aplicadas pelas F2, F3 e F5, e os
-  mutantes que as motivaram morrem.
-  - Elas continuam candidatas: a recorrência conta features distintas, e esta é a mesma.
-- **L-047** (candidata) foi aplicada pela F1: o AC voltou a dizer o lugar que o código usa, com a
-  confirmação do dono.
+- **Lacuna 1, LST-05 AC 3 quebrado sem teste** (`ac_gap`): **L-049**, candidata nova. Mudança que alarga uma
+  célula precisa reabrir o AC de largura que a fatia mantém, com fixture do conteúdo mais largo.
+- **F2** (`surviving_mutant`): **L-050**, candidata nova. Regra de layout que um AC pede sem dizer largura
+  precisa de prova colada no breakpoint em que o código a liga.
+- **F3** (`surviving_mutant`): registrada com o texto da **L-010** (confirmada), que ganha esta fatia
+  como a quarta recorrência.
+  - Não foi penalizada.
+  - Nada na spec, no design ou nas tasks desta fatia mostra que a L-010 foi carregada no Specify ou
+    no Design. A falha foi não carregá-la, e não a lição.
+- **F6** (`surviving_mutant`): **L-051**, candidata nova. Edge case que junta dois estados precisa de um teste
+  com os dois ao mesmo tempo.
+- **⚠️ "linhas densas" sem número** (`spec_precision_gap`): registrada com o texto da **L-031**
+  (candidata de `lista-enxuta`). Com esta segunda fatia, ela é promovida a confirmada.
+- **C1 e C2**: nenhuma lição. Ficaram como observação, porque nenhum critério pede o que C1 quebra, e
+  C2 precisa de uma regra que o código não tem.
+
+Situação das candidatas das rodadas 1 e 2:
+- **L-048**, aplicada pela F8: N11 e N11b morrem.
+- **L-044, L-045, L-046 e L-047**, aplicadas pelas F2, F3, F5 e F1: os mutantes que as motivaram
+  continuam mortos.
+- As cinco continuam candidatas. A recorrência conta fatias distintas, e esta é a mesma.
+- A Lacuna 1 é mais um caso da ideia da L-045 (falta o conteúdo que aperta), também nesta fatia.
+- **L-029** (confirmada) não foi penalizada: os limiares a que ela se aplica estão colados.
 
 ---
 
 ## Requirement Traceability Update
 
-| Requisito | Rodada 1 | Rodada 2 |
-| --- | --- | --- |
-| DENS-01 | ❌ Needs Fix (Fix 3) | ✅ Verified |
-| DENS-02 | ❌ Needs Fix (Fixes 1, 2 e 5) | ❌ Needs Fix (Fix 1 da rodada 2: limiar de 768 px do AC 7) |
-| DENS-03 | ❌ Needs Fix (Fix 4) | ✅ Verified |
-| DENS-04 | ✅ Verified | ✅ Verified |
+| Requisito | Rodada 1 | Rodada 2 | Rodada 3 |
+| --- | --- | --- | --- |
+| DENS-01 | ❌ Needs Fix | ✅ Verified | ❌ Needs Fix (Fix 1: o AC 5 contra o LST-05 AC 3 em 1.024 px, com decisão do dono) |
+| DENS-02 | ❌ Needs Fix | ❌ Needs Fix | ❌ Needs Fix (Fix 3: o edge case da confirmação aberta). O AC 7 está fechado |
+| DENS-03 | ❌ Needs Fix | ✅ Verified | ✅ Verified |
+| DENS-04 | ✅ Verified | ✅ Verified | ❌ Needs Fix (Fix 2: "com o resumo") |
 
-A `spec.md` não foi alterada pelo verificador. A atualização fica para o commit da correção.
+A `spec.md` não foi alterada pelo verificador.
 
 ---
 
 ## Summary
 
-**Overall**: ❌ Not Ready, por uma lacuna Minor de teste. O código faz o que a spec pede.
+**Overall**: ❌ Not Ready.
+- A lacuna da rodada 2 está fechada.
+- Esta rodada achou uma lacuna Major, que é um defeito: em 1.024 px, com um fixo confirmado, a tabela
+  sai da coluna e a página rola de lado. Ela pede uma decisão do dono entre dois ACs.
+- Achou também duas lacunas Minor de teste.
 
 **Spec-anchored check**:
-- 22 de 23 critérios têm assertion sobre o resultado da spec.
-- DENS-02 AC 7 tem o lado de baixo do limiar de 768 px provado só em 400 px.
-- Sem lacuna de precisão na spec.
-- Os 7 edge cases têm prova.
+- 21 de 23 critérios têm assertion sobre o resultado da spec, no domínio inteiro.
+- O DENS-01 AC 5 não tem prova entre 768 e 1.279 px. Cumpri-lo em 1.024 px com um fixo confirmado
+  quebra o LST-05 AC 3, que esta fatia mantém.
+- O DENS-04 AC 1 não tem prova da cláusula "com o resumo".
+- 5 de 7 edge cases têm prova. Dois deles, "Valor do fixo em edição" e "Erro ao trocar a categoria",
+  se apoiam em código que não mudou e em testes antigos verdes. Os outros dois:
+  - um não tem caso: a confirmação aberta e o clique fora;
+  - outro, a faixa de 768 a 1.536 px, inclui a tabela que sai da coluna e tem uma lacuna de precisão:
+    "linhas densas" não tem número abaixo de 1.280 px.
+- Os limiares de 768, 1.280 e 1.536 px estão colados nos lados que os ACs prometem.
 
-**Sensor**: 18 aplicados, 15 mortos, 3 vivos.
-- N11 e N11b viram a Lacuna 1.
-- N5 fica fora da spec.
+**Sensor**: 14 aplicados, 9 mortos, 5 vivos.
+- F2, F3 e F6 viram as Lacunas 1, 2 e 3.
+- C1 e C2 ficam como observações.
 
 **Gate**: verde.
-- unit 1.704, integração 364, e2e 129 de 129;
+- unit 1.704, integração 364, e2e 130 de 130;
 - `typecheck`, `lint` e `build`.
 
 **O que funciona**:
-- as cinco lacunas da rodada 1 estão fechadas, cada uma pelo mutante que a revelou;
-- o "⋯" ao lado do selo é o mesmo na spec, no design, no AD-020, no código e no teste;
-- a descrição longa: só aquela linha cresce;
-- os 44 px com ponteiro grosso em 1.920 px, com `pointer: coarse` conferido;
-- a coluna presa, a barra compacta e os títulos presos, com o limiar de 1.536 px dos dois lados;
-- nenhum teste antigo afrouxado.
+- a lacuna da rodada 2 está fechada, e N11 e N11b morrem;
+- as cinco lacunas da rodada 1 continuam fechadas;
+- o limiar de 1.280 px está colado: F10 (um pixel acima) e F11 (já em 1.024 px) morrem;
+- a coluna à direita, o `Escape`, o toque dentro e fora do menu e o lugar do "Vencido" discriminam:
+  F1, F4, F5 e F8 morrem;
+- nenhum teste antigo foi afrouxado.
 
-**Próximo passo**: um teste em 767 px com ponteiro fino (sonda P6). Depois, a rodada 3 do
-verificador, a última antes de escalar ao dono.
+**Próximo passo**: levar as três lacunas ao dono.
+- A Lacuna 1 pede uma escolha entre os caminhos A, B e C do Fix 1. As medidas apoiam o A.
+- As Lacunas 2 e 3 se fecham com um teste cada. A sonda de cada uma já mostra o que ele precisa
+  afirmar.

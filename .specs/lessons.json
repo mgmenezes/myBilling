@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 49,
+  "next_id": 52,
   "lessons": [
     {
       "id": "L-001",
@@ -24,60 +24,6 @@
       ],
       "created": "2026-09-15T04:13:17Z",
       "last_seen": "2026-10-25T05:06:38Z"
-    },
-    {
-      "id": "L-002",
-      "key": "surviving_mutant::teste de paridade entre duas fontes precisa afirmar as duas direcoes a unidirecional nao pega remocao",
-      "text": "Teste de paridade entre duas fontes precisa afirmar as duas direções; a unidirecional não pega remoção.",
-      "signal": "surviving_mutant",
-      "scope": "integridade,banco",
-      "status": "candidate",
-      "features": [
-        "lancamento-avulso"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "mutante M28 (ciclo 1) — src/infrastructure/db/restricoes.integration.test.ts:222-262 (integridade,banco)"
-      ],
-      "created": "2026-09-15T04:13:17Z",
-      "last_seen": "2026-09-15T04:13:17Z"
-    },
-    {
-      "id": "L-003",
-      "key": "spec_precision_gap::comportamento que so aparece em tabela de dimensoes ou em decisao sem acceptance criterion numerado passa despercebido promova o a ac antes de mapear requisito para ele",
-      "text": "Comportamento que só aparece em tabela de dimensões ou em decisão, sem acceptance criterion numerado, passa despercebido: promova-o a AC antes de mapear requisito para ele.",
-      "signal": "spec_precision_gap",
-      "scope": "spec",
-      "status": "candidate",
-      "features": [
-        "lancamento-avulso"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "spec.md:91 (tabela de dimensões) e traceability de AVUL-04 — ciclo 2 (spec)"
-      ],
-      "created": "2026-09-15T04:13:17Z",
-      "last_seen": "2026-09-15T04:13:17Z"
-    },
-    {
-      "id": "L-004",
-      "key": "surviving_mutant::correcao de lacuna apontada por verificacao precisa ser confirmada pela mesma mutacao que revelou a lacuna antes de declara la fechada",
-      "text": "Correção de lacuna apontada por verificação precisa ser confirmada pela mesma mutação que revelou a lacuna, antes de declará-la fechada.",
-      "signal": "surviving_mutant",
-      "scope": "verificacao",
-      "status": "candidate",
-      "features": [
-        "lancamento-avulso"
-      ],
-      "recurrence": 1,
-      "harmful": 0,
-      "evidence": [
-        "mutante N10 (ciclo 2) — e2e/recorrencias.spec.ts:87 (verificacao)"
-      ],
-      "created": "2026-09-15T04:13:17Z",
-      "last_seen": "2026-09-15T04:13:17Z"
     },
     {
       "id": "L-005",
@@ -179,17 +125,19 @@
       "features": [
         "importar-planilha",
         "saldo-futuro",
-        "visao-tres-colunas"
+        "visao-tres-colunas",
+        "lancamentos-densos"
       ],
-      "recurrence": 3,
+      "recurrence": 4,
       "harmful": 0,
       "evidence": [
         "mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria)",
         "validation.md rodada 1: U9 (src/components/horizonte-futuro.tsx:137, SALDO-03 AC 2, cláusula 'numa lista de descrição') (testes,acceptance-criteria)",
-        "G6 — src/app/(app)/[competencia]/page.tsx:242 (TRES-02 AC 1, cláusula 'separada do centro por uma linha fina'); TRES-03 AC 2 sem assertion para 'Gastos por categoria' e 'Próximos meses' (validation.md rodada 1) (testes,acceptance-criteria)"
+        "G6 — src/app/(app)/[competencia]/page.tsx:242 (TRES-02 AC 1, cláusula 'separada do centro por uma linha fina'); TRES-03 AC 2 sem assertion para 'Gastos por categoria' e 'Próximos meses' (validation.md rodada 1) (testes,acceptance-criteria)",
+        "validation.md rodada 3: F3 (src/components/bloco-recolhivel.tsx:98), DENS-04 AC 1 'com o resumo'; sonda D (testes,acceptance-criteria)"
       ],
       "created": "2026-10-25T05:06:38Z",
-      "last_seen": "2026-10-30T22:13:51Z"
+      "last_seen": "2026-10-31T04:36:51Z"
     },
     {
       "id": "L-011",
@@ -572,17 +520,19 @@
       "text": "Objetivo de legibilidade precisa virar AC mensurável, em linhas ou largura; sem número, quebrar em duas linhas passa como resolvido.",
       "signal": "spec_precision_gap",
       "scope": "spec,layout",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "lista-enxuta"
+        "lista-enxuta",
+        "lancamentos-densos"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout)"
+        "LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout)",
+        "validation.md rodada 3: edge case 'Entre 768 px e 1.536 px: linhas densas' sem número; sonda A (linhas de 74,5 a 115 px entre 768 e 1.279 px) (spec,layout)"
       ],
       "created": "2026-10-29T19:06:31Z",
-      "last_seen": "2026-10-29T19:06:31Z"
+      "last_seen": "2026-10-31T04:36:51Z"
     },
     {
       "id": "L-032",
@@ -889,6 +839,60 @@
       ],
       "created": "2026-10-31T03:31:54Z",
       "last_seen": "2026-10-31T03:31:54Z"
+    },
+    {
+      "id": "L-049",
+      "key": "ac_gap::mudanca que alarga uma celula precisa reabrir o ac de largura que a fatia mantem com fixture do conteudo mais largo nas larguras dele o teste antigo com conteudo curto continua verde enquanto a tabela sai da coluna",
+      "text": "Mudança que alarga uma célula precisa reabrir o AC de largura que a fatia mantém, com fixture do conteúdo mais largo nas larguras dele; o teste antigo, com conteúdo curto, continua verde enquanto a tabela sai da coluna.",
+      "signal": "ac_gap",
+      "scope": "e2e,fixtures,layout",
+      "status": "candidate",
+      "features": [
+        "lancamentos-densos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 3, Lacuna 1: LST-05 AC 3 em 1.024 px com fixo confirmado; src/components/valor-confirmavel.tsx:67; sonda G (Fixos 1.091,8 contra 1.000) (e2e,fixtures,layout)"
+      ],
+      "created": "2026-10-31T04:36:51Z",
+      "last_seen": "2026-10-31T04:36:51Z"
+    },
+    {
+      "id": "L-050",
+      "key": "surviving_mutant::regra de layout que um ac pede sem dizer largura precisa de prova colada no breakpoint em que o codigo a liga provada so no monitor grande o breakpoint muda com a suite verde",
+      "text": "Regra de layout que um AC pede sem dizer largura precisa de prova colada no breakpoint em que o código a liga; provada só no monitor grande, o breakpoint muda com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites,layout",
+      "status": "candidate",
+      "features": [
+        "lancamentos-densos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 3: F2 (src/components/valor-confirmavel.tsx:67), DENS-01 AC 5 entre 768 e 1.279 px; sonda B (testes,limites,layout)"
+      ],
+      "created": "2026-10-31T04:36:51Z",
+      "last_seen": "2026-10-31T04:36:51Z"
+    },
+    {
+      "id": "L-051",
+      "key": "surviving_mutant::edge case que junta dois estados precisa de um teste com os dois ao mesmo tempo provar cada estado num teste separado deixa a juncao regredir com a suite verde",
+      "text": "Edge case que junta dois estados precisa de um teste com os dois ao mesmo tempo; provar cada estado num teste separado deixa a junção regredir com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "componentes,testes",
+      "status": "candidate",
+      "features": [
+        "lancamentos-densos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 3: F6 (src/components/menu-da-linha.tsx:89-96), edge case 'confirmação aberta e clique fora'; sonda F (componentes,testes)"
+      ],
+      "created": "2026-10-31T04:36:51Z",
+      "last_seen": "2026-10-31T04:36:51Z"
     }
   ]
 }
