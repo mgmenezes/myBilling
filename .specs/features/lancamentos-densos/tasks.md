@@ -328,7 +328,7 @@ ficaram para trás.
 - [x] O teste falha com M11 (sem `xl:pointer-fine:flex-nowrap` no grupo da situação)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): só a linha de descrição longa cresce`
+**Commit**: `test(lancamentos): só a linha de descrição longa cresce` (`7153dfd`)
 
 #### F4: A coluna presa e a barra compacta no limiar de 1.536 px
 **What**: o teste da coluna presa ao rolar roda também em 1.536 × 480; do outro lado, em 1.535 × 480, a barra compacta aparece ao rolar até o fim (Fix 4, sonda P3, L-029).
@@ -337,9 +337,9 @@ ficaram para trás.
 **Reuses**: `cartao`, `abrir`
 **Requirement**: DENS-03
 **Done when**:
-- [ ] Em 1.536 × 480 e em 1.920 × 480, rolando até o fim, a busca da coluna continua na tela e não há barra compacta (DENS-03 ACs 2 e 6)
-- [ ] Em 1.535 × 480, rolando até o fim, a barra "Busca e filtros ativos" aparece (DENS-03 AC 6; LST-03)
-- [ ] O teste falha com M13 (`2xl:sticky` → `min-[1600px]:sticky` no cartão de filtros)
+- [x] Em 1.536 × 480 e em 1.920 × 480, rolando até o fim, a busca da coluna continua na tela e não há barra compacta (DENS-03 ACs 2 e 6)
+- [x] Em 1.535 × 480, rolando até o fim, a barra "Busca e filtros ativos" aparece (DENS-03 AC 6; LST-03)
+- [x] O teste falha com M13 (`2xl:sticky` → `min-[1600px]:sticky` no cartão de filtros)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): coluna presa no limiar de 1.536 px`

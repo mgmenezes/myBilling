@@ -470,17 +470,45 @@ test.describe("a coluna de filtros, em 1.920 px", () => {
   });
 });
 
-test("rolando até o fim em 1.920 px, a coluna continua à vista e a barra compacta não aparece (DENS-03, ACs 2 e 6)", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1920, height: 480 });
-  await abrir(page, `/${MARCO}/lancamentos`);
+/** A barra de filtros compacta de LST-03. */
+function barraCompacta(page: Page): Locator {
+  return page.getByRole("search", { name: "Busca e filtros ativos" });
+}
 
+async function rolarAteOFim(page: Page): Promise<void> {
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+}
 
-  await expect(cartao(page).getByLabel("Buscar por descrição")).toBeInViewport();
-  await expect(page.getByRole("search", { name: "Busca e filtros ativos" })).toHaveCount(0);
+/* A coluna presa e sem barra compacta, colada no limiar de 1.536 px e longe
+   dele (L-029). */
+for (const largura of [1536, 1920]) {
+  test(`rolando até o fim em ${largura} px, a coluna continua à vista e a barra compacta não aparece (DENS-03, ACs 2 e 6)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 480 });
+    await abrir(page, `/${MARCO}/lancamentos`);
+
+    await rolarAteOFim(page);
+
+    await expect(cartao(page).getByLabel("Buscar por descrição")).toBeInViewport();
+    await expect(barraCompacta(page)).toHaveCount(0);
+  });
+}
+
+/* Do outro lado do limiar, o cartão no topo sai da tela e a barra compacta de
+   hoje aparece (DENS-03, AC 6; LST-03). */
+test("rolando até o fim em 1.535 px, o cartão sai da tela e a barra compacta aparece (DENS-03, AC 6)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1535, height: 480 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+  await expect(barraCompacta(page)).toHaveCount(0);
+
+  await rolarAteOFim(page);
+
+  await expect(cartao(page).getByLabel("Buscar por descrição")).not.toBeInViewport();
+  await expect(barraCompacta(page)).toBeVisible();
 });
 
 /* O limiar da coluna (DENS-03, ACs 1 e 5), dos dois lados (L-029). */
