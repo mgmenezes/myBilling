@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T4 concluídas; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T5 concluídas; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
 duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -222,7 +222,7 @@ meses" e as três ações.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses`
+**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`f4d5b1f`)
 
 #### T5: `CicloDoFixo`, mudar o valor e encerrar
 **What**: o `fieldset` de "Mudar o valor" e "Encerrar" de `lista-de-fixos.tsx:291-364`, fora do
@@ -232,13 +232,14 @@ cartão, com o mesmo comportamento e um `h3`.
 **Reuses**: o `fieldset` de hoje, `parseBRL`
 **Requirement**: FIXCOL-05
 **Done when**:
-- [ ] Os oito testes de "mudar valor" e "encerrar" de `lista-de-fixos.test.tsx` (linhas 225, 235, 254, 266, 279, 288, 302 e 310) passam aqui com as mesmas assertions (FIXCOL-05 ACs 1, 3 e 7)
-- [ ] Gravar com sucesso chama `aoConcluir`; "Cancelar" chama `aoCancelar` sem gravar (FIXCOL-05 ACs 2 e 6)
-- [ ] O título é "Mudar o valor" ou "Encerrar"
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Os oito testes de "mudar valor" e "encerrar" de `lista-de-fixos.test.tsx` (linhas 225, 235, 254, 266, 279, 288, 302 e 310) passam aqui com as mesmas assertions (FIXCOL-05 ACs 1, 3 e 7)
+- [x] Gravar com sucesso chama `aoConcluir`; "Cancelar" chama `aoCancelar` sem gravar (FIXCOL-05 ACs 2 e 6)
+- [x] O título é "Mudar o valor" ou "Encerrar"
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão`
+**Nota**: a prop `descricao` do design saiu de `CicloDoFixo`. Ela servia à `legend` invisível ("Mudar o valor de <descrição>"); o título à vista é "Mudar o valor" ou "Encerrar", e a descrição já é o título do painel. Nenhum AC muda.
 
 #### T6: `PainelDoFixo`, os modos do painel
 **What**: o conteúdo do painel por modo (nada, cadastro, detalhe, mudar o valor, encerrar, editar,
