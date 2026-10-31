@@ -456,10 +456,10 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 **Reuses**: `abrir`, `linha`, `caixa`
 **Requirement**: DENS-01 (e LST-05, AC 3, que a fatia mantém)
 **Done when**:
-- [ ] Em 1.024, 1.280 e 1.440 px, com o Fixo A confirmado na tela, toda tabela termina dentro da coluna de conteúdo, e a página não rola de lado (LST-05, AC 3); em 1.024 px, o teste falha na `92139e2`
-- [ ] Em 1.279 px, a previsão do Fixo A e a do Fixo B ficam embaixo do valor; em 1.280 px, na mesma linha, à esquerda dele (DENS-01, AC 5)
-- [ ] O código de antes (`md:`) falha nos testes novos, e o F2 é o código
-- [ ] O DENS-01 AC 5, a premissa "Valor confirmável do fixo", o `design.md` e o AD-020 dizem "a partir de 1.280 px", com a decisão do dono e a data
+- [x] Em 1.024, 1.280 e 1.440 px, com o Fixo A confirmado na tela, toda tabela termina dentro da coluna de conteúdo, e a página não rola de lado (LST-05, AC 3); em 1.024 px, o teste falha na `92139e2`
+- [x] Em 1.279 px, a previsão do Fixo A e a do Fixo B ficam embaixo do valor; em 1.280 px, na mesma linha, à esquerda dele (DENS-01, AC 5)
+- [x] O código de antes (`md:`) falha nos testes novos, e o F2 é o código, com o `md:items-end` de antes da fatia: sem ele, de 768 a 1.279 px, o valor e a previsão iam para a esquerda da célula, e o teste de 1.279 px falha
+- [x] O DENS-01 AC 5, a premissa "Valor confirmável do fixo", o `design.md` e o AD-020 dizem "a partir de 1.280 px", com a decisão do dono e a data
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `fix(lancamentos): previsão do fixo embaixo do valor abaixo de 1.280 px`

@@ -61,10 +61,13 @@ export function ValorConfirmavel({
 
   if (!aberto) {
     return (
-      /* Na mesma linha do valor, à esquerda dele, a partir de 768 px: a
-         previsão continua à vista sem dobrar a altura da linha (DENS-01, AC
-         5). O DOM segue valor e depois texto; a ordem na tela é invertida. */
-      <span className="flex flex-col items-start gap-0.5 md:flex-row-reverse md:items-baseline md:justify-start md:gap-2">
+      /* Na mesma linha do valor, à esquerda dele, a partir de 1.280 px, o
+         limiar da linha baixa: a previsão continua à vista sem dobrar a altura
+         da linha (DENS-01, AC 5). O DOM segue valor e depois texto; a ordem na
+         tela é invertida. De 768 a 1.279 px, fica embaixo do valor, alinhada à
+         direita, como antes: na mesma linha, ela alargava a tabela para fora
+         da coluna em 1.024 px (LST-05, AC 3). */
+      <span className="flex flex-col items-start gap-0.5 md:items-end xl:flex-row-reverse xl:items-baseline xl:justify-start xl:gap-2">
         <button
           type="button"
           onClick={() => setAberto(true)}

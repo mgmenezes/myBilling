@@ -158,7 +158,7 @@
 
 ### AD-020
 - **Decision**: Lançamentos vira uma **lista densa**:
-  - **Linhas:** com ponteiro fino, a partir de 1.280 px, cada linha mede até 48 px. A parcela fica curta, logo depois da descrição ("2/4 · faltam 2"). O selo de situação e o valor confirmável cabem na mesma linha.
+  - **Linhas:** com ponteiro fino, a partir de 1.280 px, cada linha mede até 48 px. A parcela fica curta, logo depois da descrição ("2/4 · faltam 2"). O selo de situação e o valor confirmável cabem na mesma linha. A previsão do fixo ("confirmado · previa R$ X") fica na linha do valor só a partir de 1.280 px; de 768 a 1.279 px, embaixo dele, como antes (confirmado pelo dono em 2026-10-31).
   - **Excluir:** sai da linha para um menu "⋯" do avulso, em todas as larguras.
   - **Filtros:** a partir de 1.536 px, o cartão de filtros vira uma coluna de 288 px, presa à direita da lista. A lista tem até 1.100 px, e os títulos dos blocos ficam presos ao rolar.
   - **Abaixo de 1.536 px:** filtros no topo e barra compacta, como antes. No toque, os alvos seguem com 44 px.
@@ -168,7 +168,7 @@
   - LST-05, AC 1 (a parcela);
   - LST-03, ACs 1 e 2 (a barra compacta só abaixo de 1.536 px);
   - AVUL-03, AC 7, e TOQUE-01, AC 2 (o excluir no menu).
-- **Trade-off**: Excluir passa a pedir três toques, porque o menu abre antes da confirmação. Em 1.024 px, a parcela de uma descrição longa pode quebrar para baixo. O "⋯" fica ao lado do selo, e não no fim da linha como no protótipo, para não abrir uma coluna vazia em toda linha de parcela e de fixo.
+- **Trade-off**: Excluir passa a pedir três toques, porque o menu abre antes da confirmação. Em 1.024 px, a parcela de uma descrição longa pode quebrar para baixo, e a linha do fixo continua com a previsão embaixo do valor: na mesma linha, ela levava a tabela Fixos para fora da coluna de conteúdo (LST-05, AC 3). O "⋯" fica ao lado do selo, e não no fim da linha como no protótipo, para não abrir uma coluna vazia em toda linha de parcela e de fixo.
 - **Scope**: `lancamentos/page.tsx`, `FiltrosDeLancamentos`, `TabelaLancamentos`, `BotaoPago`, `BotaoExcluir`, `ValorConfirmavel`, `MenuDaLinha`, `BlocoRecolhivel`, `restoDaParcela`.
 - **Date**: 2026-10-30
 - **Status**: active

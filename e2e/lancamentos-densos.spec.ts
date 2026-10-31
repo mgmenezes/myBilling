@@ -282,6 +282,93 @@ test.describe("em 1.920 px, com ponteiro fino", () => {
   });
 });
 
+/** A caixa do valor de um fixo e a da previsão dele, na linha do fixo. */
+async function valorEPrevisao(
+  page: Page,
+  descricao: string,
+  previsao: string,
+): Promise<{
+  valor: { x: number; y: number; width: number; height: number };
+  previsao: { x: number; y: number; width: number; height: number };
+}> {
+  const fixo = linha(page, descricao);
+  return {
+    valor: await caixa(
+      fixo.getByRole("button", { name: new RegExp(`confirmar o valor de ${descricao}$`) }),
+    ),
+    previsao: await caixa(fixo.getByText(previsao, { exact: true })),
+  };
+}
+
+/*
+ * A previsão vai para a linha do valor no mesmo limiar da linha baixa, 1.280
+ * px. Abaixo dele, fica embaixo do valor, alinhada à direita com ele, como
+ * antes da fatia: na mesma linha, ela alargava a tabela Fixos para fora da
+ * coluna em 1.024 px (decisão do dono em 2026-10-31). Os dois lados do limiar,
+ * com os dois textos (L-029, L-050).
+ */
+test('em 1.279 px, "confirmado · previa" e "previsto" ficam embaixo do valor; em 1.280 px, na mesma linha, à esquerda dele (DENS-01, AC 5)', async ({
+  page,
+}) => {
+  const fixos = [
+    { descricao: "Fixo A", texto: "confirmado · previa R$ 100,00" },
+    { descricao: "Fixo B", texto: "previsto" },
+  ];
+
+  await page.setViewportSize({ width: 1279, height: 900 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+  for (const { descricao, texto } of fixos) {
+    const { valor, previsao } = await valorEPrevisao(page, descricao, texto);
+    expect(previsao.y, descricao).toBeGreaterThanOrEqual(valor.y + valor.height);
+    expect(
+      Math.abs(previsao.x + previsao.width - (valor.x + valor.width)),
+      descricao,
+    ).toBeLessThanOrEqual(1);
+  }
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  for (const { descricao, texto } of fixos) {
+    const { valor, previsao } = await valorEPrevisao(page, descricao, texto);
+    expect(previsao.x + previsao.width, descricao).toBeLessThanOrEqual(valor.x + 1);
+    expect(previsao.y, descricao).toBeLessThan(valor.y + valor.height);
+    expect(previsao.y + previsao.height, descricao).toBeGreaterThan(valor.y);
+  }
+});
+
+/*
+ * "confirmado · previa R$ X" é o que mais alarga a coluna do Valor. Com ele na
+ * tela, toda tabela cabe na coluna de conteúdo nas larguras de LST-05, AC 3,
+ * que esta fatia mantém abaixo de 1.536 px. A tabela de `lista-enxuta.spec.ts`
+ * só tem fixos previstos (L-045, L-049).
+ */
+for (const largura of [1024, 1280, 1440]) {
+  test(`em ${largura} px, com o fixo confirmado, toda tabela termina dentro da coluna de conteúdo e a página não rola de lado (LST-05, AC 3)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 900 });
+    await abrir(page, `/${MARCO}/lancamentos`);
+    await expect(linha(page, "Fixo A").getByText("confirmado · previa R$ 100,00")).toBeVisible();
+
+    /* Abaixo de 1.536 px, a coluna de conteúdo é a largura do cartão de filtros. */
+    const coluna = await caixa(cartao(page));
+    /* Entradas, Fixos, Cartão de Crédito e Gastos do Mês. */
+    const tabelas = page.getByRole("table");
+    await expect(tabelas).toHaveCount(4);
+    for (const tabela of await tabelas.all()) {
+      const nome = await tabela.locator("caption").textContent();
+      const medida = await caixa(tabela);
+      expect(medida.x, `começo da tabela ${nome}`).toBeGreaterThanOrEqual(coluna.x - 0.5);
+      expect(medida.x + medida.width, `fim da tabela ${nome}`).toBeLessThanOrEqual(
+        coluna.x + coluna.width + 0.5,
+      );
+    }
+    const transbordo = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(transbordo).toBe(0);
+  });
+}
+
 test.describe("o menu da linha, em 1.920 px", () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
 

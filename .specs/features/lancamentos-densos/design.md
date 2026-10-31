@@ -50,9 +50,13 @@ filtros, que muda de lugar só por CSS:
 - **`BotaoPago`:** o mesmo componente, com o mesmo nome acessível, o mesmo texto e o mesmo
   `aria-pressed`. Ganha `md:pointer-fine:min-h-8`. O ícone ✓ ou ○ do protótipo fica de fora: ele
   mudaria o texto do botão que os testes de hoje leem, sem informar nada que "Pago" já não diga.
-- **`ValorConfirmavel`, fechado:** o `span` passa de `flex-col` para `md:flex-row-reverse
-  md:items-baseline md:gap-2`. O texto ("previsto" ou "confirmado · previa R$ X") fica à esquerda do
-  valor, na mesma linha, com o mesmo texto de hoje (FIXO-04).
+- **`ValorConfirmavel`, fechado:** a partir de 1.280 px, o `span` passa de `flex-col` para
+  `xl:flex-row-reverse xl:items-baseline xl:gap-2`. O texto ("previsto" ou "confirmado · previa R$
+  X") fica à esquerda do valor, na mesma linha, com o mesmo texto de hoje (FIXO-04). De 768 a 1.279
+  px, continua embaixo do valor e alinhado à direita (`md:items-end`), como antes da fatia. O limiar
+  é o da linha baixa, e o dono o confirmou em 2026-10-31, depois da rodada 3 do Verifier: com
+  `md:`, em 1.024 px, "confirmado · previa R$ 100,00 −R$ 105,00" levava o fim da tabela Fixos a
+  1.092 px, fora da coluna de conteúdo, que termina em 1.000 px (LST-05, AC 3).
 - **Descrição longa:** quebra linha, e só aquela linha cresce. Cortar com reticências pediria largura
   fixa na célula e arriscaria a tabela sair da margem (LST-05, AC 3).
 
@@ -103,6 +107,8 @@ prova.
 | --- | --- |
 | 1.280, 1.536 e 1.920 px | Toda linha com até 48 px, inclusive parcela, fixo confirmado e vencido, e só a de descrição longa com mais de 48 px (DENS-01, AC 1 e o edge case "Descrição longa") |
 | 1.920 px | "confirmado · previa" à esquerda do valor, na mesma altura (DENS-01, AC 5); o selo ao lado de "Vencido", alternando o pagamento (ACs 3 e 4) |
+| 1.279 px e 1.280 px | O limiar da previsão, dos dois lados: "confirmado · previa" e "previsto" embaixo do valor e alinhados à direita com ele em 1.279 px, e na mesma linha, à esquerda dele, em 1.280 px (DENS-01, AC 5) |
+| 1.024, 1.280 e 1.440 px | Com o Fixo A confirmado na tela, toda tabela termina dentro da coluna de conteúdo, e a página não rola de lado (LST-05, AC 3, que a fatia mantém) |
 | 1.920 px | O "⋯" só nas linhas de avulso, na célula da Situação, à direita do selo e do "Vencido"; nenhum "Excluir" fora do menu; o `Escape` com o foco dentro do menu devolve o foco ao "⋯"; excluir em dois toques tira a linha e baixa o total do bloco (DENS-02, ACs 1 a 6) |
 | 1.920 px, ponteiro grosso | O selo, o "⋯" e o "Excluir" do menu aberto com ao menos 44 × 44 (DENS-02, AC 7) |
 | 1.920 px | A coluna de filtros à direita da lista, com o `border-left` computado e a contagem no alto; os chips dentro da coluna, filtrando; a lista com até 1.100 px e centrada (DENS-03, ACs 1, 3, 4, 7 e 8) |
