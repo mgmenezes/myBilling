@@ -104,6 +104,8 @@ export type {
   PlanoDeEdicao,
 } from "./recorrencia/edicao-do-fixo";
 export { planejarEdicaoDoFixo } from "./recorrencia/edicao-do-fixo";
+export type { FixoDoMes, FixosDoMes, RecorrenciaComVigencias } from "./recorrencia/fixos-do-mes";
+export { fixosDoMes } from "./recorrencia/fixos-do-mes";
 export type { PeriodoRecorrencia } from "./recorrencia/janela-materializacao";
 export { janelaMaterializacao } from "./recorrencia/janela-materializacao";
 export type { OcorrenciaMaterializada } from "./recorrencia/ocorrencia-protegida";
