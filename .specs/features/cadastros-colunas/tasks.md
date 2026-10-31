@@ -429,7 +429,7 @@ o tipo `ItemDeCategoria`; `NOME_DA_COR` e `textoDaCor` em `cor-de-categoria.ts`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(categorias): a tabela de categorias com o uso no mês`
+**Commit**: `feat(categorias): a tabela de categorias com o uso no mês` (`d9f45df`)
 **Nota**: o botão da linha não tem `onClick` próprio: o clique sobe até a linha, que abre, e a
 categoria abre uma vez só pelo mouse e pelo teclado, como em Todo mês. O teste do teclado confere
 `aoAbrir` chamado uma vez. As contagens cobrem 0, 1 e 2, para o singular e o plural de cada nome.
@@ -445,19 +445,24 @@ seção "Onde ela aparece", reusada pelo meio.
 **Reuses**: a lógica de `LinhaDeCategoria` (`lista-de-categorias.tsx:103-300`), `TituloDoPainel`, `nomeCategoriaSchema`, `CLASSES_DA_COR`, `NOME_DA_COR`
 **Requirement**: CADCOL-04, CADCOL-07
 **Done when**:
-- [ ] Formulário "Renomear Categoria Um" com "Nome" preenchido com o gravado e "Salvar" (CADCOL-04 AC 2); equivalente de 297, com a regra nova
-- [ ] Grupo "Cor de Categoria Um" com as onze opções, cada uma tingida com o nome, a em uso marcada, e "Automática (Ciano)" (CADCOL-04 AC 3); equivalentes de 169, 178, 193, 202 e 209
-- [ ] Escolher uma cor manda uma vez, avisa "Cor trocada.", e marca a opção e pinta a pill do título antes da resposta; "Automática" manda `null` (CADCOL-04 AC 4); equivalentes de 217, 227, 238 e 257
-- [ ] A cor recusada volta, o motivo aparece no painel em `alert`, sem aviso (CADCOL-04 AC 8); equivalente de 274
-- [ ] Salvar o nome manda o nome novo, avisa "Categoria renomeada." e o campo continua com ele; enquanto grava, a pill do título mostra o nome novo na cor de antes (CADCOL-04 AC 6); equivalentes de 307 e 323
-- [ ] O nome de outra categoria aparece em `alert` junto do campo, com `aria-invalid`, e o nome volta; falha sem campo mostra a mensagem geral; nome vazio e nome com 61 caracteres não chegam ao servidor (CADCOL-04 ACs 7 e 8, L-041); equivalentes de 359, 382 e 396
-- [ ] Nome igual, com espaço sobrando, não grava nem avisa; só a caixa grava e avisa; o servidor dizendo que nada mudou não avisa (CADCOL-04 ACs 9 e 10); equivalentes de 412, 426 e 440
-- [ ] `OndeAparece`: seção "Onde ela aparece" com "Fixos em Março de 2026" e "Lançamentos em Março de 2026" e os números, e o link "Ver em Lançamentos" para `/2026-03/lancamentos?categoriaId=<id>`; com `genero="ele"`, "Onde ele aparece" e `?meioPagamentoId=<id>` (CADCOL-04 ACs 11 e 12, CADCOL-07 AC 13)
-- [ ] O título é um `TituloDoPainel` com a pill otimista, procurada pelo papel `heading` de nível 2
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Formulário "Renomear Categoria Um" com "Nome" preenchido com o gravado e "Salvar" (CADCOL-04 AC 2); equivalente de 297, com a regra nova
+- [x] Grupo "Cor de Categoria Um" com as onze opções, cada uma tingida com o nome, a em uso marcada, e "Automática (Ciano)" (CADCOL-04 AC 3); equivalentes de 169, 178, 193, 202 e 209
+- [x] Escolher uma cor manda uma vez, avisa "Cor trocada.", e marca a opção e pinta a pill do título antes da resposta; "Automática" manda `null` (CADCOL-04 AC 4); equivalentes de 217, 227, 238 e 257
+- [x] A cor recusada volta, o motivo aparece no painel em `alert`, sem aviso (CADCOL-04 AC 8); equivalente de 274
+- [x] Salvar o nome manda o nome novo, avisa "Categoria renomeada." e o campo continua com ele; enquanto grava, a pill do título mostra o nome novo na cor de antes (CADCOL-04 AC 6); equivalentes de 307 e 323
+- [x] O nome de outra categoria aparece em `alert` junto do campo, com `aria-invalid`, e o nome volta; falha sem campo mostra a mensagem geral; nome vazio e nome com 61 caracteres não chegam ao servidor (CADCOL-04 ACs 7 e 8, L-041); equivalentes de 359, 382 e 396
+- [x] Nome igual, com espaço sobrando, não grava nem avisa; só a caixa grava e avisa; o servidor dizendo que nada mudou não avisa (CADCOL-04 ACs 9 e 10); equivalentes de 412, 426 e 440
+- [x] `OndeAparece`: seção "Onde ela aparece" com "Fixos em Março de 2026" e "Lançamentos em Março de 2026" e os números, e o link "Ver em Lançamentos" para `/2026-03/lancamentos?categoriaId=<id>`; com `genero="ele"`, "Onde ele aparece" e `?meioPagamentoId=<id>` (CADCOL-04 ACs 11 e 12, CADCOL-07 AC 13)
+- [x] O título é um `TituloDoPainel` com a pill otimista, procurada pelo papel `heading` de nível 2
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(categorias): a categoria aberta, com cor, nome e onde aparece`
+**Nota**: `OndeAparece` recebe o `href` pronto, como pede o design; com `genero="ele"`, o teste dele
+usa um `href` com `?meioPagamentoId=`, e quem monta o do meio é o `DetalheDoMeio` (T17). O endereço
+da categoria, `/2026-03/lancamentos?categoriaId=<id>`, é provado em `detalhe-da-categoria.test.tsx`.
+Além dos 61 caracteres recusados, o teste prova os 60 chegando ao servidor (L-029). O nome igual ao
+gravado não grava, não avisa e apaga o alerta anterior; o campo continua com o que foi digitado.
 
 #### T13: `NovaCategoria`, o formulário de criação
 **What**: o formulário "Nova categoria" do painel, com a validação no navegador e o aviso por
