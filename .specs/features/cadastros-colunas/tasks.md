@@ -4,7 +4,7 @@
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
 worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 a
-T4 concluídas)
+T5 concluídas)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -269,7 +269,7 @@ o domínio não pode importar `@/lib`.
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
-**Commit**: `feat(cadastros): gravar nome e dias de um meio de pagamento`
+**Commit**: `feat(cadastros): gravar nome e dias de um meio de pagamento` (`7f9ed4c`)
 
 #### T5: `editarMeioDePagamento`, o caso de uso
 **What**: o caso de uso que recusa o meio inexistente ou arquivado, aplica `mudancasDoMeio`, confere o
@@ -279,13 +279,13 @@ nome entre os ativos e grava.
 **Reuses**: `mudancasDoMeio`, `EdicaoDeMeioRepository`, `FakeCadastroRepository`
 **Requirement**: CADCOL-07
 **Done when**:
-- [ ] Meio inexistente e meio arquivado devolvem `MEIO_PAGAMENTO_NAO_ENCONTRADO`, sem gravar: uma assertion para cada (CADCOL-07 AC 12)
-- [ ] Ciclo que não corresponde ao tipo devolve `CICLO_NAO_CORRESPONDE_AO_TIPO`, sem gravar (CADCOL-07 AC 11)
-- [ ] Nada mudou: `alterado: false`, sem consultar o nome e sem gravar (CADCOL-07 AC 9)
-- [ ] O nome de outro meio ativo, em outra caixa, devolve `MEIO_PAGAMENTO_JA_EXISTE`, sem gravar (CADCOL-07 AC 6)
-- [ ] O nome de um meio arquivado grava; o próprio nome mudando só a caixa grava (CADCOL-07 ACs 7 e 8)
-- [ ] Só os dias mudando não consulta o nome; o sucesso grava as mudanças e devolve o meio gravado com `alterado: true` (CADCOL-07 AC 5)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Meio inexistente e meio arquivado devolvem `MEIO_PAGAMENTO_NAO_ENCONTRADO`, sem gravar: uma assertion para cada (CADCOL-07 AC 12)
+- [x] Ciclo que não corresponde ao tipo devolve `CICLO_NAO_CORRESPONDE_AO_TIPO`, sem gravar (CADCOL-07 AC 11)
+- [x] Nada mudou: `alterado: false`, sem consultar o nome e sem gravar (CADCOL-07 AC 9)
+- [x] O nome de outro meio ativo, em outra caixa, devolve `MEIO_PAGAMENTO_JA_EXISTE`, sem gravar (CADCOL-07 AC 6)
+- [x] O nome de um meio arquivado grava; o próprio nome mudando só a caixa grava (CADCOL-07 ACs 7 e 8)
+- [x] Só os dias mudando não consulta o nome; o sucesso grava as mudanças e devolve o meio gravado com `alterado: true` (CADCOL-07 AC 5)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(cadastros): editar nome e dias de um meio de pagamento`
