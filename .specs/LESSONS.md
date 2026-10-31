@@ -306,6 +306,36 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: validation.md rodada 4: G1 (src/components/valor-confirmavel.tsx:70, md:items-end → lg:items-end); DENS-01 AC 5, faixa 'de 768 a 1.279 px'; sonda H (testes,limites,layout)
 - last seen: 2026-10-31T13:03:06Z
 
+### L-053 - Limiar que não é de largura, como mês de início antes ou depois do mês aberto, também precisa de caso colado nos dois lados; a lista de limiares sai de todo AC com 'depois de' ou 'antes de', e não só dos breakpoints.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites` · harmful: 0
+- features: todo-mes-colunas
+- evidence: M3 src/app/(app)/[competencia]/fixos/page.tsx:135; FIXCOL-01 AC 9 (testes,limites)
+- last seen: 2026-10-31T14:38:38Z
+
+### L-054 - Campo novo que a página monta para um componente, como o nome tirado de um id, precisa de e2e que leia o texto na tela; o teste do componente recebe o valor pronto e não vê a página trocar o nome pelo id.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,composicao` · harmful: 0
+- features: todo-mes-colunas
+- evidence: M16 src/app/(app)/[competencia]/fixos/page.tsx:130; FIXCOL-04 AC 3 (e2e,composicao)
+- last seen: 2026-10-31T14:38:38Z
+
+### L-055 - AC de posição 'em todas as larguras' precisa de medida em cada faixa em que a grade muda; numa grade com row-start, a ordem do DOM não prova a ordem na tela.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: todo-mes-colunas
+- evidence: M17 src/components/todo-mes.tsx:121; FIXCOL-06 AC 1 (e2e,layout)
+- last seen: 2026-10-31T14:38:38Z
+
+### L-056 - Guarda que só age sob uma condição precisa de teste com o mesmo tipo de elemento sem a condição; testar só outro tipo de elemento deixa a condição sumir com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: todo-mes-colunas
+- evidence: M5 src/components/painel-do-fixo.tsx:119-121; painel-do-fixo.test.tsx:592 (componentes,testes)
+- last seen: 2026-10-31T14:38:38Z
+
+### L-057 - AC de confirmação depois de salvar precisa dizer que ela fica à vista e ter assertion toBeInViewport; toBeVisible não vê o foco programático que rola a mensagem para fora da janela.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,foco` · harmful: 0
+- features: todo-mes-colunas
+- evidence: FIXCOL-05 AC 5; FIXCOL-06 AC 3; sonda 1280x720 (spec,foco)
+- last seen: 2026-10-31T14:38:38Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

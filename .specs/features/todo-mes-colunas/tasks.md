@@ -2,11 +2,16 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 a T11 no lote 2, à espera do Verifier; branch `feat/todo-mes-colunas`, em worktree
-`.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `e39eeae`, que já traz
-`lancamentos-densos` (AD-020) com a F13; os hashes da T1 à T11 são os de depois do rebase)
-**Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
-(T8–T11), com a oferta de sub-agentes antes do Execute.
+**Status**: FAIL na rodada 1 de `validation.md`, em 2026-10-31, com três lacunas de teste (FIXCOL-01
+AC 9, FIXCOL-04 AC 3 e FIXCOL-06 AC 1), a condição da guarda de foco sem teste e a confirmação de
+salvar fora da janela. O dono escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a
+confirmação fica à vista, junto do botão clicado, e a tela não vai mais ao título do painel.
+Correções F1–F5 pendentes (plano aprovado pelo dono em 2026-10-30; T1 a T11 concluídas; branch
+`feat/todo-mes-colunas`, em worktree `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a
+`main` em `e39eeae`, que já traz `lancamentos-densos` (AD-020) com a F13; os hashes da T1 à T11 são
+os de depois do rebase)
+**Total**: 16 tasks em 5 fases (T1–T11 e as correções F1–F5). As fases 1 a 4 deram dois lotes
+(T1–T7 e T8–T11), com a oferta de sub-agentes antes do Execute; a fase 5 é um lote só, inline.
 
 ---
 
@@ -135,6 +140,22 @@ T11
 ```
 
 Dois lotes: T1 a T7, e T8 a T11, nesta ordem.
+
+### Phase 5 — Correções da verificação (rodada 1)
+
+```
+F1 -> F2
+F2 -> F3
+F3 -> F4
+F4 -> F5
+```
+
+F1 a F5 fecham os Fixes 1 a 5 de `validation.md` (rodada 1, FAIL). A F1 leva à spec a escolha do
+dono em 2026-10-31 para a confirmação de salvar, "Onde você clicou", e muda o código: a guarda de
+foco do painel deixa de rolar a tela, e a confirmação recebe o foco. As F2 a F5 acrescentam, cada
+uma, o teste que falta: passa na HEAD e falha com o mutante do Verifier (M3, M16, M17 e M5). Lote
+único, inline. O e2e roda na porta 3101, com uma cópia da configuração fora do repositório, porque a
+3100 está com outra worktree.
 
 ---
 
@@ -427,6 +448,107 @@ formulário na coluna e fora dela.
 - **`Dialogo`**, em `dialogo-de-cadastro.tsx`, continua exportado, mas o único que o usa agora é o `DialogoDeCadastro` do mesmo arquivo. O comentário diz isso; a exportação fica, porque tirá-la não é desta fatia.
 - **Contagens**, com `pnpm verify` saindo 0 e o e2e inteiro na porta 3101: 1.823 unitários em 115 arquivos (eram 1.839 em 116 antes do lote 2), 364 de integração em 23 arquivos (sem mudança) e 169 e2e em 15 arquivos (eram 134 em 14).
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+#### F1: A confirmação de salvar à vista, onde a pessoa clicou
+**What**: o Fix 1 de `validation.md`, com a escolha do dono em 2026-10-31, "Onde você clicou" (sonda da rodada 1, L-057):
+- o FIXCOL-05 AC 5 e o FIXCOL-06 AC 3 passam a dizer que a confirmação fica à vista, junto do botão que salvou, e a premissa registra a escolha do dono;
+- a guarda de foco do painel (`painel-do-fixo.tsx:115-125`) continua tirando o foco do `body` quando o botão de envio se desabilita ("Gravando…"), mas sem rolar a tela: `focus({ preventScroll: true })`;
+- a confirmação de `FormRecorrencia`, `role="status"`, recebe o foco quando aparece (`tabIndex={-1}`).
+
+**Por que o foco vai à confirmação** (decisão do autor). Uma sonda descartável mediu, em 2026-10-31, as duas saídas em 1.280 × 720, 1.920 × 1.080 e 400 × 800:
+- **A, só `preventScroll` na guarda.** A confirmação fica no mesmo lugar que em B, mas o foco fica no título do painel, fora da janela. Na edição em 1.280 × 720, a página fica em `scrollY` 664, e o título, perto do alto do painel. Quem usa teclado vai ao "Fechar", no alto, no próximo `Tab`, e a tela pula de novo.
+- **B, `preventScroll` na guarda e o foco na confirmação quando ela aparece.** O foco fica à vista, logo acima do botão acionado, e o próximo `Tab` volta a ele. O leitor de tela lê a confirmação. E, se ela nascer fora da janela, o `focus()` a traz.
+
+Escolhida: B. A guarda continua necessária: entre o clique e a resposta da action, o botão desabilitado perde o foco, e sem ela o foco cairia no `body` e o `Escape` não fecharia o painel (FIXCOL-08 AC 3). O foco de abrir (`painel-do-fixo.tsx:98-102`) é outra chamada e continua rolando até o título (FIXCOL-08 AC 5).
+
+**"Registrar" e "Encerrar"**, conferidos na mesma sonda:
+- **Sucesso:** o painel volta ao detalhe e o foco vai ao título por desenho (FIXCOL-05 ACs 2 e 8). O histórico, o aviso de encerrado e "não aparece mais" ficaram à vista em 1.280 e 1.920 px.
+- **Recusa:** em 400 × 800, o alerta de "Registrar" ficava 12 px abaixo da janela (791 a 812 de 800), porque a guarda levava a tela ao título. Com a guarda sem rolar, fica em 353 a 374. É a mesma guarda e a mesma correção, com um e2e para essa recusa. O "Encerrar" recusado ficou à vista nas três janelas, antes e depois.
+
+**Where**:
+- `.specs/features/todo-mes-colunas/spec.md` (os dois ACs, a premissa e a traceability)
+- `src/components/painel-do-fixo.tsx` (a guarda)
+- `src/components/form-recorrencia.tsx` (o foco na confirmação)
+- `src/components/form-recorrencia.test.tsx`
+- `e2e/todo-mes-colunas.spec.ts`
+
+**Depends on**: nenhuma
+**Reuses**: `abrirFormulario`, `painel`, `tituloDoPainel`, `botaoDaLinha`; o `tabIndex={-1}` dos títulos do painel
+**Requirement**: FIXCOL-05, FIXCOL-06 (e FIXCOL-08, o foco)
+**Done when**:
+- [ ] O FIXCOL-05 AC 5 e o FIXCOL-06 AC 3 dizem que a confirmação fica à vista, junto do botão que salvou, com a confirmação do dono em 2026-10-31. A premissa registra a escolha do dono e, numa linha à parte, o foco na confirmação como decisão do autor
+- [ ] Em 1.280 × 720 e em 1.920 × 1.080, na edição e no cadastro, depois de "Salvar alterações" e de "Cadastrar gasto fixo" (FIXCOL-05 AC 5, FIXCOL-06 AC 3, FIXCOL-08 ACs 3 e 4):
+  - a confirmação está inteira dentro da janela (`toBeInViewport({ ratio: 1 })`), com o foco nela;
+  - o título do painel não entra na janela durante a gravação;
+  - `Escape` fecha o painel e devolve o foco à linha ou ao "+ Novo fixo"
+- [ ] Em 400 × 800, "Registrar" recusado deixa o alerta inteiro dentro da janela, e `Escape` fecha o painel (FIXCOL-05 AC 7)
+- [ ] Em `form-recorrencia.test.tsx`, cadastrar e salvar a edição levam o foco à confirmação
+- [ ] Os e2e novos falham no código de `d964e84`, e o do título falha com a guarda rolando (`focus()` sem `preventScroll`)
+- [ ] Abrir a última linha continua trazendo o título para a janela (`todo-mes-colunas.spec.ts:609`, FIXCOL-08 AC 5), e `editar-fixo.spec.ts` passa sem mudança
+**Tests**: componentes, e2e
+**Gate**: e2e
+**Commit**: `fix(fixos): a confirmação de salvar fica à vista, junto do botão`
+
+#### F2: Quem começa no mês aberto não leva "Começa em"
+**What**: o Fix 2. No teste de `e2e/todo-mes-colunas.spec.ts:377`, Fixo B e Entrada A, que começam em março, o mês aberto, ficam sem o selo "Começa em" na linha. O painel de B mostra "em Março de 2026" junto do valor e o termo "Começou em" com "Março de 2026". É o lado colado do limiar de "começa depois" (L-029, L-053).
+**Where**: `e2e/todo-mes-colunas.spec.ts`
+**Depends on**: F1
+**Reuses**: `botaoDaLinha`, `painel`
+**Requirement**: FIXCOL-01 (e FIXCOL-04)
+**Done when**:
+- [ ] Na linha de Fixo B e na de Entrada A, nenhum "Começa em" (FIXCOL-01 AC 9)
+- [ ] No painel de B, "em Março de 2026" e o termo "Começou em" com "Março de 2026", sem o termo "Começa em" (FIXCOL-04 ACs 2 e 3)
+- [ ] O teste falha com M3 (`page.tsx:135`, `> 0` → `>= 0`)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(fixos): quem começa no mês aberto não leva o selo`
+
+#### F3: Os dados do painel lidos na página real
+**What**: o Fix 3. No teste de `e2e/todo-mes-colunas.spec.ts:396`, cada dado do painel é lido pelo termo dele:
+- no painel de A, "Categoria", "Meio de pagamento", "De quem é", "Começou em" e "Termina em" ("Sem fim");
+- no de Entrada A, "Onde o dinheiro cai" e "De quem é".
+
+Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o nome certo não coincidir com o da única pessoa (L-014, L-024, L-054).
+**Where**: `e2e/todo-mes-colunas.spec.ts`
+**Depends on**: F2
+**Reuses**: `painel`, `botaoDaLinha`, `pool`
+**Requirement**: FIXCOL-04
+**Done when**:
+- [ ] No painel de A: "Categoria Um" em "Categoria", "Conta Corrente" em "Meio de pagamento", "Pessoa B" em "De quem é", "Janeiro de 2026" em "Começou em" e "Sem fim" em "Termina em" (FIXCOL-04 AC 3)
+- [ ] No painel de Entrada A: "Conta Corrente" em "Onde o dinheiro cai" e "Pessoa A" em "De quem é" (FIXCOL-04 AC 3, AD-015)
+- [ ] O teste falha com M16 (`page.tsx:130`, `pessoa: recorrencia.usuarioId`)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(fixos): os dados do painel lidos pelo termo na página`
+
+#### F4: "+ Novo fixo" acima dos totais em toda largura
+**What**: o Fix 4. A ordem na tela é medida em duas faixas: de "+ Novo fixo" até o topo dos totais, e dos totais até o topo de "Entradas fixas". Ela entra no teste da coluna, no laço de `e2e/todo-mes-colunas.spec.ts:848`, em 1.536 e 1.920 px, onde a grade decide a ordem por `2xl:row-start-*`. Entra também no teste de 400 px (L-030, L-055).
+**Where**: `e2e/todo-mes-colunas.spec.ts`
+**Depends on**: F3
+**Reuses**: `caixa`, `abrir`
+**Requirement**: FIXCOL-06
+**Done when**:
+- [ ] Em 1.536, 1.920 e 400 px, "+ Novo fixo" termina antes do topo dos totais, e os totais terminam antes do topo de "Entradas fixas" (FIXCOL-06 AC 1)
+- [ ] O teste falha com M17 (`todo-mes.tsx:121`, `2xl:row-start-1` → `2xl:row-start-4`)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(fixos): o novo fixo acima dos totais em toda largura`
+
+#### F5: A guarda de foco só age no botão desabilitado
+**What**: o Fix 5. Em `painel-do-fixo.test.tsx`, "Mudar valor", um botão habilitado do painel, perde o foco para fora (`blur` sem `relatedTarget`), e o foco não vai ao título do painel. A guarda é a de depois da F1, que leva o foco sem rolar. O teste prova a condição dela: só o botão desabilitado puxa o foco (L-056).
+**Where**: `src/components/painel-do-fixo.test.tsx`
+**Depends on**: F4
+**Reuses**: `montar`, `oPainel`, `titulo`
+**Requirement**: FIXCOL-08
+**Done when**:
+- [ ] Com o foco em "Mudar valor", um `blur` sem destino deixa o foco no botão, e não no título
+- [ ] O teste falha com M5 (sem `&& evento.target.disabled`, `painel-do-fixo.tsx:119-121`)
+- [ ] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
+**Tests**: componentes
+**Gate**: build
+**Commit**: `test(fixos): a guarda de foco só age no botão desabilitado`
+
 ---
 
 ## Validação antes da aprovação
@@ -446,6 +568,11 @@ formulário na coluna e fora dela.
 | T9 | 1 componente (a grade) e o e2e dela | ✅ |
 | T10 | 1 componente e o e2e dele | ✅ |
 | T11 | Docs | ✅ |
+| F1 | 1 comportamento (a confirmação à vista): a guarda, o foco na confirmação, os dois ACs e os testes dele | ⚠️ cinco arquivos, mas coeso: a guarda sem rolar e o foco na confirmação são as duas metades da mesma escolha do dono, e uma sem a outra deixa o foco fora da janela |
+| F2 | 1 teste e2e | ✅ |
+| F3 | 1 teste e2e | ✅ |
+| F4 | 1 medida e2e, em dois testes | ✅ |
+| F5 | 1 teste de componente | ✅ |
 
 ### Diagrama × `Depends on`
 
@@ -462,6 +589,11 @@ formulário na coluna e fora dela.
 | T9 | T8 | T8 -> T9 | ✅ |
 | T10 | T9 | T9 -> T10 | ✅ |
 | T11 | T10 (fase anterior) | fase 4 | ✅ |
+| F1 | nenhuma | início da fase 5 | ✅ |
+| F2 | F1 | F1 -> F2 | ✅ |
+| F3 | F2 | F2 -> F3 | ✅ |
+| F4 | F3 | F3 -> F4 | ✅ |
+| F5 | F4 | F4 -> F5 | ✅ |
 
 ### Testes × matriz
 
@@ -474,3 +606,6 @@ formulário na coluna e fora dela.
 | T9 | Componente de layout + fluxo | e2e (layout se mede no navegador) | e2e | ✅ |
 | T10 | Componente de layout + fluxo | e2e (layout se mede no navegador) | e2e | ✅ |
 | T11 | Docs | none | none | ✅ |
+| F1 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
+| F2 a F4 | Página e fluxo (só o teste) | e2e | e2e | ✅ |
+| F5 | Componentes (só o teste) | componentes | componentes | ✅ |
