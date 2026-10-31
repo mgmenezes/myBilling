@@ -305,9 +305,10 @@ async function valorEPrevisao(
  * px. Abaixo dele, fica embaixo do valor, alinhada à direita com ele, como
  * antes da fatia: na mesma linha, ela alargava a tabela Fixos para fora da
  * coluna em 1.024 px (decisão do dono em 2026-10-31). Os dois lados do limiar,
- * com os dois textos (L-029, L-050).
+ * com os dois textos, e a outra ponta da faixa, 768 px, onde o alinhamento à
+ * direita começa (L-029, L-050, L-052).
  */
-test('em 1.279 px, "confirmado · previa" e "previsto" ficam embaixo do valor; em 1.280 px, na mesma linha, à esquerda dele (DENS-01, AC 5)', async ({
+test('em 768 e 1.279 px, "confirmado · previa" e "previsto" ficam embaixo do valor, alinhados à direita com ele; em 1.280 px, na mesma linha, à esquerda dele (DENS-01, AC 5)', async ({
   page,
 }) => {
   const fixos = [
@@ -315,15 +316,19 @@ test('em 1.279 px, "confirmado · previa" e "previsto" ficam embaixo do valor; e
     { descricao: "Fixo B", texto: "previsto" },
   ];
 
-  await page.setViewportSize({ width: 1279, height: 900 });
+  await page.setViewportSize({ width: 768, height: 900 });
   await abrir(page, `/${MARCO}/lancamentos`);
-  for (const { descricao, texto } of fixos) {
-    const { valor, previsao } = await valorEPrevisao(page, descricao, texto);
-    expect(previsao.y, descricao).toBeGreaterThanOrEqual(valor.y + valor.height);
-    expect(
-      Math.abs(previsao.x + previsao.width - (valor.x + valor.width)),
-      descricao,
-    ).toBeLessThanOrEqual(1);
+  for (const largura of [768, 1279]) {
+    await page.setViewportSize({ width: largura, height: 900 });
+    for (const { descricao, texto } of fixos) {
+      const { valor, previsao } = await valorEPrevisao(page, descricao, texto);
+      const onde = `${descricao} em ${largura} px`;
+      expect(previsao.y, onde).toBeGreaterThanOrEqual(valor.y + valor.height);
+      expect(
+        Math.abs(previsao.x + previsao.width - (valor.x + valor.width)),
+        onde,
+      ).toBeLessThanOrEqual(1);
+    }
   }
 
   await page.setViewportSize({ width: 1280, height: 900 });

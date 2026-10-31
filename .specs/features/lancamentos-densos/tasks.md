@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 4 de `validation.md`, em 2026-10-31, por uma lacuna menor (a previsão do fixo alinhada à direita na ponta de 768 px da faixa do DENS-01, AC 5); o dono escolheu em 2026-10-31 corrigir e conferir só essa lacuna, sem uma rodada inteira; correção F13 a fazer (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F12 concluídas)
+**Status**: FAIL na rodada 4 de `validation.md`, em 2026-10-31, por uma lacuna menor (a previsão do fixo alinhada à direita na ponta de 768 px da faixa do DENS-01, AC 5); o dono escolheu em 2026-10-31 corrigir e conferir só essa lacuna, sem uma rodada inteira; correção F13 concluída, à espera do Verifier focado nela (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F13 concluídas)
 **Total**: 19 tasks em 7 fases (T1–T6 e as correções F1–F13), executadas inline
 
 ---
@@ -47,9 +47,9 @@ operação remota exigem autorização separada.
   id="linhas-…"` do bloco não ganha atributo.
 - **O valor fica num `td` só,** alinhado à direita, em algarismos tabulares (REDE-03, AC 2).
 - **Layout:** a prova se mede no navegador, com `boundingBox` e estilo computado. Todo limiar
-  (768 px para os alvos de 44 px, 1.280 px para a linha baixa e 1.536 px para a coluna) é provado
-  dos dois lados (L-029, L-048). A consulta que situa um elemento fica presa
-  à região dele (L-018).
+  (768 px para os alvos de 44 px e para a previsão do fixo, 1.280 px para a linha baixa e
+  1.536 px para a coluna) é provado dos dois lados (L-029, L-048, L-052). A consulta que situa
+  um elemento fica presa à região dele (L-018).
 - **Gate:** o de toda task inclui `pnpm typecheck` (L-016). Medir só depois de esperar a página
   pronta.
 
@@ -536,9 +536,9 @@ rodada inteira.
 **Reuses**: `abrir`, `valorEPrevisao`
 **Requirement**: DENS-01
 **Done when**:
-- [ ] Em 768 px, a previsão do Fixo A e a do Fixo B ficam embaixo do valor, com a borda direita a até 1 px da dele (DENS-01, AC 5)
-- [ ] O teste falha com G1 (`md:items-end` → `lg:items-end` em `valor-confirmavel.tsx`)
-- [ ] As Global Constraints listam 768 px também para a previsão do fixo
+- [x] Em 768 px, a previsão do Fixo A e a do Fixo B ficam embaixo do valor, com a borda direita a até 1 px da dele (DENS-01, AC 5)
+- [x] O teste falha com G1 (`md:items-end` → `lg:items-end` em `valor-confirmavel.tsx`)
+- [x] As Global Constraints listam 768 px também para a previsão do fixo
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): previsão do fixo alinhada à direita em 768 px`
