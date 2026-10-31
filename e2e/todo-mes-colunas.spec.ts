@@ -719,10 +719,25 @@ async function alvosDeToque(page: Page): Promise<void> {
   }
 }
 
+/**
+ * "+ Novo fixo" termina antes do topo dos totais, e os totais antes do topo da
+ * primeira seção, medidos na tela. A partir de 1.536 px a grade decide a ordem
+ * por `row-start`, e a ordem do DOM não a prova (FIXCOL-06, AC 1; L-030).
+ */
+async function novoFixoNoAlto(page: Page): Promise<void> {
+  const novo = await caixa(page.getByRole("button", { name: "+ Novo fixo" }));
+  const totais = await caixa(
+    page.locator("dl").filter({ hasText: "Saídas fixas em Março de 2026" }),
+  );
+  const secoes = await caixa(page.getByRole("region", { name: "Entradas fixas" }));
+  expect(novo.y + novo.height, "+ Novo fixo acima dos totais").toBeLessThanOrEqual(totais.y);
+  expect(totais.y + totais.height, "totais acima das seções").toBeLessThanOrEqual(secoes.y);
+}
+
 test.describe("em 400 px, com A aberto", () => {
   test.use({ viewport: { width: 400, height: 800 } });
 
-  test("não há rolagem lateral; cada fixo vem em duas linhas, a descrição e o valor em cima, a categoria, o dia e o meio embaixo, sem cabeçalho; e os alvos medem 44 × 44 (FIXCOL-07, AC 9; FIXCOL-01, AC 11; FIXCOL-08, AC 6)", async ({
+  test('não há rolagem lateral; cada fixo vem em duas linhas, a descrição e o valor em cima, a categoria, o dia e o meio embaixo, sem cabeçalho; os alvos medem 44 × 44; e "+ Novo fixo" fica acima dos totais, que ficam acima das seções (FIXCOL-07, AC 9; FIXCOL-01, AC 11; FIXCOL-08, AC 6; FIXCOL-06, AC 1)', async ({
     page,
   }) => {
     await abrir(page, `/${MARCO}/fixos`);
@@ -733,6 +748,7 @@ test.describe("em 400 px, com A aberto", () => {
     await cabecalhosEscondidos(page);
     await duasLinhasPorFixo(page);
     await alvosDeToque(page);
+    await novoFixoNoAlto(page);
   });
 });
 
@@ -895,7 +911,7 @@ test("em 1.535 px, com um fixo aberto, o título, os totais, o painel e as seç�
 
 /* A coluna e a lista centrada, colada no limiar e longe dele (L-029). */
 for (const largura of [1536, 1920]) {
-  test(`em ${largura} px, a coluna mede 384 px, com a linha fina à esquerda, e o título, os totais e as seções medem até 1.100 px, centrados entre o menu e a coluna (FIXCOL-07, ACs 1 e 4)`, async ({
+  test(`em ${largura} px, a coluna mede 384 px, com a linha fina à esquerda; o título, os totais e as seções medem até 1.100 px, centrados entre o menu e a coluna; e "+ Novo fixo" fica acima dos totais, que ficam acima das seções (FIXCOL-07, ACs 1 e 4; FIXCOL-06, AC 1)`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: largura, height: 900 });
@@ -924,6 +940,7 @@ for (const largura of [1536, 1920]) {
       const folgaDireita = daColuna.x - (medida.x + medida.width);
       expect(Math.abs(folgaEsquerda - folgaDireita), nome).toBeLessThanOrEqual(1);
     }
+    await novoFixoNoAlto(page);
   });
 
   test(`em ${largura} px, com ponteiro fino, toda linha das duas tabelas mede até 48 px, e só as de descrição longa crescem (FIXCOL-01, AC 10)`, async ({

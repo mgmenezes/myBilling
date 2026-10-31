@@ -533,7 +533,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 - [x] O teste falha com M16 (`page.tsx:130`, `pessoa: recorrencia.usuarioId`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(fixos): os dados do painel lidos pelo termo na página`
+**Commit**: `test(fixos): os dados do painel lidos pelo termo na página` (`43cfa47`)
 **Nota**: com M16, o teste falha em "De quem é", que mostra o id da pessoa no lugar de "Pessoa B". A segunda pessoa é semeada dentro do teste, e o Fixo A e a ocorrência dele passam a ser dela; os outros testes continuam com uma pessoa só. A prova foi refeita depois da F6, que mexe em `TodoMes`. O gate passa: os 40 testes do arquivo, 1.827 unitários, `typecheck` e `lint`.
 
 #### F4: "+ Novo fixo" acima dos totais em toda largura
@@ -543,11 +543,12 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 **Reuses**: `caixa`, `abrir`
 **Requirement**: FIXCOL-06
 **Done when**:
-- [ ] Em 1.536, 1.920 e 400 px, "+ Novo fixo" termina antes do topo dos totais, e os totais terminam antes do topo de "Entradas fixas" (FIXCOL-06 AC 1)
-- [ ] O teste falha com M17 (`todo-mes.tsx:121`, `2xl:row-start-1` → `2xl:row-start-4`)
+- [x] Em 1.536, 1.920 e 400 px, "+ Novo fixo" termina antes do topo dos totais, e os totais terminam antes do topo de "Entradas fixas" (FIXCOL-06 AC 1)
+- [x] O teste falha com M17 (`todo-mes.tsx:121`, `2xl:row-start-1` → `2xl:row-start-4`)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(fixos): o novo fixo acima dos totais em toda largura`
+**Nota**: a medida mora num ajudante, `novoFixoNoAlto`, chamado no teste da coluna (1.536 e 1.920 px) e no de 400 px. Com M17, o teste falha em 1.536 e em 1.920 px: o "+ Novo fixo" termina em 684 px, abaixo do topo dos totais, em 87,5 px. Em 400 px o mutante não muda nada, porque só mexe na grade de 2xl. O gate passa: os 40 testes do arquivo, 1.827 unitários, `typecheck` e `lint`.
 
 #### F5: A guarda de foco só age no botão desabilitado
 **What**: o Fix 5. Em `painel-do-fixo.test.tsx`, "Mudar valor", um botão habilitado do painel, perde o foco para fora (`blur` sem `relatedTarget`), e o foco não vai ao título do painel. A guarda é a de depois da F1, que leva o foco sem rolar. O teste prova a condição dela: só o botão desabilitado puxa o foco (L-056).
