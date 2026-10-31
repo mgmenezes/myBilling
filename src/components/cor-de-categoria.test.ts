@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CORES_DE_CATEGORIA } from "@/domain";
-import { CLASSES_DA_COR } from "./cor-de-categoria";
+import { CLASSES_DA_COR, NOME_DA_COR, textoDaCor } from "./cor-de-categoria";
 
 /**
  * Testes derivados de COR-02 (ACs 1 a 3) e do Done-when de T3.
@@ -187,4 +187,35 @@ describe("CLASSES_DA_COR", () => {
       expect(FONTE_DO_MAPA).toContain(`"bg-cat-${cor}-barra"`);
     },
   );
+});
+
+/* O nome de cada cor na ordem da paleta, como a pessoa lê (CADCOL-02, AC 4). */
+const NOMES_DAS_CORES = [
+  "Vermelho",
+  "Laranja",
+  "Âmbar",
+  "Verde",
+  "Verde-água",
+  "Ciano",
+  "Azul",
+  "Roxo",
+  "Rosa",
+  "Marrom",
+];
+
+describe("NOME_DA_COR e textoDaCor (CADCOL-02, AC 4)", () => {
+  it("tem um nome por cor da paleta, com acento, e nenhum a mais", () => {
+    expect(CORES_DE_CATEGORIA.map((cor) => NOME_DA_COR[cor])).toEqual(NOMES_DAS_CORES);
+    expect(Object.keys(NOME_DA_COR)).toEqual([...CORES_DE_CATEGORIA]);
+  });
+
+  it("com cor escolhida, é o nome dela, nas dez cores, qualquer que seja a automática", () => {
+    expect(CORES_DE_CATEGORIA.map((cor) => textoDaCor(cor, "azul"))).toEqual(NOMES_DAS_CORES);
+  });
+
+  it("sem cor escolhida, é Automática com o nome da cor que o nome dá, nas dez cores", () => {
+    expect(CORES_DE_CATEGORIA.map((automatica) => textoDaCor(null, automatica))).toEqual(
+      NOMES_DAS_CORES.map((nome) => `Automática (${nome})`),
+    );
+  });
 });

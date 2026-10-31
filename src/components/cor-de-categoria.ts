@@ -58,3 +58,26 @@ export const CLASSES_DA_COR: Readonly<
     barra: "bg-cat-marrom-barra",
   },
 };
+
+/** O nome de cada cor, como a pessoa lê. O do banco não tem acento. */
+export const NOME_DA_COR: Readonly<Record<CorDeCategoria, string>> = {
+  vermelho: "Vermelho",
+  laranja: "Laranja",
+  ambar: "Âmbar",
+  verde: "Verde",
+  "verde-agua": "Verde-água",
+  ciano: "Ciano",
+  azul: "Azul",
+  roxo: "Roxo",
+  rosa: "Rosa",
+  marrom: "Marrom",
+};
+
+/**
+ * A cor de uma categoria em texto: o nome da escolhida, como "Laranja", ou
+ * "Automática (<cor>)" quando não há escolha, com a cor que o nome dá. É o
+ * mesmo rótulo da opção "Automática" do painel (CADCOL-02, AC 4).
+ */
+export function textoDaCor(cor: CorDeCategoria | null, automatica: CorDeCategoria): string {
+  return cor === null ? `Automática (${NOME_DA_COR[automatica]})` : NOME_DA_COR[cor];
+}

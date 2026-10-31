@@ -14,7 +14,7 @@ import type { renomearCategoria, trocarCorDaCategoria } from "@/app/actions/cate
 import { nomeCategoriaSchema } from "@/application/schemas/categoria.schema";
 import { CORES_DE_CATEGORIA, type CorDeCategoria, corAutomatica, corDaCategoria } from "@/domain";
 import { useAvisos } from "./avisos";
-import { CLASSES_DA_COR } from "./cor-de-categoria";
+import { CLASSES_DA_COR, NOME_DA_COR } from "./cor-de-categoria";
 import { Chip } from "./ui";
 
 /**
@@ -44,20 +44,6 @@ import { Chip } from "./ui";
  * linhas no computador. O radio de verdade fica em `sr-only`, e o anel de foco
  * vem dele pelo `peer`, como no alternador de tema.
  */
-
-/** O nome de cada cor, como a pessoa lê. O do banco não tem acento. */
-const NOME_DA_COR: Readonly<Record<CorDeCategoria, string>> = {
-  vermelho: "Vermelho",
-  laranja: "Laranja",
-  ambar: "Âmbar",
-  verde: "Verde",
-  "verde-agua": "Verde-água",
-  ciano: "Ciano",
-  azul: "Azul",
-  roxo: "Roxo",
-  rosa: "Rosa",
-  marrom: "Marrom",
-};
 
 /** O valor do radio "Automática": o radio não tem valor nulo. */
 const AUTOMATICA = "automatica";

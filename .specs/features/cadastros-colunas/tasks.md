@@ -403,7 +403,7 @@ essa marca que a coluna o acha para dar o foco.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(cadastros): título e abas de Cadastros`
+**Commit**: `feat(cadastros): título e abas de Cadastros` (`7c7fa9b`)
 
 ### Phase 4 — Categorias
 
@@ -418,18 +418,21 @@ o tipo `ItemDeCategoria`; `NOME_DA_COR` e `textoDaCor` em `cor-de-categoria.ts`.
 **Reuses**: `Chip`, `corDaCategoria`, `corAutomatica`, a `CELULA` de `tabela-lancamentos.tsx`
 **Requirement**: CADCOL-02, CADCOL-04
 **Done when**:
-- [ ] Tabela "Categorias" com os cabeçalhos Categoria, Cor, "Fixos em Março" e "Lançamentos em Março" (CADCOL-02 AC 1)
-- [ ] As linhas na ordem recebida; a pill de cada uma na cor escolhida ou na automática, procurada dentro da linha (CADCOL-02 AC 3, L-018); equivalentes de 146, 155 e 161 de `lista-de-categorias.test.tsx`
-- [ ] Coluna Cor com "Laranja" na escolhida e "Automática (Azul)" na automática; `textoDaCor` testado nas dez cores (CADCOL-02 AC 4)
-- [ ] As duas contagens na linha, com "0" sem uso, e o nome de cada contagem no texto da célula ("1 fixo", "2 lançamentos") (CADCOL-02 ACs 5 e 8, o texto; a medida é da T15)
-- [ ] O único botão de cada linha é o da categoria (CADCOL-02 AC 6)
-- [ ] Clicar na célula de uma contagem chama `aoAbrir` com o id; acionar o botão também: uma assertion para cada (CADCOL-04 AC 1, L-010)
-- [ ] Botão da linha aberta com `aria-expanded="true"` e `aria-controls="painel-da-categoria"`, os outros com `"false"` (CADCOL-04 AC 13)
-- [ ] Sem categoria, o aviso de CADCOL-02 AC 9 no lugar da tabela; equivalente de 455
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Tabela "Categorias" com os cabeçalhos Categoria, Cor, "Fixos em Março" e "Lançamentos em Março" (CADCOL-02 AC 1)
+- [x] As linhas na ordem recebida; a pill de cada uma na cor escolhida ou na automática, procurada dentro da linha (CADCOL-02 AC 3, L-018); equivalentes de 146, 155 e 161 de `lista-de-categorias.test.tsx`
+- [x] Coluna Cor com "Laranja" na escolhida e "Automática (Azul)" na automática; `textoDaCor` testado nas dez cores (CADCOL-02 AC 4)
+- [x] As duas contagens na linha, com "0" sem uso, e o nome de cada contagem no texto da célula ("1 fixo", "2 lançamentos") (CADCOL-02 ACs 5 e 8, o texto; a medida é da T15)
+- [x] O único botão de cada linha é o da categoria (CADCOL-02 AC 6)
+- [x] Clicar na célula de uma contagem chama `aoAbrir` com o id; acionar o botão também: uma assertion para cada (CADCOL-04 AC 1, L-010)
+- [x] Botão da linha aberta com `aria-expanded="true"` e `aria-controls="painel-da-categoria"`, os outros com `"false"` (CADCOL-04 AC 13)
+- [x] Sem categoria, o aviso de CADCOL-02 AC 9 no lugar da tabela; equivalente de 455
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(categorias): a tabela de categorias com o uso no mês`
+**Nota**: o botão da linha não tem `onClick` próprio: o clique sobe até a linha, que abre, e a
+categoria abre uma vez só pelo mouse e pelo teclado, como em Todo mês. O teste do teclado confere
+`aoAbrir` chamado uma vez. As contagens cobrem 0, 1 e 2, para o singular e o plural de cada nome.
 
 #### T12: `DetalheDaCategoria` e `OndeAparece`
 **What**: o conteúdo do painel da categoria (renomear, as onze cores, o otimista e as recusas) e a
