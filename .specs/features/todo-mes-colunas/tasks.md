@@ -528,12 +528,13 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 **Reuses**: `painel`, `botaoDaLinha`, `pool`
 **Requirement**: FIXCOL-04
 **Done when**:
-- [ ] No painel de A: "Categoria Um" em "Categoria", "Conta Corrente" em "Meio de pagamento", "Pessoa B" em "De quem é", "Janeiro de 2026" em "Começou em" e "Sem fim" em "Termina em" (FIXCOL-04 AC 3)
-- [ ] No painel de Entrada A: "Conta Corrente" em "Onde o dinheiro cai" e "Pessoa A" em "De quem é" (FIXCOL-04 AC 3, AD-015)
-- [ ] O teste falha com M16 (`page.tsx:130`, `pessoa: recorrencia.usuarioId`)
+- [x] No painel de A: "Categoria Um" em "Categoria", "Conta Corrente" em "Meio de pagamento", "Pessoa B" em "De quem é", "Janeiro de 2026" em "Começou em" e "Sem fim" em "Termina em" (FIXCOL-04 AC 3)
+- [x] No painel de Entrada A: "Conta Corrente" em "Onde o dinheiro cai" e "Pessoa A" em "De quem é" (FIXCOL-04 AC 3, AD-015)
+- [x] O teste falha com M16 (`page.tsx:130`, `pessoa: recorrencia.usuarioId`)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(fixos): os dados do painel lidos pelo termo na página`
+**Nota**: com M16, o teste falha em "De quem é", que mostra o id da pessoa no lugar de "Pessoa B". A segunda pessoa é semeada dentro do teste, e o Fixo A e a ocorrência dele passam a ser dela; os outros testes continuam com uma pessoa só. A prova foi refeita depois da F6, que mexe em `TodoMes`. O gate passa: os 40 testes do arquivo, 1.827 unitários, `typecheck` e `lint`.
 
 #### F4: "+ Novo fixo" acima dos totais em toda largura
 **What**: o Fix 4. A ordem na tela é medida em duas faixas: de "+ Novo fixo" até o topo dos totais, e dos totais até o topo de "Entradas fixas". Ela entra no teste da coluna, no laço de `e2e/todo-mes-colunas.spec.ts:848`, em 1.536 e 1.920 px, onde a grade decide a ordem por `2xl:row-start-*`. Entra também no teste de 400 px (L-030, L-055).
@@ -589,7 +590,7 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 - [x] Os 7 arquivos de e2e que abrem Todo mês passam, com 89 testes, e os quatro da F1 passam 12 de 12 em três repetições
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `fix(fixos): a tela não volta ao alto depois de salvar`
+**Commit**: `fix(fixos): a tela não volta ao alto depois de salvar` (`976a959`)
 **Nota**: a suíte unitária vai de 1.825 a 1.827.
 
 ---

@@ -418,9 +418,21 @@ test('cada linha mostra o que o mês tem: A "confirmado" em R$ 105,00, C "Encerr
   ).toHaveCount(0);
 });
 
-test('o painel de A mostra "confirmado · previa R$ 100,00" e as três vigências na ordem, com "vale em Março" na de fevereiro (FIXCOL-04, ACs 1 a 4)', async ({
+test('o painel de A mostra "confirmado · previa R$ 100,00", os dados do fixo lidos pelo termo e as três vigências na ordem, com "vale em Março" na de fevereiro; o de Entrada A, "Onde o dinheiro cai" (FIXCOL-04, ACs 1 a 4)', async ({
   page,
 }) => {
+  /* Uma segunda pessoa, dona do Fixo A: com uma pessoa só, o nome certo
+     coincidiria com o de qualquer pessoa (L-024). */
+  const { rows } = await pool.query<{ id: string }>(
+    "INSERT INTO usuario (nome, email) VALUES ($1, $2) RETURNING id",
+    ["Pessoa B", "pessoa-b@example.com"],
+  );
+  const pessoaB = rows[0]?.id;
+  await pool.query("UPDATE recorrencia SET usuario_id = $1 WHERE id = $2", [pessoaB, ids.a]);
+  await pool.query("UPDATE movimento SET usuario_id = $1 WHERE recorrencia_id = $2", [
+    pessoaB,
+    ids.a,
+  ]);
   await abrir(page, `/${MARCO}/fixos`);
 
   await botaoDaLinha(page, "Fixo A").click();
@@ -428,6 +440,12 @@ test('o painel de A mostra "confirmado · previa R$ 100,00" e as três vigência
   await expect(tituloDoPainel(page)).toHaveText("Fixo A");
   await expect(painel(page).getByText("Saída fixa · vence dia 5", { exact: true })).toBeVisible();
   await expect(painel(page).getByText("confirmado · previa R$ 100,00")).toBeVisible();
+  /* O que a página monta para o painel, cada dado lido pelo termo (AC 3, L-014). */
+  await expect(dadoDoPainel(page, "Categoria")).toHaveText("Categoria Um");
+  await expect(dadoDoPainel(page, "Meio de pagamento")).toHaveText("Conta Corrente");
+  await expect(dadoDoPainel(page, "De quem é")).toHaveText("Pessoa B");
+  await expect(dadoDoPainel(page, "Começou em")).toHaveText("Janeiro de 2026");
+  await expect(dadoDoPainel(page, "Termina em")).toHaveText("Sem fim");
   const historico = painel(page)
     .getByRole("region", { name: "Valor ao longo dos meses" })
     .getByRole("listitem");
@@ -437,6 +455,12 @@ test('o painel de A mostra "confirmado · previa R$ 100,00" e as três vigência
     /^desde Maio de 2026\s*R\$ 110,00$/,
   ]);
   await expect(historico.getByText("vale em Março")).toHaveCount(1);
+
+  /* Numa entrada, o meio é "Onde o dinheiro cai" (AD-015), e a pessoa é a dela. */
+  await botaoDaLinha(page, "Entrada A").click();
+  await expect(tituloDoPainel(page)).toHaveText("Entrada A");
+  await expect(dadoDoPainel(page, "Onde o dinheiro cai")).toHaveText("Conta Corrente");
+  await expect(dadoDoPainel(page, "De quem é")).toHaveText("Pessoa A");
 });
 
 test("mudar o valor de B para R$ 60,00 a partir de abril põe a vigência no histórico, e a linha de março segue em R$ 50,00 (FIXCOL-05, ACs 1 e 2)", async ({
