@@ -969,7 +969,7 @@ quebra".
 - [x] `validate_spec.py` passa
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): no celular, a linha de baixo quebra quando não cabe`
+**Commit**: `test(cadastros): no celular, a linha de baixo quebra quando não cabe` (`971b6c6`)
 **Nota**:
 - **A medida.** Três ajudantes novos em `e2e/cadastros-colunas.spec.ts`, que a F2 reaproveita:
   - `caixasDoTexto` lê as caixas do texto à vista, uma por linha de cada nó de texto, como a sonda E;
@@ -999,12 +999,23 @@ A regra é a da F1.
 **Reuses**: as medidas da F1
 **Requirement**: CADCOL-02, CADCOL-06
 **Done when**:
-- [ ] Em 767 px, nas duas tabelas, a regra do AC 8, medida no navegador
-- [ ] Cada teste falha com o seu mutante: E17 (`md:table-row` → `sm:table-row` em
+- [x] Em 767 px, nas duas tabelas, a regra do AC 8, medida no navegador
+- [x] Cada teste falha com o seu mutante: E17 (`md:table-row` → `sm:table-row` em
   `tabela-de-categorias.tsx`) e E18 (o mesmo em `tabela-de-meios.tsx`)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): a linha do celular medida em 767 px`
+**Nota**:
+- **A medida** reaproveita `nomeSozinhoEmCima` e `linhasDeTexto` da F1, em `:784-787` (Categoria
+  Dois e Categoria Um) e `:1481-1484` (os quatro meios). Em 767 px o resto cabe numa linha, no
+  cartão também, e o teste afirma isso: pela regra da F1, ele só quebra quando não cabe.
+- **Os mutantes.** Na HEAD, os dois testes passam.
+  - Com E17 (`tabela-de-categorias.tsx:149`), o de categorias falha em "Categoria Dois": o resto
+    ocupa 3 linhas, e não 1. Cada célula vira um bloco.
+  - Com E18 (`tabela-de-meios.tsx:182`), o de meios falha em "Cartão Roxo": 5 linhas, e não 1. O
+    de categorias passa.
+- **Gate:** 2.087 unitários, `typecheck` e `lint` 0, e os 54 testes de `cadastros-colunas.spec.ts`.
+  A traceability foi remapeada de novo.
 
 #### F3: Os alvos de 44 × 44 com ponteiro fino a partir de 768 px
 **What**: o Fix Plan 3 (G3). O CADCOL-10 AC 7 vale "em qualquer largura e ponteiro". Hoje os alvos

@@ -778,6 +778,13 @@ test("em 767 px, nenhum cabeçalho à vista, o nome de cada contagem escrito e o
   }
   const nomeDaContagem = celula(page, "Categoria Um", 2).locator("span").last();
   expect((await caixa(nomeDaContagem)).width).toBeGreaterThan(10);
+  /* A regra do AC 8 colada no limiar (L-063): a pill sozinha na primeira
+     linha de texto e, embaixo, a cor e as contagens, que aqui cabem numa
+     linha só. */
+  for (const nome of ["Categoria Dois", "Categoria Um"]) {
+    const { resto } = await nomeSozinhoEmCima(linha(page, nome), nome);
+    expect(linhasDeTexto(resto), nome).toBe(1);
+  }
 
   await page.setViewportSize({ width: 768, height: 900 });
   await expect(tabela(page).getByRole("columnheader")).toHaveText([
@@ -1468,6 +1475,13 @@ test.describe("a aba Meios de pagamento", () => {
     const nomeDaContagem = celulaDoMeio(page, "Cartão Roxo", 5).locator("span").last();
     expect((await caixa(nomeDoDia)).width).toBeGreaterThan(10);
     expect((await caixa(nomeDaContagem)).width).toBeGreaterThan(10);
+    /* A regra do AC 8 colada no limiar (L-063): o nome sozinho na primeira
+       linha de texto e, embaixo, o tipo, os dias e as contagens, que aqui
+       cabem numa linha só, no cartão também. */
+    for (const nome of ORDEM_DOS_MEIOS) {
+      const { resto } = await nomeSozinhoEmCima(linhaDoMeio(page, nome), nome);
+      expect(linhasDeTexto(resto), nome).toBe(1);
+    }
 
     await page.setViewportSize({ width: 768, height: 900 });
     await expect(tabelaDeMeios(page).getByRole("columnheader")).toHaveText([
