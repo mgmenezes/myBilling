@@ -268,11 +268,15 @@ Um painel só, que muda de lugar por CSS, como o cartão de filtros de Lançamen
   - guarda `aberto` e o número `focarTitulo`;
   - desenha o cabeçalho com "+ Novo fixo", os totais, o painel e a `TabelaDeFixos`, na grade acima.
 - **URL:**
-  - abrir um fixo: `history.replaceState(null, "", "?fixo=<id>")`;
+  - abrir um fixo: `router.replace("?fixo=<id>", { scroll: false })`;
   - fechar, ou abrir o cadastro: tira o parâmetro. Os outros parâmetros ficam como estão.
 
-  Isso integra com o roteador (`node_modules/next/dist/docs/01-app/01-getting-started/04-linking-and-navigating.md`,
-  "Native History API"), e o `router.refresh()` dos formulários relê a página com o mesmo endereço.
+  O plano era `history.replaceState`, que integra com o roteador
+  (`node_modules/next/dist/docs/01-app/01-getting-started/04-linking-and-navigating.md`, "Native
+  History API"). A correção F7 o trocou: o endereço mudava sem o Next desenhar a página dele, e o
+  Next guardava uma rolagem até o alto, que a página relida seguinte executava, como a da action ao
+  salvar. Pelo `router.replace` com `scroll: false`, a navegação lê a página do endereço novo e não
+  rola. O `router.refresh()` dos formulários relê a página com o mesmo endereço.
 - **Estado inicial:** `fixoInicial` vale só se o id está entre os itens; senão, nada aberto
   (FIXCOL-09, AC 3).
 - **Devolver o foco:** fechar devolve o foco a `#abrir-fixo-<id>` ou ao "+ Novo fixo", conforme o
@@ -324,7 +328,7 @@ Um painel só, que muda de lugar por CSS, como o cartão de filtros de Lançamen
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Onde mora o estado | `TodoMes`, componente cliente que desenha a grade inteira | O botão do topo, as linhas e o painel dividem o mesmo "aberto"; um contexto só para isso seria mais peça |
-| `?fixo=` | Lido no servidor, escrito com `history.replaceState` | Sem `useSearchParams`, sem `Suspense` e sem ida ao servidor a cada clique |
+| `?fixo=` | Lido no servidor, escrito com `router.replace(…, { scroll: false })` | Sem `useSearchParams` e sem `Suspense`. Revisto na correção F7: o `history.replaceState` evitava a ida ao servidor a cada clique, mas deixava no Next uma rolagem até o alto pendente, e a confirmação de salvar saía da janela. Agora cada troca do endereço lê a página no servidor |
 | Papel do painel | `<aside aria-label="Painel do fixo">` | Nome estável para os testes; o título muda com o conteúdo |
 | Papel da linha | `button` com `aria-expanded` e `aria-controls` | Padrão de divulgação, como o protótipo; `aria-pressed` diria "alternar", e o que acontece é abrir |
 | Novo componente em vez de reescrever `ListaDeFixos` | `TabelaDeFixos`, `DetalheDoFixo`, `CicloDoFixo`, `PainelDoFixo` e `TodoMes` nascem ao lado, e a página troca de uma vez na T8 | A página continua funcionando, e o e2e verde, a cada commit; `lista-de-fixos.tsx` sai na T8, com cada teste dele portado antes (tabela abaixo) |

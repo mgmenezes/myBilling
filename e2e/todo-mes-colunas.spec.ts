@@ -1255,3 +1255,35 @@ test.describe("em 400 × 800", () => {
     await expect(painel(page)).toHaveCount(0);
   });
 });
+
+/*
+ * Abrir um fixo com a página rolada não a leva ao alto, nem quando a página
+ * relida chega. Trocar o `?fixo=` por `history.replaceState` deixava no Next
+ * uma rolagem até o alto pendente, que a próxima página relida executava: a
+ * da action ao salvar, ou a releitura logo depois de abrir (F6, F7).
+ */
+test("em 1.920 × 480, abrir um fixo com a página rolada até o fim deixa a página onde estava, também depois da página relida (FIXCOL-04, AC 1; FIXCOL-09, AC 1)", async ({
+  page,
+}) => {
+  await semearDescricoesLongas();
+  await page.setViewportSize({ width: 1920, height: 480 });
+  await abrir(page, `/${MARCO}/fixos`);
+  await rolarAteOFim(page);
+  const ultima = botaoDaLinha(page, SAIDA_LONGA.slice(0, 6));
+  const relida = page.waitForResponse(
+    (resposta) => resposta.url().includes("fixo=") && resposta.url().includes("_rsc="),
+  );
+
+  await ultima.click();
+
+  await expect(tituloDoPainel(page)).toHaveText(SAIDA_LONGA);
+  await expect(page).toHaveURL(/\?fixo=/);
+  await (await relida).finished();
+  await doisQuadros(page);
+  /* O foco no título ainda sobe a página uns pixels, para o título não ficar
+     na faixa que o `html` reserva no alto (`scroll-padding-top`), como antes
+     desta correção. A prova é a linha clicada continuar à vista, e a página
+     não ir ao alto. */
+  await expect(ultima).toBeInViewport();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+});

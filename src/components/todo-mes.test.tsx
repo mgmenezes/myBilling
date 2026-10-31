@@ -19,8 +19,13 @@ import { TodoMes } from "./todo-mes";
  * e não só a chamada a `history`, porque o que importa é a URL que fica.
  */
 
-const { refresh } = vi.hoisted(() => ({ refresh: vi.fn() }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
+const { refresh, navegar } = vi.hoisted(() => ({
+  refresh: vi.fn(),
+  /* O `router.replace` do Next troca o endereço sem entrada nova no histórico:
+     aqui, pelo `replaceState` do jsdom, para os testes lerem a URL que fica. */
+  navegar: vi.fn((endereco: string) => window.history.replaceState(null, "", endereco)),
+}));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh, replace: navegar }) }));
 
 const UUID_CONTA = "22222222-2222-4222-8222-222222222222";
 const UUID_U = "11111111-1111-4111-8111-111111111111";
@@ -90,6 +95,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   refresh.mockReset();
+  navegar.mockClear();
 });
 
 interface Opcoes {
@@ -261,25 +267,27 @@ describe("abrir um fixo e o endereço (FIXCOL-09, ACs 1 a 3; FIXCOL-08, AC 2)", 
     expect(window.history.length).toBe(entradasNoHistorico);
   });
 
-  /* Trocar o `?fixo=` relê a página, para a página que o Next guarda ser a do
-     endereço: sem isso, a primeira action depois da troca rolava a janela até
-     o alto, e a confirmação de salvar saía da janela (FIXCOL-05, AC 5;
-     FIXCOL-06, AC 3). A rolagem se mede no e2e; aqui, quando relê. */
-  it("abrir um fixo, que muda o `?fixo=`, relê a página uma vez", async () => {
+  /* Trocar o `?fixo=` passa pelo roteador do Next, sem rolar: pelo
+     `replaceState`, o Next guardava uma rolagem até o alto, que a próxima
+     página relida executava, e a confirmação de salvar saía da janela
+     (FIXCOL-05, AC 5; FIXCOL-06, AC 3). A rolagem se mede no e2e; aqui, a
+     navegação que a evita. */
+  it("abrir um fixo, que muda o `?fixo=`, troca o endereço pelo roteador do Next, sem rolar", async () => {
     const { usuario } = montar();
 
     await usuario.click(botaoDaLinha("Fixo B"));
 
-    expect(refresh).toHaveBeenCalledTimes(1);
+    expect(navegar).toHaveBeenCalledTimes(1);
+    expect(navegar).toHaveBeenCalledWith("?outro=1&fixo=rec-b", { scroll: false });
   });
 
-  it("abrir o cadastro com o endereço já sem `?fixo=` não relê a página", async () => {
+  it("abrir o cadastro com o endereço já sem `?fixo=` não navega", async () => {
     const { usuario } = montar();
 
     await usuario.click(screen.getByRole("button", { name: "+ Novo fixo" }));
 
     expect(window.location.search).toBe("?outro=1");
-    expect(refresh).not.toHaveBeenCalled();
+    expect(navegar).not.toHaveBeenCalled();
   });
 
   it("`fixoInicial` da lista abre o painel com ele, sem roubar o foco", () => {

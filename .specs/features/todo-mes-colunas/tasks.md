@@ -6,11 +6,13 @@
 AC 9, FIXCOL-04 AC 3 e FIXCOL-06 AC 1), a condição da guarda de foco sem teste e a confirmação de
 salvar fora da janela. O dono escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a
 confirmação fica à vista, junto do botão clicado, e a tela não vai mais ao título do painel.
-Correções F1–F6 em andamento; a F6 foi achada no gate da F3 (plano aprovado pelo dono em 2026-10-30; T1 a T11 concluídas; branch
+Correções F1–F7 concluídas, à espera da rodada 2 do Verifier. A F6 e a F7 foram achadas nos gates
+da F3 e da F5: a rolagem até o alto que o Next fazia depois de trocar o `?fixo=` (plano aprovado
+pelo dono em 2026-10-30; T1 a T11 concluídas; branch
 `feat/todo-mes-colunas`, em worktree `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a
 `main` em `e39eeae`, que já traz `lancamentos-densos` (AD-020) com a F13; os hashes da T1 à T11 são
 os de depois do rebase)
-**Total**: 17 tasks em 5 fases (T1–T11 e as correções F1–F6). As fases 1 a 4 deram dois lotes
+**Total**: 18 tasks em 5 fases (T1–T11 e as correções F1–F7). As fases 1 a 4 deram dois lotes
 (T1–T7 e T8–T11), com a oferta de sub-agentes antes do Execute; a fase 5 é um lote só, inline.
 
 ---
@@ -149,6 +151,7 @@ F2 -> F6
 F6 -> F3
 F3 -> F4
 F4 -> F5
+F5 -> F7
 ```
 
 F1 a F5 fecham os Fixes 1 a 5 de `validation.md` (rodada 1, FAIL). A F1 leva à spec a escolha do
@@ -156,7 +159,9 @@ dono em 2026-10-31 para a confirmação de salvar, "Onde você clicou", e muda o
 foco do painel deixa de rolar a tela, e a confirmação recebe o foco. As F2 a F5 acrescentam, cada
 uma, o teste que falta: passa na HEAD e falha com o mutante do Verifier (M3, M16, M17 e M5). A F6
 nasceu no gate da F3 e roda antes dela: uns 200 ms depois da confirmação, o Next rolava a janela até
-o alto, e a medida da F1 não via isso. A F3 passa a depender da F6. Lote único, inline. O e2e roda na
+o alto, e a medida da F1 não via isso. A F3 passa a depender da F6. A F7 nasceu no gate build da F5: a
+releitura da F6 só mudava a hora da rolagem até o alto. Ela troca o `?fixo=` pelo roteador do Next,
+sem rolar, e fica com o gate build da fase. Lote único, inline. O e2e roda na
 porta 3101, com uma cópia da configuração fora do repositório, porque a
 3100 está com outra worktree.
 
@@ -562,7 +567,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 - [x] Gate quick passa: 1.828 unitários, `typecheck` e `lint`. O gate build passa para a F7, que virou a última da fase
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `test(fixos): a guarda de foco só age no botão desabilitado`
+**Commit**: `test(fixos): a guarda de foco só age no botão desabilitado` (`508b7dd`)
 **Nota**: o teste desfoca o botão com `fireEvent.blur`, que no jsdom não tira o foco dele. Sem a guarda, o foco fica no botão; com M5, a guarda o leva ao título, e o teste falha. Ele é o único que falha com M5: 38 dos 39 testes do arquivo passam. O `pnpm verify` rodado para esta task saiu 0, com 1.828 unitários, 364 de integração e o build. O e2e inteiro, não: o teste "rolando até o fim em 1920 × 480" falhou, por causa da F6. É a F7.
 
 #### F6: A tela não volta ao alto depois de salvar
@@ -593,7 +598,40 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `fix(fixos): a tela não volta ao alto depois de salvar` (`976a959`)
-**Nota**: a suíte unitária vai de 1.825 a 1.827.
+**Nota**:
+- A suíte unitária vai de 1.825 a 1.827.
+- **Substituída pela F7.** A releitura não tirava a rolagem até o alto, só mudava a hora dela: a página ia ao alto logo depois de abrir um fixo com a página rolada. A F7 troca o `?fixo=` pelo roteador do Next, sem rolar, e os dois testes de unidade desta task passam a provar a navegação.
+
+#### F7: O endereço do fixo pelo roteador do Next, sem rolar
+**What**: achada no gate build da F5. O e2e inteiro falhou em "rolando até o fim em 1920 × 480", e, repetido, falhou 4 de 12 vezes, também em 1.536 × 480. A releitura da F6 não tirava a rolagem até o alto: só mudava a hora dela.
+- **A causa.** Uma sonda mostrou o `ScrollAndFocusHandler` do Next pondo `scrollTop = 0` uns 20 ms depois de a página rolar até o fim, no commit da releitura. A causa é a da F6, um passo antes. O `history.replaceState` passa pelo Next (`ACTION_RESTORE`), que deixa uma rolagem pendente na página, e a próxima página relida a executa: a da action ao salvar, ou a releitura logo depois de abrir. Com a F6, abrir um fixo com a página rolada a levava ao alto.
+- **A correção.** `TodoMes` troca o `?fixo=` com `router.replace(…, { scroll: false })`, a navegação do Next sem rolagem, e só quando o endereço muda. A navegação lê a página do endereço novo e anula a rolagem dela, sem deixar nada pendente. A releitura da F6 sai.
+- **Os testes.** Um e2e novo, em 1.920 × 480: com a página rolada até o fim, abrir o último fixo e esperar a página relida deixa a linha clicada à vista e a página fora do alto. Em `todo-mes.test.tsx`, o mock do roteador ganha `replace`, que muda o endereço como o do Next. Os dois testes da F6 passam a provar a navegação: `router.replace` com `{ scroll: false }` quando o `?fixo=` muda, e nada quando não muda.
+- **O desenho.** O `design.md` e a premissa "Estado na URL" diziam `history.replaceState`, "sem ida ao servidor a cada clique", e passam a registrar a troca. O custo é uma ida ao servidor a cada abrir ou fechar que muda o endereço, o mesmo da F6.
+
+**Where**:
+- `src/components/todo-mes.tsx`
+- `src/components/todo-mes.test.tsx`
+- `e2e/todo-mes-colunas.spec.ts`
+- `.specs/features/todo-mes-colunas/spec.md` (a premissa "Estado na URL" e a traceability)
+- `.specs/features/todo-mes-colunas/design.md` (a URL de `TodoMes` e a decisão do `?fixo=`)
+
+**Depends on**: F5
+**Reuses**: `useRouter` (o mock de `todo-mes.test.tsx`), `doisQuadros`, `rolarAteOFim`
+**Requirement**: FIXCOL-09 (e FIXCOL-04, FIXCOL-05, FIXCOL-06)
+**Done when**:
+- [x] Em 1.920 × 480, com a página rolada até o fim, abrir o último fixo e esperar a página relida deixa a linha à vista e `scrollY` acima de 0. O teste passa 3 de 3 com a correção e falha 3 de 3 no código da F6, com a linha fora da janela
+- [x] `router.replace` com `{ scroll: false }` quando o `?fixo=` muda, e nenhuma navegação quando não muda. Cada teste falha com o seu mutante: sem `{ scroll: false }`, e navegando sempre. Sem `{ scroll: false }`, o e2e também falha, com a página no alto
+- [x] Os testes de endereço de antes, em `todo-mes.test.tsx` e em `todo-mes-colunas.spec.ts`, passam sem mudança no corpo, e os da F1 e da F6 também
+- [x] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
+**Tests**: componentes, e2e
+**Gate**: build
+**Commit**: `fix(fixos): o endereço do fixo pelo roteador do Next, sem rolar`
+**Nota**: o gate build da fase, com cada código de saída conferido sozinho:
+- `pnpm verify` sai 0: `lint` em 330 arquivos; 1.828 unitários em 115 arquivos, com 100% de branches em `src/domain` (367/367); 364 de integração em 23 arquivos; e o build;
+- o e2e inteiro, na porta 3101, sai 0 na primeira passada: 175 testes em 15 arquivos, 41 deles em `todo-mes-colunas.spec.ts`.
+
+Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 da F6, que a F7 reescreve, e 1 da F5) e 6 e2e (5 da F1 e 1 da F7). Nenhum teste saiu, nenhum foi pulado.
 
 ---
 
@@ -620,6 +658,7 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 | F4 | 1 medida e2e, em dois testes | ✅ |
 | F5 | 1 teste de componente | ✅ |
 | F6 | 1 comportamento (reler a página ao trocar o `?fixo=`) e os testes dele | ✅ |
+| F7 | 1 comportamento (o endereço pelo roteador do Next), os testes dele e o registro da decisão | ⚠️ cinco arquivos, mas coeso: o código, os dois testes e os dois documentos que diziam `history.replaceState` |
 
 ### Diagrama × `Depends on`
 
@@ -642,6 +681,7 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 | F4 | F3 | F3 -> F4 | ✅ |
 | F5 | F4 | F4 -> F5 | ✅ |
 | F6 | F2 | F2 -> F6 | ✅ |
+| F7 | F5 | F5 -> F7 | ✅ |
 
 ### Testes × matriz
 
@@ -658,3 +698,4 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 | F2 a F4 | Página e fluxo (só o teste) | e2e | e2e | ✅ |
 | F5 | Componentes (só o teste) | componentes | componentes | ✅ |
 | F6 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
+| F7 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |

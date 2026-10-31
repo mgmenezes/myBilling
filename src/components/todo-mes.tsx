@@ -17,18 +17,21 @@ import { ID_DO_PAINEL, type ItemDeFixo, idDoBotaoDaLinha, TabelaDeFixos } from "
  * dividem o mesmo estado: o que está aberto. Um contexto só para isso seria
  * mais peça.
  *
- * **O fixo aberto fica no endereço**, em `?fixo=<id>`, por `replaceState`:
+ * **O fixo aberto fica no endereço**, em `?fixo=<id>`, por `router.replace`:
  * recarregar ou mandar o link abre o mesmo fixo, e o "Voltar" do navegador
  * continua saindo da tela, sem uma entrada por clique (FIXCOL-09). A página lê
  * o parâmetro no servidor e o entrega em `fixoInicial`; um id que não está na
  * lista do mês é ignorado. O cadastro não vai para o endereço.
  *
- * **Trocar o `?fixo=` relê a página**, sem rolar (`router.refresh()`). O Next
- * guarda a página que desenhou para o endereço da carga. Sem reler, a primeira
- * action que revalida depois da troca recebe a página de outro endereço,
- * trata-a como página nova e rola a janela até o alto: a confirmação de salvar
+ * **Trocar o `?fixo=` passa pelo roteador do Next**, com
+ * `router.replace(…, { scroll: false })`, e não por `history.replaceState`.
+ * O `replaceState` muda o endereço sem que o Next desenhe a página dele, e
+ * deixa no Next uma rolagem até o alto pendente, que a próxima página relida
+ * executa: a da action ao salvar, ou qualquer outra. A confirmação de salvar
  * saía da janela uns 200 ms depois de aparecer (FIXCOL-05, AC 5; FIXCOL-06,
- * AC 3). Relida a cada troca, a página do Next é sempre a do endereço.
+ * AC 3). Pelo roteador, a navegação lê no servidor a página do endereço novo
+ * e não rola. Custa uma ida ao servidor a cada abrir ou fechar que muda o
+ * endereço; o painel abre na hora, pelo estado da tela.
  *
  * **Um painel só, que muda de lugar por CSS** (FIXCOL-07), como o cartão de
  * filtros de Lançamentos. Abaixo de 1.536 px a tela é uma coluna de até
@@ -43,23 +46,6 @@ import { ID_DO_PAINEL, type ItemDeFixo, idDoBotaoDaLinha, TabelaDeFixos } from "
  * o botão da linha, ou o "+ Novo fixo" quando era o cadastro ou quando o fixo
  * saiu da lista (FIXCOL-08, ACs 2 e 4).
  */
-
-/**
- * Põe ou tira `?fixo=` sem mexer nos outros parâmetros e sem entrada nova no
- * histórico. Diz se o endereço mudou.
- */
-function gravarNoEndereco(id: string | null): boolean {
-  const parametros = new URLSearchParams(window.location.search);
-  if (id === null) {
-    parametros.delete("fixo");
-  } else {
-    parametros.set("fixo", id);
-  }
-  const busca = parametros.toString();
-  const antes = window.location.search;
-  window.history.replaceState(null, "", busca === "" ? window.location.pathname : `?${busca}`);
-  return window.location.search !== antes;
-}
 
 export function TodoMes({
   competencia,
@@ -103,10 +89,19 @@ export function TodoMes({
   const botaoNovo = useRef<HTMLButtonElement>(null);
   const router = useRouter();
 
+  /** Põe ou tira `?fixo=`, sem mexer nos outros parâmetros, sem entrada nova no histórico e sem rolar. */
   function mudarEndereco(id: string | null): void {
-    if (gravarNoEndereco(id)) {
-      router.refresh();
+    const parametros = new URLSearchParams(window.location.search);
+    if (id === null) {
+      parametros.delete("fixo");
+    } else {
+      parametros.set("fixo", id);
     }
+    const busca = parametros.toString() === "" ? "" : `?${parametros.toString()}`;
+    if (busca === window.location.search) {
+      return;
+    }
+    router.replace(busca === "" ? window.location.pathname : busca, { scroll: false });
   }
 
   function abrirFixo(id: string): void {
