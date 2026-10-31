@@ -205,6 +205,44 @@
 - **Date**: 2026-10-30
 - **Status**: active
 
+### AD-022
+- **Decision**: Cadastros vira duas abas, Categorias e Meios de pagamento, em rotas próprias sob
+  `/<competencia>/cadastros/`:
+  - **Linhas:** cada aba é uma tabela de linhas baixas, sem botão de ação. A categoria mostra a
+    pill, a cor e o uso no mês; o meio mostra o nome, o tipo, os dias de fechamento e vencimento e o
+    uso. Com ponteiro fino, a partir de 1.280 px, cada linha mede até 48 px.
+  - **Uso no mês:** "Fixos" conta os fixos cujo período contém o mês aberto; "Lançamentos" conta as
+    mesmas linhas que Lançamentos mostra com o filtro da categoria ou do meio. A página materializa
+    antes de contar.
+  - **Painel:** abrir uma linha mostra o item numa coluna; trocar a cor, renomear, criar e, no meio,
+    corrigir os dias acontecem nela, sem diálogo. O item aberto fica em `?categoria=` ou `?meio=`.
+  - **A partir de 1.536 px:** a coluna tem 384 px e fica presa à direita da tabela, que tem até
+    1.100 px. Abaixo disso, uma coluna só, com o painel entre as abas e a tabela.
+  - **Meio:** o tipo não muda. O nome é único entre os ativos, sem distinguir caixa. Os dias só
+    existem no cartão e, até Faturas, não movem compra nenhuma.
+- **Reason**: é a opção A que o dono escolheu no protótipo, com as respostas de 2026-10-30. Os
+  cartões com onze opções de cor sempre abertas deixavam dez categorias maiores que a tela. Nada dizia
+  onde uma categoria era usada. O meio de pagamento não tinha lista nem conserto pela interface. A
+  largura extra vira coluna, como em AD-019, AD-020 e AD-021.
+- **Revê**:
+  - AD-019 e TRES-01, AC 8 em Cadastros: as duas abas deixam a `AreaEstreita` a partir de 1.536 px;
+  - COR-04, ACs 3, 6, 8 e 10 e o Edge Case da lista vazia: as opções de cor, o nome e as mensagens
+    ficam no painel da categoria aberta.
+- **Trade-off**: trocar a cor pede um clique a mais, para abrir a linha. Abrir Cadastros passa a
+  criar ocorrências do mês, como Lançamentos, Todo mês e a Visão geral. Fechar o painel descarta o
+  que foi digitado. Criar e editar meio revalidam o layout raiz, e o diálogo de importação aberto
+  re-renderiza. A contagem de lançamentos inclui a ocorrência de cada fixo, que também conta em
+  "Fixos".
+- **Scope**: `cadastros/categorias/page.tsx`, `cadastros/meios-de-pagamento/page.tsx`,
+  `obterUsoNoMes`, `usoNoMes`, `mudancasDoMeio`, `editarMeioDePagamento` (caso de uso e action),
+  `EdicaoDeMeioRepository`, `CadastroRepositoryDrizzle.atualizarMeioDePagamento`, a revalidação de
+  `criarCategoria` e `criarMeioDePagamento`, `ColunaDeCadastro`, `CabecalhoDeCadastros`,
+  `OndeAparece`, `CamposDoMeio`, `TabelaDeCategorias`, `DetalheDaCategoria`, `NovaCategoria`,
+  `CadastroDeCategorias`, `TabelaDeMeios`, `DetalheDoMeio`, `NovoMeio` e `CadastroDeMeios`. Sai
+  `ListaDeCategorias`.
+- **Date**: 2026-10-30
+- **Status**: active
+
 ---
 
 ## Handoff

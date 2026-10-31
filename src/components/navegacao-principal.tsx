@@ -63,8 +63,9 @@ const AREAS: ReadonlyArray<Area> = [
    */
   { slug: "fixos", rotulo: "Todo mês", Icone: ArrowsClockwiseIcon },
   /*
-   * A etiqueta, porque hoje a área é a das categorias (COR-04). Meio de
-   * pagamento e orçamento entram aqui depois, e o item continua o mesmo.
+   * A etiqueta: a área de Cadastros, com as abas Categorias e Meios de
+   * pagamento (AD-022). O item abre Categorias; o orçamento entra aqui depois,
+   * e o item continua o mesmo.
    */
   { slug: "cadastros", rotulo: "Cadastros", Icone: TagIcon, destino: "cadastros/categorias" },
 ];

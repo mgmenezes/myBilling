@@ -18,7 +18,7 @@ import { sessaoDaUI } from "./sessao";
  * **O menu fica encostado na borda esquerda, e o `<main>` ocupa o resto**
  * (TRES-01). A pílula flutuante e o `<main>` de 1.024 px saíram: num monitor
  * grande eles deixavam mais da metade da tela vazia. Cada tela decide a
- * própria largura; as que ainda não foram redesenhadas usam a `AreaEstreita`.
+ * própria largura; a home do ano e a tela de erro do mês usam a `AreaEstreita`.
  *
  * **A importação abre do pé do menu, em qualquer tela** (TRES-01, ACs 5 e 6).
  * Ela saiu do título da Visão geral, e com ela as duas consultas que o diálogo

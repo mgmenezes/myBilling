@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
-worktree `.worktrees/cadastros-colunas`, rebaseada sobre a `main` em `e8b1540`, com Todo mês; lotes 1
-(T1 a T7) e 2 (T8 a T15) concluídos, e o lote 3 (T16 a T22) por fazer)
+worktree `.worktrees/cadastros-colunas`, rebaseada sobre a `main` em `e8b1540`, com Todo mês; os três
+lotes, T1 a T22, concluídos, à espera do Verifier)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -833,7 +833,7 @@ a dica quando nada está aberto; o teste de TRES-01, AC 8 passa para 1.535 px.
 - [x] Gate e2e passa com `e2e/cadastros-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(cadastros): o painel numa coluna à direita a partir de 1.536 px`
+**Commit**: `feat(cadastros): o painel numa coluna à direita a partir de 1.536 px` (`4215dce`)
 **Nota** (desvios):
 - **Medido no navegador antes dos testes, nas duas abas:** em 1.536 px a coluna tem 384 px e a linha
   fina de 1 px, e o cabeçalho e a tabela têm 864 px (os 911 px da coluna da esquerda menos 24 px de
@@ -889,14 +889,30 @@ a dica quando nada está aberto; o teste de TRES-01, AC 8 passa para 1.535 px.
 **Reuses**: nenhuma
 **Requirement**: CADCOL-12
 **Done when**:
-- [ ] AD-022 registrado, com o que ele revê (AD-019 e COR-04 em Cadastros) (CADCOL-12 AC 1)
-- [ ] A linha de arquivar do roadmap diz que renomear meio já tem tela e registra: arquivar um meio que fixos ativos usam é permitido, e os fixos continuam usando-o, ao lado da decisão de 2026-10-29 sobre a edição de fixo (CADCOL-12 AC 2)
-- [ ] Cada critério substituído aponta para o CADCOL que o substitui (CADCOL-12 AC 3)
-- [ ] "Largura do conteúdo" diz que Cadastros tem a coluna a partir de 1.536 px, e que a `AreaEstreita` fica com a home do ano e a tela de erro (CADCOL-12 AC 4)
-- [ ] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+- [x] AD-022 registrado, com o que ele revê (AD-019 e COR-04 em Cadastros) (CADCOL-12 AC 1)
+- [x] A linha de arquivar do roadmap diz que renomear meio já tem tela e registra: arquivar um meio que fixos ativos usam é permitido, e os fixos continuam usando-o, ao lado da decisão de 2026-10-29 sobre a edição de fixo (CADCOL-12 AC 2)
+- [x] Cada critério substituído aponta para o CADCOL que o substitui (CADCOL-12 AC 3)
+- [x] "Largura do conteúdo" diz que Cadastros tem a coluna a partir de 1.536 px, e que a `AreaEstreita` fica com a home do ano e a tela de erro (CADCOL-12 AC 4)
+- [x] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(cadastros-colunas): registrar Cadastros em abas`
+**Nota**:
+- **Contagens do gate, nesta worktree, em 2026-10-31:** `pnpm verify` saiu 0, com 2.087 testes
+  unitários em 132 arquivos, 406 de integração em 25 arquivos e o build; branches em `src/domain`,
+  393/393. `pnpm test:e2e` inteiro saiu 0, com 247 testes em 17 arquivos. Antes do
+  lote 3 eram 2.010 unitários em 128 arquivos, 406 de integração e 209 e2e em 17 arquivos.
+- **A dívida do roadmap** registra as três grades e também as duas cópias do endereço:
+  `useParametroNaUrl` nas abas de Cadastros e o `mudarEndereco` de Todo mês, que ainda não usa o
+  hook.
+- **A nota de COR-04, AC 10 substitui só os alvos**: caber em 400 px continua valendo, agora por
+  CADCOL-09, AC 7. A de AC 6, só a abertura do campo: gravar, avisar e manter a cor continuam.
+- **Fica um comentário velho fora do Where:** `src/app/globals.css:274` ainda diz que Todo mês,
+  Categorias e Lançamentos usam a `AreaEstreita`. Ele já estava errado desde Todo mês, e não é desta
+  task; fica para quem mexer no arquivo.
+- **O `pnpm db:up` não rodou nesta worktree:** o Postgres em Docker já estava de pé, e o compose
+  daqui usaria outro nome de projeto, com outro contêiner na mesma porta. O gate usou o banco de
+  teste `mybilling_test_cad`.
 
 ---
 

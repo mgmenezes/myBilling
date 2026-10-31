@@ -92,11 +92,20 @@ tipos está em rascunho em `.specs/features/editar-lancamentos/context.md`.
   a descrição fica com cerca de 133 px, de modo que "2/4 · (faltam 2 depois desta)" ocupa duas
   linhas, e não mais uma palavra por linha. A correção continua sendo deixar a descrição absorver a
   folga.
-- **Arquivar cadastro, e renomear meio de pagamento,** não têm tela. Renomear categoria já tem: é a
-  tela de Categorias, na área "Cadastros", que também troca a cor. O resto nasce na mesma área,
-  junto do orçamento. Quando arquivar existir, a edição de fixo precisa oferecer como selecionados o
-  meio e a categoria arquivados que o fixo usa; hoje ela abre sem eles (decisão do dono em
-  2026-10-29).
+- **Arquivar cadastro** não tem tela. Renomear e trocar a cor da categoria, e renomear o meio de
+  pagamento e corrigir os dias do cartão, já têm: são as abas Categorias e Meios de pagamento da
+  área "Cadastros" (AD-022). Arquivar nasce nas mesmas abas, junto do orçamento, com duas regras do
+  dono:
+  - arquivar um meio de pagamento que fixos ativos usam é permitido, e os fixos continuam usando-o
+    (decisão de 2026-10-30);
+  - a edição de fixo precisa oferecer como selecionados o meio e a categoria arquivados que o fixo
+    usa; hoje ela abre sem eles (decisão de 2026-10-29).
+- **Três grades parecidas, e duas cópias do endereço.** Lançamentos (`lancamentos/page.tsx`), Todo
+  mês (`TodoMes`) e Cadastros (`ColunaDeCadastro`) desenham, cada uma com o próprio CSS, a mesma
+  grade de 1.536 px, com a coluna presa à direita. O item aberto vai para o endereço por
+  `useParametroNaUrl` nas duas abas de Cadastros e pelo `mudarEndereco` de Todo mês, que ainda não
+  usa o hook. A peça comum às três telas fica para quando as três estiverem no `main` (spec de
+  `cadastros-colunas`, "Componente da coluna").
 
 ## Fora do roadmap
 
