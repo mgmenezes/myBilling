@@ -364,7 +364,9 @@ a grade de 1.536 px:
   `CadastroInline` sem mudar comportamento: nome, tipo e os dois dias, que só aparecem no cartão.
 - **Props:** `idBase`, `valores` (`nome`, `tipo`, `diaFechamento`, `diaVencimento`, em texto),
   `aoMudar(parcial)`, `rotuloDoNome` ("Nome do novo meio de pagamento" no inline, "Nome" no painel),
-  `tipos: readonly TipoDeMeio[] | null`.
+  `tipos: readonly TipoDeMeio[] | null`. Revisto na T8 e na T17: `diasPelaLargura` (FPC-01) e
+  `erros`, a mensagem junto de cada campo no painel, com `aria-invalid`; com `erros`, o nome não
+  tem `maxLength`, para a mensagem do limite aparecer (Notas da T8 e da T17).
   - **Com `tipos`:** o `<select>` "Tipo" de hoje, com eles.
   - **Com `null`:** o tipo em texto, com "O tipo não muda. Para trocar, cadastre outro meio.", e
     nenhum controle de tipo (edição).

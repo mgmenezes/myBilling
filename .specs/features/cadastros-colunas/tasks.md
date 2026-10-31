@@ -613,7 +613,7 @@ resultado.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(meios): a tabela de meios de pagamento com o uso no mês`
+**Commit**: `feat(meios): a tabela de meios de pagamento com o uso no mês` (`f7f1c35`)
 **Nota** (desvios):
 - **O nome do dia fica escrito na célula, como o da contagem:** "fecha dia 25" e "vence dia 5",
   com "fecha" e "vence" em `md:sr-only`. Abaixo de 768 px não há cabeçalho, e "dia 25" sozinho não
@@ -644,18 +644,39 @@ resultado.
 **Reuses**: `CamposDoMeio`, `OndeAparece`, `TituloDoPainel`, `entradaEdicaoDoMeioSchema`, `editarMeioDePagamento` (por prop)
 **Requirement**: CADCOL-07
 **Done when**:
-- [ ] O nome num `TituloDoPainel` e o subtítulo "Cartão de crédito · fecha dia 25 · vence dia 5", "Conta corrente" ou "Rótulo", um caso para cada (CADCOL-07 AC 1)
-- [ ] Formulário "Editar Cartão Roxo" com "Nome", o tipo em texto com a frase de CADCOL-07 AC 2 e "Salvar alterações"; nenhum controle de tipo (CADCOL-07 ACs 2 e 4)
-- [ ] No cartão, os dois dias preenchidos e a nota dos dias; na conta, nem dias nem nota: uma assertion para cada (CADCOL-07 AC 3)
-- [ ] Salvar manda `{ meioPagamentoId, nome, ciclo }`, com `ciclo: null` na conta, e avisa "Meio de pagamento salvo." (CADCOL-07 AC 5)
-- [ ] Nome e dias iguais aos gravados, com espaço sobrando no nome, não chamam o servidor e não avisam (CADCOL-07 AC 9)
-- [ ] Nome vazio, nome com 41 caracteres, dia 0 e dia 32 recusados no navegador com a mensagem junto do campo; 40 caracteres e os dias 1 e 31 chegam ao servidor (CADCOL-07 AC 10, L-029, L-041)
-- [ ] A recusa do servidor no campo `nome` aparece em `alert` junto de "Nome", com `aria-invalid`; a sem campo aparece em `alert` no formulário (CADCOL-07 ACs 6, 11 e 12)
-- [ ] "Onde ele aparece" com os números e o link do meio (CADCOL-07 AC 13)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] O nome num `TituloDoPainel` e o subtítulo "Cartão de crédito · fecha dia 25 · vence dia 5", "Conta corrente" ou "Rótulo", um caso para cada (CADCOL-07 AC 1)
+- [x] Formulário "Editar Cartão Roxo" com "Nome", o tipo em texto com a frase de CADCOL-07 AC 2 e "Salvar alterações"; nenhum controle de tipo (CADCOL-07 ACs 2 e 4)
+- [x] No cartão, os dois dias preenchidos e a nota dos dias; na conta, nem dias nem nota: uma assertion para cada (CADCOL-07 AC 3)
+- [x] Salvar manda `{ meioPagamentoId, nome, ciclo }`, com `ciclo: null` na conta, e avisa "Meio de pagamento salvo." (CADCOL-07 AC 5)
+- [x] Nome e dias iguais aos gravados, com espaço sobrando no nome, não chamam o servidor e não avisam (CADCOL-07 AC 9)
+- [x] Nome vazio, nome com 41 caracteres, dia 0 e dia 32 recusados no navegador com a mensagem junto do campo; 40 caracteres e os dias 1 e 31 chegam ao servidor (CADCOL-07 AC 10, L-029, L-041)
+- [x] A recusa do servidor no campo `nome` aparece em `alert` junto de "Nome", com `aria-invalid`; a sem campo aparece em `alert` no formulário (CADCOL-07 ACs 6, 11 e 12)
+- [x] "Onde ele aparece" com os números e o link do meio (CADCOL-07 AC 13)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(meios): o meio aberto, com nome e dias editáveis`
+**Nota** (desvios):
+- **A mensagem junto do campo mora em `CamposDoMeio`, que ganhou a prop `erros`** (arquivo fora do
+  Where da T17). O `aria-invalid` e o `aria-describedby` vão no próprio `input`, que é do
+  `CamposDoMeio`; desenhada fora dele, a mensagem não marcaria o campo. Cada campo recusado ganha o
+  `alert` logo abaixo, no bloco dele. **Com `erros`, o nome não tem `maxLength`**, como o da
+  categoria (T13): cortado em 40 pelo navegador, o 41º caractere nunca chegaria à validação, e a
+  mensagem do limite de CADCOL-07, AC 10 não apareceria. Sem `erros`, o cadastro inline e a
+  importação ficam como estavam, com o nome cortado em 40; um teste novo em
+  `campos-do-meio.test.tsx` prova esse lado (L-056), e os testes do inline, de
+  `form-lancamento-avulso` e de `passo-pendencias` passam sem mudança.
+- **As chaves da recusa viram os campos da tela:** `nome`, `ciclo.diaFechamento` e
+  `ciclo.diaVencimento`, do schema no navegador e da action no servidor. `MEIO_PAGAMENTO_NAO_ENCONTRADO`
+  chega em `meioPagamentoId`, que a tela não tem, e aparece no alerta do formulário, como a recusa
+  sem campo (AC 12).
+- **O formulário é um `@container`** e passa `diasPelaLargura` ao `CamposDoMeio`: os dois dias
+  seguem a largura do formulário (448 px), e não a da janela; a T20 mede os dois lados do limiar
+  (L-061).
+- **Testes além do Done-when, cada um preso a um AC:** o servidor dizendo que nada mudou não avisa
+  (AC 9, como na categoria); o dia recusado pelo servidor junto do campo do dia (AC 10, "no
+  servidor"); corrigido o campo, a mensagem sai no envio seguinte (AC 10); e o nome salvo fica no
+  campo como foi gravado, normalizado (AC 5, "o nome novo no painel").
 
 #### T18: `NovoMeio`, o formulário de criação
 **What**: o formulário "Novo meio de pagamento" do painel, com `CamposDoMeio` e os três tipos, a

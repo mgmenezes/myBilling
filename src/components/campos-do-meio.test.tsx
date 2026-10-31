@@ -188,6 +188,20 @@ describe("o nome (T8: o rótulo vem por prop)", () => {
     expect(fechamento.value).toBe("10");
     expect(vencimento.value).toBe("17");
   });
+
+  /* A guarda do limite depende de `erros` (L-056): o painel passa `erros` e
+     mostra a mensagem do limite junto do campo (`detalhe-do-meio.test.tsx`);
+     o cadastro inline não passa, e o nome continua cortado em 40, como era
+     antes do painel (T8: o inline sem mudança). */
+  it("sem `erros`, como no cadastro inline, o nome continua cortado em 40 caracteres", async () => {
+    render(<ComEstado inicial={{ ...CARTAO, nome: "" }} tipos={null} />);
+    const nome = screen.getByRole<HTMLInputElement>("textbox", { name: "Nome" });
+
+    await userEvent.click(nome);
+    await userEvent.paste("a".repeat(41));
+
+    expect(nome.value).toBe("a".repeat(40));
+  });
 });
 
 /*
