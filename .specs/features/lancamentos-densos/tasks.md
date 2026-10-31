@@ -475,7 +475,7 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 - [x] O teste falha com F3 (o `span` do resumo fora da `div` presa)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): o resumo fica preso junto do título`
+**Commit**: `test(lancamentos): o resumo fica preso junto do título` (`e6fc71c`)
 
 #### F11: A confirmação armada e o clique fora
 **What**: no teste do `MenuDaLinha`, sem foco dentro, como no Safari: abrir o menu, armar o "Excluir", clicar fora, reabrir e achar "Excluir" de novo, sem "Confirmar" (Fix 3 da rodada 3, sonda F, L-051).
@@ -484,8 +484,8 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 **Reuses**: `montar`, `gatilho`
 **Requirement**: DENS-02 (edge case "Confirmação aberta e clique fora")
 **Done when**:
-- [ ] Com o "Excluir" armado e sem foco dentro, um `pointerdown` fora fecha o menu; reaberto, ele mostra "Excluir, Almoço" e nenhum "Confirmar" (edge case; DENS-02, AC 5)
-- [ ] O teste falha com F6 (o painel sempre montado, com `hidden={!aberto}`)
+- [x] Com o "Excluir" armado e sem foco dentro, um `pointerdown` fora fecha o menu; reaberto, ele mostra "Excluir, Almoço" e nenhum "Confirmar" (edge case; DENS-02, AC 5)
+- [x] O teste falha com F6 (o painel sempre montado, com `hidden={!aberto}`)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `test(lancamentos): clicar fora desfaz a confirmação de excluir`

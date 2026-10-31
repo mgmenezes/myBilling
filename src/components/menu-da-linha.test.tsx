@@ -101,6 +101,26 @@ describe("o menu da linha (DENS-02)", () => {
     expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
   });
 
+  /*
+   * A confirmação armada e o clique fora, juntos, sem foco dentro, como no
+   * Safari: nenhum `blur` desarma o "Excluir", e é o menu fechado que desfaz a
+   * confirmação (edge case "Confirmação aberta e clique fora"; L-051).
+   */
+  it('com a confirmação armada e sem foco dentro, clicar fora fecha o menu, e ele reabre em "Excluir" (edge case; AC 5)', () => {
+    montar();
+    fireEvent.click(gatilho());
+    fireEvent.click(screen.getByRole("button", { name: "Excluir, Almoço" }));
+    expect(screen.getByRole("button", { name: /^Confirmar\?/ })).toBeDefined();
+    expect(document.activeElement).toBe(document.body);
+
+    fireEvent.pointerDown(document.body);
+    expect(gatilho().getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(gatilho());
+
+    expect(screen.getByRole("button", { name: "Excluir, Almoço" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: /^Confirmar/ })).toBeNull();
+  });
+
   it('acionar o "⋯" de novo fecha o menu', async () => {
     montar();
     await userEvent.click(gatilho());
