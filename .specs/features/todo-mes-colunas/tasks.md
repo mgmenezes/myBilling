@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T3 concluídas; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T4 concluídas; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
 duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -204,7 +204,7 @@ os selos, o valor do mês, a linha aberta e os vazios; e o tipo `ItemDeFixo`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): a tabela de fixos em duas seções`
+**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`626a094`)
 
 #### T4: `DetalheDoFixo`, o fixo aberto
 **What**: o detalhe do painel: valor do mês e nota, aviso de encerrado, dados, "Valor ao longo dos
@@ -214,12 +214,12 @@ meses" e as três ações.
 **Reuses**: `ItemDeFixo`, `Chip`
 **Requirement**: FIXCOL-04
 **Done when**:
-- [ ] Valor com "em Março de 2026"; "confirmado · previa R$ 100,00" no confirmado; "—" com "Começa em Junho de 2026" em quem começa depois (FIXCOL-04 AC 2)
-- [ ] Categoria como na linha; "Meio de pagamento" na saída e "Onde o dinheiro cai" na entrada; "De quem é"; "Começou em" ou "Começa em"; "Termina em" com "Sem fim" (FIXCOL-04 AC 3)
-- [ ] Dentro da seção "Valor ao longo dos meses", as vigências da mais antiga para a mais nova, com "desde <Mês de Ano>" e o valor, e "vale em Março" só na do mês (FIXCOL-04 AC 4)
-- [ ] "Mudar valor", "Editar" e, no pé, "Encerrar"; cada um chama o seu callback (FIXCOL-04 AC 5)
-- [ ] Encerrado: o aviso com o mês do fim, e "Editar" como única ação (FIXCOL-04 AC 6); equivalentes de 138 (sem controles), 373 e 386 de `lista-de-fixos.test.tsx`
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Valor com "em Março de 2026"; "confirmado · previa R$ 100,00" no confirmado; "—" com "Começa em Junho de 2026" em quem começa depois (FIXCOL-04 AC 2)
+- [x] Categoria como na linha; "Meio de pagamento" na saída e "Onde o dinheiro cai" na entrada; "De quem é"; "Começou em" ou "Começa em"; "Termina em" com "Sem fim" (FIXCOL-04 AC 3)
+- [x] Dentro da seção "Valor ao longo dos meses", as vigências da mais antiga para a mais nova, com "desde <Mês de Ano>" e o valor, e "vale em Março" só na do mês (FIXCOL-04 AC 4)
+- [x] "Mudar valor", "Editar" e, no pé, "Encerrar"; cada um chama o seu callback (FIXCOL-04 AC 5)
+- [x] Encerrado: o aviso com o mês do fim, e "Editar" como única ação (FIXCOL-04 AC 6); equivalentes de 138 (sem controles), 373 e 386 de `lista-de-fixos.test.tsx`
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses`
