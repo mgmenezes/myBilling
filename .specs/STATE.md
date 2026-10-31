@@ -167,7 +167,8 @@
   - o AD-019 em Lançamentos, que deixa a `AreaEstreita` a partir de 1.536 px;
   - LST-05, AC 1 (a parcela);
   - LST-03, ACs 1 e 2 (a barra compacta só abaixo de 1.536 px);
-  - AVUL-03, AC 7, e TOQUE-01, AC 2 (o excluir no menu).
+  - AVUL-03, AC 7, e TOQUE-01, AC 2 (o excluir no menu);
+  - TOQUE-01, AC 1, em parte (com ponteiro fino, a partir de 768 px, o selo tem 32 px de altura; no toque e abaixo de 768 px, continua com 44 × 44).
 - **Trade-off**: Excluir passa a pedir três toques, porque o menu abre antes da confirmação. Em 1.024 px, a parcela de uma descrição longa pode quebrar para baixo, e a linha do fixo continua com a previsão embaixo do valor: na mesma linha, ela levava a tabela Fixos para fora da coluna de conteúdo (LST-05, AC 3). O "⋯" fica ao lado do selo, e não no fim da linha como no protótipo, para não abrir uma coluna vazia em toda linha de parcela e de fixo.
 - **Scope**: `lancamentos/page.tsx`, `FiltrosDeLancamentos`, `TabelaLancamentos`, `BotaoPago`, `BotaoExcluir`, `ValorConfirmavel`, `MenuDaLinha`, `BlocoRecolhivel`, `restoDaParcela`.
 - **Date**: 2026-10-30

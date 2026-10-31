@@ -410,6 +410,9 @@ for (const largura of [1024, 1280, 1440]) {
       page,
     }) => {
       await page.goto(`/${MARCO}/lancamentos`);
+      /* Medir só com a página pronta: logo depois do `goto`, o cartão pode
+         ainda não ter sido desenhado. */
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       const coluna = await cartaoDeFiltros(page).boundingBox();
       if (coluna === null) {

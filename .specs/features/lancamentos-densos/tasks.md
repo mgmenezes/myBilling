@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 3 de `validation.md`, em 2026-10-31, por uma lacuna maior (a tabela Fixos fora da coluna em 1.024 px com um fixo confirmado) e duas menores (o resumo do título preso e a confirmação armada com clique fora); o dono escolheu o caminho A do Fix 1 em 2026-10-31; correções F9–F12 em andamento (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F8 concluídas)
+**Status**: FAIL na rodada 3 de `validation.md`, em 2026-10-31, por uma lacuna maior (a tabela Fixos fora da coluna em 1.024 px com um fixo confirmado) e duas menores (o resumo do título preso e a confirmação armada com clique fora); o dono escolheu o caminho A do Fix 1 em 2026-10-31; correções F9–F12 concluídas, à espera da rodada 4 do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F12 concluídas)
 **Total**: 18 tasks em 6 fases (T1–T6 e as correções F1–F12), executadas inline
 
 ---
@@ -488,7 +488,7 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 - [x] O teste falha com F6 (o painel sempre montado, com `hidden={!aberto}`)
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `test(lancamentos): clicar fora desfaz a confirmação de excluir`
+**Commit**: `test(lancamentos): clicar fora desfaz a confirmação de excluir` (`e78433c`)
 
 #### F12: O TOQUE-01 AC 1 substituído em parte, e a espera antes de medir
 **What**: as observações 4 e 10 da rodada 3.
@@ -505,9 +505,9 @@ TOQUE-01 AC 1 substituído em parte, e a espera da página antes de medir em `li
 **Reuses**: nenhuma
 **Requirement**: DENS-01, DENS-02
 **Done when**:
-- [ ] O TOQUE-01 AC 1 está em "O que esta fatia substitui" e no AD-020, e a nota dele aponta para DENS-01, AC 1 e DENS-02, AC 7
-- [ ] `lista-enxuta.spec.ts` espera o título da página antes do `boundingBox()` do cartão; nenhuma assertion muda
-- [ ] `pnpm verify` e o e2e inteiro passam
+- [x] O TOQUE-01 AC 1 está em "O que esta fatia substitui" e no AD-020, e a nota dele aponta para DENS-01, AC 1 e DENS-02, AC 7
+- [x] `lista-enxuta.spec.ts` espera o título da página antes do `boundingBox()` do cartão; nenhuma assertion muda
+- [x] `pnpm verify` e o e2e inteiro passam: 1.705 unitários, 364 de integração, build e 134 e2e
 **Tests**: e2e
 **Gate**: build
 **Commit**: `docs(lancamentos-densos): o selo denso e a espera antes de medir`

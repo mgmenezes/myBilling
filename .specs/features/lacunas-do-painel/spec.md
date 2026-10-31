@@ -149,7 +149,10 @@ a lado em cada linha.
 
 **Acceptance Criteria**
 
-1. The system SHALL apresentar o controle de situação com ao menos 44 por 44 pixels de área
+1. The system SHALL apresentar o controle de situação com ao menos 44 por 44 pixels de área. Com
+   ponteiro fino, a partir de 768 px, **substituído em parte por DENS-01, AC 1**
+   (`lancamentos-densos`, AD-020): o selo tem 32 px de altura, para a linha caber em 48 px. No
+   toque e abaixo de 768 px, os 44 por 44 continuam, nas mesmas condições do "⋯" (DENS-02, AC 7)
 2. The system SHALL apresentar o controle de excluir com ao menos 44 por 44 pixels de área. Desde
    `lancamentos-densos`, valem o "⋯" da linha e o "Excluir" do menu aberto, no toque (DENS-02, AC 7)
 3. The system SHALL verificar essa área pela geometria renderizada, e SHALL não se satisfazer com a
