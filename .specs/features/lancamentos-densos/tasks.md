@@ -300,7 +300,7 @@ ficaram para trás.
 - [x] O `design.md` diz o mesmo lugar, com a confirmação do dono
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): o menu da linha fica ao lado do selo`
+**Commit**: `test(lancamentos): o menu da linha fica ao lado do selo` (`d0c67cb`)
 
 #### F2: 44 px com ponteiro grosso a partir de 768 px
 **What**: um `describe` com `hasTouch: true` em 1.920 px, que confere `matchMedia("(pointer: coarse)")` e mede o selo, o "⋯" e o "Excluir" do menu aberto com ao menos 44 × 44 (Fix 2, sonda P2, L-044).
@@ -309,9 +309,9 @@ ficaram para trás.
 **Reuses**: `linha`, `caixa`
 **Requirement**: DENS-02 (e TOQUE-01, AC 1, para o selo)
 **Done when**:
-- [ ] Com `hasTouch` em 1.920 px, `matchMedia("(pointer: coarse)").matches` é verdadeiro
-- [ ] O selo, o "⋯" e o "Excluir" do menu aberto medem ao menos 44 × 44 (DENS-02 AC 7; TOQUE-01 AC 1)
-- [ ] O teste falha com M12 (`md:min-h-8` no lugar de `md:pointer-fine:min-h-8` no "⋯" e no "Excluir") e com a mesma troca no `BotaoPago`
+- [x] Com `hasTouch` em 1.920 px, `matchMedia("(pointer: coarse)").matches` é verdadeiro
+- [x] O selo, o "⋯" e o "Excluir" do menu aberto medem ao menos 44 × 44 (DENS-02 AC 7; TOQUE-01 AC 1)
+- [x] O teste falha com M12 (`md:min-h-8` no lugar de `md:pointer-fine:min-h-8` no "⋯" e no "Excluir") e com a mesma troca no `BotaoPago`
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): alvos de 44 px no toque acima de 768 px`

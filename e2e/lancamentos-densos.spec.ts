@@ -329,6 +329,39 @@ test.describe("o menu da linha, em 1.920 px", () => {
   });
 });
 
+/*
+ * Com ponteiro grosso, a linha não fica densa nem no monitor grande: os alvos
+ * continuam com 44 px (DENS-02, AC 7; TOQUE-01, AC 1). Medir só em 400 px não
+ * separa a largura da janela do tipo de ponteiro (L-044).
+ */
+test.describe("com ponteiro grosso, em 1.920 px", () => {
+  test.use({ hasTouch: true, viewport: { width: 1920, height: 1080 } });
+
+  test('o selo, o "⋯" e o "Excluir" do menu medem ao menos 44 × 44 (DENS-02, AC 7; TOQUE-01, AC 1)', async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+    expect(await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)).toBe(true);
+
+    const item = linha(page, "Item B");
+    const gatilho = item.getByRole("button", { name: "Mais ações para Item B" });
+    const selo = await caixa(item.getByRole("button", { name: /^Previsto\s*, Item B/ }));
+    const menu = await caixa(gatilho);
+    await gatilho.tap();
+    await expect(gatilho).toHaveAttribute("aria-expanded", "true");
+    const excluir = await caixa(item.getByRole("button", { name: /^Excluir/ }));
+
+    for (const [nome, alvo] of [
+      ["selo", selo],
+      ["⋯", menu],
+      ["Excluir", excluir],
+    ] as const) {
+      expect(alvo.width, nome).toBeGreaterThanOrEqual(44);
+      expect(alvo.height, nome).toBeGreaterThanOrEqual(44);
+    }
+  });
+});
+
 /** O cartão de filtros, que a partir de 1.536 px é a coluna da direita. */
 function cartao(page: Page): Locator {
   return page.locator("#cartao-de-filtros");
