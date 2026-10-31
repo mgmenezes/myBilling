@@ -33,10 +33,10 @@ Corroborated across multiple features. Safe to apply as guidance.
 - last seen: 2026-10-30T22:13:51Z
 
 ### L-029 - Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.
-- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `testes,limites` · harmful: 0
-- features: lista-enxuta, visao-tres-colunas
-- evidence: U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites) (+1 more)
-- last seen: 2026-10-30T22:13:51Z
+- signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,limites` · harmful: 0
+- features: lista-enxuta, visao-tres-colunas, lancamentos-densos
+- evidence: U15b, E6; src/components/tabela-lancamentos.tsx:308 (testes,limites) (+2 more)
+- last seen: 2026-10-31T01:41:01Z
 
 ### L-030 - AC universal ('nenhuma tabela', 'todo bloco') precisa de teste que percorra todos os elementos; medir só o caso que motivou a regra deixa os outros regredirem.
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e,layout` · harmful: 0
@@ -269,6 +269,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: visao-tres-colunas
 - evidence: Edge cases 'busca com espaços nas pontas' e 'gravação recusada na coluna de ação' — src/app/(app)/[competencia]/page.tsx:250-284 (validation.md rodada 1) (e2e,composicao)
 - last seen: 2026-10-30T22:13:51Z
+
+### L-044 - Alvo que só encolhe com ponteiro fino precisa de teste com ponteiro grosso acima do breakpoint (hasTouch); medir só no celular não separa a largura do ponteiro.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout,toque` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md: M12 (src/components/menu-da-linha.tsx:84, botao-excluir.tsx:32); sonda P2 (e2e,layout,toque)
+- last seen: 2026-10-31T01:41:01Z
+
+### L-045 - Regra de layout que protege uma linha da pressão de outra precisa de fixture com o conteúdo que aperta, como uma descrição longa; com textos curtos, tirar a regra passa verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,fixtures,layout` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md: M11 (src/components/tabela-lancamentos.tsx:351); sonda P1 (e2e,fixtures,layout)
+- last seen: 2026-10-31T01:41:01Z
+
+### L-046 - Fechar ao clicar fora precisa de teste com o painel aberto sem foco dentro; com o foco no gatilho, o focusout fecha sozinho e esconde a falta do ouvinte de clique.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md: M17 (src/components/menu-da-linha.tsx:68); sonda P5 (componentes,testes)
+- last seen: 2026-10-31T01:41:02Z
+
+### L-047 - Decisão de design que contraria um AC confirmado pelo dono volta ao próprio AC, com a confirmação dele, antes do commit; registrada só no design ou no STATE, o AC continua pedindo o contrário.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `spec,decisoes` · harmful: 0
+- features: lancamentos-densos
+- evidence: DENS-02 AC 1; src/components/tabela-lancamentos.tsx:363-369; AD-020 trade-off (spec,decisoes)
+- last seen: 2026-10-31T01:41:02Z
 
 ## Quarantined (failed when applied - ignore)
 

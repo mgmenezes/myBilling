@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: Implementada, à espera do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 concluídas)
-**Total**: 6 tasks em 3 fases (T1–T6), um lote só, executado inline
+**Status**: FAIL na rodada 1 de `validation.md`, em 2026-10-30; correções F1–F7 em andamento (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 concluídas)
+**Total**: 13 tasks em 4 fases (T1–T6 e as correções F1–F7), executadas inline
 
 ---
 
@@ -107,6 +107,23 @@ T6
 
 Lote único, inline: T1 a T6, nesta ordem.
 
+### Phase 4 — Correções da verificação (rodada 1)
+
+```
+F1 -> F2
+F2 -> F3
+F3 -> F4
+F4 -> F5
+F5 -> F6
+F6 -> F7
+```
+
+F1 a F5 fecham os Fixes 1 a 5 de `validation.md` (rodada 1, FAIL). A F1 leva à spec o lugar do "⋯"
+que o dono confirmou, e prova esse lugar no navegador. As F2 a F5 acrescentam, cada uma, o teste que a
+sonda do Verifier provou: passa na HEAD e falha com o mutante (M12, M11, M13 e M17). A F6 fecha a
+observação 5, o foco que já estava no "⋯" antes do `Escape`. A F7 fecha a observação 7, os textos que
+ficaram para trás.
+
 ---
 
 ## Task Breakdown
@@ -134,7 +151,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [x] `compra-parcelada.spec.ts` e `lista-enxuta.spec.ts` (LST-05 AC 1) provam o texto novo e a parcela na mesma altura da descrição
 **Tests**: unit, componentes, e2e
 **Gate**: e2e
-**Commit**: `feat(lancamentos): parcela curta na mesma linha`
+**Commit**: `feat(lancamentos): parcela curta na mesma linha` (`de84baa`)
 
 #### T2: A linha baixa
 **What**:
@@ -164,7 +181,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [x] As colunas e o seletor de categoria continuam os de hoje; os testes de TRC, FIXO-04, VENC-01 e TOQUE-01 do selo passam sem mudar o que afirmam (DENS-01 AC 6)
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `feat(lancamentos): uma linha baixa por lançamento`
+**Commit**: `feat(lancamentos): uma linha baixa por lançamento` (`4349d77`)
 
 #### T3: "Excluir" no menu da linha
 **What**:
@@ -191,7 +208,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [x] No e2e de 1.920 px, excluir pelo menu tira a linha e baixa o total do bloco
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `feat(lancamentos): excluir no menu da linha`
+**Commit**: `feat(lancamentos): excluir no menu da linha` (`b967cb6`)
 
 ### Phase 2 — A página
 
@@ -224,7 +241,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [x] Desvio medido: lista até 1.100 px e coluna com 288 px (com 1.000 e 320, a linha do fixo confirmado e vencido quebrava); a altura das linhas medida também em 1.536 px, a janela mais estreita com a coluna aberta
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(lancamentos): filtros numa coluna à direita`
+**Commit**: `feat(lancamentos): filtros numa coluna à direita` (`7f029ad`)
 
 #### T5: Os títulos dos blocos presos ao rolar
 **What**: o cabeçalho do `BlocoRecolhivel` preso no alto a partir de 1.536 px.
@@ -238,7 +255,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [x] O recolher e expandir e o HTML de LST-02 passam sem mudança (DENS-04 AC 2)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(lancamentos): títulos dos blocos presos ao rolar`
+**Commit**: `feat(lancamentos): títulos dos blocos presos ao rolar` (`284cbb1`)
 
 ### Phase 3 — Fechamento
 
@@ -263,4 +280,118 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [x] `pnpm verify` e o e2e inteiro passam: 1.703 unitários, 364 de integração, build e 125 e2e
 **Tests**: none
 **Gate**: build
-**Commit**: `docs(lancamentos-densos): registrar a lista densa`
+**Commit**: `docs(lancamentos-densos): registrar a lista densa` (`514ab25`)
+
+### Phase 4 — Correções da verificação (rodada 1)
+
+#### F1: O "⋯" ao lado do selo, na spec e no teste
+**What**: DENS-02 AC 1 e a premissa "Onde fica 'Excluir'" passam a dizer o lugar que o dono confirmou em 2026-10-30, quando perguntado: o "⋯" na célula da Situação, logo à direita do selo e do "Vencido", e não no fim da linha. Os valores continuam alinhados numa coluna só, e a tabela fica com as cinco colunas de LST-05. O e2e mede esse lugar dentro da linha (Fix 1, L-018, L-047).
+**Where**:
+- `.specs/features/lancamentos-densos/spec.md`
+- `e2e/lancamentos-densos.spec.ts`
+- `.specs/features/lancamentos-densos/design.md` (a confirmação do dono, ao lado da decisão de design)
+
+**Depends on**: nenhuma
+**Reuses**: `linha`, `caixa`
+**Requirement**: DENS-02
+**Done when**:
+- [ ] DENS-02 AC 1 pede o "⋯" na célula da Situação, logo depois do selo e do "Vencido"; a premissa registra a confirmação do dono, a data e o motivo
+- [ ] Em 1.920 px, a caixa do "⋯" de Entrada A, Item A e Item B fica dentro da célula da Situação e à direita do selo; no vencido, também à direita de "Vencido" (DENS-02 AC 1)
+- [ ] O `design.md` diz o mesmo lugar, com a confirmação do dono
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): o menu da linha fica ao lado do selo`
+
+#### F2: 44 px com ponteiro grosso a partir de 768 px
+**What**: um `describe` com `hasTouch: true` em 1.920 px, que confere `matchMedia("(pointer: coarse)")` e mede o selo, o "⋯" e o "Excluir" do menu aberto com ao menos 44 × 44 (Fix 2, sonda P2, L-044).
+**Where**: `e2e/lancamentos-densos.spec.ts`
+**Depends on**: F1
+**Reuses**: `linha`, `caixa`
+**Requirement**: DENS-02 (e TOQUE-01, AC 1, para o selo)
+**Done when**:
+- [ ] Com `hasTouch` em 1.920 px, `matchMedia("(pointer: coarse)").matches` é verdadeiro
+- [ ] O selo, o "⋯" e o "Excluir" do menu aberto medem ao menos 44 × 44 (DENS-02 AC 7; TOQUE-01 AC 1)
+- [ ] O teste falha com M12 (`md:min-h-8` no lugar de `md:pointer-fine:min-h-8` no "⋯" e no "Excluir") e com a mesma troca no `BotaoPago`
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): alvos de 44 px no toque acima de 768 px`
+
+#### F3: Uma descrição longa no bloco do vencido
+**What**: semear um avulso de descrição longa e genérica em "Gastos do Mês", o bloco do Item B vencido. Em 1.280 e 1.536 px, as outras linhas continuam com até 48 px e só a longa passa disso (Fix 3, sonda P1, L-045). Os testes que contam as linhas e o resumo do bloco passam a contar a linha nova, sem afrouxar o que provam.
+**Where**: `e2e/lancamentos-densos.spec.ts`
+**Depends on**: F2
+**Reuses**: `semearAvulso`, `linha`
+**Requirement**: DENS-01
+**Done when**:
+- [ ] Em 1.280 e 1.536 px, com ponteiro fino, as seis linhas de antes medem até 48 px e a de descrição longa mede mais de 48 px (DENS-01 AC 1; edge case "Descrição longa")
+- [ ] A contagem das linhas passa de 6 para 7, com a linha longa nomeada; o resumo de "Gastos do Mês" conta a linha nova antes e depois da exclusão
+- [ ] O teste falha com M11 (sem `xl:pointer-fine:flex-nowrap` no grupo da situação)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): só a linha de descrição longa cresce`
+
+#### F4: A coluna presa e a barra compacta no limiar de 1.536 px
+**What**: o teste da coluna presa ao rolar roda também em 1.536 × 480; do outro lado, em 1.535 × 480, a barra compacta aparece ao rolar até o fim (Fix 4, sonda P3, L-029).
+**Where**: `e2e/lancamentos-densos.spec.ts`
+**Depends on**: F3
+**Reuses**: `cartao`, `abrir`
+**Requirement**: DENS-03
+**Done when**:
+- [ ] Em 1.536 × 480 e em 1.920 × 480, rolando até o fim, a busca da coluna continua na tela e não há barra compacta (DENS-03 ACs 2 e 6)
+- [ ] Em 1.535 × 480, rolando até o fim, a barra "Busca e filtros ativos" aparece (DENS-03 AC 6; LST-03)
+- [ ] O teste falha com M13 (`2xl:sticky` → `min-[1600px]:sticky` no cartão de filtros)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): coluna presa no limiar de 1.536 px`
+
+#### F5: Clicar fora fecha o menu sem foco dentro
+**What**: no teste do componente, abrir o menu com `fireEvent.click`, sem dar foco ao "⋯", como o Safari faz, e fechar com `fireEvent.pointerDown(document.body)` (Fix 5, sonda P5, L-046).
+**Where**: `src/components/menu-da-linha.test.tsx`
+**Depends on**: F4
+**Reuses**: `montar`, `gatilho`
+**Requirement**: DENS-02
+**Done when**:
+- [ ] Aberto sem foco dentro, um `pointerdown` fora fecha o menu e tira o "Excluir" (DENS-02 AC 5)
+- [ ] O teste falha com M17 (sem o ouvinte de `pointerdown` no `document`)
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(lancamentos): clicar fora fecha o menu sem foco dentro`
+
+#### F6: O foco volta ao "⋯" de dentro do menu
+**What**: no e2e de 1.920 px, levar o foco ao "Excluir" do menu aberto antes do `Escape`, para o `toBeFocused()` provar a volta do foco. Hoje o foco já está no "⋯" quando o `Escape` é apertado (observação 5).
+**Where**: `e2e/lancamentos-densos.spec.ts`
+**Depends on**: F5
+**Reuses**: `linha`
+**Requirement**: DENS-02
+**Done when**:
+- [ ] Com o foco no "Excluir" do menu aberto, `Escape` fecha o menu e o foco volta ao "⋯" (DENS-02 AC 5)
+- [ ] O e2e falha com M6 (o `Escape` fecha sem devolver o foco)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): o Escape devolve o foco de dentro do menu`
+
+#### F7: Os textos que ficaram para trás
+**What**: a observação 7, e os textos do mesmo tipo achados ao corrigi-la:
+- a T1 e a T2 desta `tasks.md` (o nome `restoDaParcela`; a descrição longa quebra linha, e não corta com reticências);
+- o `design.md` (o nome `restoDaParcela(restantes)` e a tabela do e2e novo com os lugares e as larguras de hoje);
+- o comentário de `e2e/compra-parcelada.spec.ts:112` e o título de `e2e/lista-enxuta.spec.ts:409`, que punham a parcela numa segunda linha ou sob a descrição;
+- o título e o comentário do teste de `src/components/tabela-lancamentos.test.tsx:503-510`, pela mesma razão.
+
+**Where**:
+- `.specs/features/lancamentos-densos/tasks.md`
+- `.specs/features/lancamentos-densos/design.md`
+- `e2e/compra-parcelada.spec.ts`
+- `e2e/lista-enxuta.spec.ts`
+- `src/components/tabela-lancamentos.test.tsx`
+
+**Depends on**: F6
+**Reuses**: nenhuma
+**Requirement**: DENS-01
+**Done when**:
+- [ ] Nenhum texto da fatia diz que a descrição corta com reticências, nem que a parcela fica numa segunda linha ou sob a descrição
+- [ ] O `design.md` chama a função de `restoDaParcela(restantes)`, e a tabela do e2e novo diz onde e em que largura cada teste roda
+- [ ] Nenhuma assertion muda: só títulos, comentários e documentos
+- [ ] `pnpm verify` e o e2e inteiro passam
+**Tests**: none
+**Gate**: build
+**Commit**: `docs(lancamentos-densos): acertar os textos que ficaram para trás`
