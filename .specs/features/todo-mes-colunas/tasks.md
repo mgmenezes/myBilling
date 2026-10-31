@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 e T9 no lote 2; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 a T10 no lote 2; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `33c9567`, que já traz
 `lancamentos-densos` (AD-020); os hashes da T1 à T6 são os de depois do rebase)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -365,7 +365,7 @@ quando nada está aberto; o laço do TRES-01 AC 8 deixa Todo mês.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px`
+**Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px` (`2afe4f9`)
 **Nota**:
 - **O painel sempre montado.** A coluna existe sempre, com a dica quando nada está aberto, e abaixo de 1.536 px leva `hidden 2xl:block`, como o design pedia. O jsdom não aplica o CSS. Por isso, os seis testes de `todo-mes.test.tsx` que esperavam o painel fora do DOM passam a esperar o painel em "Nenhum fixo aberto", numa coluna com `hidden 2xl:block`. Os dois testes do painel aberto ganham a coluna sem `hidden`. A prova de que nada aparece abaixo de 1.536 px fica no e2e, em 1.280 e 1.535 px. A regra que eles provam (FIXCOL-07, ACs 5 e 6) não muda: muda o jeito de esconder, que a T7 fazia desmontando.
 - **A quarta linha da grade.** A partir de 1.536 px as linhas são `auto auto auto 1fr`, e a coluna ocupa as quatro. Sem a linha flexível, um painel mais alto que a lista, como a edição num mês de poucos fixos, abriria espaço entre o título, os totais e as seções.
@@ -384,14 +384,15 @@ formulário na coluna e fora dela.
 **Reuses**: `FormRecorrencia`
 **Requirement**: FIXCOL-07
 **Done when**:
-- [ ] Na coluna, em 1.536 e em 1.920 px, no cadastro e na edição, "Dia de vencimento" fica abaixo de "De quanto costuma ser", "Termina em (opcional)" abaixo de "Começa em" e "Categoria" abaixo do meio (FIXCOL-07 AC 7)
-- [ ] Em 1.280 px, com o painel na largura toda, os três pares ficam lado a lado (FIXCOL-07 AC 8)
-- [ ] Em duas janelas escolhidas para o formulário medir de um lado e do outro de 448 px, o teste mede a largura e confere empilhado abaixo de 448 e lado a lado a partir de 448 (L-029)
-- [ ] `form-recorrencia.test.tsx` passa sem mudança
-- [ ] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts`
+- [x] Na coluna, em 1.536 e em 1.920 px, no cadastro e na edição, "Dia de vencimento" fica abaixo de "De quanto costuma ser", "Termina em (opcional)" abaixo de "Começa em" e "Categoria" abaixo do meio (FIXCOL-07 AC 7)
+- [x] Em 1.280 px, com o painel na largura toda, os três pares ficam lado a lado (FIXCOL-07 AC 8)
+- [x] Em duas janelas escolhidas para o formulário medir de um lado e do outro de 448 px, o teste mede a largura e confere empilhado abaixo de 448 e lado a lado a partir de 448 (L-029)
+- [x] `form-recorrencia.test.tsx` passa sem mudança
+- [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner`
+**Nota**: as janelas do limiar são 777 e 778 px, em que o formulário mede 447 e 448 px; o plano supunha um menu de 241 px, e ele mede 240. O teste mede a largura antes de conferir os pares, para o limiar continuar colado se o respiro em volta mudar. Com `@sm` no lugar de `@md`, o teste do limiar falha. O cadastro e a edição foram medidos também em 1.280 px, e não só na coluna.
 
 ### Phase 4 — Fechamento
 

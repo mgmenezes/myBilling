@@ -930,3 +930,119 @@ test("em 1.920 × 480, a edição mais alta que a janela rola dentro da coluna, 
   await expect(salvar).toBeInViewport();
   expect(await painel(page).evaluate((aside) => aside.scrollTop)).toBeGreaterThan(0);
 });
+
+/**
+ * Os três pares de campos do formulário (FIXCOL-07, ACs 7 e 8): valor e dia,
+ * início e fim, meio e categoria. Para cada par, se o segundo campo fica ao
+ * lado do primeiro, na mesma faixa, ou embaixo dele.
+ */
+async function paresDoFormulario(
+  form: Locator,
+): Promise<Array<{ readonly par: string; readonly aoLado: boolean; readonly embaixo: boolean }>> {
+  const pares: Array<[string, Locator, Locator]> = [
+    ["valor e dia", form.getByLabel(/De quanto costuma ser/), form.getByLabel("Dia de vencimento")],
+    [
+      "início e fim",
+      form.getByLabel("Começa em", { exact: true }),
+      form.getByLabel("Termina em (opcional)"),
+    ],
+    [
+      "meio e categoria",
+      form.getByLabel("Meio de pagamento", { exact: true }),
+      form.getByLabel("Categoria", { exact: true }),
+    ],
+  ];
+  const resultado = [];
+  for (const [par, primeiro, segundo] of pares) {
+    const a = await caixa(primeiro);
+    const b = await caixa(segundo);
+    resultado.push({
+      par,
+      aoLado: b.x >= a.x + a.width - 0.5 && Math.abs(b.y - a.y) <= 1,
+      embaixo: b.y >= a.y + a.height,
+    });
+  }
+  return resultado;
+}
+
+const EMPILHADOS = [
+  { par: "valor e dia", aoLado: false, embaixo: true },
+  { par: "início e fim", aoLado: false, embaixo: true },
+  { par: "meio e categoria", aoLado: false, embaixo: true },
+];
+const LADO_A_LADO = [
+  { par: "valor e dia", aoLado: true, embaixo: false },
+  { par: "início e fim", aoLado: true, embaixo: false },
+  { par: "meio e categoria", aoLado: true, embaixo: false },
+];
+
+/** O formulário do painel: o de cadastro, pelo "+ Novo fixo", ou o da edição de A. */
+async function abrirFormulario(page: Page, modo: "cadastro" | "edição"): Promise<Locator> {
+  if (modo === "cadastro") {
+    await page.getByRole("button", { name: "+ Novo fixo" }).click();
+    return painel(page).getByRole("form", { name: "Gasto fixo ou entrada" });
+  }
+  await botaoDaLinha(page, "Fixo A").click();
+  await painel(page).getByRole("button", { name: "Editar", exact: true }).click();
+  return painel(page)
+    .getByRole("region", { name: "Editar gasto fixo" })
+    .getByRole("form", { name: "Gasto fixo ou entrada" });
+}
+
+/* Na coluna de 384 px o formulário tem menos de 448 px: um campo por linha,
+   no cadastro e na edição, colado no limiar da coluna e longe dele. */
+for (const largura of [1536, 1920]) {
+  for (const modo of ["cadastro", "edição"] as const) {
+    test(`em ${largura} px, na coluna, o formulário de ${modo} mostra um campo por linha (FIXCOL-07, AC 7)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: largura, height: 1080 });
+      await abrir(page, `/${MARCO}/fixos`);
+      const form = await abrirFormulario(page, modo);
+      await expect(form).toBeVisible();
+
+      expect((await caixa(form)).width).toBeLessThan(448);
+      expect(await paresDoFormulario(form)).toEqual(EMPILHADOS);
+    });
+  }
+}
+
+/* Em 1.280 px o painel tem a largura toda da coluna de 1.024 px, e os pares
+   ficam lado a lado, como antes da fatia. */
+for (const modo of ["cadastro", "edição"] as const) {
+  test(`em 1.280 px, com o painel na largura toda, o formulário de ${modo} mostra os três pares lado a lado (FIXCOL-07, AC 8)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 1080 });
+    await abrir(page, `/${MARCO}/fixos`);
+    const form = await abrirFormulario(page, modo);
+    await expect(form).toBeVisible();
+
+    expect((await caixa(form)).width).toBeGreaterThanOrEqual(448);
+    expect(await paresDoFormulario(form)).toEqual(LADO_A_LADO);
+  });
+}
+
+/*
+ * O limiar é a largura do formulário, e não a da janela (L-029, L-050): as
+ * duas janelas deixam o formulário com 447 e com 448 px. O teste mede a
+ * largura antes de conferir os pares, para o limiar continuar colado se o
+ * respiro em volta mudar.
+ */
+test("com o formulário em 447 px, um campo por linha; em 448 px, os pares lado a lado (FIXCOL-07, ACs 7 e 8)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 777, height: 1080 });
+  await abrir(page, `/${MARCO}/fixos`);
+  const form = await abrirFormulario(page, "cadastro");
+  await expect(form).toBeVisible();
+  const estreito = (await caixa(form)).width;
+  expect(estreito).toBeLessThan(448);
+  expect(estreito).toBeGreaterThanOrEqual(447);
+  expect(await paresDoFormulario(form)).toEqual(EMPILHADOS);
+
+  await page.setViewportSize({ width: 778, height: 1080 });
+  await expect.poll(async () => (await caixa(form)).width).toBeGreaterThanOrEqual(448);
+  expect((await caixa(form)).width).toBeLessThan(449);
+  expect(await paresDoFormulario(form)).toEqual(LADO_A_LADO);
+});

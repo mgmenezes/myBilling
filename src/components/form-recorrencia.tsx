@@ -353,7 +353,11 @@ export function FormRecorrencia({
          com textos diferentes. O sinal de qual dos dois é continua no rádio e
          no botão de envio, que dizem "Cadastrar entrada". */
       aria-label="Gasto fixo ou entrada"
-      className="flex w-full flex-col gap-5"
+      /* Os pares de campos ficam lado a lado pela largura do formulário, e
+         não pela da janela: na coluna de 384 px ele tem uns 336 px, e cada
+         campo do par ficaria com 160. Lado a lado só a partir de 448 px
+         (`@md`; FIXCOL-07, ACs 7 e 8). */
+      className="@container flex w-full flex-col gap-5"
     >
       <div className="flex flex-col gap-1">
         <label className={ROTULO} htmlFor={`${id}-descricao`}>
@@ -401,7 +405,7 @@ export function FormRecorrencia({
         ) : null}
       </fieldset>
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO} htmlFor={`${id}-valor`}>
             {palavras.valor}
@@ -437,7 +441,7 @@ export function FormRecorrencia({
       </div>
 
       {valorMudou ? (
-        <div className="flex w-full flex-col gap-1 sm:w-1/2 sm:pr-2">
+        <div className="flex w-full flex-col gap-1 @md:w-1/2 @md:pr-2">
           <label className={ROTULO} htmlFor={`${id}-vigencia`}>
             Vale a partir de
           </label>
@@ -457,7 +461,7 @@ export function FormRecorrencia({
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <div className="flex w-full flex-col gap-1">
           <label className={ROTULO} htmlFor={`${id}-inicio`}>
             Começa em
@@ -497,7 +501,7 @@ export function FormRecorrencia({
       {/* Mesmo padrão do formulário de compra: cadastrar sem sair daqui. Quem
           percebe que falta a categoria "Moradia" enquanto cadastra a conta de
           luz não deveria precisar ir para outra área e voltar. */}
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4 @md:flex-row">
         <CadastroInline
           rotulo={palavras.meio}
           idDoControle={`${id}-meio`}
@@ -556,7 +560,7 @@ export function FormRecorrencia({
                 </select>
               </div>
               {tipoMeio === "CARTAO_CREDITO" ? (
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex flex-col gap-2 @md:flex-row">
                   <div className="flex w-full flex-col gap-1">
                     <label className={ROTULO} htmlFor={`${idCadastro}-fechamento`}>
                       Dia de fechamento
@@ -662,7 +666,7 @@ export function FormRecorrencia({
         </CadastroInline>
       </div>
 
-      <div className="flex w-full flex-col gap-1 sm:w-1/2 sm:pr-2">
+      <div className="flex w-full flex-col gap-1 @md:w-1/2 @md:pr-2">
         <label className={ROTULO} htmlFor={`${id}-usuario`}>
           De quem é
         </label>
