@@ -16,8 +16,8 @@ import { Chip } from "./ui";
  * A categoria aberta no painel: o nome, as onze cores e onde ela aparece
  * (CADCOL-04, ACs 2 a 12).
  *
- * É a lógica do cartão de `ListaDeCategorias` (COR-04), sem o cartão e sem o
- * "Renomear": o campo "Nome" fica sempre aberto, com "Salvar", e fechar o
+ * É a lógica do cartão da antiga `ListaDeCategorias` (COR-04), que saiu com
+ * esta tela, sem o cartão e sem o "Renomear": o campo "Nome" fica sempre aberto, com "Salvar", e fechar o
  * painel já descarta o que foi digitado (CADCOL-04, AC 2).
  *
  * **A cor grava ao escolher**, sem botão de salvar: onze radios num

@@ -208,19 +208,25 @@ function aviso(page: Page): Locator {
   return page.locator('[aria-live="polite"]').getByRole("status");
 }
 
+/** A tabela "Categorias" da aba Categorias de Cadastros (CADCOL-02). */
 function listaDeCategorias(page: Page): Locator {
-  return page.getByRole("list", { name: "Categorias" });
+  return page.getByRole("table", { name: "Categorias" });
 }
 
-/** A linha de uma categoria na tela de Categorias, pelo título dela, que é a pill. */
+/** A linha de uma categoria, pelo botão dela, que é a pill (CADCOL-02, AC 6). */
 function linhaDaCategoria(page: Page, nome: string): Locator {
   return listaDeCategorias(page)
-    .getByRole("listitem")
-    .filter({ has: page.getByRole("heading", { name: nome, exact: true }) });
+    .getByRole("row")
+    .filter({ has: page.getByRole("button", { name: nome, exact: true }) });
 }
 
 function pillDaLinha(linha: Locator): Locator {
-  return linha.getByRole("heading").locator(":scope > span");
+  return linha.getByRole("button").locator(":scope > span");
+}
+
+/** O painel da categoria aberta, onde moram as cores e o nome (CADCOL-04). */
+function painelDaCategoria(page: Page): Locator {
+  return page.getByRole("complementary", { name: "Painel da categoria" });
 }
 
 /** A pill de categoria de um fixo em "Todo mês", dentro da linha dele (L-018). */
@@ -324,7 +330,11 @@ test("Cadastros, pela navegação, abre a tela com as categorias em ordem alfab�
   await navegacao(page, "Cadastros").click();
 
   await expect(page).toHaveURL(new RegExp(`${CATEGORIAS}$`));
-  await expect(page.getByRole("heading", { level: 1, name: "Categorias" })).toBeVisible();
+  /* O título da área é "Cadastros", e a aba aberta é Categorias (CADCOL-01). */
+  await expect(page.getByRole("heading", { level: 1, name: "Cadastros" })).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Cadastros" }).getByRole("link", { name: "Categorias" }),
+  ).toHaveAttribute("aria-current", "page");
   await expect(navegacao(page, "Cadastros")).toHaveAttribute("aria-current", "page");
   await expect(navegacao(page, "Visão geral")).not.toHaveAttribute("aria-current", "page");
 
@@ -332,7 +342,7 @@ test("Cadastros, pela navegação, abre a tela com as categorias em ordem alfab�
      do português: sem distinguir caixa nem acento. A ordem do banco e a do
      código de caractere terminariam em "Categoria Zeta", "Categoria Ômega" e
      "categoria Beta". */
-  await expect(listaDeCategorias(page).getByRole("heading")).toHaveText([
+  await expect(listaDeCategorias(page).getByRole("button")).toHaveText([
     "categoria Beta",
     "Categoria Dois",
     "Categoria Ômega",
@@ -358,7 +368,9 @@ test("Verde para Categoria Um: o mesmo fundo na pill de Todo mês, no seletor e 
 }) => {
   await page.goto(CATEGORIAS);
   const linha = linhaDaCategoria(page, "Categoria Um");
-  const grupo = linha.getByRole("group", { name: "Cor de Categoria Um" });
+  /* As opções de cor moram no painel da categoria aberta (CADCOL-04, AC 3). */
+  await linha.getByRole("button", { name: "Categoria Um", exact: true }).click();
+  const grupo = painelDaCategoria(page).getByRole("group", { name: "Cor de Categoria Um" });
 
   /* O toque é no rótulo escrito, que é o alvo; o radio fica em `sr-only`. */
   await grupo.getByText("Verde", { exact: true }).click();
@@ -367,7 +379,9 @@ test("Verde para Categoria Um: o mesmo fundo na pill de Todo mês, no seletor e 
   await expect(grupo.getByRole("radio", { name: "Verde", exact: true })).toBeChecked();
   const verde = await corDoToken(page, "--cat-verde-fundo");
   const barraVerde = await corDoToken(page, "--cat-verde-barra");
-  expect(await fundo(pillDaLinha(linha))).toBe(verde);
+  /* A pill da linha muda quando a lista nova chega, depois do aviso
+     (CADCOL-04, AC 5): o Next resolve a action antes de desenhar a página. */
+  await expect.poll(() => fundo(pillDaLinha(linha))).toBe(verde);
 
   /* Cada tela é aberta pela navegação, sem recarregar (COR-04, AC 9). */
   await navegacao(page, "Todo mês").click();
@@ -455,13 +469,16 @@ test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com
   /* "Categoria Dez" seria vermelho pela automática: a prova só vale se forem diferentes. */
   expect(await corDoToken(page, "--cat-vermelho-fundo")).not.toBe(rosa);
 
-  const linhaDois = linhaDaCategoria(page, "Categoria Dois");
-  await linhaDois.getByRole("button", { name: "Renomear" }).click();
-  await linhaDois.getByRole("textbox", { name: "Novo nome" }).fill("Categoria Dez");
-  await linhaDois.getByRole("button", { name: "Salvar" }).click();
+  /* O campo "Nome" fica sempre aberto no painel da categoria (CADCOL-04, AC 2). */
+  const painel = painelDaCategoria(page);
+  await linhaDaCategoria(page, "Categoria Dois")
+    .getByRole("button", { name: "Categoria Dois", exact: true })
+    .click();
+  await painel.getByRole("textbox", { name: "Nome" }).fill("Categoria Dez");
+  await painel.getByRole("button", { name: "Salvar" }).click();
 
   await expect(aviso(page)).toHaveText("Categoria renomeada.");
-  await expect(listaDeCategorias(page).getByRole("heading")).toHaveText([
+  await expect(listaDeCategorias(page).getByRole("button")).toHaveText([
     "categoria Beta",
     "Categoria Dez",
     "Categoria Ômega",
@@ -472,7 +489,7 @@ test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com
   const linhaDez = linhaDaCategoria(page, "Categoria Dez");
   expect(await fundo(pillDaLinha(linhaDez))).toBe(rosa);
   await expect(
-    linhaDez
+    painel
       .getByRole("group", { name: "Cor de Categoria Dez" })
       .getByRole("radio", { name: "Rosa", exact: true }),
   ).toBeChecked();
@@ -487,20 +504,20 @@ test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com
      renomear de antes some primeiro, para a ausência de aviso depois valer. */
   await navegacao(page, "Cadastros").click();
   await expect(aviso(page)).toHaveCount(0, { timeout: 8_000 });
-  await linhaDez.getByRole("button", { name: "Renomear" }).click();
-  await linhaDez.getByRole("textbox", { name: "Novo nome" }).fill("categoria três");
-  await linhaDez.getByRole("button", { name: "Salvar" }).click();
+  await linhaDez.getByRole("button", { name: "Categoria Dez", exact: true }).click();
+  await painel.getByRole("textbox", { name: "Nome" }).fill("categoria três");
+  await painel.getByRole("button", { name: "Salvar" }).click();
 
-  const formulario = linhaDez.getByRole("form", { name: "Renomear Categoria Dez" });
+  const formulario = painel.getByRole("form", { name: "Renomear Categoria Dez" });
   await expect(formulario.getByRole("alert")).toHaveText(
     "Já existe outra categoria com esse nome.",
   );
-  await expect(formulario.getByRole("textbox", { name: "Novo nome" })).toHaveAttribute(
+  await expect(formulario.getByRole("textbox", { name: "Nome" })).toHaveAttribute(
     "aria-invalid",
     "true",
   );
   await expect(pillDaLinha(linhaDez)).toHaveText("Categoria Dez");
-  await expect(listaDeCategorias(page).getByRole("heading")).toHaveText([
+  await expect(listaDeCategorias(page).getByRole("button")).toHaveText([
     "categoria Beta",
     "Categoria Dez",
     "Categoria Ômega",
@@ -516,7 +533,13 @@ test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizo
 }) => {
   await page.setViewportSize({ width: 400, height: 900 });
   await page.goto(CATEGORIAS);
-  await expect(listaDeCategorias(page).getByRole("listitem")).toHaveCount(6);
+  await expect(listaDeCategorias(page).getByRole("button")).toHaveCount(6);
+  /* As opções de cor são as da categoria aberta, no painel (CADCOL-10, AC 7). */
+  await linhaDaCategoria(page, "Categoria Um")
+    .getByRole("button", { name: "Categoria Um", exact: true })
+    .click();
+  const painel = painelDaCategoria(page);
+  await expect(painel.getByRole("heading", { level: 2 })).toHaveText("Categoria Um");
 
   expect(await transbordoHorizontal(page)).toBe(0);
 
@@ -543,22 +566,25 @@ test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizo
   expect(new Set(itens.map((item) => item.altura)).size).toBe(1);
 
   /* O alvo é o rótulo inteiro, que é o que o dedo toca. */
-  const alvos = await listaDeCategorias(page)
-    .getByRole("radio")
-    .evaluateAll((radios) =>
-      radios.map((radio) => {
-        const { width, height } = (radio.closest("label") as Element).getBoundingClientRect();
-        return { nome: radio.closest("label")?.textContent, largura: width, altura: height };
-      }),
-    );
-  expect(alvos).toHaveLength(6 * 11);
+  const alvos = await painel.getByRole("radio").evaluateAll((radios) =>
+    radios.map((radio) => {
+      const { width, height } = (radio.closest("label") as Element).getBoundingClientRect();
+      return { nome: radio.closest("label")?.textContent, largura: width, altura: height };
+    }),
+  );
+  expect(alvos).toHaveLength(11);
   for (const { nome, largura, altura } of alvos) {
     expect(largura, `largura de ${nome}`).toBeGreaterThanOrEqual(44);
     expect(altura, `altura de ${nome}`).toBeGreaterThanOrEqual(44);
   }
-  for (const botao of await listaDeCategorias(page)
-    .getByRole("button", { name: "Renomear" })
-    .all()) {
+  /* No lugar de cada "Renomear": o botão de cada linha, "Salvar" e "Fechar". */
+  const botoes = [
+    ...(await listaDeCategorias(page).getByRole("button").all()),
+    painel.getByRole("button", { name: "Salvar" }),
+    painel.getByRole("button", { name: "Fechar" }),
+  ];
+  expect(botoes).toHaveLength(8);
+  for (const botao of botoes) {
     const caixa = await botao.boundingBox();
     expect(caixa?.height).toBeGreaterThanOrEqual(44);
     expect(caixa?.width).toBeGreaterThanOrEqual(44);
@@ -570,17 +596,25 @@ test("com uma categoria de cada cor, nos temas claro e escuro, todo texto de pil
 }) => {
   /* Dez categorias, uma por cor, cada uma com um gasto de abril de valor
      diferente: o gráfico de abril tem uma barra de cada cor. */
+  const idsDosTons: string[] = [];
   for (const [indice, cor] of CORES_DE_CATEGORIA.entries()) {
     const id = await inserirCategoria(`Tom ${String(indice + 1).padStart(2, "0")}`, cor);
+    idsDosTons.push(id);
     await inserirGasto(`Gasto de tom ${indice + 1}`, id, ABRIL, (20 - indice) * 100);
   }
   const TONS = CORES_DE_CATEGORIA.map((_, indice) => `Tom ${String(indice + 1).padStart(2, "0")}`);
 
   for (const tema of ["light", "dark"] as const) {
-    /* As pills da tela de Categorias: a de cada linha e as onze opções. */
-    await abrirNoTema(page, tema, CATEGORIAS);
-    const pills = listaDeCategorias(page).locator("h2 > span, label > span");
-    expect(await pills.count()).toBe(16 + 16 * 11);
+    /* As pills da tela de Categorias: a de cada linha, a do título do painel
+       e as onze opções da categoria aberta, que trazem todas as cores da
+       paleta (CADCOL-04, AC 3). Aberta pelo endereço, sem clique nem hover. */
+    await abrirNoTema(page, tema, `${CATEGORIAS}?categoria=${idsDosTons[0]}`);
+    const painel = painelDaCategoria(page);
+    await expect(painel.getByRole("heading", { level: 2 })).toHaveText("Tom 01");
+    const pills = listaDeCategorias(page)
+      .locator("button > span")
+      .or(painel.locator("h2 > span, label > span"));
+    expect(await pills.count()).toBe(16 + 1 + 11);
     for (const pill of await pills.all()) {
       expect(
         await contrasteDoTexto(pill),

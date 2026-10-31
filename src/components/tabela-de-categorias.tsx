@@ -76,7 +76,11 @@ export function TabelaDeCategorias({
     <table aria-label="Categorias" className="w-full border-collapse text-[15px]">
       <thead className="hidden md:table-header-group">
         <tr>
-          <th scope="col" className={CABECALHO}>
+          {/* Uma largura mínima para a pill: entre 768 e 900 px a tabela tem uns
+              500 px, e sem ela a coluna encolhia até a pill de um nome curto,
+              como "Categoria Dois", quebrar em duas linhas e o botão voltar a
+              44 px (CADCOL-10, AC 6). O nome longo continua quebrando. */}
+          <th scope="col" className={`${CABECALHO} md:min-w-34`}>
             Categoria
           </th>
           <th scope="col" className={CABECALHO}>

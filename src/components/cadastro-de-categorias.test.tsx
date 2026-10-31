@@ -239,7 +239,10 @@ describe("depois de criar (CADCOL-05, ACs 2 a 4; CADCOL-10, AC 2)", () => {
     expect(criar).toHaveBeenCalledWith({ nome: "Categoria Nova" });
     expect(tituloDoPainel().textContent).toBe("Categoria Nova");
     expect(parametro("categoria")).toBe(NOVA);
-    expect(document.activeElement).toBe(tituloDoPainel());
+    /* O foco vai depois que a criada aparece no painel, num efeito: espera. */
+    await waitFor(() => {
+      expect(document.activeElement).toBe(tituloDoPainel());
+    });
   });
 
   /* A resposta da action chega antes da lista nova: o Next resolve o pedido
@@ -267,7 +270,9 @@ describe("depois de criar (CADCOL-05, ACs 2 a 4; CADCOL-10, AC 2)", () => {
       expect(tituloDoPainel().textContent).toBe("Categoria Nova");
     });
     expect(parametro("categoria")).toBe(NOVA);
-    expect(document.activeElement).toBe(tituloDoPainel());
+    await waitFor(() => {
+      expect(document.activeElement).toBe(tituloDoPainel());
+    });
   });
 });
 

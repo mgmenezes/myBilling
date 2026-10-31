@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
-worktree `.worktrees/cadastros-colunas`, rebaseada sobre a `main` em `e8b1540`, com Todo mês; lote 1
-(T1 a T7) concluído, e o lote 2 (T8 a T15) em execução)
+worktree `.worktrees/cadastros-colunas`, rebaseada sobre a `main` em `e8b1540`, com Todo mês; lotes 1
+(T1 a T7) e 2 (T8 a T15) concluídos, e o lote 3 (T16 a T22) por fazer)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -507,7 +507,7 @@ resultado.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(categorias): o estado da aba de categorias, com a aberta no endereço`
+**Commit**: `feat(categorias): o estado da aba de categorias, com a aberta no endereço` (`f4d3553`)
 **Nota** (desvios):
 - **O endereço vai pelo roteador do Next, e não por `history.replaceState`.** Todo mês trocou o
   mecanismo depois do plano desta fatia (`todo-mes.tsx`, `mudarEndereco`; L-058): o `replaceState`
@@ -544,26 +544,53 @@ resultado.
 **Reuses**: `obterUsoNoMes`, `CadastroDeCategorias`, `RecorrenciaRepositoryDrizzle`, `SEM_USO`
 **Requirement**: CADCOL-01, CADCOL-02, CADCOL-03, CADCOL-04, CADCOL-05, CADCOL-09, CADCOL-10, CADCOL-11
 **Done when**:
-- [ ] Abrindo Categorias de março antes de qualquer outra tela, com a fixture do design: "Categoria Um" com "1" e "2", e "Categoria Dois" com "0" e "0", lidos dentro da linha de cada uma (CADCOL-02 AC 5, CADCOL-03 ACs 1 a 3 e 5, L-001, L-018)
-- [ ] Depois, "Ver em Lançamentos" no painel de "Categoria Um" leva a Lançamentos de março com "2 lançamentos" no `status` da lista (CADCOL-03 AC 4, CADCOL-04 AC 12, L-014)
-- [ ] `h1` "Cadastros", a aba "Categorias" com `aria-current="page"` e o item "Cadastros" ativo; o item da navegação abre esta aba (CADCOL-01 ACs 1, 3, 4 e 5)
-- [ ] Criar "Categoria Nova" pelo painel: a linha aparece e o painel abre nela, com "Automática (<cor>)" marcada; criar "categoria um" abre "Categoria Um" com "Essa categoria já existia."; criar o nome de uma arquivada a reativa com "Categoria reativada." (CADCOL-05 ACs 2 a 4)
-- [ ] Abrir "Categoria Um" põe `?categoria=<id>` na URL sem recarregar (um marcador posto em `window` antes do clique continua lá) e sem entrada nova no histórico (`history.length` igual); recarregar mostra a mesma aberta; `?categoria=` inexistente deixa o painel fechado (CADCOL-11 ACs 1 a 3)
-- [ ] Teclado: `Tab` até o botão de "Categoria Um", `Enter`, o foco no título do painel; `Escape`, o foco de volta no botão e a URL sem `categoria` (CADCOL-10 ACs 1 a 4)
-- [ ] Em 1.280 px:
+- [x] Abrindo Categorias de março antes de qualquer outra tela, com a fixture do design: "Categoria Um" com "1" e "2", e "Categoria Dois" com "0" e "0", lidos dentro da linha de cada uma (CADCOL-02 AC 5, CADCOL-03 ACs 1 a 3 e 5, L-001, L-018)
+- [x] Depois, "Ver em Lançamentos" no painel de "Categoria Um" leva a Lançamentos de março com "2 lançamentos" no `status` da lista (CADCOL-03 AC 4, CADCOL-04 AC 12, L-014)
+- [x] `h1` "Cadastros", a aba "Categorias" com `aria-current="page"` e o item "Cadastros" ativo; o item da navegação abre esta aba (CADCOL-01 ACs 1, 3, 4 e 5)
+- [x] Criar "Categoria Nova" pelo painel: a linha aparece e o painel abre nela, com "Automática (<cor>)" marcada; criar "categoria um" abre "Categoria Um" com "Essa categoria já existia."; criar o nome de uma arquivada a reativa com "Categoria reativada." (CADCOL-05 ACs 2 a 4)
+- [x] Abrir "Categoria Um" põe `?categoria=<id>` na URL sem recarregar (um marcador posto em `window` antes do clique continua lá) e sem entrada nova no histórico (`history.length` igual); recarregar mostra a mesma aberta; `?categoria=` inexistente deixa o painel fechado (CADCOL-11 ACs 1 a 3)
+- [x] Teclado: `Tab` até o botão de "Categoria Um", `Enter`, o foco no título do painel; `Escape`, o foco de volta no botão e a URL sem `categoria` (CADCOL-10 ACs 1 a 4)
+- [x] Em 1.280 px:
   - o painel fica entre as abas e a tabela, e sem nada aberto não há painel (CADCOL-09 ACs 5 e 6);
   - abrir a última linha deixa o título do painel dentro da janela (CADCOL-10 AC 5);
   - a linha aberta tem fundo computado diferente das outras (CADCOL-04 AC 13);
   - com ponteiro fino, toda linha da tabela mede até 48 px, percorrendo todas (CADCOL-02 AC 7, L-030)
-- [ ] Em 767 px, nenhum `columnheader` à vista e o botão de cada linha com ao menos 44 px de altura; em 768 px, os cabeçalhos à vista e o botão com menos de 44 px (CADCOL-02 AC 8, CADCOL-10 AC 6, L-029)
-- [ ] Com `hasTouch` em 1.280 px, `matchMedia("(pointer: coarse)")` é verdadeiro e o botão de cada linha mede ao menos 44 × 44 (CADCOL-10 AC 6, L-044)
-- [ ] Em 400 px com "Categoria Um" aberta: sem rolagem lateral; as contagens abaixo da pill; as 11 opções, "Salvar", "Fechar", as duas abas e "+ Nova categoria" com ao menos 44 × 44 (CADCOL-09 AC 7, CADCOL-02 AC 8, CADCOL-10 AC 7)
-- [ ] `categorias.spec.ts` muda como manda a tabela "Testes que mudam porque a spec mudou" do design e passa; a ordem pt-BR (`:320`) continua provada pela página
-- [ ] `lista-de-categorias.tsx` e o teste dele saem; a suíte unitária cai exatamente os 24 testes desse arquivo, todos com equivalente nas T11 a T14
-- [ ] Gate e2e passa com `e2e/cadastros-colunas.spec.ts`, `e2e/categorias.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
+- [x] Em 767 px, nenhum `columnheader` à vista e o botão de cada linha com ao menos 44 px de altura; em 768 px, os cabeçalhos à vista e o botão com menos de 44 px (CADCOL-02 AC 8, CADCOL-10 AC 6, L-029)
+- [x] Com `hasTouch` em 1.280 px, `matchMedia("(pointer: coarse)")` é verdadeiro e o botão de cada linha mede ao menos 44 × 44 (CADCOL-10 AC 6, L-044)
+- [x] Em 400 px com "Categoria Um" aberta: sem rolagem lateral; as contagens abaixo da pill; as 11 opções, "Salvar", "Fechar", as duas abas e "+ Nova categoria" com ao menos 44 × 44 (CADCOL-09 AC 7, CADCOL-02 AC 8, CADCOL-10 AC 7)
+- [x] `categorias.spec.ts` muda como manda a tabela "Testes que mudam porque a spec mudou" do design e passa; a ordem pt-BR (`:320`) continua provada pela página
+- [x] `lista-de-categorias.tsx` e o teste dele saem; a suíte unitária cai exatamente os 24 testes desse arquivo, todos com equivalente nas T11 a T14
+- [x] Gate e2e passa com `e2e/cadastros-colunas.spec.ts`, `e2e/categorias.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(categorias): Cadastros com a categoria aberta no painel`
+**Commit**: `feat(categorias): a tela de Cadastros com a categoria aberta no painel` (o assunto planejado começava com maiúscula, e `check_commit.py` recusa)
+**Nota** (desvios):
+- **A coluna Categoria ganhou `md:min-w-34` (136 px)**, em `tabela-de-categorias.tsx`, o arquivo da
+  T11. Medido no navegador: em 768 e 800 px a tabela tem 480 e 512 px, a coluna encolhia para uns
+  112 px, a pill de "Categoria Dois" quebrava em duas linhas, e o botão da linha media 44 px, e não
+  36 (CADCOL-10, AC 6; o teste de 768 px falhou assim). Com 136 px a pill cabe numa linha, a tabela
+  fica com os 480 px do contêiner, e o nome longo continua quebrando. Com 144 px ela passava 2 px.
+- **Fixo C começa em abril**, e não em junho como no design: o começo colado depois do mês aberto
+  (L-053), do outro lado do Fixo B, que termina em fevereiro. "Cartão Roxo" continua com 0 fixos
+  em março, e nenhum número esperado muda.
+- **Uma categoria de 59 caracteres, na cor "Verde-água"**, entra no teste das linhas de até 48 px:
+  o conteúdo que mais aperta a linha (L-045). Em 1.280 px ela cabe numa linha, e o teste exige os
+  48 px dela também.
+- **A pill da linha é conferida com `expect.poll`** em `categorias.spec.ts`, depois do aviso: o Next
+  resolve a action antes de desenhar a lista nova (CADCOL-04, AC 5: a pill da linha muda quando a
+  gravação termina). O valor esperado é o mesmo, exato.
+- **Testes além do Done-when**, pelas lições das fatias irmãs: a corrida do endereço com a rede
+  lenta, abrir e logo fechar e fechar e logo reabrir (L-058); a confirmação de trocar a cor e de
+  renomear `toBeInViewport` em 1.280 × 720 e 1.920 × 1.080 (L-057), com a linha no lugar novo e
+  o painel na categoria; e o formulário de criação medido aberto em 400 px (L-060).
+- **"Sem mensagem de erro" se procura dentro do `main`:** o anunciador de rota do Next é um
+  `alert` vazio fora dele.
+- **Os dois testes de criar de `cadastro-de-categorias.test.tsx` (T14) esperam o foco com
+  `waitFor`.** O foco na criada vai num efeito, depois de ela aparecer no painel; sob a carga da
+  suíte inteira, um deles leu o foco antes do efeito. A assertion é a mesma, exata, e o mutante que
+  foca sem esperar a lista continua morto.
+- **Até a T21, a partir de 1.536 px o vazio aparece na coluna única**, entre as abas e a tabela: a
+  grade de duas colunas é da T21. Nenhum teste deste lote mede essa faixa.
 
 ### Phase 5 — Meios de pagamento
 
