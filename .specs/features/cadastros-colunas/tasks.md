@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
-worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 e
-T2 concluídas)
+worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 a
+T3 concluídas)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -218,7 +218,7 @@ lançamentos do mês.
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: unit, integration
 **Gate**: full
-**Commit**: `feat(cadastros): ler o uso no mês depois de materializar`
+**Commit**: `feat(cadastros): ler o uso no mês depois de materializar` (`4c300fd`)
 
 ### Phase 2 — A edição do meio e as revalidações
 
@@ -234,17 +234,20 @@ lançamentos do mês.
 **Reuses**: `geraFatura`
 **Requirement**: CADCOL-07
 **Done when**:
-- [ ] No cartão: o nome diferente devolve `{ nome }`; o fechamento diferente, `{ diaFechamento }`; o vencimento diferente, `{ diaVencimento }`; os três diferentes, os três (CADCOL-07 AC 5)
-- [ ] O nome que difere só na caixa é mudança (CADCOL-07 AC 8)
-- [ ] Tudo igual devolve `ok(null)`, no cartão e na conta (CADCOL-07 AC 9)
-- [ ] Conta ou rótulo com ciclo, e cartão sem ciclo, devolvem `CICLO_NAO_CORRESPONDE_AO_TIPO`: uma assertion para cada (CADCOL-07 AC 11, L-010)
-- [ ] O tipo nunca aparece no resultado (CADCOL-07 AC 4)
-- [ ] `mensagemDoErro("CICLO_NAO_CORRESPONDE_AO_TIPO")` é "Dia de fechamento e de vencimento existem só no cartão de crédito, e nele são obrigatórios."
-- [ ] 100% de branches em `src/domain`; `arquitetura.test.ts` passa
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] No cartão: o nome diferente devolve `{ nome }`; o fechamento diferente, `{ diaFechamento }`; o vencimento diferente, `{ diaVencimento }`; os três diferentes, os três (CADCOL-07 AC 5)
+- [x] O nome que difere só na caixa é mudança (CADCOL-07 AC 8)
+- [x] Tudo igual devolve `ok(null)`, no cartão e na conta (CADCOL-07 AC 9)
+- [x] Conta ou rótulo com ciclo, e cartão sem ciclo, devolvem `CICLO_NAO_CORRESPONDE_AO_TIPO`: uma assertion para cada (CADCOL-07 AC 11, L-010)
+- [x] O tipo nunca aparece no resultado (CADCOL-07 AC 4)
+- [x] `mensagemDoErro("CICLO_NAO_CORRESPONDE_AO_TIPO")` é "Dia de fechamento e de vencimento existem só no cartão de crédito, e nele são obrigatórios."
+- [x] 100% de branches em `src/domain`; `arquitetura.test.ts` passa
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(domain): o que muda ao editar um meio de pagamento`
+**Nota**: a mensagem do código novo ganhou um teste em `src/lib/erros.test.ts`, arquivo que não
+estava em **Where**. Sem ele, o item da mensagem não teria assertion: `erros.ts` não tinha teste, e
+o domínio não pode importar `@/lib`.
 
 #### T4: `atualizarMeioDePagamento`, a escrita do meio
 **What**: a port `EdicaoDeMeioRepository`, a escrita no repositório Drizzle e o fake.

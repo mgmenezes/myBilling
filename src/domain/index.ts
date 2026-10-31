@@ -7,6 +7,12 @@
  * importado de fora de `src/domain`.
  */
 
+export type {
+  CicloDoCartao,
+  MudancasDoMeio,
+  PedidoDeEdicaoDoMeio,
+} from "./cadastro/mudancas-do-meio";
+export { mudancasDoMeio } from "./cadastro/mudancas-do-meio";
 export type { UsoDoCadastro, UsoNoMes } from "./cadastro/uso-no-mes";
 export { SEM_USO, usoNoMes } from "./cadastro/uso-no-mes";
 export type { CicloFatura } from "./cartao/ciclo-fatura";

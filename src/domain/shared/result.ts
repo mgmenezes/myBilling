@@ -42,7 +42,8 @@ export type CodigoErro =
   | "PLANILHA_ARQUIVO_INVALIDO"
   | "PLANILHA_BLOCO_AUSENTE"
   | "PERIODO_INVALIDO"
-  | "CATEGORIA_EM_RECEITA";
+  | "CATEGORIA_EM_RECEITA"
+  | "CICLO_NAO_CORRESPONDE_AO_TIPO";
 
 export type DomainError = {
   readonly code: CodigoErro;

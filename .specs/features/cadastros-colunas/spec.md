@@ -533,7 +533,7 @@ consultada (linha de tabela e painel, e não cartão). A decisão nova é o AD-0
 | CADCOL-04 | P1: A categoria aberta na coluna | Tasks | Pending |
 | CADCOL-05 | P1: Nova categoria na coluna | Tasks | Pending |
 | CADCOL-06 | P1: Uma linha por meio de pagamento | Tasks | Pending |
-| CADCOL-07 | P1: O meio aberto: renomear e corrigir os dias | Tasks | Pending |
+| CADCOL-07 | P1: O meio aberto: renomear e corrigir os dias | Execute | In progress: `mudancas-do-meio.test.ts` prova, no cartão, o nome, o fechamento e o vencimento diferentes voltando cada um sozinho e os três juntos, AC 5, o nome que difere só na caixa como mudança, AC 8, tudo igual como `null` no cartão e na conta, AC 9, a conta e o rótulo com ciclo e o cartão sem ciclo recusados com `CICLO_NAO_CORRESPONDE_AO_TIPO`, uma assertion para cada, AC 11, e o tipo fora do resultado, AC 4; `erros.test.ts` prova a mensagem do código, AC 11 (T3) |
 | CADCOL-08 | P1: Novo meio na coluna | Tasks | Pending |
 | CADCOL-09 | P1: A coluna da direita a partir de 1.536 px | Tasks | Pending |
 | CADCOL-10 | P1: Teclado, foco e toque | Tasks | Pending |

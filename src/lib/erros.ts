@@ -83,6 +83,8 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   // SPEC_DEVIATION: a mensagem entrou com o código, em T1, e não em T5.
   // Reason: todo `CodigoErro` do domínio é exibível, e o código sem mensagem não compila.
   CATEGORIA_EM_RECEITA: "Entrada não tem categoria.",
+  CICLO_NAO_CORRESPONDE_AO_TIPO:
+    "Dia de fechamento e de vencimento existem só no cartão de crédito, e nele são obrigatórios.",
   LANCAMENTO_NAO_CONFIRMAVEL: "Só gasto fixo tem valor a confirmar.",
   PLANILHA_ARQUIVO_INVALIDO:
     "Este arquivo não parece uma aba da planilha exportada em CSV. No Google Sheets: Arquivo → Fazer download → Valores separados por vírgula (.csv).",
