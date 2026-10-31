@@ -468,7 +468,10 @@ a grade de 1.536 px:
 - **`TabelaDeMeios`:**
   - colunas "Meio de pagamento", Tipo (o rótulo de `TIPOS_DE_MEIO`), Fecha e Vence ("dia N" ou "—")
     e as duas contagens;
-  - o botão da linha mostra o nome em texto, sem pill.
+  - o botão da linha mostra o nome em texto, sem pill;
+  - revisto na T16, pela medida no navegador: o nome do dia fica escrito na célula ("fecha dia 25"),
+    em `md:sr-only`, como o da contagem; entre 768 e 1.023 px as células têm 8 px dos lados e o tipo
+    quebra, com a coluna do nome de 128 px, para as seis colunas caberem nos 480 px (Nota da T16).
 - **`DetalheDoMeio`:**
   - **título:** o nome, num `TituloDoPainel`;
   - **subtítulo:** "Cartão de crédito · fecha dia N · vence dia M", "Conta corrente" ou "Rótulo";

@@ -563,7 +563,7 @@ resultado.
 - [x] Gate e2e passa com `e2e/cadastros-colunas.spec.ts`, `e2e/categorias.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(categorias): a tela de Cadastros com a categoria aberta no painel` (o assunto planejado começava com maiúscula, e `check_commit.py` recusa)
+**Commit**: `feat(categorias): a tela de Cadastros com a categoria aberta no painel` (`df0c476`; o assunto planejado começava com maiúscula, e `check_commit.py` recusa)
 **Nota** (desvios):
 - **A coluna Categoria ganhou `md:min-w-34` (136 px)**, em `tabela-de-categorias.tsx`, o arquivo da
   T11. Medido no navegador: em 768 e 800 px a tabela tem 480 e 512 px, a coluna encolhia para uns
@@ -602,18 +602,39 @@ resultado.
 **Reuses**: `TIPOS_DE_MEIO`, a `CELULA` de `tabela-lancamentos.tsx`
 **Requirement**: CADCOL-06, CADCOL-07
 **Done when**:
-- [ ] Tabela "Meios de pagamento" com "Meio de pagamento", Tipo, Fecha, Vence, "Fixos em Março" e "Lançamentos em Março" (CADCOL-06 AC 1)
-- [ ] Tipo com "Cartão de crédito", "Conta corrente" e "Rótulo", um caso para cada (CADCOL-06 AC 3)
-- [ ] "dia 25" e "dia 5" no cartão; "—" em Fecha e em Vence na conta e no rótulo (CADCOL-06 AC 4)
-- [ ] As contagens com "0" sem uso e o nome escrito na célula (CADCOL-06 ACs 5 e 8, o texto)
-- [ ] O único botão de cada linha é o do meio (CADCOL-06 AC 6)
-- [ ] Clique numa célula e acionar o botão chamam `aoAbrir`: uma assertion para cada (CADCOL-07 AC 1, L-010)
-- [ ] `aria-expanded` e `aria-controls="painel-do-meio"` como na de categorias (CADCOL-07 AC 15)
-- [ ] Sem meio, o aviso de CADCOL-06 AC 9
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Tabela "Meios de pagamento" com "Meio de pagamento", Tipo, Fecha, Vence, "Fixos em Março" e "Lançamentos em Março" (CADCOL-06 AC 1)
+- [x] Tipo com "Cartão de crédito", "Conta corrente" e "Rótulo", um caso para cada (CADCOL-06 AC 3)
+- [x] "dia 25" e "dia 5" no cartão; "—" em Fecha e em Vence na conta e no rótulo (CADCOL-06 AC 4)
+- [x] As contagens com "0" sem uso e o nome escrito na célula (CADCOL-06 ACs 5 e 8, o texto)
+- [x] O único botão de cada linha é o do meio (CADCOL-06 AC 6)
+- [x] Clique numa célula e acionar o botão chamam `aoAbrir`: uma assertion para cada (CADCOL-07 AC 1, L-010)
+- [x] `aria-expanded` e `aria-controls="painel-do-meio"` como na de categorias (CADCOL-07 AC 15)
+- [x] Sem meio, o aviso de CADCOL-06 AC 9
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(meios): a tabela de meios de pagamento com o uso no mês`
+**Nota** (desvios):
+- **O nome do dia fica escrito na célula, como o da contagem:** "fecha dia 25" e "vence dia 5",
+  com "fecha" e "vence" em `md:sr-only`. Abaixo de 768 px não há cabeçalho, e "dia 25" sozinho não
+  diz se é o fechamento ou o vencimento (CADCOL-06, AC 8: "os dias e as contagens com o nome
+  escrito"). A partir de 768 px a célula mostra "dia 25", e o leitor de tela ouve "fecha dia 25".
+  O "—" da conta e do rótulo some abaixo de 768 px, onde não há coluna para marcar.
+- **Entre 768 e 1.023 px, as células têm 8 px dos lados, e o tipo pode quebrar; a coluna do nome
+  tem `md:min-w-32` (128 px).** Medido no navegador antes dos testes de layout, numa página
+  provisória, apagada antes do commit: em 768 px a tabela tem 480 px, e com o respiro de Categorias
+  ela pedia 577; a página rolava 73 px de lado, e "Cartão Roxo" quebrava em duas linhas, com o
+  botão de 45 px (CADCOL-10, AC 6). Com a mudança, ela fica com os 480 px, sem rolagem, e todo
+  botão com nome curto mede 36 px numa linha. Nessa faixa o tipo do cartão quebra ("Cartão de
+  crédito" em até três linhas) e a linha dele fica mais alta; nenhum AC mede a altura ali. A partir
+  de 1.024 px volta o respiro de Categorias, e o tipo fica numa linha; em 1.280 px toda linha mede
+  45 px, inclusive a de um nome de 40 caracteres. Em 768 px a tabela fica no limite, sem folga: a
+  T20 mede a página sem rolagem lateral em 767 e 768 px.
+- **Em 400 px, o que vai embaixo do nome de um cartão de crédito quebra em duas linhas** (medido:
+  128 px de linha, contra 103 da conta). O tipo, os dois dias e as duas contagens não cabem em
+  336 px. O nome continua em cima e o resto embaixo dele; a T20 mede assim, e não "uma linha só".
+- `rotuloDoTipo` nasce aqui, exportado, para o subtítulo do `DetalheDoMeio` (T17) usar o mesmo
+  texto da coluna Tipo.
 
 #### T17: `DetalheDoMeio`, renomear e corrigir os dias
 **What**: o conteúdo do painel do meio: o subtítulo, o formulário "Editar <nome>" com
