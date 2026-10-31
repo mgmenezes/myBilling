@@ -775,7 +775,7 @@ e `?meio=`.
 - [x] Gate e2e passa com `e2e/cadastros-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(meios): a aba Meios de pagamento, com o meio aberto no painel`
+**Commit**: `feat(meios): a aba Meios de pagamento, com o meio aberto no painel` (`beea926`)
 **Nota** (desvios):
 - **"Cartão Lilás" não muda de lugar entre os meios de março**: ele vem antes de "conta Azul", como
   "Cartão Roxo". O teste do renome põe "Cartão Marrom" na fixture, entre os dois na ordem, e a linha
@@ -822,18 +822,50 @@ a dica quando nada está aberto; o teste de TRES-01, AC 8 passa para 1.535 px.
 **Reuses**: a grade de `lancamentos/page.tsx:199-237`
 **Requirement**: CADCOL-09, CADCOL-02, CADCOL-06, CADCOL-10
 **Done when**:
-- [ ] Nas duas abas, em 1.535 px o painel aberto fica entre as abas e a tabela e, sem nada aberto, não aparece; em 1.536 px fica à direita da tabela e, sem nada aberto, mostra "Nenhuma categoria aberta" ou "Nenhum meio aberto" com a dica (CADCOL-09 ACs 1, 3, 5 e 6, L-029)
-- [ ] Em 1.535 px, cabeçalho, painel e tabela medem até 1.024 px, centrados (CADCOL-09 AC 5)
-- [ ] Em 1.536 e em 1.920 px, a coluna mede 384 px (± 1) e tem `border-left` computado de 1 px; cabeçalho e tabela medem até 1.100 px e ficam centrados entre o menu e a coluna, com folgas que diferem em até 1 px (CADCOL-09 ACs 1 e 4)
-- [ ] Em 1.920 × 480, com categorias a mais para a página rolar, rolando até o fim, o título do painel continua dentro da janela (CADCOL-09 AC 2)
-- [ ] Em 1.536 e em 1.920 px, com ponteiro fino, toda linha das duas tabelas mede até 48 px (CADCOL-02 AC 7, CADCOL-06 AC 7, L-030)
-- [ ] Com `hasTouch` em 1.920 px e o painel aberto nas duas abas: o botão de cada linha, "Fechar", as abas, "+ Nova categoria" e "+ Novo meio", as opções de cor e os botões dos formulários medem ao menos 44 × 44 (CADCOL-10 ACs 6 e 7, L-044)
-- [ ] O teste de TRES-01, AC 8 roda em 1.535 px com Lançamentos, Todo mês, Categorias e Meios de pagamento; os outros testes de `visao-tres-colunas.spec.ts` passam sem mudança
-- [ ] Se a medida pedir outra largura, o desvio fica registrado aqui e no design
-- [ ] Gate e2e passa com `e2e/cadastros-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
+- [x] Nas duas abas, em 1.535 px o painel aberto fica entre as abas e a tabela e, sem nada aberto, não aparece; em 1.536 px fica à direita da tabela e, sem nada aberto, mostra "Nenhuma categoria aberta" ou "Nenhum meio aberto" com a dica (CADCOL-09 ACs 1, 3, 5 e 6, L-029)
+- [x] Em 1.535 px, cabeçalho, painel e tabela medem até 1.024 px, centrados (CADCOL-09 AC 5)
+- [x] Em 1.536 e em 1.920 px, a coluna mede 384 px (± 1) e tem `border-left` computado de 1 px; cabeçalho e tabela medem até 1.100 px e ficam centrados entre o menu e a coluna, com folgas que diferem em até 1 px (CADCOL-09 ACs 1 e 4)
+- [x] Em 1.920 × 480, com categorias a mais para a página rolar, rolando até o fim, o título do painel continua dentro da janela (CADCOL-09 AC 2)
+- [x] Em 1.536 e em 1.920 px, com ponteiro fino, toda linha das duas tabelas mede até 48 px (CADCOL-02 AC 7, CADCOL-06 AC 7, L-030)
+- [x] Com `hasTouch` em 1.920 px e o painel aberto nas duas abas: o botão de cada linha, "Fechar", as abas, "+ Nova categoria" e "+ Novo meio", as opções de cor e os botões dos formulários medem ao menos 44 × 44 (CADCOL-10 ACs 6 e 7, L-044)
+- [x] O teste de TRES-01, AC 8 roda em 1.535 px com Lançamentos, Todo mês, Categorias e Meios de pagamento; os outros testes de `visao-tres-colunas.spec.ts` passam sem mudança
+- [x] Se a medida pedir outra largura, o desvio fica registrado aqui e no design
+- [x] Gate e2e passa com `e2e/cadastros-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `feat(cadastros): o painel numa coluna à direita a partir de 1.536 px`
+**Nota** (desvios):
+- **Medido no navegador antes dos testes, nas duas abas:** em 1.536 px a coluna tem 384 px e a linha
+  fina de 1 px, e o cabeçalho e a tabela têm 864 px (os 911 px da coluna da esquerda menos 24 px de
+  cada lado), centrados entre o menu e a coluna, com 24 px de cada lado; em 1.920 px, 1.052 px. As
+  larguras do design valem; nenhuma mudou.
+- **A grade tem uma terceira linha, flexível** (`2xl:grid-rows-[auto_auto_1fr]`, a coluna em
+  `row-span-3`), como Todo mês: o painel aberto é mais alto que o cabeçalho e a tabela juntos, e a
+  sobra da altura não pode abrir vão entre os dois. O teste da coluna de 384 px confere que o
+  painel é mais alto e que a tabela vem logo abaixo do cabeçalho, com os 24 px dele. Tirar só a
+  `grid-rows` é mutante equivalente no Chrome: a terceira linha implícita, vazia, recebe a sobra.
+  A coluna presa só nas duas primeiras linhas abre o vão, e o teste o pega (C13).
+- **O nome longo que quebra ao lado do painel segue o Edge Case "Nome longo: quebra linha, e só
+  aquela linha fica mais alta".** Em 1.536 px a tabela tem 864 px, e a categoria de 59 caracteres
+  quebra quando outra linha tem a cor automática de texto mais largo ("Automática (Verde-água)"):
+  a linha dela mede 52,5 px. O teste das linhas mede toda linha de nome curto até 48 px, com as
+  duas de nome longo na tabela, e toda linha, a longa inclusive, só com o botão do nome mais o
+  respiro da célula (até 9,5 px): nenhuma cresce por outra coluna, e o nome longo não faz crescer
+  as outras. Uma largura mínima na coluna do nome, como a da T15, foi considerada e descartada:
+  pela conta das larguras medidas, com a cor mais larga e os cabeçalhos das contagens no mínimo, a
+  categoria de 59 caracteres não cabe nos 864 px sem a tabela passar da coluna, e o Edge Case já
+  permite a quebra. Nenhum arquivo fora do Where mudou.
+- **O mutante do tipo que quebra a partir de 1.024 px, equivalente na T20, morre aqui:** sem o
+  `lg:whitespace-nowrap`, em 1.536 px o tipo quebra e a linha cresce por outra coluna (L7).
+- **Testes além do Done-when, presos à spec:** o Edge Case do formulário de criação mais alto que
+  a janela, em 1.920 × 480, rolando dentro da coluna presa no alto; a rolagem até o fim nas duas
+  abas, e não só em Categorias (CADCOL-09, AC 2); e, no toque em 1.920 px, "Ver em Lançamentos" e os
+  botões dos dois formulários de criação abertos pela ação (CADCOL-10, AC 7; L-060).
+- **O teste de TRES-01, AC 8 sai do bloco de 1.920 px** e roda em 1.535 px com as quatro telas; o
+  título dele diz isso. A spec de `visao-tres-colunas` ganha a nota na T22.
+- **A primeira execução do gate parou no ambiente:** `browserType.launch` estourou 180 s no primeiro
+  teste, com a carga da máquina em 12,8, e o modo serial não rodou o resto. A segunda, sem mudar
+  nada, passou inteira (78).
 
 #### T22: A decisão registrada
 **What**:

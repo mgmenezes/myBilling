@@ -211,17 +211,22 @@ test.describe("em 1.920 px", () => {
    * da largura da área à direita do menu.
    */
   /*
-   * Lançamentos saiu deste laço: em 1.920 px ela tem a lista densa com a
-   * coluna de filtros (DENS-03, AC 8, que substitui TRES-01, AC 8 nessa tela),
-   * provada em `e2e/lancamentos-densos.spec.ts`. Todo mês saiu também: em
-   * 1.920 px ela tem a lista com o fixo aberto numa coluna (FIXCOL-07, AC 4,
-   * que substitui TRES-01, AC 8 nessa tela), provada em
-   * `e2e/todo-mes-colunas.spec.ts`.
+   * A partir de 1.536 px as quatro telas têm a coluna da direita: Lançamentos
+   * a dos filtros (DENS-03, AC 8), Todo mês a do fixo aberto (FIXCOL-07,
+   * AC 4) e as duas abas de Cadastros a do item aberto (CADCOL-09, AC 4), que
+   * substituem TRES-01, AC 8 nessa faixa. Abaixo dela o AC continua valendo
+   * para as quatro, e o laço roda em 1.535 px, colado no limiar (L-029).
    */
-  test("Categorias fica em até 1.024 px, centrada na área à direita do menu (TRES-01, AC 8)", async ({
+  test("Lançamentos, Todo mês, Categorias e Meios de pagamento ficam em até 1.024 px em 1.535 px, centradas na área à direita do menu (TRES-01, AC 8)", async ({
     page,
   }) => {
-    for (const caminho of [`/${MARCO}/cadastros/categorias`]) {
+    await page.setViewportSize({ width: 1535, height: 1080 });
+    for (const caminho of [
+      `/${MARCO}/lancamentos`,
+      `/${MARCO}/fixos`,
+      `/${MARCO}/cadastros/categorias`,
+      `/${MARCO}/cadastros/meios-de-pagamento`,
+    ]) {
       await abrir(page, caminho);
       const titulo = page.getByRole("heading", { level: 1 });
       await expect(titulo).toBeVisible();

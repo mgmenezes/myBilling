@@ -1493,3 +1493,337 @@ test.describe("a aba Meios de pagamento", () => {
     }
   });
 });
+
+/* ========================================================================
+ * A coluna da direita a partir de 1.536 px, nas duas abas (T21; CADCOL-09,
+ * ACs 1 a 6; CADCOL-02, AC 7; CADCOL-06, AC 7; CADCOL-10, ACs 6 e 7). O
+ * limiar é medido colado dos dois lados: 1.535 e 1.536 px (L-029).
+ * ====================================================================== */
+
+interface AbaMedida {
+  readonly aba: string;
+  readonly caminho: string;
+  readonly abrir: (page: Page, caminho: string) => Promise<void>;
+  readonly tabela: (page: Page) => Locator;
+  readonly painel: (page: Page) => Locator;
+  readonly titulo: (page: Page) => Locator;
+  readonly botao: (page: Page, nome: string) => Locator;
+  readonly item: string;
+  readonly vazio: string;
+  readonly dica: string;
+  readonly novo: (page: Page) => Locator;
+  readonly semearAMais: () => Promise<void>;
+  readonly ultimo: string;
+}
+
+const ABAS_MEDIDAS: ReadonlyArray<AbaMedida> = [
+  {
+    aba: "Categorias",
+    caminho: CATEGORIAS,
+    abrir,
+    tabela,
+    painel,
+    titulo: tituloDoPainel,
+    botao: botaoDaLinha,
+    item: "Categoria Um",
+    vazio: "Nenhuma categoria aberta",
+    dica: DICA,
+    novo: botaoNova,
+    semearAMais: semearCategoriasAMais,
+    ultimo: "Categoria Um",
+  },
+  {
+    aba: "Meios de pagamento",
+    caminho: MEIOS,
+    abrir: abrirMeios,
+    tabela: tabelaDeMeios,
+    painel: painelDoMeio,
+    titulo: tituloDoPainelDoMeio,
+    botao: botaoDoMeio,
+    item: "Cartão Roxo",
+    vazio: "Nenhum meio aberto",
+    dica: DICA_DO_MEIO,
+    novo: botaoNovoMeio,
+    semearAMais: semearMeiosAMais,
+    ultimo: "Rótulo Extra 12",
+  },
+];
+
+/** O invólucro do painel: a coluna da direita a partir de 1.536 px. */
+function colunaDo(painelDaAba: Locator): Locator {
+  return painelDaAba.locator("xpath=..");
+}
+
+/** O bloco do cabeçalho: o título, a ação e as abas. */
+function cabecalho(page: Page): Locator {
+  return abas(page).locator("xpath=..");
+}
+
+function menuDoApp(page: Page): Locator {
+  return page.getByRole("complementary", { name: "Menu do myBilling" });
+}
+
+async function rolarAteOFim(page: Page): Promise<void> {
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+}
+
+for (const a of ABAS_MEDIDAS) {
+  test.describe(`a partir de 1.536 px, na aba ${a.aba}`, () => {
+    test(`em 1.535 px o painel aberto fica entre as abas e a tabela e, sem nada aberto, não aparece; em 1.536 px fica à direita da tabela e, sem nada aberto, mostra "${a.vazio}" com a dica (CADCOL-09, ACs 1, 3, 5 e 6)`, async ({
+      page,
+    }) => {
+      const vazio = page.getByRole("heading", { level: 2, name: a.vazio });
+
+      await page.setViewportSize({ width: 1535, height: 900 });
+      await a.abrir(page, a.caminho);
+      await expect(a.painel(page)).toHaveCount(0);
+      await expect(vazio).toBeHidden();
+      await expect(page.getByText(a.dica)).toBeHidden();
+
+      await a.botao(page, a.item).click();
+      await expect(a.titulo(page)).toHaveText(a.item);
+      const doCabecalho = await caixa(abas(page));
+      const acima = await caixa(a.painel(page));
+      expect(acima.y).toBeGreaterThanOrEqual(doCabecalho.y + doCabecalho.height);
+      expect(acima.y + acima.height).toBeLessThanOrEqual((await caixa(a.tabela(page))).y);
+
+      await page.setViewportSize({ width: 1536, height: 900 });
+      const aDireita = await caixa(a.painel(page));
+      const daTabela = await caixa(a.tabela(page));
+      expect(aDireita.x).toBeGreaterThanOrEqual(daTabela.x + daTabela.width);
+
+      await a.abrir(page, a.caminho);
+      await expect(a.painel(page)).toHaveCount(0);
+      await expect(vazio).toBeVisible();
+      await expect(page.getByText(a.dica)).toBeVisible();
+      const daTabelaSemNada = await caixa(a.tabela(page));
+      expect((await caixa(vazio)).x).toBeGreaterThanOrEqual(
+        daTabelaSemNada.x + daTabelaSemNada.width,
+      );
+
+      await page.setViewportSize({ width: 1535, height: 900 });
+      await expect(vazio).toBeHidden();
+      await expect(page.getByText(a.dica)).toBeHidden();
+    });
+
+    test("em 1.535 px, com o item aberto, o cabeçalho, o painel e a tabela medem até 1.024 px, centrados à direita do menu (CADCOL-09, AC 5)", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1535, height: 900 });
+      await a.abrir(page, a.caminho);
+      await a.botao(page, a.item).click();
+      await expect(a.titulo(page)).toHaveText(a.item);
+
+      const menu = await caixa(menuDoApp(page));
+      for (const [nome, alvo] of [
+        ["cabeçalho", cabecalho(page)],
+        ["painel", a.painel(page)],
+        ["tabela", a.tabela(page)],
+      ] as const) {
+        const medida = await caixa(alvo);
+        expect(medida.width, nome).toBeLessThanOrEqual(1024);
+        const folgaEsquerda = medida.x - (menu.x + menu.width);
+        const folgaDireita = 1535 - (medida.x + medida.width);
+        expect(Math.abs(folgaEsquerda - folgaDireita), nome).toBeLessThanOrEqual(1);
+      }
+    });
+
+    for (const largura of [1536, 1920]) {
+      test(`em ${largura} px, a coluna mede 384 px, com a linha fina à esquerda; o cabeçalho e a tabela medem até 1.100 px, centrados entre o menu e a coluna, sem vão entre os dois com o painel alto (CADCOL-09, ACs 1 e 4)`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width: largura, height: 900 });
+        await a.abrir(page, a.caminho);
+        await a.botao(page, a.item).click();
+        await expect(a.titulo(page)).toHaveText(a.item);
+
+        const daColuna = await caixa(colunaDo(a.painel(page)));
+        expect(Math.abs(daColuna.width - 384)).toBeLessThanOrEqual(1);
+        expect(daColuna.x + daColuna.width).toBeLessThanOrEqual(largura);
+        const linhaFina = await colunaDo(a.painel(page)).evaluate((elemento) => {
+          const estilo = getComputedStyle(elemento);
+          return { largura: estilo.borderLeftWidth, tipo: estilo.borderLeftStyle };
+        });
+        expect(linhaFina).toEqual({ largura: "1px", tipo: "solid" });
+
+        const menu = await caixa(menuDoApp(page));
+        for (const [nome, alvo] of [
+          ["cabeçalho", cabecalho(page)],
+          ["tabela", a.tabela(page)],
+        ] as const) {
+          const medida = await caixa(alvo);
+          expect(medida.width, nome).toBeLessThanOrEqual(1100);
+          const folgaEsquerda = medida.x - (menu.x + menu.width);
+          const folgaDireita = daColuna.x - (medida.x + medida.width);
+          expect(Math.abs(folgaEsquerda - folgaDireita), nome).toBeLessThanOrEqual(1);
+        }
+
+        /* O painel aberto é mais alto que o cabeçalho e a tabela juntos, e
+           não abre vão entre os dois: a tabela vem logo abaixo do cabeçalho,
+           com o respiro de 24 px dele. */
+        const doCabecalho = await caixa(cabecalho(page));
+        const daTabela = await caixa(a.tabela(page));
+        expect((await caixa(a.painel(page))).height).toBeGreaterThan(
+          daTabela.y + daTabela.height - doCabecalho.y,
+        );
+        expect(daTabela.y - (doCabecalho.y + doCabecalho.height)).toBeLessThanOrEqual(25);
+      });
+
+      test(`rolando até o fim em ${largura} × 480, com linhas a mais, o título do painel continua à vista (CADCOL-09, AC 2)`, async ({
+        page,
+      }) => {
+        await a.semearAMais();
+        await page.setViewportSize({ width: largura, height: 480 });
+        await a.abrir(page, a.caminho);
+        await a.botao(page, a.item).click();
+        await expect(a.titulo(page)).toHaveText(a.item);
+
+        await rolarAteOFim(page);
+
+        await expect(a.botao(page, a.ultimo)).toBeInViewport();
+        await expect(a.titulo(page)).toBeInViewport();
+      });
+    }
+  });
+}
+
+/*
+ * Toda linha das duas tabelas, com o nome que mais aperta cada uma (L-030,
+ * L-045): 59 caracteres na categoria e 40 no meio, o limite dele. Ao lado do
+ * painel a tabela tem 864 px em 1.536 px, e o nome longo pode quebrar: o
+ * Edge Case "Nome longo: quebra linha, e só aquela linha fica mais alta". Toda
+ * linha de nome curto mede até 48 px; e toda linha, a longa inclusive, mede só
+ * o botão do nome mais o respiro da célula, então nenhuma cresce por outra
+ * coluna, e o nome longo não faz crescer as outras linhas.
+ */
+for (const largura of [1536, 1920]) {
+  test(`em ${largura} px, com ponteiro fino, toda linha de nome curto das duas tabelas mede até 48 px, e a de nome longo só cresce pelo nome (CADCOL-02, AC 7; CADCOL-06, AC 7; Edge Cases)`, async ({
+    page,
+  }) => {
+    await semearCategoriasAMais();
+    await inserirCategoria(NOME_LONGO, "verde-agua");
+    await semearMeiosAMais();
+    await inserirMeio(MEIO_LONGO, "CARTAO_CREDITO", { fechamento: 28, vencimento: 28 });
+    await page.setViewportSize({ width: largura, height: 900 });
+    expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+
+    for (const [aba, caminho, abrirAba, daTabela, longo, total] of [
+      ["Categorias", CATEGORIAS, abrir, tabela, NOME_LONGO, 15],
+      ["Meios de pagamento", MEIOS, abrirMeios, tabelaDeMeios, MEIO_LONGO, 17],
+    ] as const) {
+      await abrirAba(page, caminho);
+      const linhas = await daTabela(page)
+        .locator("tbody tr")
+        .evaluateAll((trs) =>
+          trs.map((tr) => {
+            const botao = tr.querySelector("button");
+            return {
+              nome: botao?.textContent ?? "",
+              altura: tr.getBoundingClientRect().height,
+              doBotao: botao?.getBoundingClientRect().height ?? 0,
+            };
+          }),
+        );
+      expect(linhas, aba).toHaveLength(total);
+      expect(linhas.map(({ nome }) => nome)).toContain(longo);
+      for (const { nome, altura, doBotao } of linhas) {
+        /* O respiro de 4 px em cima e embaixo e a linha fina de baixo. */
+        expect(altura - doBotao, `${aba}: ${nome}`).toBeLessThanOrEqual(9.5);
+        if (nome !== longo) {
+          expect(altura, `${aba}: ${nome}`).toBeLessThanOrEqual(48);
+        }
+      }
+    }
+  });
+}
+
+/* O formulário de criação mais alto que a janela, a partir de 1.536 px: a
+   coluna fica presa no alto e rola por conta própria (Edge Cases). */
+test("em 1.920 × 480, o formulário de novo meio, mais alto que a janela, rola dentro da coluna, que continua presa no alto", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 480 });
+  await abrirMeios(page, MEIOS);
+  await botaoNovoMeio(page).click();
+  const criar = formularioDeNovoMeio(page).getByRole("button", { name: "Criar meio" });
+  await expect(criar).toBeAttached();
+
+  const rolagem = await painelDoMeio(page).evaluate((aside) => ({
+    altura: aside.clientHeight,
+    conteudo: aside.scrollHeight,
+    estouro: getComputedStyle(aside).overflowY,
+  }));
+  expect(rolagem.altura).toBeLessThanOrEqual(480);
+  expect(rolagem.conteudo).toBeGreaterThan(rolagem.altura);
+  expect(rolagem.estouro).toBe("auto");
+
+  /* O fim do formulário chega rolando a coluna, e não a página. */
+  await criar.scrollIntoViewIfNeeded();
+  await expect(criar).toBeInViewport();
+  await expect(tituloDoPainelDoMeio(page)).toHaveText("Novo meio de pagamento");
+  expect(await painelDoMeio(page).evaluate((aside) => aside.scrollTop)).toBeGreaterThan(0);
+});
+
+/* No toque, em 1.920 px, com o painel aberto nas duas abas: todo alvo com 44
+   × 44, e os formulários de criação abertos pela ação (CADCOL-10, ACs 6 e 7;
+   L-044, L-060). */
+test.describe("com ponteiro grosso, em 1.920 px", () => {
+  test.use({ hasTouch: true, viewport: { width: 1920, height: 1080 } });
+
+  test("o botão de cada linha, Fechar, as abas, as ações, as opções de cor e os botões dos formulários medem ao menos 44 × 44, nas duas abas (CADCOL-10, ACs 6 e 7)", async ({
+    page,
+  }) => {
+    await abrir(page, CATEGORIAS);
+    expect(await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)).toBe(true);
+    for (const botao of await tabela(page).getByRole("button").all()) {
+      await medirAlvo(botao, (await botao.textContent()) ?? "linha");
+    }
+    await botaoDaLinha(page, "Categoria Um").click();
+    await expect(tituloDoPainel(page)).toHaveText("Categoria Um");
+    const opcoes = painel(page)
+      .getByRole("group", { name: "Cor de Categoria Um" })
+      .locator("label");
+    await expect(opcoes).toHaveCount(11);
+    for (const opcao of await opcoes.all()) {
+      await medirAlvo(opcao, (await opcao.textContent()) ?? "opção");
+    }
+    for (const [nome, alvo] of [
+      ["Salvar", painel(page).getByRole("button", { name: "Salvar" })],
+      ["Fechar", painel(page).getByRole("button", { name: "Fechar" })],
+      ["Ver em Lançamentos", painel(page).getByRole("link", { name: "Ver em Lançamentos" })],
+      ["aba Categorias", abas(page).getByRole("link", { name: "Categorias" })],
+      ["aba Meios de pagamento", abas(page).getByRole("link", { name: "Meios de pagamento" })],
+      ["+ Nova categoria", botaoNova(page)],
+    ] as const) {
+      await medirAlvo(alvo, nome);
+    }
+    await botaoNova(page).click();
+    await expect(tituloDoPainel(page)).toHaveText("Nova categoria");
+    for (const nome of ["Criar categoria", "Cancelar"]) {
+      await medirAlvo(painel(page).getByRole("button", { name: nome }), nome);
+    }
+
+    await abrirMeios(page, MEIOS);
+    for (const botao of await tabelaDeMeios(page).getByRole("button").all()) {
+      await medirAlvo(botao, (await botao.textContent()) ?? "linha");
+    }
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    for (const [nome, alvo] of [
+      ["Salvar alterações", painelDoMeio(page).getByRole("button", { name: "Salvar alterações" })],
+      ["Fechar", painelDoMeio(page).getByRole("button", { name: "Fechar" })],
+      ["Ver em Lançamentos", painelDoMeio(page).getByRole("link", { name: "Ver em Lançamentos" })],
+      ["aba Categorias", abas(page).getByRole("link", { name: "Categorias" })],
+      ["aba Meios de pagamento", abas(page).getByRole("link", { name: "Meios de pagamento" })],
+      ["+ Novo meio", botaoNovoMeio(page)],
+    ] as const) {
+      await medirAlvo(alvo, nome);
+    }
+    await botaoNovoMeio(page).click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Novo meio de pagamento");
+    for (const nome of ["Criar meio", "Cancelar"]) {
+      await medirAlvo(painelDoMeio(page).getByRole("button", { name: nome }), nome);
+    }
+  });
+});

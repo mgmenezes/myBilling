@@ -10,8 +10,13 @@ import { type ReactNode, useEffect, useRef } from "react";
  * **Um painel só, que muda de lugar por CSS**, como o de Todo mês e o cartão
  * de filtros de Lançamentos. Abaixo de 1.536 px a tela é uma coluna de até
  * 1.024 px, e o painel vem entre o cabeçalho e a lista, só enquanto algo está
- * aberto (ACs 5 e 6). Sem nada aberto, o bloco vazio, com o título e a dica,
- * fica no DOM e só aparece a partir de 1.536 px (AC 3).
+ * aberto (ACs 5 e 6). A partir de 1.536 px, a grade tem duas colunas: o
+ * cabeçalho e a lista com até 1.100 px, centrados no espaço à esquerda, e uma
+ * coluna de 384 px à direita, da altura da página, com a linha fina (ACs 1 e
+ * 4). O painel fica preso no alto dela e rola por conta própria quando é mais
+ * alto que a janela (AC 2, e o Edge Case do formulário alto). Sem nada aberto,
+ * a coluna mostra o vazio, com o título e a dica (AC 3); abaixo de 1.536 px o
+ * vazio fica no DOM, escondido.
  *
  * **A grade é desta fatia, e não a de Todo mês.** `TodoMes` desenha a mesma
  * forma presa ao estado dele; extrair uma peça comum às três telas é a dívida
@@ -83,12 +88,23 @@ export function ColunaDeCadastro({
   }, [focarTitulo]);
 
   return (
-    <div className="mx-auto grid w-full max-w-conteudo gap-6 px-4 py-8 sm:px-6 sm:py-10">
-      {cabecalho}
+    /* Uma terceira linha, flexível, recebe a altura que a coluna tiver a mais
+       que a lista: sem ela, um painel alto abriria espaço entre o cabeçalho e
+       a lista, como em Todo mês. */
+    <div className="mx-auto grid w-full max-w-conteudo gap-6 px-4 py-8 sm:px-6 sm:py-10 2xl:max-w-none 2xl:grid-cols-[minmax(0,1fr)_24rem] 2xl:grid-rows-[auto_auto_1fr] 2xl:gap-0 2xl:p-0">
+      <div className="2xl:col-start-1 2xl:row-start-1 2xl:mx-auto 2xl:w-full 2xl:max-w-[1100px] 2xl:px-6 2xl:pt-10 2xl:pb-6">
+        {cabecalho}
+      </div>
 
-      <div className={aberto === null ? "hidden 2xl:block" : "min-w-0"}>
+      {/* A coluna, da altura da página, leva a linha fina; o painel dentro
+          dela fica preso no alto. */}
+      <div
+        className={`2xl:col-start-2 2xl:row-span-3 2xl:row-start-1 2xl:border-l 2xl:border-line ${
+          aberto === null ? "hidden 2xl:block" : "min-w-0"
+        }`}
+      >
         {aberto === null ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 2xl:px-6 2xl:py-10">
             <h2 className="text-[22px] leading-[1.2] tracking-[-0.01em]">{vazio.titulo}</h2>
             <p className="text-[15px] text-ink-muted">{vazio.texto}</p>
           </div>
@@ -113,14 +129,17 @@ export function ColunaDeCadastro({
                 tituloDe(painel.current)?.focus({ preventScroll: true });
               }
             }}
-            className="relative flex flex-col gap-5 rounded-xl border border-line bg-surface p-5"
+            /* Abaixo de 1.536 px, um cartão entre o cabeçalho e a lista. Na
+               coluna, o cartão perde a moldura, fica preso no alto e rola por
+               conta própria quando é mais alto que a janela. */
+            className="relative flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto 2xl:rounded-none 2xl:border-0 2xl:bg-transparent 2xl:px-6 2xl:py-10"
           >
             {aberto}
             <button
               type="button"
               aria-label="Fechar"
               onClick={aoFechar}
-              className="absolute top-3 right-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-pill text-ink-muted transition-colors duration-200 hover:bg-surface-strong hover:text-ink"
+              className="absolute top-3 right-3 inline-flex 2xl:top-8 2xl:right-4 min-h-11 min-w-11 items-center justify-center rounded-pill text-ink-muted transition-colors duration-200 hover:bg-surface-strong hover:text-ink"
             >
               <XIcon size={20} aria-hidden="true" />
             </button>
@@ -128,7 +147,9 @@ export function ColunaDeCadastro({
         )}
       </div>
 
-      <div className="min-w-0">{lista}</div>
+      <div className="min-w-0 2xl:col-start-1 2xl:row-start-2 2xl:mx-auto 2xl:w-full 2xl:max-w-[1100px] 2xl:px-6 2xl:pb-10">
+        {lista}
+      </div>
     </div>
   );
 }

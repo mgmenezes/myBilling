@@ -351,7 +351,11 @@ a grade de 1.536 px:
     com uns 860 px;
   - em 1.920 px, a tabela bate nos 1.100 px.
 
-  A T21 mede e registra o desvio, se houver, como a T4 de Lançamentos e a T9 de Todo mês.
+  A T21 mede e registra o desvio, se houver, como a T4 de Lançamentos e a T9 de Todo mês. Medido
+  na T21, sem desvio: em 1.536 px o cabeçalho e a tabela têm 864 px, e em 1.920 px, 1.052 px, com
+  24 px de respiro de cada lado; a coluna, 384 px com a linha fina de 1 px. A grade ganhou uma
+  terceira linha flexível, como Todo mês, para o painel alto não abrir vão entre o cabeçalho e a
+  tabela (Nota da T21).
 - **Um id só por coisa:** um painel por aba, `#painel-da-categoria` ou `#painel-do-meio`, com
   `aria-label` "Painel da categoria" ou "Painel do meio de pagamento". As consultas dos testes se
   prendem ao papel `complementary` com esse nome (o outro `aside` da página é o "Menu do myBilling").
