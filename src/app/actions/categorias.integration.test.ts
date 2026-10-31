@@ -140,7 +140,7 @@ beforeEach(async () => {
 });
 
 describe("sessão antes de tudo", () => {
-  it.each(["trocarCorDaCategoria", "renomearCategoria"])(
+  it.each(["criarCategoria", "trocarCorDaCategoria", "renomearCategoria"])(
     "`requireSession` é a primeira instrução de %s",
     (nome) => {
       expect(primeiraInstrucao(nome)).toContain("requireSession()");
@@ -183,6 +183,49 @@ describe("criarCategoria, o cadastro inline (COR-01, AC 5)", () => {
       nome: "Categoria Nova",
       cor: null,
     });
+  });
+});
+
+/* A categoria criada pelo painel de Cadastros precisa chegar à tabela na mesma
+   resposta, e o painel abre nela: criar revalida as quatro telas, como trocar a
+   cor e renomear, nos três caminhos da criação. */
+describe("criarCategoria revalida as telas da categoria (CADCOL-05, ACs 2 a 4)", () => {
+  it("criar uma nova revalida as quatro telas", async () => {
+    const resultado = await criarCategoria({ nome: "Categoria Nova" });
+
+    expect(resultado.ok && resultado.data.jaExistia).toBe(false);
+    expect([...revalidatePath.mock.calls].sort()).toEqual(ROTAS_REVALIDADAS);
+  });
+
+  it("reaproveitar uma ativa revalida as quatro telas", async () => {
+    const resultado = await criarCategoria({ nome: "categoria um" });
+
+    expect(resultado).toEqual({
+      ok: true,
+      data: { id: base.categoriaId, nome: "Categoria Um", jaExistia: true, reativada: false },
+    });
+    expect([...revalidatePath.mock.calls].sort()).toEqual(ROTAS_REVALIDADAS);
+  });
+
+  it("reativar uma arquivada revalida as quatro telas", async () => {
+    const resultado = await criarCategoria({ nome: "Categoria Arquivada" });
+
+    expect(resultado).toEqual({
+      ok: true,
+      data: { id: arquivada, nome: "Categoria Arquivada", jaExistia: true, reativada: true },
+    });
+    expect([...revalidatePath.mock.calls].sort()).toEqual(ROTAS_REVALIDADAS);
+  });
+
+  it("nome vazio é recusado sem criar nem revalidar", async () => {
+    const antes = await categorias();
+
+    const erro = recusa(await criarCategoria({ nome: "  " }));
+
+    expect(erro.code).toBe("VALIDACAO");
+    expect(erro.campos).toEqual({ nome: "Informe o nome da categoria." });
+    expect(await categorias()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
   });
 });
 

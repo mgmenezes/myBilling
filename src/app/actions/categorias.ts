@@ -101,12 +101,13 @@ export async function criarCategoria(payload: unknown): Promise<ResultadoAction<
 }
 
 /**
- * A lista de categorias é renderizada no servidor e alimenta tanto o seletor
- * do formulário quanto o filtro da lista. Sem revalidar, a categoria nova só
- * apareceria depois de um recarregamento manual.
+ * A lista de categorias é renderizada no servidor e alimenta o seletor do
+ * formulário, o filtro da lista e a tabela de Cadastros. Sem revalidar, a
+ * categoria nova só apareceria depois de um recarregamento manual, e o painel
+ * de Cadastros abriria num id que a tabela ainda não tem (CADCOL-05, AC 2).
  */
 function sucesso(data: CategoriaGravada): ResultadoAction<CategoriaGravada> {
-  revalidatePath("/[competencia]/lancamentos", "page");
+  revalidarTelasDaCategoria();
   return { ok: true, data };
 }
 
@@ -224,7 +225,7 @@ export async function renomearCategoria(
 }
 
 /**
- * A cor e o nome da categoria aparecem em "Todo mês", em Lançamentos, na
+ * A categoria, com a cor e o nome, aparece em "Todo mês", em Lançamentos, na
  * Visão geral e na própria tela de Categorias, e em todo mês. Por padrão de
  * rota, e não pelo mês aberto: a categoria não tem competência (COR-04, AC 9).
  */

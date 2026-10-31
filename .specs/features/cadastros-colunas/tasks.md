@@ -4,7 +4,7 @@
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
 worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 a
-T6 concluídas, com o e2e da T6 pendente)
+T7 concluídas, com o e2e da T6 pendente)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -313,7 +313,7 @@ nome entre os ativos e grava.
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
-**Commit**: `feat(meios): action de editar meio e revalidação do layout`
+**Commit**: `feat(meios): action de editar meio e revalidação do layout` (`bd90d4b`)
 **Nota**: o item do Playwright fica aberto. O lote 1 roda sem e2e, por decisão do orquestrador: a
 porta 3100 é de outro agente. `importacao.spec.ts` e `compra-parcelada.spec.ts` rodam no gate e2e
 do lote 2, depois do rebase, antes de a T8 mexer em `cadastro-de-meio-inline.tsx`.
@@ -326,10 +326,10 @@ tela de Cadastros.
 **Reuses**: `revalidarTelasDaCategoria`
 **Requirement**: CADCOL-05
 **Done when**:
-- [ ] Criar, reaproveitar uma ativa e reativar uma arquivada revalidam as quatro rotas de `ROTAS_REVALIDADAS`: uma assertion para cada caminho (CADCOL-05 ACs 2 a 4)
-- [ ] Nome vazio é recusado sem revalidar
-- [ ] O `it.each` de `requireSession` primeiro inclui `criarCategoria`
-- [ ] Gate full passa; a contagem de testes só cresce
+- [x] Criar, reaproveitar uma ativa e reativar uma arquivada revalidam as quatro rotas de `ROTAS_REVALIDADAS`: uma assertion para cada caminho (CADCOL-05 ACs 2 a 4)
+- [x] Nome vazio é recusado sem revalidar
+- [x] O `it.each` de `requireSession` primeiro inclui `criarCategoria`
+- [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(categorias): criar categoria revalida a tela de Cadastros`
