@@ -1,11 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { entradaMeioPagamentoSchema } from "@/application/schemas/meio-pagamento.schema";
+import {
+  type CodigoErroEdicaoDeMeio,
+  editarMeioDePagamento as editarUso,
+} from "@/application/cadastros/editar-meio-de-pagamento/handler";
+import {
+  entradaEdicaoDoMeioSchema,
+  entradaMeioPagamentoSchema,
+} from "@/application/schemas/meio-pagamento.schema";
 import { ErroDeSessao, requireSession } from "@/infrastructure/auth/sessao";
 import { db } from "@/infrastructure/db/client";
 import { CadastroRepositoryDrizzle } from "@/infrastructure/db/repositories/cadastro.repository";
-import { erroDeAction, mensagemDoErro, type ResultadoAction } from "@/lib/erros";
+import {
+  erroDeAction,
+  MENSAGEM_MEIO_INEXISTENTE,
+  mensagemDoErro,
+  type ResultadoAction,
+} from "@/lib/erros";
 
 /**
  * Server Action de meios de pagamento.
@@ -83,19 +95,103 @@ export async function criarMeioDePagamento(
         : { nome: dados.nome, tipo: dados.tipo, arquivadoEm: null },
     );
 
-    revalidatePath("/[competencia]/lancamentos", "page");
+    revalidarTelasDoMeio();
     return {
       ok: true,
       data: { id: criado.id, nome: criado.nome, geraFatura: criado.tipo === "CARTAO_CREDITO" },
     };
   } catch (erro) {
-    const correlationId = crypto.randomUUID();
-    console.error(`[${correlationId}] falha ao criar meio de pagamento`, erro);
-    return erroDeAction(
-      "ERRO_INESPERADO",
-      `${mensagemDoErro("ERRO_INESPERADO")} (ref. ${correlationId})`,
-    );
+    return falhaInesperada("criar meio de pagamento", erro);
   }
+}
+
+export interface MeioPagamentoEditado {
+  readonly id: string;
+  readonly nome: string;
+  /** `false` quando nada mudou: nada foi gravado, e não há o que avisar. */
+  readonly alterado: boolean;
+}
+
+/**
+ * Renomeia o meio e corrige os dias do cartão, pela tela de Cadastros
+ * (CADCOL-07). As regras são do caso de uso: o meio arquivado é inexistente, o
+ * ciclo acompanha o tipo, o nome é único entre os ativos e nada mudou não grava.
+ * Aqui ficam a borda e a mensagem de cada recusa.
+ *
+ * Revalida só quando algo foi gravado: sem mudança, nenhuma tela tem o que
+ * atualizar (CADCOL-07, AC 9).
+ */
+export async function editarMeioDePagamento(
+  payload: unknown,
+): Promise<ResultadoAction<MeioPagamentoEditado>> {
+  const sessao = await requireSession().catch(apenasErroDeSessao);
+  if (sessao instanceof ErroDeSessao) {
+    return erroDeAction(sessao.codigo);
+  }
+
+  const validado = entradaEdicaoDoMeioSchema.safeParse(payload);
+  if (!validado.success) {
+    return erroDeValidacao(validado.error.issues);
+  }
+
+  try {
+    const resultado = await editarUso(
+      { meios: new CadastroRepositoryDrizzle(db()) },
+      validado.data,
+    );
+    if (!resultado.ok) {
+      return recusaDaEdicao(resultado.error.code);
+    }
+
+    const { meio, alterado } = resultado.value;
+    if (alterado) {
+      revalidarTelasDoMeio();
+    }
+    return { ok: true, data: { id: meio.id, nome: meio.nome, alterado } };
+  } catch (erro) {
+    return falhaInesperada("editar meio de pagamento", erro);
+  }
+}
+
+/**
+ * O meio aparece no diálogo de importação, que mora no layout de `(app)`, e na
+ * Visão geral, em Lançamentos, em Todo mês e em Cadastros, em todo mês. Só o
+ * layout raiz alcança o layout de `(app)`: o tipo `"layout"` invalida o layout,
+ * os aninhados e todas as páginas debaixo dele (CADCOL-07, AC 14).
+ */
+function revalidarTelasDoMeio(): void {
+  revalidatePath("/", "layout");
+}
+
+function recusaDaEdicao(code: CodigoErroEdicaoDeMeio): ResultadoAction<never> {
+  if (code === "MEIO_PAGAMENTO_NAO_ENCONTRADO") {
+    return erroDeAction(code, MENSAGEM_MEIO_INEXISTENTE);
+  }
+  return erroDeAction(code);
+}
+
+/** Cada campo recusado com a primeira mensagem dele, para o painel mostrar onde. */
+function erroDeValidacao(
+  issues: ReadonlyArray<{ path: PropertyKey[]; message: string }>,
+): ResultadoAction<never> {
+  const campos: Record<string, string> = {};
+  for (const issue of issues) {
+    campos[issue.path.join(".")] ??= issue.message;
+  }
+  return {
+    ok: false,
+    erro: { code: "VALIDACAO", mensagem: mensagemDoErro("VALIDACAO"), campos },
+  };
+}
+
+/** O detalhe fica no log do servidor; o navegador recebe só a referência (UI-02, AC 8). */
+function falhaInesperada(operacao: string, erro: unknown): ResultadoAction<never> {
+  const correlationId = crypto.randomUUID();
+  console.error(`[${correlationId}] falha ao ${operacao}`, erro);
+  return erroDeAction(
+    "ERRO_INESPERADO",
+    `${mensagemDoErro("ERRO_INESPERADO")} (ref. ${correlationId})`,
+  );
 }
 
 function apenasErroDeSessao(erro: unknown): ErroDeSessao {

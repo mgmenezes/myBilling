@@ -4,7 +4,7 @@
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
 worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 a
-T5 concluídas)
+T6 concluídas, com o e2e da T6 pendente)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -288,7 +288,7 @@ nome entre os ativos e grava.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(cadastros): editar nome e dias de um meio de pagamento`
+**Commit**: `feat(cadastros): editar nome e dias de um meio de pagamento` (`d118aac`)
 
 #### T6: As actions de meio: editar e a revalidação de criar
 **What**: o schema da edição, a action `editarMeioDePagamento`, as mensagens e
@@ -302,18 +302,21 @@ nome entre os ativos e grava.
 **Reuses**: `criarNomeSchema`, `diaDoCiclo`, o envelope e o `falhaInesperada` de `categorias.ts`
 **Requirement**: CADCOL-07, CADCOL-08
 **Done when**:
-- [ ] `entradaEdicaoDoMeioSchema`: estrito; recusa id que não é uuid e chave a mais; normaliza o nome; recusa nome vazio e com 41 caracteres e aceita 40; recusa dia 0 e 32 e aceita 1 e 31, com as mensagens da criação; aceita `ciclo: null` (CADCOL-07 AC 10, L-029)
-- [ ] `requireSession()` é a primeira instrução de `editarMeioDePagamento` e de `criarMeioDePagamento`; sem sessão, as duas devolvem `NAO_AUTENTICADO` sem tocar no banco nem revalidar
-- [ ] Contra o Postgres: o nome e os dias gravados, lidos de volta; `revalidatePath("/", "layout")` chamado uma vez (CADCOL-07 ACs 5 e 14)
-- [ ] Nada mudou: nada gravado e nenhuma revalidação (CADCOL-07 AC 9)
-- [ ] Cada recusa com a mensagem e o campo: "Já existe outro meio de pagamento com esse nome." em `nome`; "Esse meio de pagamento não existe mais."; a mensagem do ciclo; `VALIDACAO` com o campo de cada dia; nada gravado e nada revalidado em nenhuma delas (CADCOL-07 ACs 6, 10, 11 e 12)
-- [ ] Falha do banco vira `ERRO_INESPERADO` com referência, sem gravar nem revalidar
-- [ ] `criarMeioDePagamento` revalida `("/", "layout")`, recusa o nome de um ativo em qualquer caixa com "Já existe um meio de pagamento com esse nome." e cria com o nome de um arquivado (CADCOL-08 ACs 4 e 5)
+- [x] `entradaEdicaoDoMeioSchema`: estrito; recusa id que não é uuid e chave a mais; normaliza o nome; recusa nome vazio e com 41 caracteres e aceita 40; recusa dia 0 e 32 e aceita 1 e 31, com as mensagens da criação; aceita `ciclo: null` (CADCOL-07 AC 10, L-029)
+- [x] `requireSession()` é a primeira instrução de `editarMeioDePagamento` e de `criarMeioDePagamento`; sem sessão, as duas devolvem `NAO_AUTENTICADO` sem tocar no banco nem revalidar
+- [x] Contra o Postgres: o nome e os dias gravados, lidos de volta; `revalidatePath("/", "layout")` chamado uma vez (CADCOL-07 ACs 5 e 14)
+- [x] Nada mudou: nada gravado e nenhuma revalidação (CADCOL-07 AC 9)
+- [x] Cada recusa com a mensagem e o campo: "Já existe outro meio de pagamento com esse nome." em `nome`; "Esse meio de pagamento não existe mais."; a mensagem do ciclo; `VALIDACAO` com o campo de cada dia; nada gravado e nada revalidado em nenhuma delas (CADCOL-07 ACs 6, 10, 11 e 12)
+- [x] Falha do banco vira `ERRO_INESPERADO` com referência, sem gravar nem revalidar
+- [x] `criarMeioDePagamento` revalida `("/", "layout")`, recusa o nome de um ativo em qualquer caixa com "Já existe um meio de pagamento com esse nome." e cria com o nome de um arquivado (CADCOL-08 ACs 4 e 5)
 - [ ] `pnpm exec playwright test e2e/importacao.spec.ts e2e/compra-parcelada.spec.ts` passa sem mudança: o meio criado dentro do diálogo e do formulário continua selecionado
-- [ ] Gate full passa; a contagem de testes só cresce
+- [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(meios): action de editar meio e revalidação do layout`
+**Nota**: o item do Playwright fica aberto. O lote 1 roda sem e2e, por decisão do orquestrador: a
+porta 3100 é de outro agente. `importacao.spec.ts` e `compra-parcelada.spec.ts` rodam no gate e2e
+do lote 2, depois do rebase, antes de a T8 mexer em `cadastro-de-meio-inline.tsx`.
 
 #### T7: `criarCategoria` revalida as telas da categoria
 **What**: o sucesso de `criarCategoria` passa a chamar `revalidarTelasDaCategoria()`, que inclui a

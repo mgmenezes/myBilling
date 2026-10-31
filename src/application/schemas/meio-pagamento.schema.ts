@@ -46,6 +46,30 @@ export const entradaMeioPagamentoSchema = z.discriminatedUnion("tipo", [
 
 export type EntradaMeioPagamentoValidada = z.infer<typeof entradaMeioPagamentoSchema>;
 
+/**
+ * A edição do meio na tela de Cadastros (CADCOL-07, AC 10), também
+ * compartilhada com o navegador. O nome e os dias são os da criação, com as
+ * mesmas mensagens. O tipo não vem: ele não muda (AC 4), e o servidor o lê do
+ * banco. `ciclo` é `null` na conta e no rótulo, e **ausente é payload
+ * inválido**: quem confere se os dias correspondem ao tipo é o domínio
+ * (`mudancasDoMeio`), e ele precisa saber se vieram dias.
+ *
+ * Estrito, como a renomeação de categoria: um campo a mais que o servidor
+ * ignorasse calado daria a impressão de ter mudado outra coisa.
+ */
+export const entradaEdicaoDoMeioSchema = z.strictObject({
+  meioPagamentoId: z.uuid("Meio de pagamento inválido."),
+  nome,
+  ciclo: z
+    .strictObject({
+      diaFechamento: diaDoCiclo("fechamento"),
+      diaVencimento: diaDoCiclo("vencimento"),
+    })
+    .nullable(),
+});
+
+export type EntradaEdicaoDoMeioValidada = z.infer<typeof entradaEdicaoDoMeioSchema>;
+
 /** Os rótulos em pt-BR dos tipos, na ordem em que o formulário os oferece. */
 export const TIPOS_DE_MEIO = [
   { valor: "CARTAO_CREDITO", rotulo: "Cartão de crédito" },

@@ -1,3 +1,4 @@
+import type { CodigoErroEdicaoDeMeio } from "@/application/cadastros/editar-meio-de-pagamento/handler";
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
 import type { CodigoErroImportacao } from "@/application/importacao/prever-importacao/handler";
 import type { CodigoErroCancelamento } from "@/application/mes/cancelar-lancamento/handler";
@@ -30,8 +31,9 @@ export type CodigoErroDeBorda =
   | "ERRO_INESPERADO";
 
 /**
- * Códigos dos cadastros, que não passam por caso de uso: a action da tela de
- * Categorias decide sozinha que um nome já está ocupado.
+ * Códigos da tela de Categorias, que não passa por caso de uso: a action decide
+ * sozinha que um nome já está ocupado. A edição do meio passa pelo caso de uso
+ * dela, e os códigos vêm de `CodigoErroEdicaoDeMeio`.
  */
 export type CodigoErroCadastro = "CATEGORIA_JA_EXISTE";
 
@@ -47,6 +49,7 @@ export type CodigoErroExibivel =
   | CodigoErroTrocaDeCategoria
   | CodigoErroImportacao
   | CodigoErroCadastro
+  | CodigoErroEdicaoDeMeio
   | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
@@ -80,6 +83,9 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   CATEGORIA_NAO_ENCONTRADA: "Escolha uma categoria válida.",
   /* Também quando a outra está arquivada: o nome dela continua ocupado. */
   CATEGORIA_JA_EXISTE: "Já existe outra categoria com esse nome.",
+  /* "Outro": quem vê esta recusa está renomeando um meio que já existe. A
+     criação diz "um meio" e não passa por este código. */
+  MEIO_PAGAMENTO_JA_EXISTE: "Já existe outro meio de pagamento com esse nome.",
   // SPEC_DEVIATION: a mensagem entrou com o código, em T1, e não em T5.
   // Reason: todo `CodigoErro` do domínio é exibível, e o código sem mensagem não compila.
   CATEGORIA_EM_RECEITA: "Entrada não tem categoria.",
@@ -119,6 +125,14 @@ export const MENSAGEM_VIGENCIA_ANTES_DO_INICIO =
 export const MENSAGEM_CATEGORIA_INEXISTENTE = "Essa categoria não existe mais.";
 
 /**
+ * Na tela de Cadastros, `MEIO_PAGAMENTO_NAO_ENCONTRADO` nasce de um id que não
+ * está mais entre os ativos, e não de uma escolha num seletor. "Escolha um meio
+ * de pagamento válido" não faria sentido num painel sem seletor (CADCOL-07,
+ * AC 12).
+ */
+export const MENSAGEM_MEIO_INEXISTENTE = "Esse meio de pagamento não existe mais.";
+
+/**
  * Em qual campo do formulário cada erro aparece. O que não está aqui é erro
  * do formulário inteiro, não de um campo (design: "formulário preservado").
  */
@@ -131,6 +145,7 @@ const CAMPO_DO_ERRO: Partial<Record<CodigoErroExibivel, string>> = {
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "meioPagamentoId",
   CATEGORIA_NAO_ENCONTRADA: "categoriaId",
   CATEGORIA_JA_EXISTE: "nome",
+  MEIO_PAGAMENTO_JA_EXISTE: "nome",
   COMPETENCIA_INVALIDA: "competenciaInicial",
   PERIODO_INVALIDO: "competenciaFim",
 };
