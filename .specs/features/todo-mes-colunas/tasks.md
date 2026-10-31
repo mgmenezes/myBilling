@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T5 concluídas; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T6 concluídas; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
 duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -238,7 +238,7 @@ cartão, com o mesmo comportamento e um `h3`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão`
+**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`46a2f21`)
 **Nota**: a prop `descricao` do design saiu de `CicloDoFixo`. Ela servia à `legend` invisível ("Mudar o valor de <descrição>"); o título à vista é "Mudar o valor" ou "Encerrar", e a descrição já é o título do painel. Nenhum AC muda.
 
 #### T6: `PainelDoFixo`, os modos do painel
@@ -249,20 +249,21 @@ fixo fora da lista), com "Fechar", `Escape`, "Voltar" e o foco no título.
 **Reuses**: `DetalheDoFixo`, `CicloDoFixo`, `FormRecorrencia`
 **Requirement**: FIXCOL-04, FIXCOL-05, FIXCOL-06, FIXCOL-07, FIXCOL-08
 **Done when**:
-- [ ] Nada aberto: "Nenhum fixo aberto" e a dica da spec (FIXCOL-07 AC 3, o texto)
-- [ ] Cadastro: o formulário sob "Novo gasto fixo ou entrada"; cadastrar mantém o formulário com a confirmação e os campos limpos (FIXCOL-06 ACs 2 e 3)
-- [ ] Fixo: a descrição no título e "Saída fixa · vence dia 10" ou "Entrada fixa · cai dia 5" (FIXCOL-04 AC 1)
-- [ ] "Mudar valor" e "Encerrar" do detalhe abrem `CicloDoFixo` no modo certo (FIXCOL-05 ACs 1 e 3)
-- [ ] Registrar um valor volta ao detalhe; "Cancelar" em "Mudar o valor" e em "Encerrar" também volta, uma assertion para cada (FIXCOL-05 ACs 2 e 6)
-- [ ] "Editar" mostra a região "Editar gasto fixo" ou "Editar entrada" com o formulário preenchido e o mesmo payload de hoje; salvar mostra "Alterações salvas." ou "Nada mudou: já estava tudo assim." e o formulário fica; "Voltar" mostra o detalhe com o gravado (FIXCOL-05 ACs 4 a 6); equivalentes de 392 (dois casos), 410, 435 e 451
-- [ ] Trocar de fixo com "Mudar valor" aberto volta ao detalhe do novo, sem o que foi digitado (FIXCOL-04 AC 9); equivalente de 326
-- [ ] Fixo fora da lista: "Fixo B não aparece mais em Março de 2026." com "Fechar" (FIXCOL-05 AC 8)
-- [ ] "Fechar" chama `aoFechar`; `Escape` com o foco num campo do painel também (FIXCOL-04 AC 8, FIXCOL-08 AC 3)
-- [ ] Mudar `focarTitulo` leva o foco ao título; montar o painel não leva (FIXCOL-08 AC 2)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Nada aberto: "Nenhum fixo aberto" e a dica da spec (FIXCOL-07 AC 3, o texto)
+- [x] Cadastro: o formulário sob "Novo gasto fixo ou entrada"; cadastrar mantém o formulário com a confirmação e os campos limpos (FIXCOL-06 ACs 2 e 3)
+- [x] Fixo: a descrição no título e "Saída fixa · vence dia 10" ou "Entrada fixa · cai dia 5" (FIXCOL-04 AC 1)
+- [x] "Mudar valor" e "Encerrar" do detalhe abrem `CicloDoFixo` no modo certo (FIXCOL-05 ACs 1 e 3)
+- [x] Registrar um valor volta ao detalhe; "Cancelar" em "Mudar o valor" e em "Encerrar" também volta, uma assertion para cada (FIXCOL-05 ACs 2 e 6)
+- [x] "Editar" mostra a região "Editar gasto fixo" ou "Editar entrada" com o formulário preenchido e o mesmo payload de hoje; salvar mostra "Alterações salvas." ou "Nada mudou: já estava tudo assim." e o formulário fica; "Voltar" mostra o detalhe com o gravado (FIXCOL-05 ACs 4 a 6); equivalentes de 392 (dois casos), 410, 435 e 451
+- [x] Trocar de fixo com "Mudar valor" aberto volta ao detalhe do novo, sem o que foi digitado (FIXCOL-04 AC 9); equivalente de 326
+- [x] Fixo fora da lista: "Fixo B não aparece mais em Março de 2026." com "Fechar" (FIXCOL-05 AC 8)
+- [x] "Fechar" chama `aoFechar`; `Escape` com o foco num campo do painel também (FIXCOL-04 AC 8, FIXCOL-08 AC 3)
+- [x] Mudar `focarTitulo` leva o foco ao título; montar o painel não leva (FIXCOL-08 AC 2)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo`
+**Nota**: "montar o painel não leva o foco" vale para a montagem com `focarTitulo` 0, que é a carga da página com `?fixo=`. Abaixo de 1.536 px o painel só existe com algo aberto (T7), então ele nasce no mesmo render em que a pessoa abre e o número muda: a montagem com um número diferente de 0 também leva o foco, e há teste para os dois casos. O subtítulo "Saída fixa · vence dia N" fica no cabeçalho em todo modo de um fixo da lista, e não só no detalhe.
 
 #### T7: `TodoMes`, o estado da tela e o endereço
 **What**: o componente cliente da tela: cabeçalho com "+ Novo fixo", totais, painel e tabela, o
