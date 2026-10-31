@@ -1004,7 +1004,7 @@ A regra é a da F1.
   `tabela-de-categorias.tsx`) e E18 (o mesmo em `tabela-de-meios.tsx`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): a linha do celular medida em 767 px`
+**Commit**: `test(cadastros): a linha do celular medida em 767 px` (`5894141`)
 **Nota**:
 - **A medida** reaproveita `nomeSozinhoEmCima` e `linhasDeTexto` da F1, em `:784-787` (Categoria
   Dois e Categoria Um) e `:1481-1484` (os quatro meios). Em 767 px o resto cabe numa linha, no
@@ -1025,16 +1025,24 @@ são medidos só em 400 px e com toque em 1.920 px.
 **Reuses**: as medidas de alvo de `:744` e do teste de toque da T21
 **Requirement**: CADCOL-10
 **Done when**:
-- [ ] Com ponteiro fino, em 768 e em 1.536 px, nas duas abas, cada um destes alvos mede ao menos
+- [x] Com ponteiro fino, em 768 e em 1.536 px, nas duas abas, cada um destes alvos mede ao menos
   44 × 44, conferido com o painel aberto e com os dois formulários de criação abertos pela ação
   (L-060):
   - as abas, "+ Nova categoria", "+ Novo meio" e "Fechar";
   - "Salvar", "Salvar alterações", "Criar categoria", "Criar meio" e "Cancelar";
   - "Ver em Lançamentos" e as onze opções de cor.
-- [ ] O teste falha com E19 (`md:pointer-fine:min-h-9 md:pointer-fine:min-w-9` no "Fechar")
+- [x] O teste falha com E19 (`md:pointer-fine:min-h-9 md:pointer-fine:min-w-9` no "Fechar")
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): os alvos de 44 px também com ponteiro fino`
+**Nota**:
+- **O teste** é um laço de duas larguras, no fim do arquivo (`:1940`), e confere que o ponteiro é
+  fino. "Fechar" é medido três vezes em cada aba: com o item aberto e com o formulário de criação.
+- **O mutante.** Na HEAD, os dois casos passam. Com E19 (`coluna-de-cadastro.tsx:142`), os dois
+  falham em "Fechar": largura 36, e não ao menos 44. O modo serial para o laço no primeiro que cai,
+  então o de 1.536 px foi rodado sozinho com o mutante.
+- **Gate:** 2.087 unitários, `typecheck` e `lint` 0, e os 56 testes de `cadastros-colunas.spec.ts`
+  (54 e os 2 novos). O teste novo fica no fim do arquivo, e nenhuma citação da traceability mudou.
 
 #### F4: Nenhuma largura rola de lado
 **What**: o Fix Plan 4 (G4), com a escolha do dono em 2026-10-31: "Nunca rolar de lado".

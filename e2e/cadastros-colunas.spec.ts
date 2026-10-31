@@ -1928,3 +1928,64 @@ test.describe("com ponteiro grosso, em 1.920 px", () => {
     }
   });
 });
+
+/*
+ * Com ponteiro fino a partir de 768 px, só o botão da linha baixa para 36 px:
+ * todo outro alvo continua com 44 × 44, em qualquer largura e ponteiro
+ * (CADCOL-10, AC 7; L-064). Medido colado no limiar, em 768 px, e na coluna
+ * de 1.536 px, com o painel aberto e com os dois formulários de criação
+ * abertos pela ação (L-060).
+ */
+for (const largura of [768, 1536]) {
+  test(`em ${largura} px, com ponteiro fino, as abas, as ações, Fechar, os botões dos formulários, Ver em Lançamentos e as opções de cor medem ao menos 44 × 44, nas duas abas (CADCOL-10, AC 7)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 900 });
+    await abrir(page, CATEGORIAS);
+    expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+
+    await botaoDaLinha(page, "Categoria Um").click();
+    await expect(tituloDoPainel(page)).toHaveText("Categoria Um");
+    const opcoes = painel(page)
+      .getByRole("group", { name: "Cor de Categoria Um" })
+      .locator("label");
+    await expect(opcoes).toHaveCount(11);
+    for (const opcao of await opcoes.all()) {
+      await medirAlvo(opcao, (await opcao.textContent()) ?? "opção");
+    }
+    for (const [nome, alvo] of [
+      ["aba Categorias", abas(page).getByRole("link", { name: "Categorias" })],
+      ["aba Meios de pagamento", abas(page).getByRole("link", { name: "Meios de pagamento" })],
+      ["+ Nova categoria", botaoNova(page)],
+      ["Fechar", painel(page).getByRole("button", { name: "Fechar" })],
+      ["Salvar", painel(page).getByRole("button", { name: "Salvar" })],
+      ["Ver em Lançamentos", painel(page).getByRole("link", { name: "Ver em Lançamentos" })],
+    ] as const) {
+      await medirAlvo(alvo, nome);
+    }
+    await botaoNova(page).click();
+    await expect(tituloDoPainel(page)).toHaveText("Nova categoria");
+    for (const nome of ["Criar categoria", "Cancelar", "Fechar"]) {
+      await medirAlvo(painel(page).getByRole("button", { name: nome }), `${nome} da nova`);
+    }
+
+    await abrirMeios(page, MEIOS);
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    for (const [nome, alvo] of [
+      ["aba Categorias", abas(page).getByRole("link", { name: "Categorias" })],
+      ["aba Meios de pagamento", abas(page).getByRole("link", { name: "Meios de pagamento" })],
+      ["+ Novo meio", botaoNovoMeio(page)],
+      ["Fechar", painelDoMeio(page).getByRole("button", { name: "Fechar" })],
+      ["Salvar alterações", painelDoMeio(page).getByRole("button", { name: "Salvar alterações" })],
+      ["Ver em Lançamentos", painelDoMeio(page).getByRole("link", { name: "Ver em Lançamentos" })],
+    ] as const) {
+      await medirAlvo(alvo, `${nome} na aba de meios`);
+    }
+    await botaoNovoMeio(page).click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Novo meio de pagamento");
+    for (const nome of ["Criar meio", "Cancelar", "Fechar"]) {
+      await medirAlvo(painelDoMeio(page).getByRole("button", { name: nome }), `${nome} do novo`);
+    }
+  });
+}
