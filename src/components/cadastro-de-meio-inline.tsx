@@ -44,6 +44,11 @@ export interface CadastroDeMeioInlineProps {
   readonly ajuda?: string;
   /** Os tipos que o seletor oferece, todos quando não informado. Abre no primeiro. */
   readonly tiposPermitidos?: ReadonlyArray<TipoDeMeio>;
+  /** Os dois dias do cartão ficam lado a lado pela largura do contêiner
+   *  (`@md`, 448 px), e não pela da janela. Só vale dentro de um `@container`,
+   *  como o dos formulários de lançamento; a importação, que não tem um, segue
+   *  a janela (`sm`), como sempre foi (FPC-01). */
+  readonly diasPelaLargura?: boolean;
   readonly criarMeioDePagamento: typeof criarMeioAction;
   /** `detalhe` é o `descreverMeio` do que foi cadastrado. */
   readonly aoCriado: (criado: MeioPagamentoGravado, detalhe: string) => void;
@@ -73,6 +78,7 @@ export function CadastroDeMeioInline({
   rotuloDoAtalho = "+ novo",
   ajuda,
   tiposPermitidos = TODOS_OS_TIPOS,
+  diasPelaLargura = false,
   criarMeioDePagamento,
   aoCriado,
   children,
@@ -162,7 +168,9 @@ export function CadastroDeMeioInline({
             </select>
           </div>
           {tipoMeio === "CARTAO_CREDITO" ? (
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div
+              className={`flex flex-col gap-2 ${diasPelaLargura ? "@md:flex-row" : "sm:flex-row"}`}
+            >
               <div className="flex w-full flex-col gap-1">
                 <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-fechamento`}>
                   Dia de fechamento

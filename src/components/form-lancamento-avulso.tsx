@@ -311,6 +311,7 @@ export function FormLancamentoAvulso({
 
       <div className="flex flex-col gap-4 @md:flex-row">
         <CadastroDeMeioInline
+          diasPelaLargura
           rotulo={rotuloDoMeio}
           idDoControle={`${id}-meio`}
           criarMeioDePagamento={criarMeioDePagamento}

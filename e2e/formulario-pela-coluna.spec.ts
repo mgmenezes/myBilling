@@ -253,6 +253,45 @@ test("com o cadastro de categoria aberto no Parcelado, o par continua empilhado 
   await rotulosEmUmaLinha(form, PARES_PARCELADO);
 });
 
+/*
+ * Os dois dias do cartão novo (FPC-01, AC 2 do Parcelado e edge case do
+ * cartão novo): o Avulso os monta pelo `CadastroDeMeioInline`, que a
+ * importação também usa, e o Parcelado pelo próprio formulário. Os dois
+ * seguem o limiar do formulário.
+ */
+const DIAS_DO_CARTAO: Par = ["Dia de fechamento", "Dia de vencimento"];
+
+async function abrirCartaoNovo(form: Locator): Promise<void> {
+  await form.getByRole("button", { name: "+ novo", exact: true }).click();
+  const grupo = form.getByRole("group", { name: "Novo meio de pagamento" });
+  await expect(grupo).toBeVisible();
+  await grupo.getByLabel("Tipo", { exact: true }).selectOption({ label: "Cartão de crédito" });
+  await expect(controle(grupo, DIAS_DO_CARTAO[0])).toBeVisible();
+}
+
+for (const qual of FORMULARIOS) {
+  test(`em 1.920 px, na coluna, os dias do cartão novo do ${qual} ficam um embaixo do outro; em 1.000 px, lado a lado (FPC-01, edge case do cartão novo)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    const estreito = await formularioDaColuna(page, qual);
+    await abrirCartaoNovo(estreito);
+    expect((await caixa(estreito)).width).toBeLessThan(448);
+    expect(await posicaoDosPares(estreito, [DIAS_DO_CARTAO])).toEqual(
+      esperado([DIAS_DO_CARTAO], false),
+    );
+    await rotulosEmUmaLinha(estreito, [DIAS_DO_CARTAO]);
+
+    await page.setViewportSize({ width: 1000, height: 900 });
+    const largo = await formularioDaColuna(page, qual);
+    await abrirCartaoNovo(largo);
+    expect((await caixa(largo)).width).toBeGreaterThanOrEqual(448);
+    expect(await posicaoDosPares(largo, [DIAS_DO_CARTAO])).toEqual(
+      esperado([DIAS_DO_CARTAO], true),
+    );
+  });
+}
+
 test("em 375 px, o formulário tem um campo por linha nos dois formulários (FPC-01, ACs 1 e 2)", async ({
   page,
 }) => {
