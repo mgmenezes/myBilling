@@ -2,9 +2,9 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T7 concluídas, lote 1 fechado; branch `feat/todo-mes-colunas`, em worktree
-`.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
-duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
+**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 no lote 2; branch `feat/todo-mes-colunas`, em worktree
+`.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `33c9567`, que já traz
+`lancamentos-densos` (AD-020); os hashes da T1 à T6 são os de depois do rebase)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
 (T8–T11), com a oferta de sub-agentes antes do Execute.
 
@@ -163,7 +163,7 @@ ocorrência e soma os dois totais a partir dos lançamentos.
 - [x] Gate quick passa; nenhum dos 1.703 testes de antes some
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`01b4219`)
+**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`7e88093`)
 
 #### T2: `obterTodoMes`, materializar e ler o mês
 **What**: o caso de uso de leitura de Todo mês: materializa a janela, lê fixos e lançamentos do mês e
@@ -179,7 +179,7 @@ chama `fixosDoMes`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`4cb8c23`)
+**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`5c7d9fc`)
 
 ### Phase 2 — As peças da tela
 
@@ -204,7 +204,7 @@ os selos, o valor do mês, a linha aberta e os vazios; e o tipo `ItemDeFixo`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`626a094`)
+**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`3d43de7`)
 
 #### T4: `DetalheDoFixo`, o fixo aberto
 **What**: o detalhe do painel: valor do mês e nota, aviso de encerrado, dados, "Valor ao longo dos
@@ -222,7 +222,7 @@ meses" e as três ações.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`f4d5b1f`)
+**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`02b8d7e`)
 
 #### T5: `CicloDoFixo`, mudar o valor e encerrar
 **What**: o `fieldset` de "Mudar o valor" e "Encerrar" de `lista-de-fixos.tsx:291-364`, fora do
@@ -238,7 +238,7 @@ cartão, com o mesmo comportamento e um `h3`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`46a2f21`)
+**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`1ff2b66`)
 **Nota**: a prop `descricao` do design saiu de `CicloDoFixo`. Ela servia à `legend` invisível ("Mudar o valor de <descrição>"); o título à vista é "Mudar o valor" ou "Encerrar", e a descrição já é o título do painel. Nenhum AC muda.
 
 #### T6: `PainelDoFixo`, os modos do painel
@@ -262,7 +262,7 @@ fixo fora da lista), com "Fechar", `Escape`, "Voltar" e o foco no título.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`1a0e28f`)
+**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`bfcc81b`)
 **Nota**: "montar o painel não leva o foco" vale para a montagem com `focarTitulo` 0, que é a carga da página com `?fixo=`. Abaixo de 1.536 px o painel só existe com algo aberto (T7), então ele nasce no mesmo render em que a pessoa abre e o número muda: a montagem com um número diferente de 0 também leva o foco, e há teste para os dois casos. O subtítulo "Saída fixa · vence dia N" fica no cabeçalho em todo modo de um fixo da lista, e não só no detalhe.
 
 #### T7: `TodoMes`, o estado da tela e o endereço
@@ -283,7 +283,7 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço`
+**Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço` (`d1f0862`)
 **Nota**: fechar o aviso de um fixo que saiu da lista devolve o foco ao "+ Novo fixo", porque o botão da linha não existe mais; o FIXCOL-08, AC 4 só nomeia a linha e o cadastro. O hash desta task entra no `tasks.md` com a T8, porque um commit não carrega o próprio hash.
 
 ### Phase 3 — A página
@@ -310,31 +310,38 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 **Reuses**: `obterTodoMes`, `TodoMes`, `valorNoMesExibido`, `corDaCategoria`, `versaoVigente`
 **Requirement**: FIXCOL-01, FIXCOL-02, FIXCOL-03, FIXCOL-04, FIXCOL-05, FIXCOL-06, FIXCOL-07, FIXCOL-08, FIXCOL-09
 **Done when**:
-- [ ] Abrindo Todo mês de março antes de qualquer outra tela, com os dados do design: "Fixo B" com R$ 50,00, "Entrada A" com R$ 1.000,00, e os totais R$ 185,00 e R$ 1.000,00 (FIXCOL-02 AC 3, FIXCOL-03 ACs 1 a 3, L-001)
-- [ ] Depois, Lançamentos de março mostra os mesmos R$ 185,00 no título do bloco "Fixos" (FIXCOL-03 AC 2, L-014)
-- [ ] "Entradas fixas" antes de "Saídas fixas", e as saídas na ordem D, A, B, C; os títulos das seções com "1 · R$ 1.000,00" e "4 · R$ 185,00" (FIXCOL-01 ACs 1 a 4, FIXCOL-03 AC 5)
-- [ ] Dentro de cada linha: A com "confirmado" e R$ 105,00; C com "Encerrado" e R$ 30,00; D com "—" e "Começa em Junho de 2026" (FIXCOL-01 ACs 8 e 9, FIXCOL-02 ACs 1, 2 e 4)
-- [ ] O painel de A mostra "confirmado · previa R$ 100,00" e as três vigências na ordem, com "vale em Março" na de fevereiro (FIXCOL-04 ACs 2 a 4)
-- [ ] Mudar o valor de B para R$ 60,00 a partir de abril: a vigência aparece no histórico e a linha de março segue em R$ 50,00 (FIXCOL-05 ACs 1 e 2)
-- [ ] Encerrar, a partir de março, um fixo próprio do teste: o painel diz que ele não aparece mais em Março de 2026, e a linha some (FIXCOL-05 AC 8)
-- [ ] Cadastrar "Fixo E" pelo painel: a linha aparece com o formulário ainda aberto (FIXCOL-06 ACs 2 e 3)
-- [ ] Abrir A põe `?fixo=<id de A>` na URL sem recarregar (um marcador posto em `window` antes do clique continua lá) e sem entrada nova no histórico (`history.length` igual); recarregar mostra A aberto; `?fixo=` inexistente deixa o painel fechado (FIXCOL-09 ACs 1 a 3)
-- [ ] Teclado: `Tab` até "Fixo B", `Enter`, o foco no título "Fixo B" do painel; `Escape`, o foco de volta no botão da linha e a URL sem `fixo` (FIXCOL-08 ACs 1 a 4)
-- [ ] Em 1.280 px:
+- [x] Abrindo Todo mês de março antes de qualquer outra tela, com os dados do design: "Fixo B" com R$ 50,00, "Entrada A" com R$ 1.000,00, e os totais R$ 185,00 e R$ 1.000,00 (FIXCOL-02 AC 3, FIXCOL-03 ACs 1 a 3, L-001)
+- [x] Depois, Lançamentos de março mostra os mesmos R$ 185,00 no título do bloco "Fixos" (FIXCOL-03 AC 2, L-014)
+- [x] "Entradas fixas" antes de "Saídas fixas", e as saídas na ordem D, A, B, C; os títulos das seções com "1 · R$ 1.000,00" e "4 · R$ 185,00" (FIXCOL-01 ACs 1 a 4, FIXCOL-03 AC 5)
+- [x] Dentro de cada linha: A com "confirmado" e R$ 105,00; C com "Encerrado" e R$ 30,00; D com "—" e "Começa em Junho de 2026" (FIXCOL-01 ACs 8 e 9, FIXCOL-02 ACs 1, 2 e 4)
+- [x] O painel de A mostra "confirmado · previa R$ 100,00" e as três vigências na ordem, com "vale em Março" na de fevereiro (FIXCOL-04 ACs 2 a 4)
+- [x] Mudar o valor de B para R$ 60,00 a partir de abril: a vigência aparece no histórico e a linha de março segue em R$ 50,00 (FIXCOL-05 ACs 1 e 2)
+- [x] Encerrar, a partir de março, um fixo próprio do teste: o painel diz que ele não aparece mais em Março de 2026, e a linha some (FIXCOL-05 AC 8)
+- [x] Cadastrar "Fixo E" pelo painel: a linha aparece com o formulário ainda aberto (FIXCOL-06 ACs 2 e 3)
+- [x] Abrir A põe `?fixo=<id de A>` na URL sem recarregar (um marcador posto em `window` antes do clique continua lá) e sem entrada nova no histórico (`history.length` igual); recarregar mostra A aberto; `?fixo=` inexistente deixa o painel fechado (FIXCOL-09 ACs 1 a 3)
+- [x] Teclado: `Tab` até "Fixo B", `Enter`, o foco no título "Fixo B" do painel; `Escape`, o foco de volta no botão da linha e a URL sem `fixo` (FIXCOL-08 ACs 1 a 4)
+- [x] Em 1.280 px:
   - o painel fica entre os totais e as seções, e sem nada aberto não há painel (FIXCOL-07 ACs 5 e 6);
   - abrir a última linha deixa o título do painel dentro da janela (FIXCOL-08 AC 5);
   - a linha aberta tem fundo computado diferente das outras (FIXCOL-04 AC 7);
   - com ponteiro fino, toda linha das duas tabelas mede até 48 px, percorrendo todas (FIXCOL-01 AC 10, L-030)
-- [ ] Em 400 px com A aberto:
+- [x] Em 400 px com A aberto:
   - não há rolagem lateral (FIXCOL-07 AC 9);
   - o valor fica na altura da descrição, a categoria abaixo dela, e os cabeçalhos das colunas não aparecem (FIXCOL-01 AC 11);
   - o botão da linha, "Fechar" e as ações medem ao menos 44 × 44 (FIXCOL-08 AC 6)
-- [ ] Os e2e antigos mudam como manda a tabela "Testes que mudam porque a spec mudou" do design e passam; toda ausência procurada usa `row`
-- [ ] `lista-de-fixos.tsx` e o teste dele saem; a suíte unitária cai exatamente os 25 testes desse arquivo, todos com equivalente nas T3 a T6
-- [ ] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e os cinco e2e antigos desta task
+- [x] Os e2e antigos mudam como manda a tabela "Testes que mudam porque a spec mudou" do design e passam; toda ausência procurada usa `row`
+- [x] `lista-de-fixos.tsx` e o teste dele saem; a suíte unitária cai exatamente os 25 testes desse arquivo, todos com equivalente nas T3 a T6
+- [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e os cinco e2e antigos desta task
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): Todo mês em linhas, com o fixo aberto no painel`
+**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
+**Nota**:
+- **A linha de até 48 px, medida no navegador.** Em 1.280 px toda linha media de 50 a 53 px. O botão da linha era `inline-flex` e ganhava a folga da letra na linha de texto da célula; com a descrição longa, a pill da categoria ainda quebrava em duas linhas. O botão virou `flex`, como o selo de Lançamentos, e a pill, o dia e o meio não quebram a partir de 768 px: quem cede largura é a descrição, e só a linha dela cresce. O botão ganhou `min-w-11`, porque "Fixo B" media 43,6 px de largura em 400 px (TOQUE-01). Mexe em `tabela-de-fixos.tsx`, fora da lista desta task, sem mudar teste dele.
+- **O foco ao trocar de modo**, pedido no lote 2. "Mudar valor", "Encerrar" e "Editar" levam o foco ao título do modo novo; "Cancelar", "Voltar" e "Registrar" o devolvem ao título do painel. O botão de envio que se desabilita enquanto grava ("Gravando…") também devolve o foco ao título do painel. Sem isso, o Chrome tirava o foco para o `body`, e o `Escape` depois de salvar não fechava o painel (`editar-fixo.spec.ts`). Mexe em `painel-do-fixo.tsx` e `ciclo-do-fixo.tsx`, com nove testes novos em `painel-do-fixo.test.tsx`. Nenhum AC muda: é a regra do FIXCOL-08.
+- **FIXCOL-08, AC 5.** O foco no título já traz o painel para dentro da janela, e o `scrollIntoView` não entrou. Com `focus({ preventScroll: true })`, o teste da última linha falha.
+- **Medidas além do plano**, pelas lições do lote anterior: as tabelas dentro da coluna em 1.024, 1.280 e 1.440 px, com o fixo confirmado e as descrições longas (L-045, L-049); os alvos com ponteiro grosso em 1.280 px (L-044); e o limiar de 768 px dos dois lados (L-029, L-048).
+- **Os e2e antigos** mudaram como manda o design. Além disso, a ausência em maio de `recorrencias.spec.ts` ganhou o aviso de mês vazio como âncora; o teste do valor vigente espera o "Registrar" terminar antes de navegar; e `editar-fixo.spec.ts` confere a nova posição da linha renomeada.
+- **A suíte unitária** vai de 1.839 a 1.823 testes. Saem os 25 de `lista-de-fixos.test.tsx`, cada um com o equivalente da tabela do design, conferido linha a linha nas T3 a T6. Entram os 9 de foco.
 
 #### T9: A coluna da direita a partir de 1.536 px
 **What**: a grade de duas colunas em `TodoMes`, com o painel preso numa coluna de 384 px e a dica

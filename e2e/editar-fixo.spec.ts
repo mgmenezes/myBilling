@@ -55,7 +55,7 @@ async function cadastrarFixo(
 ): Promise<void> {
   await page.goto(`/${dados.inicio}/fixos`);
   await page.getByRole("button", { name: "+ Novo fixo" }).click();
-  const form = page.getByRole("dialog").getByRole("form", { name: "Gasto fixo ou entrada" });
+  const form = painel(page).getByRole("form", { name: "Gasto fixo ou entrada" });
   await form.getByLabel("Descrição").fill(dados.descricao);
   await form.getByLabel(/De quanto costuma ser/).fill(dados.valor);
   await form.getByLabel("Categoria").selectOption({ label: "Categoria Um" });
@@ -72,20 +72,26 @@ async function abrirMeses(page: Page, competencias: ReadonlyArray<string>): Prom
   }
 }
 
-/** Abre a edição de um fixo no "Todo mês" do mês dado e devolve o formulário. */
+/** O painel de "Todo mês", onde o cadastro e a edição abrem, sem diálogo (FIXCOL-05 e 06). */
+function painel(page: Page): Locator {
+  return page.getByRole("complementary", { name: "Painel do fixo" });
+}
+
+/**
+ * Abre a edição de um fixo no "Todo mês" do mês dado e devolve o formulário:
+ * a linha abre o fixo no painel, e "Editar" mostra a região da edição
+ * (FIXCOL-05, AC 4).
+ */
 async function abrirEdicao(page: Page, competencia: string, descricao: string): Promise<Locator> {
   await page.goto(`/${competencia}/fixos`);
-  await page
-    .getByRole("listitem")
-    .filter({ hasText: descricao })
-    .getByRole("button", { name: "Editar" })
-    .click();
-  return page
-    .getByRole("dialog", { name: "Editar gasto fixo" })
+  await page.getByRole("button", { name: new RegExp(`^${descricao}( |$)`) }).click();
+  await painel(page).getByRole("button", { name: "Editar", exact: true }).click();
+  return painel(page)
+    .getByRole("region", { name: "Editar gasto fixo" })
     .getByRole("form", { name: "Gasto fixo ou entrada" });
 }
 
-/** Salva a edição e espera a confirmação dentro do diálogo, que continua aberto. */
+/** Salva a edição e espera a confirmação dentro do painel, que continua aberto. */
 async function salvar(form: Locator): Promise<void> {
   await form.getByRole("button", { name: "Salvar alterações" }).click();
   await expect(form.getByRole("status")).toHaveText("Alterações salvas.");
@@ -104,8 +110,9 @@ test("trocar categoria e descrição em novembro corrige também outubro, que co
 }) => {
   await pool.query("INSERT INTO categoria (nome) VALUES ($1)", ["Categoria Dois"]);
   await cadastrarFixo(page, { descricao: "Conta de luz", valor: "100,00", inicio: "2026-10" });
-  /* Um segundo fixo, que fica entre o nome antigo e o novo na ordem da lista:
-     renomear muda a posição do cartão enquanto o diálogo está aberto. */
+  /* Um segundo fixo, no mesmo dia, que fica entre o nome antigo e o novo na
+     ordem da lista: renomear muda a posição da linha enquanto o painel está
+     aberto. */
   await cadastrarFixo(page, { descricao: "Internet", valor: "80,00", inicio: "2026-10" });
   await abrirMeses(page, ["2026-10", "2026-11"]);
   const outubro = await linhaNaLista(page, "2026-10", "Conta de luz");
@@ -124,11 +131,18 @@ test("trocar categoria e descrição em novembro corrige também outubro, que co
   await form.getByLabel("Categoria").selectOption({ label: "Categoria Dois" });
   await salvar(form);
 
-  /* O diálogo continua modal depois de o cartão mudar de lugar: `Escape` só
-     fecha um `<dialog>` aberto como modal. */
-  await expect(page.locator("li", { hasText: "Tarifa de energia" })).toHaveCount(1);
+  /* A linha renomeada aparece uma vez, agora depois de "Internet", e o
+     painel, fora da tabela, continua com a confirmação (edge case "Renomear
+     muda a posição da linha"). `Escape` fecha o painel. */
+  await expect(page.getByRole("row").filter({ hasText: "Tarifa de energia" })).toHaveCount(1);
+  await expect(page.getByRole("row").filter({ hasText: "Conta de luz" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Saídas fixas" }).locator("tbody tr")).toHaveText([
+    /^Internet/,
+    /^Tarifa de energia/,
+  ]);
+  await expect(form.getByRole("status")).toHaveText("Alterações salvas.");
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(painel(page)).toHaveCount(0);
 
   for (const competencia of ["2026-10", "2026-11"]) {
     const linha = await linhaNaLista(page, competencia, "Tarifa de energia");

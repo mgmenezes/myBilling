@@ -32,6 +32,13 @@ import { ID_DO_PAINEL, type ItemDeFixo } from "./tabela-de-fixos";
  * a chave do fixo: trocar de fixo, ou fechar e reabrir, descarta o que foi
  * digitado (FIXCOL-04, AC 9), como fechar o diálogo de edição já fazia.
  *
+ * **Trocar de sub-modo também leva o foco.** O botão que a pessoa acionou some
+ * com o modo dele, e o foco cairia no `body`. Ele vai ao título do que
+ * aparece: o do controle ou da edição, ou o do painel na volta ao detalhe.
+ * Do mesmo jeito, o botão de envio que se desabilita enquanto grava
+ * ("Gravando…") devolve o foco ao título do painel, e não ao `body`: sem isso,
+ * o `Escape` depois de salvar não alcançaria o painel (FIXCOL-08, AC 3).
+ *
  * **O fixo que sai do mês depois de uma ação** (encerrado a partir do mês
  * aberto, ou com "Termina em" antes dele) deixa de estar em `itens` quando a
  * página relê. O painel não pode oferecer ações de um fixo que já não está na
@@ -105,6 +112,17 @@ export function PainelDoFixo({
           aoFechar();
         }
       }}
+      onBlur={(evento) => {
+        /* Sem destino e com o botão desabilitado: é o navegador tirando o
+           foco de quem passou a gravar, e não a pessoa saindo do painel. */
+        if (
+          evento.relatedTarget === null &&
+          evento.target instanceof HTMLButtonElement &&
+          evento.target.disabled
+        ) {
+          titulo.current?.focus();
+        }
+      }}
       className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5"
     >
       <div className="flex items-start justify-between gap-4">
@@ -165,6 +183,7 @@ export function PainelDoFixo({
         <ConteudoDoFixo
           key={item.id}
           item={item}
+          focarTituloDoPainel={() => titulo.current?.focus()}
           competencia={competencia}
           rotuloDaCompetencia={rotuloDaCompetencia}
           nomeDoMes={nomeDoMes}
@@ -181,6 +200,7 @@ type SubModo = "detalhe" | "valor" | "encerrar" | "editar";
 
 function ConteudoDoFixo({
   item,
+  focarTituloDoPainel,
   competencia,
   rotuloDaCompetencia,
   nomeDoMes,
@@ -189,6 +209,8 @@ function ConteudoDoFixo({
   encerrar,
 }: {
   readonly item: ItemDeFixo;
+  /** A volta ao detalhe leva o foco ao título do painel, que é o nome do fixo. */
+  readonly focarTituloDoPainel: () => void;
   readonly competencia: string;
   readonly rotuloDaCompetencia: string;
   readonly nomeDoMes: string;
@@ -198,6 +220,27 @@ function ConteudoDoFixo({
 }) {
   const [modo, setModo] = useState<SubModo>("detalhe");
   const idDaEdicao = useId();
+  const tituloDoModo = useRef<HTMLHeadingElement>(null);
+  /* Só a troca feita pela pessoa move o foco, e uma vez: abrir o fixo já
+     cuida do título do painel, e reler a página não pode roubá-lo. */
+  const pediuFoco = useRef(false);
+
+  useEffect(() => {
+    if (!pediuFoco.current) {
+      return;
+    }
+    pediuFoco.current = false;
+    if (modo === "detalhe") {
+      focarTituloDoPainel();
+    } else {
+      tituloDoModo.current?.focus();
+    }
+  }, [modo, focarTituloDoPainel]);
+
+  function trocar(proximo: SubModo): void {
+    pediuFoco.current = true;
+    setModo(proximo);
+  }
 
   if (modo === "detalhe") {
     return (
@@ -205,9 +248,9 @@ function ConteudoDoFixo({
         item={item}
         rotuloDaCompetencia={rotuloDaCompetencia}
         nomeDoMes={nomeDoMes}
-        aoMudarValor={() => setModo("valor")}
-        aoEditar={() => setModo("editar")}
-        aoEncerrar={() => setModo("encerrar")}
+        aoMudarValor={() => trocar("valor")}
+        aoEditar={() => trocar("editar")}
+        aoEncerrar={() => trocar("encerrar")}
       />
     );
   }
@@ -216,12 +259,12 @@ function ConteudoDoFixo({
     return (
       <section aria-labelledby={idDaEdicao} className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
-          <h3 id={idDaEdicao} className="text-[17px] font-medium">
+          <h3 id={idDaEdicao} ref={tituloDoModo} tabIndex={-1} className="text-[17px] font-medium">
             {item.natureza === "RECEITA" ? "Editar entrada" : "Editar gasto fixo"}
           </h3>
           <button
             type="button"
-            onClick={() => setModo("detalhe")}
+            onClick={() => trocar("detalhe")}
             className="min-h-11 rounded-pill px-4 text-[14px] font-semibold text-ink-muted transition-colors duration-200 hover:bg-surface-strong hover:text-ink md:pointer-fine:min-h-9"
           >
             Voltar
@@ -266,8 +309,9 @@ function ConteudoDoFixo({
       rotuloDaCompetencia={rotuloDaCompetencia}
       registrarVigencia={registrarVigencia}
       encerrar={encerrar}
-      aoConcluir={() => setModo("detalhe")}
-      aoCancelar={() => setModo("detalhe")}
+      aoConcluir={() => trocar("detalhe")}
+      aoCancelar={() => trocar("detalhe")}
+      refDoTitulo={tituloDoModo}
     />
   );
 }

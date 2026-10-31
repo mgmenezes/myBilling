@@ -65,7 +65,10 @@ async function cadastrarFixo(
 ): Promise<void> {
   await page.goto(`/${dados.inicio}/fixos`);
   await page.getByRole("button", { name: "+ Novo fixo" }).click();
-  const form = page.getByRole("dialog").getByRole("form", { name: "Gasto fixo ou entrada" });
+  /* O cadastro abre no painel do fixo, e não num diálogo (FIXCOL-06). */
+  const form = page
+    .getByRole("complementary", { name: "Painel do fixo" })
+    .getByRole("form", { name: "Gasto fixo ou entrada" });
   if (dados.entrada === true) {
     await form.getByLabel("Um dinheiro que entra").check();
     await form.getByLabel("Dia que costuma cair").fill("5");

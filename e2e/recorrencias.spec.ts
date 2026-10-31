@@ -43,15 +43,33 @@ test.beforeEach(async ({ page }) => {
 });
 
 /**
- * Abre o cadastro de "Todo mês", que vive num `<dialog>` desde o T29 — a lista
- * só cresce e o formulário no rodapé ficava cada vez mais longe.
+ * Abre o cadastro de "Todo mês", que vive no painel do fixo, e não mais num
+ * `<dialog>` (FIXCOL-06): o "+ Novo fixo" do topo abre o formulário ao lado da
+ * lista.
  */
 async function abrirCadastroFixo(page: Page): Promise<Locator> {
-  const dialogo = page.getByRole("dialog");
-  if (!(await dialogo.isVisible())) {
+  const form = painel(page).getByRole("form", { name: "Gasto fixo ou entrada" });
+  if (!(await form.isVisible())) {
     await page.getByRole("button", { name: "+ Novo fixo" }).click();
   }
-  return dialogo.getByRole("form", { name: "Gasto fixo ou entrada" });
+  return form;
+}
+
+function painel(page: Page): Locator {
+  return page.getByRole("complementary", { name: "Painel do fixo" });
+}
+
+/** A linha do fixo em "Todo mês": o nome do botão dela leva também os selos. */
+function linhaDoFixo(page: Page, descricao: string): Locator {
+  return page
+    .getByRole("row")
+    .filter({ has: page.getByRole("button", { name: new RegExp(`^${descricao}( |$)`) }) });
+}
+
+/** Abre o fixo no painel, onde ficam "Mudar valor", "Editar" e "Encerrar" (FIXCOL-05). */
+async function abrirFixo(page: Page, descricao: string): Promise<void> {
+  await page.getByRole("button", { name: new RegExp(`^${descricao}( |$)`) }).click();
+  await expect(painel(page).getByRole("heading", { level: 2 })).toHaveText(descricao);
 }
 
 /** Cadastra um gasto fixo pela interface, a partir da área "Todo mês". */
@@ -98,12 +116,11 @@ test("o botão de cadastrar fica no topo de Todo mês, antes da lista (AVUL-05, 
   const posicaoDoBotao = await page
     .getByRole("button", { name: "+ Novo fixo" })
     .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
-  /* O item da lista de fixos, e não o primeiro `listitem` da página — a
+  /* A linha do fixo na tabela, e não o primeiro item da página — a
      navegação também é uma lista, e ela fica acima de tudo. */
-  const posicaoDaLista = await page
-    .getByRole("listitem")
-    .filter({ hasText: "Conta de água" })
-    .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+  const posicaoDaLista = await linhaDoFixo(page, "Conta de água").evaluate(
+    (el) => el.getBoundingClientRect().top + window.scrollY,
+  );
 
   expect(posicaoDoBotao).toBeLessThan(posicaoDaLista);
 });
@@ -147,6 +164,7 @@ test("mudar o valor a partir de um mês não reescreve os anteriores (FIXO-03)",
   await page.goto("/2026-05/lancamentos");
 
   await page.goto("/2026-03/fixos");
+  await abrirFixo(page, "Conta de luz");
   await page.getByRole("button", { name: "Mudar valor" }).click();
   await page.getByLabel("Novo valor (R$)").fill("240,00");
   await page.getByLabel("Vale a partir de").fill("2026-05");
@@ -169,16 +187,20 @@ test("a área Todo mês mostra o valor vigente no mês aberto, não o mais recen
   });
 
   await page.goto("/2026-03/fixos");
+  await abrirFixo(page, "Conta de luz");
   await page.getByRole("button", { name: "Mudar valor" }).click();
   await page.getByLabel("Novo valor (R$)").fill("240,00");
   await page.getByLabel("Vale a partir de").fill("2026-05");
   await page.getByRole("button", { name: "Registrar" }).click();
+  await expect(page.getByLabel("Novo valor (R$)")).toHaveCount(0);
 
+  /* Lido na célula do valor da linha: o mesmo número aparece também no
+     título da seção e no total do alto (FIXCOL-02, FIXCOL-03). */
   await page.goto("/2026-03/fixos");
-  await expect(page.getByText("R$ 180,00")).toBeVisible();
+  await expect(linhaDoFixo(page, "Conta de luz").getByRole("cell").last()).toHaveText("R$ 180,00");
 
   await page.goto("/2026-05/fixos");
-  await expect(page.getByText("R$ 240,00")).toBeVisible();
+  await expect(linhaDoFixo(page, "Conta de luz").getByRole("cell").last()).toHaveText("R$ 240,00");
 });
 
 test("confirmar o valor real move o indicador do mês (FIXO-04)", async ({ page }) => {
@@ -220,7 +242,8 @@ test("encerrar remove o futuro não pago e preserva o passado (FIXO-06)", async 
   await page.goto("/2026-05/lancamentos");
 
   await page.goto("/2026-03/fixos");
-  await page.getByRole("button", { name: "Encerrar" }).click();
+  await abrirFixo(page, "Internet");
+  await page.getByRole("button", { name: "Encerrar", exact: true }).click();
   await page.getByLabel("Encerrar a partir de").fill("2026-05");
   await page.getByRole("button", { name: "Encerrar mesmo assim" }).click();
 
@@ -240,12 +263,16 @@ test("encerrar remove o futuro não pago e preserva o passado (FIXO-06)", async 
    * filtro da página deixava as 1.022 provas verdes.
    */
   await page.goto("/2026-05/fixos");
-  await expect(page.getByRole("listitem").filter({ hasText: "Internet" })).toHaveCount(0);
+  /* A ausência é procurada nas linhas da tabela: com a lista em `row`, um
+     `listitem` ausente não provaria nada. O aviso de mês vazio prova que a
+     tela carregou. */
+  await expect(page.getByText(/^Nenhum gasto fixo ou entrada neste mês/)).toBeVisible();
+  await expect(page.getByRole("row").filter({ hasText: "Internet" })).toHaveCount(0);
 
   /* Em abril ela continua lá, com o selo de encerrada: abril é um mês em que
      ela valeu, e escondê-la ali seria mentir sobre aquele mês. */
   await page.goto("/2026-04/fixos");
-  const emAbril = page.getByRole("listitem").filter({ hasText: "Internet" });
+  const emAbril = page.getByRole("row").filter({ hasText: "Internet" });
   await expect(emAbril).toBeVisible();
   await expect(emAbril).toContainText("Encerrado");
 

@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
@@ -513,5 +513,90 @@ describe("teclado e foco (FIXCOL-04, AC 8; FIXCOL-08, ACs 2 e 3)", () => {
 
     expect(document.activeElement).toBe(titulo());
     expect(titulo().getAttribute("tabindex")).toBe("-1");
+  });
+});
+
+/**
+ * O botão que troca o modo some com o modo, e o foco cairia no `body`: quem
+ * usa teclado teria de recomeçar do alto da página. O foco vai ao título do
+ * que aparece, como a abertura já faz com o título do painel (FIXCOL-08, AC 2;
+ * nota da T8 em `tasks.md`).
+ */
+describe("o foco ao trocar de modo (FIXCOL-08)", () => {
+  it.each([
+    ["Mudar valor", "Mudar o valor"],
+    ["Encerrar", "Encerrar"],
+    ["Editar", "Editar gasto fixo"],
+  ] as const)('"%s" leva o foco ao título "%s"', async (acao, nome) => {
+    const { usuario } = montar();
+
+    await usuario.click(within(oPainel()).getByRole("button", { name: acao }));
+
+    const tituloDoModo = within(oPainel()).getByRole("heading", { level: 3, name: nome });
+    expect(document.activeElement).toBe(tituloDoModo);
+    expect(tituloDoModo.getAttribute("tabindex")).toBe("-1");
+  });
+
+  it.each([
+    ["Mudar valor", "Cancelar"],
+    ["Encerrar", "Cancelar"],
+    ["Editar", "Voltar"],
+  ] as const)(
+    '"%s" e depois "%s" levam o foco de volta ao título do painel',
+    async (acao, volta) => {
+      const { usuario } = montar();
+      await usuario.click(within(oPainel()).getByRole("button", { name: acao }));
+
+      await usuario.click(within(oPainel()).getByRole("button", { name: volta }));
+
+      expect(noDetalhe()).toBe(true);
+      expect(document.activeElement).toBe(titulo());
+    },
+  );
+
+  it("registrar o valor novo volta ao detalhe com o foco no título do painel", async () => {
+    const { usuario } = montar();
+    await usuario.click(within(oPainel()).getByRole("button", { name: "Mudar valor" }));
+    await usuario.type(within(oPainel()).getByLabelText("Novo valor (R$)"), "60,00");
+
+    await usuario.click(within(oPainel()).getByRole("button", { name: "Registrar" }));
+
+    await waitFor(() => expect(noDetalhe()).toBe(true));
+    expect(document.activeElement).toBe(titulo());
+  });
+});
+
+/**
+ * O botão de envio se desabilita enquanto grava ("Gravando…"), e o Chrome
+ * tira o foco dele para o `body`, com um `focusout` sem destino. Fora do
+ * painel, o `Escape` deixaria de fechá-lo (FIXCOL-08, AC 3). O jsdom não
+ * reproduz a troca de foco: o teste dispara o `focusout` que o navegador
+ * dispara. A prova no navegador é a de `editar-fixo.spec.ts`.
+ */
+describe("o foco que o botão desabilitado perderia (FIXCOL-08, AC 3)", () => {
+  it('salvar a edição, com o botão em "Gravando…", leva o foco ao título do painel', async () => {
+    const editar = vi.fn(() => new Promise<never>(() => {}));
+    const { usuario } = montar({ editar: editar as never });
+    await usuario.click(within(oPainel()).getByRole("button", { name: "Editar" }));
+    await usuario.click(within(oPainel()).getByRole("button", { name: "Salvar alterações" }));
+    const gravando = within(oPainel()).getByRole("button", {
+      name: "Gravando…",
+    }) as HTMLButtonElement;
+    expect(gravando.disabled).toBe(true);
+
+    fireEvent.blur(gravando, { relatedTarget: null });
+
+    expect(document.activeElement).toBe(titulo());
+  });
+
+  it("perder o foco para fora sem nada desabilitado, como clicar fora, não o traz de volta", async () => {
+    const { usuario } = montar();
+    await usuario.click(within(oPainel()).getByRole("button", { name: "Mudar valor" }));
+    const campo = within(oPainel()).getByLabelText("Novo valor (R$)");
+    campo.focus();
+
+    campo.blur();
+
+    expect(document.activeElement).toBe(document.body);
   });
 });

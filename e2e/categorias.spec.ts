@@ -223,11 +223,11 @@ function pillDaLinha(linha: Locator): Locator {
   return linha.getByRole("heading").locator(":scope > span");
 }
 
-/** A pill de categoria de um fixo em "Todo mês", dentro do cartão dele. */
+/** A pill de categoria de um fixo em "Todo mês", dentro da linha dele (L-018). */
 function pillDoFixo(page: Page, descricao: string, categoria: string): Locator {
   return page
-    .getByRole("listitem")
-    .filter({ hasText: descricao })
+    .getByRole("row")
+    .filter({ has: page.getByRole("button", { name: new RegExp(`^${descricao}( |$)`) }) })
     .getByText(categoria, { exact: true });
 }
 

@@ -258,20 +258,32 @@ function LinhaDeFixo({
           id={idDoBotaoDaLinha(item.id)}
           aria-expanded={aberto}
           aria-controls={ID_DO_PAINEL}
-          className="inline-flex min-h-11 flex-wrap items-center gap-x-2 gap-y-1 rounded-xs text-left md:pointer-fine:min-h-9"
+          /* `flex`, e não `inline-flex`: na linha de texto da célula, o
+             botão alinhado pela base ganhava a folga da letra e a linha
+             passava de 48 px, como o selo de Lançamentos evita. A largura
+             mínima é a do alvo de toque, para descrição curta (TOQUE-01). */
+          className="flex min-h-11 w-fit min-w-11 flex-wrap items-center gap-x-2 gap-y-1 rounded-xs text-left md:pointer-fine:min-h-9"
         >
           {item.descricao}
           {item.encerrada ? <Chip>Encerrado</Chip> : null}
           {item.comecaDepois ? <Chip>Começa em {item.inicio}</Chip> : null}
         </button>
       </td>
-      <td className={`${CELULA} col-start-1 row-start-2`}>
+      {/* Na tabela, a pill, o dia e o meio não quebram: quem cede largura é
+          a descrição, e só a linha dela cresce. Quebrados, eles dobravam a
+          altura de toda linha quando uma descrição longa apertava as colunas
+          (FIXCOL-01, AC 10; edge case "Descrição longa"). */}
+      <td className={`${CELULA} col-start-1 row-start-2 md:whitespace-nowrap`}>
         <CategoriaDoFixo item={item} />
       </td>
-      <td className={`${CELULA} col-start-2 row-start-2 tabular text-[14px] text-ink-muted`}>
+      <td
+        className={`${CELULA} col-start-2 row-start-2 tabular text-[14px] text-ink-muted md:whitespace-nowrap`}
+      >
         dia {item.diaVencimento}
       </td>
-      <td className={`${CELULA} col-span-2 col-start-3 row-start-2 text-[14px] text-ink-muted`}>
+      <td
+        className={`${CELULA} col-span-2 col-start-3 row-start-2 text-[14px] text-ink-muted md:whitespace-nowrap`}
+      >
         {item.meio}
       </td>
       <td

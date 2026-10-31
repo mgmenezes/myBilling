@@ -8,19 +8,25 @@ import {
   registrarNovaVigencia,
 } from "@/app/actions/recorrencias";
 import { valorNoMesExibido } from "@/application/recorrencias/editar/handler";
-import { AreaEstreita } from "@/components/area-estreita";
-import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
-import { FormRecorrencia } from "@/components/form-recorrencia";
-import { ListaDeFixos } from "@/components/lista-de-fixos";
-import { corDaCategoria, criarCompetencia, valeNaCompetencia, versaoVigente } from "@/domain";
+import { obterTodoMes } from "@/application/recorrencias/obter-todo-mes/handler";
+import type { ItemDeFixo } from "@/components/tabela-de-fixos";
+import { TodoMes } from "@/components/todo-mes";
+import {
+  compararCompetencias,
+  corDaCategoria,
+  criarCompetencia,
+  type FixoDoMes,
+  versaoVigente,
+} from "@/domain";
 import { criarRepositorios } from "@/infrastructure/container";
 import { db } from "@/infrastructure/db/client";
 import { RecorrenciaRepositoryDrizzle } from "@/infrastructure/db/repositories/recorrencia.repository";
-import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
+import { formatarBRL, formatarCompetencia, nomeDoMes } from "@/lib/formatar";
 import { sessaoDaUI } from "../../sessao";
 
 /**
- * O que se repete todo mês: gastos fixos e receitas recorrentes.
+ * O que se repete todo mês: gastos fixos e receitas recorrentes, uma linha por
+ * fixo, com o fixo aberto num painel ao lado (FIXCOL-01 a 09, AD-021).
  *
  * **A área se chama "Todo mês", e o bloco da lista continua se chamando
  * "Fixos".** Não é inconsistência: o bloco reúne despesa recorrente, e esta
@@ -31,19 +37,28 @@ import { sessaoDaUI } from "../../sessao";
  * criar, reajustar, encerrar. Isso não cabe dentro do formulário de compra como
  * coube o cadastro de categoria, que é só um nome.
  *
- * **O valor exibido é o vigente na competência aberta**, não o mais recente.
- * Abrir março depois de reajustar em outubro precisa mostrar o que valia em
- * março — é a razão de existir versionamento, e mostrar o valor de hoje aqui
- * desmentiria a lista de lançamentos logo ao lado.
+ * **O valor da linha e os totais são os da ocorrência do mês aberto**
+ * (`movimento`), e não os da vigência: a conta confirmada diferente aparece com
+ * o número que o mês de fato tem, e o total de saídas é o do bloco "Fixos" de
+ * Lançamentos (FIXCOL-02 e 03, AD-003). Por isso a leitura materializa antes de
+ * ler, como as outras telas do mês (`obterTodoMes`). As vigências não somam:
+ * aparecem só no histórico do fixo aberto.
  *
  * O formulário de edição recebe o valor por `valorNoMesExibido`, a mesma
  * função com que o caso de uso decide se o valor mudou. Calculado de outro
- * jeito, salvar sem mexer registraria uma vigência (EDF-03 AC 3).
+ * jeito, salvar sem mexer registraria uma vigência (EDF-03 AC 3). É a previsão
+ * vigente, e não o confirmado.
+ *
+ * O fixo aberto chega em `?fixo=`, lido aqui: a tela cliente não precisa de
+ * `useSearchParams` nem de `Suspense`, e a página já é dinâmica.
  */
 
 export const dynamic = "force-dynamic";
 
-export default async function PaginaDeFixos({ params }: PageProps<"/[competencia]/fixos">) {
+export default async function PaginaDeFixos({
+  params,
+  searchParams,
+}: PageProps<"/[competencia]/fixos">) {
   await sessaoDaUI();
 
   const { competencia } = await params;
@@ -51,10 +66,15 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
   if (!resultado.ok) {
     notFound();
   }
+  const mes = resultado.value;
+  const { fixo } = await searchParams;
 
   const repositorios = criarRepositorios();
-  const [todas, meios, categorias, usuarios] = await Promise.all([
-    new RecorrenciaRepositoryDrizzle(db()).listarComVersoes(),
+  const [todoMes, meios, categorias, usuarios] = await Promise.all([
+    obterTodoMes(
+      { recorrencias: new RecorrenciaRepositoryDrizzle(db()), movimentos: repositorios.movimentos },
+      mes,
+    ),
     repositorios.cadastros.listarMeiosDePagamentoDisponiveis(),
     repositorios.cadastros.listarCategoriasDisponiveis(),
     repositorios.cadastros.listarUsuarios(),
@@ -64,6 +84,7 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
      disponíveis vira "Categoria removida", na neutra (COR-02, AC 5). */
   const categoriaPorId = new Map(categorias.map((c) => [c.id, c]));
   const nomePorMeio = new Map(meios.map((m) => [m.id, m.nome]));
+  const nomePorUsuario = new Map(usuarios.map((u) => [u.id, u.nome]));
 
   /* As mesmas listas no cadastro e na edição. `geraFatura` restringe o
      destino quando a natureza é receita. */
@@ -75,95 +96,87 @@ export default async function PaginaDeFixos({ params }: PageProps<"/[competencia
   const opcoesDeCategoria = categorias.map((c) => ({ id: c.id, nome: c.nome }));
   const opcoesDeUsuario = usuarios.map((u) => ({ id: u.id, nome: u.nome }));
 
-  /*
-   * A lista é do **mês aberto**, então ela mostra o que vale nele. Um fixo
-   * encerrado em agosto some de setembro em diante e continua visível em
-   * agosto, que ele de fato compôs — esconder lá seria mentir sobre o mês
-   * (FIXO-07). A mesma regra que a materialização usa para não criar
-   * ocorrência, com teste de concordância entre as duas.
-   */
-  const itens = todas
-    .filter(({ recorrencia }) =>
-      valeNaCompetencia(
-        { inicio: recorrencia.competenciaInicio, fim: recorrencia.competenciaFim },
-        resultado.value,
-      ),
-    )
-    .map(({ recorrencia, versoes }) => {
-      const vigente = versaoVigente(versoes, resultado.value);
-      const categoria =
-        recorrencia.categoriaId === null ? undefined : categoriaPorId.get(recorrencia.categoriaId);
-      return {
-        id: recorrencia.id,
-        descricao: recorrencia.descricao,
-        natureza: recorrencia.natureza,
-        /* `null` quando a competência aberta é anterior a toda vigência: a
-         recorrência existe, mas ainda não vale neste mês. */
-        valorVigente: vigente === null ? null : formatarBRL(vigente.valorPrevisto),
-        diaVencimento: recorrencia.diaVencimento,
-        categoria:
-          recorrencia.categoriaId === null ? null : (categoria?.nome ?? "Categoria removida"),
-        corDaCategoria: categoria === undefined ? null : corDaCategoria(categoria),
-        meio: nomePorMeio.get(recorrencia.meioPagamentoId) ?? "Meio arquivado",
-        inicio: formatarCompetencia(recorrencia.competenciaInicio),
-        fim:
-          recorrencia.competenciaFim === null
-            ? null
-            : formatarCompetencia(recorrencia.competenciaFim),
-        encerrada: recorrencia.encerradaEm !== null,
-        competenciaInicio: recorrencia.competenciaInicio,
-        competenciaFim: recorrencia.competenciaFim,
-        meioPagamentoId: recorrencia.meioPagamentoId,
-        categoriaId: recorrencia.categoriaId,
-        usuarioId: recorrencia.usuarioId,
-        valorNoMesCentavos: valorNoMesExibido(versoes, resultado.value),
-      };
-    });
+  /** "Receita" em toda entrada (TRC-01); nas saídas, a categoria com a cor dela. */
+  function categoriaDoFixo(
+    recorrencia: FixoDoMes["recorrencia"],
+  ): Pick<ItemDeFixo, "categoria" | "corDaCategoria"> {
+    if (recorrencia.natureza !== "DESPESA") {
+      return { categoria: "Receita", corDaCategoria: null };
+    }
+    if (recorrencia.categoriaId === null) {
+      return { categoria: "Sem categoria", corDaCategoria: null };
+    }
+    const categoria = categoriaPorId.get(recorrencia.categoriaId);
+    return categoria === undefined
+      ? { categoria: "Categoria removida", corDaCategoria: null }
+      : { categoria: categoria.nome, corDaCategoria: corDaCategoria(categoria) };
+  }
+
+  function paraItem({
+    recorrencia,
+    versoes,
+    valorDoMes,
+    previstoDoMes,
+    confirmado,
+  }: FixoDoMes): ItemDeFixo {
+    const vigente = versaoVigente(versoes, mes);
+    return {
+      id: recorrencia.id,
+      descricao: recorrencia.descricao,
+      natureza: recorrencia.natureza,
+      diaVencimento: recorrencia.diaVencimento,
+      ...categoriaDoFixo(recorrencia),
+      meio: nomePorMeio.get(recorrencia.meioPagamentoId) ?? "Meio arquivado",
+      pessoa: nomePorUsuario.get(recorrencia.usuarioId) ?? "Pessoa removida",
+      valorDoMes: valorDoMes === null ? null : formatarBRL(valorDoMes),
+      previstoDoMes: previstoDoMes === null ? null : formatarBRL(previstoDoMes),
+      confirmado,
+      inicio: formatarCompetencia(recorrencia.competenciaInicio),
+      comecaDepois: compararCompetencias(recorrencia.competenciaInicio, mes) > 0,
+      fim:
+        recorrencia.competenciaFim === null
+          ? null
+          : formatarCompetencia(recorrencia.competenciaFim),
+      encerrada: recorrencia.encerradaEm !== null,
+      /* O histórico que a página lia e jogava fora: da vigência mais antiga
+         para a mais nova, com a do mês marcada (FIXCOL-04, AC 4). */
+      historico: [...versoes]
+        .sort((a, b) => compararCompetencias(a.vigenteDesde, b.vigenteDesde))
+        .map((versao) => ({
+          desde: formatarCompetencia(versao.vigenteDesde),
+          valor: formatarBRL(versao.valorPrevisto),
+          valeNoMes: versao.vigenteDesde === vigente?.vigenteDesde,
+        })),
+      competenciaInicio: recorrencia.competenciaInicio,
+      competenciaFim: recorrencia.competenciaFim,
+      meioPagamentoId: recorrencia.meioPagamentoId,
+      categoriaId: recorrencia.categoriaId,
+      usuarioId: recorrencia.usuarioId,
+      valorNoMesCentavos: valorNoMesExibido(versoes, mes),
+    };
+  }
 
   return (
-    <AreaEstreita>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Todo mês</h1>
-          {/* Mesmo gesto da área de Lançamentos: a lista só cresce, e o
-              formulário no rodapé ficava cada vez mais longe (AD-014). */}
-          <DialogoDeCadastro rotuloDoBotao="+ Novo fixo" titulo="Novo gasto fixo ou entrada">
-            <FormRecorrencia
-              competencia={resultado.value}
-              meios={opcoesDeMeio}
-              categorias={opcoesDeCategoria}
-              usuarios={opcoesDeUsuario}
-              criar={criarRecorrencia}
-              criarCategoria={criarCategoria}
-              criarMeioDePagamento={criarMeioDePagamento}
-            />
-          </DialogoDeCadastro>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <p className="max-w-[62ch] text-[15px] leading-relaxed text-ink-muted">
-            Água, luz, internet, salário. Cadastre uma vez e eles aparecem em todo mês, inclusive
-            nos que ainda não chegaram. Quando o valor mudar, registre a partir de qual mês vale —
-            os anteriores continuam mostrando o que você tinha planejado.
-          </p>
-        </div>
-
-        <ListaDeFixos
-          competencia={resultado.value}
-          rotuloDaCompetencia={formatarCompetencia(resultado.value)}
-          itens={itens}
-          registrarVigencia={registrarNovaVigencia}
-          encerrar={encerrarRecorrencia}
-          edicao={{
-            meios: opcoesDeMeio,
-            categorias: opcoesDeCategoria,
-            usuarios: opcoesDeUsuario,
-            editar: editarRecorrencia,
-            criarCategoria,
-            criarMeioDePagamento,
-          }}
-        />
-      </div>
-    </AreaEstreita>
+    <TodoMes
+      competencia={mes}
+      rotuloDaCompetencia={formatarCompetencia(mes)}
+      nomeDoMes={nomeDoMes(mes)}
+      entradas={todoMes.entradas.map(paraItem)}
+      saidas={todoMes.saidas.map(paraItem)}
+      totalEntradas={formatarBRL(todoMes.totalEntradas)}
+      totalSaidas={formatarBRL(todoMes.totalSaidas)}
+      fixoInicial={typeof fixo === "string" ? fixo : null}
+      formulario={{
+        meios: opcoesDeMeio,
+        categorias: opcoesDeCategoria,
+        usuarios: opcoesDeUsuario,
+        criar: criarRecorrencia,
+        editar: editarRecorrencia,
+        criarCategoria,
+        criarMeioDePagamento,
+      }}
+      registrarVigencia={registrarNovaVigencia}
+      encerrar={encerrarRecorrencia}
+    />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { WarningCircleIcon } from "@phosphor-icons/react";
-import { useId, useState, useTransition } from "react";
+import { type Ref, useId, useState, useTransition } from "react";
 import type { encerrarRecorrencia, registrarNovaVigencia } from "@/app/actions/recorrencias";
 import { parseBRL } from "@/domain";
 
@@ -19,6 +19,9 @@ import { parseBRL } from "@/domain";
  * certo quase sempre, e continua editável. Gravar com sucesso chama
  * `aoConcluir`; a recusa da action fica aqui, em alerta, com o que foi
  * digitado. Quem desmonta o controle é o painel.
+ *
+ * O título aceita foco por código: o painel o leva até ele quando o controle
+ * aparece, porque o botão que o abriu sumiu junto com o detalhe.
  */
 
 const ROTULO = "text-[14px] font-medium text-ink";
@@ -35,6 +38,7 @@ export function CicloDoFixo({
   encerrar,
   aoConcluir,
   aoCancelar,
+  refDoTitulo,
 }: {
   readonly modo: "valor" | "encerrar";
   readonly recorrenciaId: string;
@@ -46,6 +50,8 @@ export function CicloDoFixo({
   readonly encerrar: typeof encerrarRecorrencia;
   readonly aoConcluir: () => void;
   readonly aoCancelar: () => void;
+  /** O título do controle, para o painel levar o foco até ele. */
+  readonly refDoTitulo?: Ref<HTMLHeadingElement>;
 }) {
   const id = useId();
   const [valor, setValor] = useState("");
@@ -92,7 +98,7 @@ export function CicloDoFixo({
       aria-labelledby={`${id}-titulo`}
       className="flex flex-col gap-3 rounded-lg bg-surface-soft p-3"
     >
-      <h3 id={`${id}-titulo`} className="text-[15px] font-medium">
+      <h3 id={`${id}-titulo`} ref={refDoTitulo} tabIndex={-1} className="text-[15px] font-medium">
         {ehValor ? "Mudar o valor" : "Encerrar"}
       </h3>
 

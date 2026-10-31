@@ -199,10 +199,11 @@ test("importa outubro e novembro pela Visão geral, e o mês mostra o que entrou
 
   /* IMP-07: o fixo reajustado com o valor de novembro, e o que sumiu, encerrado. */
   await page.goto("/2026-11/fixos");
-  const internet = page.getByRole("listitem").filter({ hasText: "Internet" });
+  /* As linhas da tabela de "Todo mês", e não mais os cartões. */
+  const internet = page.getByRole("row").filter({ hasText: "Internet" });
   await expect(internet).toHaveCount(1);
   await expect(internet).toContainText("R$ 110,00");
-  const academia = page.getByRole("listitem").filter({ hasText: "Academia" });
+  const academia = page.getByRole("row").filter({ hasText: "Academia" });
   await expect(academia).toHaveCount(1);
   await expect(academia).toContainText("Conta Corrente");
   await expect(academia).not.toContainText("Cartão Roxo");
