@@ -174,6 +174,37 @@
 - **Date**: 2026-10-30
 - **Status**: active
 
+### AD-021
+- **Decision**: Todo mês vira uma lista em linhas com o fixo aberto num painel:
+  - **Linhas:** uma por fixo, sem botão, em "Entradas fixas" e "Saídas fixas", pelo dia de
+    vencimento. O valor de cada linha e os totais do alto são os da ocorrência do mês aberto
+    (`movimento`); o total de saídas é o do bloco "Fixos" de Lançamentos.
+  - **Painel:** abrir um fixo mostra os dados, o valor ao longo dos meses e "Mudar valor", "Editar" e
+    "Encerrar". "+ Novo fixo" e "Editar" abrem o formulário no painel, sem diálogo.
+  - **A partir de 1.536 px:** o painel é uma coluna de 384 px, presa à direita da lista, que tem até
+    1.100 px. Abaixo disso, uma coluna só, com o painel entre os totais e a lista enquanto algo está
+    aberto.
+  - **Endereço:** o fixo aberto fica em `?fixo=<id>`.
+- **Reason**: é a opção A que o dono escolheu no protótipo, com as três respostas de 2026-10-30. Os
+  cartões altos, com três botões cada, deixavam dez fixos maiores que a tela. O valor do cartão era a
+  previsão, e não o mês. O histórico de vigências era lido e jogado fora. A largura extra vira
+  coluna, como em AD-019 e AD-020.
+- **Revê**:
+  - AD-014 em Todo mês: sem diálogo de cadastro nem de edição;
+  - AD-019 e TRES-01, AC 8 em Todo mês: a tela deixa a `AreaEstreita` a partir de 1.536 px;
+  - EDF-01, ACs 1 e 2, e EDF-06, AC 6: "Editar" e a confirmação no painel;
+  - AVUL-05, AC 8: o cadastro no painel, e não no diálogo;
+  - FIXO-07, AC 1: o fixo encerrado aparece no mês que tem ocorrência dele.
+- **Trade-off**: Editar, mudar o valor e encerrar pedem um clique a mais, para abrir a linha. Abaixo
+  de 1.536 px o painel abre acima da lista, longe da linha clicada; o foco leva a pessoa até ele.
+  A tela passa a materializar ao abrir, como Lançamentos e a Visão geral. Fechar o painel descarta o
+  que foi digitado, como fechar o diálogo já fazia.
+- **Scope**: `fixos/page.tsx`, `obterTodoMes`, `fixosDoMes`, `TodoMes`, `TabelaDeFixos`,
+  `PainelDoFixo`, `DetalheDoFixo`, `CicloDoFixo` e `FormRecorrencia` (largura pelo contêiner). Sai
+  `ListaDeFixos`.
+- **Date**: 2026-10-30
+- **Status**: active
+
 ---
 
 ## Handoff

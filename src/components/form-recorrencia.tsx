@@ -348,10 +348,11 @@ export function FormRecorrencia({
   return (
     <form
       onSubmit={enviar}
-      /* Sem `<h2>` próprio: o diálogo que o envolve já titula, e o título daqui
-         era dinâmico — ter os dois faria o leitor de tela anunciar duas vezes,
-         com textos diferentes. O sinal de qual dos dois é continua no rádio e
-         no botão de envio, que dizem "Cadastrar entrada". */
+      /* Sem `<h2>` próprio: o painel do fixo que o envolve já titula ("Novo
+         gasto fixo ou entrada", ou "Editar gasto fixo" na edição), e o título
+         daqui era dinâmico — ter os dois faria o leitor de tela anunciar duas
+         vezes, com textos diferentes. O sinal de qual dos dois é continua no
+         rádio e no botão de envio, que dizem "Cadastrar entrada". */
       aria-label="Gasto fixo ou entrada"
       /* Os pares de campos ficam lado a lado pela largura do formulário, e
          não pela da janela: na coluna de 384 px ele tem uns 336 px, e cada

@@ -119,11 +119,13 @@ padrão de 80% das superfícies é chapado; o cartão sobre canvas branco é sep
 esquerda, com 240px, da altura da janela e preso ao rolar, e o `<main>` ocupa o resto. Cada tela
 decide a própria largura.
 
-`--container-conteudo`, **1024px**, continua sendo a largura de leitura de Todo mês, de Categorias e
-da home, pela `AreaEstreita`, centradas no espaço à direita do menu. Lançamentos também, abaixo de
-1536px. A partir de 1536px, Lançamentos vira lista densa (AD-020): a lista com até 1100px e os
-filtros numa coluna de 288px, presa à direita. São cinco colunas ocupando a largura, e não uma
-linha esticada.
+`--container-conteudo`, **1024px**, continua sendo a largura de leitura de Categorias e da home,
+pela `AreaEstreita`, centradas no espaço à direita do menu. Lançamentos e Todo mês também, abaixo de
+1536px, cada uma com a própria grade. A partir de 1536px, Lançamentos vira lista densa (AD-020): a
+lista com até 1100px e os filtros numa coluna de 288px, presa à direita. Todo mês faz o mesmo
+(AD-021): a lista de fixos com até 1100px e o fixo aberto numa coluna de 384px, presa à direita,
+que mostra uma dica quando nada está aberto. São colunas ocupando a largura, e não uma linha
+esticada.
 
 **Já foram 1440px, e foi erro.** A aposta era que tabela de lançamento lida todo dia quer largura, e
 que os "~1200px centered" do `DESIGN.md` valiam só para página de marketing. Na tela real a aposta
@@ -250,7 +252,8 @@ ligar a linha da lista à barra do gráfico. Quem identifica continua sendo o no
 
 | Lugar | Tratamento |
 | --- | --- |
-| Pill da categoria em "Todo mês" | Fundo tingido, texto em tinta da mesma cor |
+| Pill da categoria em "Todo mês", na linha das saídas e no fixo aberto | Fundo tingido, texto em tinta da mesma cor |
+| Selos "Receita", "Encerrado" e "Começa em" de "Todo mês" | A neutra (`surface-strong`), nunca a cor da categoria |
 | Seletor de categoria da linha, em Lançamentos | Fundo e texto da cor escolhida, com o chevron de sempre |
 | Chip de filtro **inativo** | Fundo e texto da cor, sem borda |
 | Chip de filtro **ativo** | Continua invertido (`bg-inverso`), como antes |

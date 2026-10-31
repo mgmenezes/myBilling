@@ -81,8 +81,10 @@ export function DialogoDeCadastro({
 /**
  * O `<dialog>` em si, sem o botão que o abre. Quem o usa abre pela `ref`, com
  * `showModal()`, e fica sabendo do fechamento por `aoFechar`, que cobre o
- * botão de fechar, o backdrop e o `Escape`. Existe separado porque a lista de
- * "Todo mês" abre um diálogo só, a partir do botão de cada cartão.
+ * botão de fechar, o backdrop e o `Escape`. Nasceu separado para a lista de
+ * "Todo mês", que abria um diálogo só a partir do botão de cada cartão; desde
+ * o AD-021 a edição do fixo abre no painel, e o único que o usa é o
+ * `DialogoDeCadastro`.
  */
 export function Dialogo({
   ref,

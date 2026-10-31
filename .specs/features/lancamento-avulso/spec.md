@@ -271,6 +271,11 @@ rolar por dez gastos fixos cada vez que preciso lançar algo.
 8. The system SHALL abrir também o cadastro da área "Todo mês" por controle no topo, no mesmo
    diálogo, e SHALL não deixar formulário no rodapé de nenhuma das duas áreas
 
+> **AC 8 substituído em "Todo mês" pelo FIXCOL-06** (`todo-mes-colunas`, AD-021), em 2026-10-31. O
+> controle continua no topo, acima dos totais e da lista, mas o cadastro abre no painel do fixo, sem
+> diálogo (FIXCOL-06, ACs 1 e 2). Em Lançamentos o AC 8 vale como está. O texto acima fica como
+> registro do que valia até então.
+
 **Independent Test**: abrir o cadastro pelo botão do topo num mês com vários lançamentos, sem
 rolar a página, e fechar com `Escape`. O mesmo na área "Todo mês".
 
@@ -287,6 +292,11 @@ em que ele já não vale, para a lista não crescer com o que não existe mais.
 
 1. WHILE o mês aberto é posterior à última competência em que a recorrência vale, o sistema SHALL
    omiti-la da lista
+
+> **AC 1 revisto por FIXCOL-02, AC 4** (`todo-mes-colunas`, AD-021), em 2026-10-31: a recorrência
+> encerrada antes do mês aberto aparece quando o mês tem uma ocorrência dela, a paga que o
+> encerramento preserva, com o selo "Encerrado" e o valor dela. Sem ocorrência no mês, ela continua
+> omitida, e o AC 4 continua valendo.
 2. WHILE o mês aberto é igual ou anterior à última competência em que ela vale, o sistema SHALL
    exibi-la, ainda que ela já tenha sido encerrada
 3. The system SHALL continuar exibindo a recorrência cuja competência de início é posterior ao mês
@@ -354,8 +364,8 @@ título, o botão, o rótulo do campo e a lista de contas mudaram juntos.
 | ENTR-01 | P2: Achar onde mora o dinheiro que entra | Verified | Verified |
 | ENTR-02 | P2: Achar onde mora o dinheiro que entra | Verified | Verified |
 | ENTR-03 | P2: O formulário fala a língua da receita | Verified | Verified |
-| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Verified | Verified |
-| AVUL-05 | P2: Cadastrar sem rolar a página | Verified | Verified |
+| FIXO-07 | P2: A lista de Todo mês mostra só o que vale no mês aberto | Verified | Verified; AC 1 revisto por FIXCOL-02, AC 4 em 2026-10-31 |
+| AVUL-05 | P2: Cadastrar sem rolar a página | Verified | Verified; AC 8 substituído em Todo mês pelo FIXCOL-06 em 2026-10-31 |
 
 **Coverage:** 11 total, 11 mapeados para tasks
 

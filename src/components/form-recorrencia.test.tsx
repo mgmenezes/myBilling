@@ -214,9 +214,9 @@ describe("FormRecorrencia — a língua da receita (ENTR-03)", () => {
   }
 
   /*
-   * O título dinâmico saiu com o T29: o diálogo que envolve o formulário já
-   * titula, e dois títulos anunciariam duas vezes. O sinal de qual dos dois é
-   * ficou no rádio e no botão de envio.
+   * O título dinâmico saiu com o T29: quem envolve o formulário já titula,
+   * hoje o painel do fixo (AD-021), e dois títulos anunciariam duas vezes. O
+   * sinal de qual dos dois é ficou no rádio e no botão de envio.
    */
   it("troca o botão de envio para entrada — AC 3", async () => {
     const usuario = userEvent.setup();
@@ -230,7 +230,7 @@ describe("FormRecorrencia — a língua da receita (ENTR-03)", () => {
     expect(screen.queryByRole("button", { name: "Cadastrar gasto fixo" })).toBeNull();
   });
 
-  it("não tem título próprio: quem titula é o diálogo que o envolve", () => {
+  it("não tem título próprio: quem titula é o painel que o envolve", () => {
     montar();
 
     expect(screen.queryByRole("heading")).toBeNull();

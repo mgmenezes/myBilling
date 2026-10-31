@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 a T10 no lote 2; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 a T11 no lote 2, à espera do Verifier; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `33c9567`, que já traz
 `lancamentos-densos` (AD-020); os hashes da T1 à T6 são os de depois do rebase)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -391,7 +391,7 @@ formulário na coluna e fora dela.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner`
+**Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner` (`b2b201d`)
 **Nota**: as janelas do limiar são 777 e 778 px, em que o formulário mede 447 e 448 px; o plano supunha um menu de 241 px, e ele mede 240. O teste mede a largura antes de conferir os pares, para o limiar continuar colado se o respiro em volta mudar. Com `@sm` no lugar de `@md`, o teste do limiar falha. O cadastro e a edição foram medidos também em 1.280 px, e não só na coluna.
 
 ### Phase 4 — Fechamento
@@ -416,12 +416,16 @@ formulário na coluna e fora dela.
 **Reuses**: nenhuma
 **Requirement**: FIXCOL-04, FIXCOL-05, FIXCOL-06, FIXCOL-07
 **Done when**:
-- [ ] AD-021 registrado, com o que ele revê (AD-014 e AD-019 em Todo mês)
-- [ ] Cada critério substituído aponta para o FIXCOL que o substitui
-- [ ] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+- [x] AD-021 registrado, com o que ele revê (AD-014 e AD-019 em Todo mês)
+- [x] Cada critério substituído aponta para o FIXCOL que o substitui
+- [x] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(todo-mes-colunas): registrar Todo mês em linhas`
+**Nota**:
+- **As linhas citadas da T8 no `spec.md` foram corrigidas.** O helper das alturas que a T9 pôs no alto de `e2e/todo-mes-colunas.spec.ts` deslocou os testes da T8 em 33 linhas, e a traceability apontava para as linhas de antes.
+- **`Dialogo`**, em `dialogo-de-cadastro.tsx`, continua exportado, mas o único que o usa agora é o `DialogoDeCadastro` do mesmo arquivo. O comentário diz isso; a exportação fica, porque tirá-la não é desta fatia.
+- **Contagens**, com `pnpm verify` saindo 0 e o e2e inteiro na porta 3101: 1.823 unitários em 115 arquivos (eram 1.839 em 116 antes do lote 2), 364 de integração em 23 arquivos (sem mudança) e 169 e2e em 15 arquivos (eram 134 em 14).
 
 ---
 
