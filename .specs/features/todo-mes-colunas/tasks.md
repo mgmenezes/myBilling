@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 concluída; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 e T2 concluídas; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
 duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -163,7 +163,7 @@ ocorrência e soma os dois totais a partir dos lançamentos.
 - [x] Gate quick passa; nenhum dos 1.703 testes de antes some
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): fixos do mês com o valor da ocorrência`
+**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`01b4219`)
 
 #### T2: `obterTodoMes`, materializar e ler o mês
 **What**: o caso de uso de leitura de Todo mês: materializa a janela, lê fixos e lançamentos do mês e
@@ -173,10 +173,10 @@ chama `fixosDoMes`.
 **Reuses**: `materializarRecorrencias`, `MESES_DE_PROJECAO`, `@/application/ports/fakes`
 **Requirement**: FIXCOL-02, FIXCOL-03
 **Done when**:
-- [ ] Num mês nunca aberto, a linha vem com o valor da vigência e o total de saídas não é zero; ler antes de materializar zera os dois (FIXCOL-02 AC 3)
-- [ ] Abrir o mesmo mês duas vezes não cria ocorrência nova (FIXO-02)
-- [ ] Com uma ocorrência confirmada nos fakes, a linha e o total trazem o valor confirmado (FIXCOL-02 AC 1, FIXCOL-03 AC 2)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Num mês nunca aberto, a linha vem com o valor da vigência e o total de saídas não é zero; ler antes de materializar zera os dois (FIXCOL-02 AC 3)
+- [x] Abrir o mesmo mês duas vezes não cria ocorrência nova (FIXO-02)
+- [x] Com uma ocorrência confirmada nos fakes, a linha e o total trazem o valor confirmado (FIXCOL-02 AC 1, FIXCOL-03 AC 2)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências`
