@@ -502,12 +502,12 @@ describe("estado vazio (UI-02, AC 6)", () => {
 
 /**
  * A coluna de categoria substituiu a de parcela onde esta era sempre vazia.
- * No Cartão a parcela continua informando, mas sob a descrição, e a coluna
- * Parcela não existe em bloco nenhum (LST-05, AC 2, que substitui o BLOCO-01
- * AC 7).
+ * No Cartão a parcela continua informando, na célula da descrição, logo depois
+ * dela (DENS-01, AC 2), e a coluna Parcela não existe em bloco nenhum (LST-05,
+ * AC 2, que substitui o BLOCO-01 AC 7).
  */
 describe("categoria na lista", () => {
-  it("o bloco de cartão mostra categoria e a parcela sob a descrição, sem coluna Parcela (LST-05, ACs 1 e 2)", () => {
+  it("o bloco de cartão mostra categoria e a parcela na célula da descrição, sem coluna Parcela (LST-05, ACs 1 e 2; DENS-01, AC 2)", () => {
     render(
       <TabelaLancamentos
         competenciaCorrente={MARCO}

@@ -45,8 +45,8 @@ filtros, que muda de lugar só por CSS:
   continuam com 44 px (TOQUE-01). As classes `min-h-11 min-w-11` que os testes de hoje conferem
   ficam.
 - **Parcela:** um `span` em linha, logo depois da descrição: `<span class="tabular">2/4</span> ·
-  faltam 2`, ou `4/4 · última`, em 13 px e `text-ink-muted`. O texto vem de uma função pura,
-  `textoDaParcela(parcela)`, testada à parte.
+  faltam 2`, ou `4/4 · última`, em 13 px e `text-ink-muted`. O resto do texto ("faltam 2" ou
+  "última") vem de uma função pura, `restoDaParcela(restantes)`, testada à parte.
 - **`BotaoPago`:** o mesmo componente, com o mesmo nome acessível, o mesmo texto e o mesmo
   `aria-pressed`. Ganha `md:pointer-fine:min-h-8`. O ícone ✓ ou ○ do protótipo fica de fora: ele
   mudaria o texto do botão que os testes de hoje leem, sem informar nada que "Pago" já não diga.
@@ -101,9 +101,17 @@ prova.
 
 | Faixa | O que mede |
 | --- | --- |
-| 1.920 px | Toda linha com até 48 px, inclusive parcela, fixo confirmado e vencido (DENS-01); a parcela "2/3 · faltam 1" na mesma altura da descrição |
-| 1.920 px | O "⋯" só nas linhas de avulso; abrir, excluir, confirmar, a linha some (DENS-02) |
-| 1.920 px | A coluna de filtros à direita da lista, com o `border-left` computado; presa ao rolar até o fim; sem a barra compacta; a lista com até 1.100 px e centrada (DENS-03) |
-| 1.920 px | O título "Fixos" no alto ao rolar até o meio do bloco (DENS-04) |
-| 1.535 px e 1.536 px | O limiar dos dois lados: filtros no topo a 1.535 px e na coluna a 1.536 px |
-| 400 px | Sem rolagem lateral |
+| 1.280, 1.536 e 1.920 px | Toda linha com até 48 px, inclusive parcela, fixo confirmado e vencido, e só a de descrição longa com mais de 48 px (DENS-01, AC 1 e o edge case "Descrição longa") |
+| 1.920 px | "confirmado · previa" à esquerda do valor, na mesma altura (DENS-01, AC 5); o selo ao lado de "Vencido", alternando o pagamento (ACs 3 e 4) |
+| 1.920 px | O "⋯" só nas linhas de avulso, na célula da Situação, à direita do selo e do "Vencido"; nenhum "Excluir" fora do menu; o `Escape` com o foco dentro do menu devolve o foco ao "⋯"; excluir em dois toques tira a linha e baixa o total do bloco (DENS-02, ACs 1 a 6) |
+| 1.920 px, ponteiro grosso | O selo, o "⋯" e o "Excluir" do menu aberto com ao menos 44 × 44 (DENS-02, AC 7) |
+| 1.920 px | A coluna de filtros à direita da lista, com o `border-left` computado e a contagem no alto; os chips dentro da coluna, filtrando; a lista com até 1.100 px e centrada (DENS-03, ACs 1, 3, 4, 7 e 8) |
+| 1.536 × 480 e 1.920 × 480; 1.535 × 480 | Rolando até o fim, a coluna presa e sem a barra compacta; em 1.535 px, o cartão sai da tela e a barra compacta aparece (DENS-03, ACs 2 e 6) |
+| 1.535 px e 1.536 px | O limiar dos dois lados: filtros no topo a 1.535 px e na coluna a 1.536 px (DENS-03, ACs 1 e 5) |
+| 1.536 × 420 e 1.535 × 420 | O título "Fixos" preso no alto ao rolar até o meio do bloco em 1.536 px, e solto em 1.535 px (DENS-04, AC 1) |
+| 1.920 px | Recolher e expandir "Fixos" com o título preso (DENS-04, AC 2) |
+
+Fora deste arquivo, em 400 px, `e2e/acessibilidade.spec.ts` mede o selo, o "⋯" e o "Excluir" do menu
+com 44 × 44 e a linha sem rolagem lateral, também com o menu aberto (DENS-02, AC 7; TOQUE-01); e
+`e2e/lista-enxuta.spec.ts` mede a parcela na mesma altura da descrição em 1.280 e 1.440 px (DENS-01,
+AC 2).

@@ -406,7 +406,7 @@ for (const largura of [1024, 1280, 1440]) {
   test.describe(`em ${largura} pixels`, () => {
     test.use({ viewport: { width: largura, height: 900 } });
 
-    test("as tabelas terminam dentro da coluna de conteúdo, com a parcela sob a descrição e o seletor de 36 por 176 px (LST-05, ACs 1, 3, 4 e 5)", async ({
+    test("as tabelas terminam dentro da coluna de conteúdo, com a parcela na célula da descrição e o seletor de 36 por 176 px (LST-05, ACs 1, 3, 4 e 5)", async ({
       page,
     }) => {
       await page.goto(`/${MARCO}/lancamentos`);

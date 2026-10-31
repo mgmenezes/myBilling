@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 1 de `validation.md`, em 2026-10-30; correções F1–F7 em andamento (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 concluídas)
+**Status**: FAIL na rodada 1 de `validation.md`, em 2026-10-30; correções F1–F7 concluídas, à espera da rodada 2 do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F7 concluídas)
 **Total**: 13 tasks em 4 fases (T1–T6 e as correções F1–F7), executadas inline
 
 ---
@@ -132,7 +132,7 @@ ficaram para trás.
 
 #### T1: A parcela curta, na mesma linha
 **What**:
-- `textoDaParcela`, a função pura;
+- `restoDaParcela`, a função pura;
 - a parcela em linha na célula da descrição;
 - os testes que provavam a segunda linha passam a provar a regra nova.
 
@@ -146,7 +146,7 @@ ficaram para trás.
 **Reuses**: o tipo de parcela de `LancamentoDoMes`
 **Requirement**: DENS-01
 **Done when**:
-- [x] `textoDaParcela` dá "2/4 · faltam 2", "3/4 · faltam 1" e "4/4 · última" (DENS-01 AC 2)
+- [x] `restoDaParcela` dá "faltam 2", "faltam 1" e "última", e a célula mostra "2/4 · faltam 2", "3/4 · faltam 1" e "4/4 · última" (DENS-01 AC 2)
 - [x] A parcela fica na mesma linha da descrição, em texto menor e apagado, com o número em algarismos tabulares (DENS-01 AC 2)
 - [x] `compra-parcelada.spec.ts` e `lista-enxuta.spec.ts` (LST-05 AC 1) provam o texto novo e a parcela na mesma altura da descrição
 **Tests**: unit, componentes, e2e
@@ -158,7 +158,7 @@ ficaram para trás.
 - a `CELULA` com menos respiro com ponteiro fino;
 - o selo compacto do `BotaoPago`;
 - o "previsto" e o "confirmado · previa" na mesma linha do valor;
-- a descrição que corta com reticências;
+- a descrição longa, que quebra linha, e só a linha dela cresce;
 - o e2e de alturas.
 
 **Where**:
@@ -368,7 +368,7 @@ ficaram para trás.
 - [x] O e2e falha com M6 (o `Escape` fecha sem devolver o foco)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): o Escape devolve o foco de dentro do menu`
+**Commit**: `test(lancamentos): o Escape devolve o foco de dentro do menu` (`15ea1ee`)
 
 #### F7: Os textos que ficaram para trás
 **What**: a observação 7, e os textos do mesmo tipo achados ao corrigi-la:
@@ -388,10 +388,10 @@ ficaram para trás.
 **Reuses**: nenhuma
 **Requirement**: DENS-01
 **Done when**:
-- [ ] Nenhum texto da fatia diz que a descrição corta com reticências, nem que a parcela fica numa segunda linha ou sob a descrição
-- [ ] O `design.md` chama a função de `restoDaParcela(restantes)`, e a tabela do e2e novo diz onde e em que largura cada teste roda
-- [ ] Nenhuma assertion muda: só títulos, comentários e documentos
-- [ ] `pnpm verify` e o e2e inteiro passam
+- [x] Nenhum texto da fatia diz que a descrição corta com reticências, nem que a parcela fica numa segunda linha ou sob a descrição
+- [x] O `design.md` chama a função de `restoDaParcela(restantes)`, e a tabela do e2e novo diz onde e em que largura cada teste roda
+- [x] Nenhuma assertion muda: só títulos, comentários e documentos
+- [x] `pnpm verify` e o e2e inteiro passam: 1.704 unitários, 364 de integração, build e 129 e2e
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(lancamentos-densos): acertar os textos que ficaram para trás`

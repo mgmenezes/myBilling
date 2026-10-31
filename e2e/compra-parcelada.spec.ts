@@ -109,7 +109,7 @@ function linhaDaParcela(page: Page, descricao: string) {
   });
 }
 
-/** A célula da descrição: a parcela é a segunda linha dela, e não uma coluna (LST-05). */
+/** A célula da descrição: a parcela fica nela, logo depois da descrição, e não numa coluna (LST-05; DENS-01, AC 2). */
 function descricaoDaParcela(page: Page, descricao: string) {
   return linhaDaParcela(page, descricao).getByRole("cell").first();
 }
