@@ -10,28 +10,28 @@ hoje, guiou cada escolha abaixo.
 filtros, que muda de lugar só por CSS:
 
 ```
-<div class="grid xl:grid-cols-[minmax(0,1fr)_20rem]">
-  cabeçalho (h1 + "+ Novo lançamento")   xl: coluna 1, linha 1    mx-auto max-w-[1000px]
-  <div xl: coluna 2, linhas 1-2, border-l>                        (a linha fina, da altura toda)
-    <div id="cartao-de-filtros" xl:sticky xl:top-0 xl:max-h-dvh xl:overflow-y-auto>
+<div class="grid 2xl:grid-cols-[minmax(0,1fr)_20rem]">
+  cabeçalho (h1 + "+ Novo lançamento")   2xl: coluna 1, linha 1    mx-auto max-w-[1000px]
+  <div 2xl: coluna 2, linhas 1-2, border-l>                        (a linha fina, da altura toda)
+    <div id="cartao-de-filtros" 2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto>
       FiltrosDeLancamentos
   BarraDeFiltrosCompacta
-  lista (blocos)                          xl: coluna 1, linha 2    mx-auto max-w-[1000px]
+  lista (blocos)                          2xl: coluna 1, linha 2    mx-auto max-w-[1000px]
 </div>
 ```
 
-- **Abaixo de 1.280 px**, a ordem do DOM é a de hoje: cabeçalho, filtros e lista, numa coluna
+- **Abaixo de 1.536 px**, a ordem do DOM é a de hoje: cabeçalho, filtros e lista, numa coluna
   centrada de até 1.024 px, com o respiro da `AreaEstreita`.
 - **Um id só e um `<search>` só.** As consultas de `busca-e-filtros`, `trocar-categoria`,
   `categorias` e `visao-tres-colunas` usam `#cartao-de-filtros search`. Dois cartões duplicariam o
   id.
-- **Barra compacta:** a partir de 1.280 px o cartão fica preso e sempre na tela, então o
+- **Barra compacta:** a partir de 1.536 px o cartão fica preso e sempre na tela, então o
   `IntersectionObserver` da `BarraDeFiltrosCompacta` nunca o vê sair, e a barra não aparece
   (DENS-03, AC 6). Nada muda no componente da barra.
-- **`FiltrosDeLancamentos` na coluna**, com classes `xl:`:
-  - o cartão perde a moldura (`xl:rounded-none xl:border-0 xl:bg-transparent xl:p-6`);
-  - os três seletores empilham (`xl:grid-cols-1`);
-  - a linha da contagem e do total (`role="status"`) sobe para o alto com `xl:order-first`, sem
+- **`FiltrosDeLancamentos` na coluna**, com classes `2xl:`:
+  - o cartão perde a moldura (`2xl:rounded-none 2xl:border-0 2xl:bg-transparent 2xl:p-6`);
+  - os três seletores empilham (`2xl:grid-cols-1`);
+  - a linha da contagem e do total (`role="status"`) sobe para o alto com `2xl:order-first`, sem
     mudar a ordem do DOM;
   - os chips continuam os de hoje e quebram linha na largura da coluna (DENS-03, AC 4).
 - **Sem `h3`, sem um segundo `role="status"` e sem texto com "lançamento" na coluna.** Os testes
@@ -47,12 +47,14 @@ filtros, que muda de lugar só por CSS:
 - **Parcela:** um `span` em linha, logo depois da descrição: `<span class="tabular">2/4</span> ·
   faltam 2`, ou `4/4 · última`, em 13 px e `text-ink-muted`. O texto vem de uma função pura,
   `textoDaParcela(parcela)`, testada à parte.
-- **`BotaoPago`:** o mesmo componente, com o mesmo nome acessível e o mesmo `aria-pressed`. Ganha
-  `md:pointer-fine:min-h-8 md:pointer-fine:px-3` e o ícone ✓ ou ○ antes do texto.
+- **`BotaoPago`:** o mesmo componente, com o mesmo nome acessível, o mesmo texto e o mesmo
+  `aria-pressed`. Ganha `md:pointer-fine:min-h-8`. O ícone ✓ ou ○ do protótipo fica de fora: ele
+  mudaria o texto do botão que os testes de hoje leem, sem informar nada que "Pago" já não diga.
 - **`ValorConfirmavel`, fechado:** o `span` passa de `flex-col` para `md:flex-row-reverse
   md:items-baseline md:gap-2`. O texto ("previsto" ou "confirmado · previa R$ X") fica à esquerda do
   valor, na mesma linha, com o mesmo texto de hoje (FIXO-04).
-- **Descrição longa:** corta com reticências (`md:truncate`), e o nome inteiro vai no `title`.
+- **Descrição longa:** quebra linha, e só aquela linha cresce. Cortar com reticências pediria largura
+  fixa na célula e arriscaria a tabela sair da margem (LST-05, AC 3).
 
 ## O menu "⋯" (DENS-02)
 
@@ -73,8 +75,8 @@ A tabela renderiza o `MenuDaLinha` só na linha de avulso, no lugar do `BotaoExc
 
 ## Títulos presos (DENS-04)
 
-A `div` do cabeçalho do `BlocoRecolhivel` ganha `xl:sticky xl:top-0 xl:z-10 xl:bg-canvas`. A `div
-id="linhas-…"` não ganha atributo nenhum: o e2e de LST-02 lê esse HTML exato. A partir de 1.280 px
+A `div` do cabeçalho do `BlocoRecolhivel` ganha `2xl:sticky 2xl:top-0 2xl:z-10 2xl:bg-canvas`. A `div
+id="linhas-…"` não ganha atributo nenhum: o e2e de LST-02 lê esse HTML exato. A partir de 1.536 px
 não há barra compacta. O `scroll-padding-top` de hoje, de 4 rem, é maior que o cabeçalho de 3 rem,
 então o foco pelo teclado não para debaixo dele.
 
@@ -87,13 +89,13 @@ prova.
 | --- | --- | --- |
 | `tabela-lancamentos.test.tsx` (PARC-08, LST-05 AC 1, AVUL-03 AC 6, TOQUE-01) | Parcela curta; "Excluir" no menu | Novos textos da parcela; abrir o "⋯" antes de achar "Excluir" |
 | `compra-parcelada.spec.ts:115-117,176-178,184` | Parcela curta | "8/10 · faltam 2" e "10/10 · última" |
-| `lista-enxuta.spec.ts:453-466` (LST-05 AC 1) | Parcela curta, na mesma linha | Texto novo; a parcela na mesma altura da descrição |
-| `lista-enxuta.spec.ts:409-431` (LST-05 AC 3) | A coluna de conteúdo a partir de 1.280 px é a lista | Medir contra a lista nessa faixa, e contra o cartão em 1.024 px |
-| `lista-enxuta.spec.ts:351-376` (LST-03) | A barra vale abaixo de 1.280 px | Rodar em 1.024 px |
+| `lista-enxuta.spec.ts:453-466` (LST-05 AC 1) | Parcela curta; a mesma linha só é garantida a partir de 1.280 px | Texto novo; a parcela na mesma altura da descrição em 1.280 e 1.440 px |
+| `lista-enxuta.spec.ts:409-431` (LST-05 AC 3) | Roda em 1.024, 1.280 e 1.440 px, todas abaixo de 1.536 px | Nada muda: o cartão continua no topo nessas larguras |
+| `lista-enxuta.spec.ts:351-376` (LST-03) | Roda em 1.280 px, abaixo de 1.536 px | Nada muda |
 | `lancamento-avulso.spec.ts:243-276` (AVUL-03) | "Excluir" no menu | Abrir o "⋯" da linha primeiro |
 | `acessibilidade.spec.ts:118-160` (TOQUE-01, 400 px) | "Excluir" no menu | Abrir o "⋯" e medir o "⋯" e o "Excluir" com 44×44 |
 | `visao-tres-colunas.spec.ts:213-232` (TRES-01 AC 8) | Lançamentos deixa a `AreaEstreita` | O laço fica com Todo mês e Categorias |
-| `visao-tres-colunas.spec.ts:560-571` | A barra vale abaixo de 1.280 px | Rodar em 1.024 px |
+| `visao-tres-colunas.spec.ts:560-571` | Roda em 1.280 px, abaixo de 1.536 px | Nada muda |
 
 ## e2e novo: `e2e/lancamentos-densos.spec.ts`
 
@@ -103,5 +105,5 @@ prova.
 | 1.920 px | O "⋯" só nas linhas de avulso; abrir, excluir, confirmar, a linha some (DENS-02) |
 | 1.920 px | A coluna de filtros à direita da lista, com o `border-left` computado; presa ao rolar até o fim; sem a barra compacta; a lista com até 1.000 px e centrada (DENS-03) |
 | 1.920 px | O título "Fixos" no alto ao rolar até o meio do bloco (DENS-04) |
-| 1.279 px e 1.280 px | O limiar dos dois lados: filtros no topo a 1.279 px e na coluna a 1.280 px |
+| 1.535 px e 1.536 px | O limiar dos dois lados: filtros no topo a 1.535 px e na coluna a 1.536 px |
 | 400 px | Sem rolagem lateral |

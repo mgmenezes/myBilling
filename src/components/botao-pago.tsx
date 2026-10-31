@@ -26,8 +26,10 @@ import type { alternarPagamento as alternarPagamentoAction } from "@/app/actions
  * formatação e agrupamento para o navegador sem nenhum ganho.
  */
 
+/* 44 px no toque (TOQUE-01); com ponteiro fino, o selo compacto de 32 px da
+   lista densa (DENS-01, AC 3). */
 const BASE =
-  "inline-flex min-h-11 min-w-11 w-fit items-center justify-center rounded-pill px-2.5 py-0.5 text-[13px] " +
+  "inline-flex min-h-11 min-w-11 w-fit items-center justify-center rounded-pill px-2.5 py-0.5 text-[13px] md:pointer-fine:min-h-8 " +
   "transition-[background-color,border-color,opacity] duration-200 " +
   "disabled:cursor-progress disabled:opacity-60";
 

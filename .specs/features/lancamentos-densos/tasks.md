@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 concluída)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 e T2 concluídas)
 **Total**: 6 tasks em 3 fases (T1–T6), um lote só, executado inline
 
 ---
@@ -47,7 +47,7 @@ operação remota exigem autorização separada.
   id="linhas-…"` do bloco não ganha atributo.
 - **O valor fica num `td` só,** alinhado à direita, em algarismos tabulares (REDE-03, AC 2).
 - **Layout:** a prova se mede no navegador, com `boundingBox` e estilo computado. Todo limiar
-  (768 px e 1.280 px) é provado dos dois lados (L-029). A consulta que situa um elemento fica presa
+  (1.280 px para a linha baixa e 1.536 px para a coluna) é provado dos dois lados (L-029). A consulta que situa um elemento fica presa
   à região dele (L-018).
 - **Gate:** o de toda task inclui `pnpm typecheck` (L-016). Medir só depois de esperar a página
   pronta.
@@ -57,7 +57,7 @@ operação remota exigem autorização separada.
 1. **Linha com até 48 px**, inclusive parcela, fixo confirmado e vencido. Teste em T2.
 2. **"Excluir" só no menu,** com dois toques e 44 px no toque. Teste em T3.
 3. **Coluna de filtros presa, sem barra compacta, lista com até 1.000 px;** filtros no topo abaixo
-   de 1.280 px. Teste em T4.
+   de 1.536 px. Teste em T4.
 4. **Nenhum filtro muda de resultado.** Testes atuais de `busca-e-filtros` em T4.
 
 ---
@@ -148,17 +148,20 @@ Lote único, inline: T1 a T6, nesta ordem.
 - `src/components/tabela-lancamentos.tsx`
 - `src/components/botao-pago.tsx` (+ teste)
 - `src/components/valor-confirmavel.tsx` (+ teste)
+- `src/components/botao-excluir.tsx` (o mesmo compacto do selo, até a T3 levá-lo ao menu)
 - `e2e/lancamentos-densos.spec.ts` (novo)
+- `e2e/lista-enxuta.spec.ts` (a mesma linha só a partir de 1.280 px)
 
 **Depends on**: T1
 **Reuses**: `BotaoPago`, `ValorConfirmavel`, `SeletorDeCategoria`
 **Requirement**: DENS-01
 **Done when**:
-- [ ] Em 1.920 px com ponteiro fino, toda linha das tabelas mede até 48 px, inclusive parcela, fixo confirmado e vencido, medido no navegador (DENS-01 AC 1)
-- [ ] O selo mostra "Pago" ou "Previsto", com o mesmo nome acessível e o mesmo `aria-pressed`, e alterna como hoje (DENS-01 AC 3)
-- [ ] "Vencido" continua ao lado do selo (DENS-01 AC 4)
-- [ ] O valor confirmável mostra "previsto" ou "confirmado · previa R$ X" na mesma linha, à esquerda do valor (DENS-01 AC 5)
-- [ ] As colunas e o seletor de categoria continuam os de hoje; os testes de TRC, FIXO-04, VENC-01 e TOQUE-01 do selo passam sem mudar o que afirmam (DENS-01 AC 6)
+- [x] Em 1.280 px e em 1.920 px com ponteiro fino, toda linha das tabelas mede até 48 px, inclusive parcela, fixo confirmado e vencido, medido no navegador (DENS-01 AC 1)
+- [x] Desvio medido: a coluna de filtros e os títulos presos passam a valer a partir de 1.536 px, porque em 1.280 px a lista ficaria com 656 px; em 1.024 px a parcela de uma descrição pode quebrar para baixo, e o e2e de LST-05 exige a mesma linha só a partir de 1.280 px
+- [x] O selo mostra "Pago" ou "Previsto", com o mesmo nome acessível e o mesmo `aria-pressed`, e alterna como hoje (DENS-01 AC 3)
+- [x] "Vencido" continua ao lado do selo (DENS-01 AC 4)
+- [x] O valor confirmável mostra "previsto" ou "confirmado · previa R$ X" na mesma linha, à esquerda do valor (DENS-01 AC 5)
+- [x] As colunas e o seletor de categoria continuam os de hoje; os testes de TRC, FIXO-04, VENC-01 e TOQUE-01 do selo passam sem mudar o que afirmam (DENS-01 AC 6)
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `feat(lancamentos): uma linha baixa por lançamento`
@@ -194,7 +197,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 
 #### T4: Os filtros numa coluna à direita
 **What**:
-- a página em grade, sem a `AreaEstreita`, com o cartão de filtros preso na coluna da direita a partir de 1.280 px;
+- a página em grade, sem a `AreaEstreita`, com o cartão de filtros preso na coluna da direita a partir de 1.536 px;
 - `FiltrosDeLancamentos` com as classes da coluna;
 - os testes de LST-03, LST-05 AC 3 e TRES-01 AC 8 acompanham a regra nova.
 
@@ -213,7 +216,7 @@ Lote único, inline: T1 a T6, nesta ordem.
 - [ ] Rolando até o fim em 1.920 px, a coluna continua à vista e a barra compacta não aparece (DENS-03 ACs 2 e 6)
 - [ ] A contagem e o total ficam no alto da coluna (DENS-03 AC 3)
 - [ ] Os chips da coluna têm a cor, o total, a escolha e o "+N categorias" de hoje; `categorias.spec.ts` e `lista-enxuta.spec.ts` (LST-01) passam (DENS-03 AC 4)
-- [ ] Em 1.279 px os filtros ficam no topo; em 1.280 px, na coluna (DENS-03 ACs 1 e 5)
+- [ ] Em 1.535 px os filtros ficam no topo; em 1.536 px, na coluna (DENS-03 ACs 1 e 5)
 - [ ] `busca-e-filtros.spec.ts` passa sem mudança (DENS-03 AC 7)
 - [ ] Em 1.920 px a lista mede até 1.000 px e fica centrada entre o menu e a coluna (DENS-03 AC 8)
 - [ ] Os testes de LST-03, de LST-05 AC 3 e do TRES-01 AC 8 provam a regra nova, como registrado no design
@@ -222,14 +225,14 @@ Lote único, inline: T1 a T6, nesta ordem.
 **Commit**: `feat(lancamentos): filtros numa coluna à direita`
 
 #### T5: Os títulos dos blocos presos ao rolar
-**What**: o cabeçalho do `BlocoRecolhivel` preso no alto a partir de 1.280 px.
+**What**: o cabeçalho do `BlocoRecolhivel` preso no alto a partir de 1.536 px.
 **Where**: `src/components/bloco-recolhivel.tsx`, `e2e/lancamentos-densos.spec.ts`
 **Depends on**: T4
 **Reuses**: `BlocoRecolhivel`
 **Requirement**: DENS-04
 **Done when**:
 - [ ] Em 1.920 px, rolando até o meio de "Fixos", o título "Fixos" está no alto da tela (DENS-04 AC 1)
-- [ ] Em 1.279 px o título não prende (limiar dos dois lados)
+- [ ] Em 1.535 px o título não prende (limiar dos dois lados, 1.535 e 1.536 px)
 - [ ] O recolher e expandir e o HTML de LST-02 passam sem mudança (DENS-04 AC 2)
 **Tests**: e2e
 **Gate**: e2e

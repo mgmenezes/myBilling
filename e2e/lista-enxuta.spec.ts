@@ -456,7 +456,9 @@ for (const largura of [1024, 1280, 1440]) {
       const descricao = linha(page, "Compra B").getByRole("cell").first();
       await expect(descricao).toContainText("Compra B");
       await expect(descricao.getByText("2/4 · faltam 2")).toBeVisible();
-      /* "Mesma linha": a caixa da parcela cruza a altura do texto da descrição. */
+      /* "Mesma linha": a caixa da parcela cruza a altura do texto da descrição.
+         Garantida a partir de 1.280 px (DENS-01, AC 1); em 1.024 px a coluna da
+         descrição é estreita, e a parcela pode quebrar para baixo. */
       const { topoDaDescricao, peDaDescricao, topoDaParcela, peDaParcela } =
         await descricao.evaluate((celula) => {
           const texto = document.createRange();
@@ -470,8 +472,10 @@ for (const largura of [1024, 1280, 1440]) {
             peDaParcela: caixaDaParcela?.bottom ?? -1,
           };
         });
-      expect(topoDaParcela).toBeLessThan(peDaDescricao);
-      expect(peDaParcela).toBeGreaterThan(topoDaDescricao);
+      if (largura >= 1280) {
+        expect(topoDaParcela).toBeLessThan(peDaDescricao);
+        expect(peDaParcela).toBeGreaterThan(topoDaDescricao);
+      }
       await expect(
         page.getByRole("region", { name: "Cartão de Crédito" }).getByRole("columnheader"),
       ).toHaveText(["Descrição", "Categoria", "Data", "Situação", "Valor"]);

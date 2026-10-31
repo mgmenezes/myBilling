@@ -116,9 +116,12 @@ const BLOCOS_DE_DESPESA: ReadonlyArray<BlocoDeDespesa> = [
   { id: "avulsos", titulo: "Gastos do Mês", bloco: "AVULSOS" },
 ];
 
-/* Com ponteiro fino a linha baixa: o seletor também baixa para 36 px, e
-   não há dedo para errar o alvo. No toque, 44 px e o respiro de antes. */
-const CELULA = "block md:table-cell md:px-4 md:py-3.5 md:pointer-fine:py-2.5 md:align-top";
+/* Com ponteiro fino a linha baixa: o seletor baixa para 36 px, o selo para
+   32 px, e a célula fica com 4 px de respiro. A linha mede 44 px, e o dobro
+   de lançamentos cabe na tela (DENS-01, AC 1). No toque, 44 px de alvo e o
+   respiro de antes (TOQUE-01). */
+const CELULA =
+  "block md:table-cell md:px-4 md:py-3.5 md:align-top md:pointer-fine:py-1 md:pointer-fine:align-middle";
 const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-muted";
 
 export function TabelaLancamentos({
@@ -300,9 +303,12 @@ function BlocoDeLancamentos({
                   <td className={`${CELULA} font-medium`}>
                     {lancamento.descricao}
                     {/* A parcela na mesma linha, curta e apagada (DENS-01, AC 2):
-                        a segunda linha de antes dobrava a altura da linha. */}
+                        a segunda linha de antes dobrava a altura da linha. O
+                        espaço é texto, e não só margem: sem ele o leitor de tela
+                        lê "Compra A1/3". */}
+                    {parcela === null ? null : " "}
                     {parcela === null ? null : (
-                      <span className="ml-2 text-[13px] font-normal text-ink-muted">
+                      <span className="ml-1 text-[13px] font-normal text-ink-muted">
                         <span className="tabular">
                           {parcela.numero}/{parcela.total}
                         </span>{" "}

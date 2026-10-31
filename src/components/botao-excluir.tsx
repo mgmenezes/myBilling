@@ -24,8 +24,10 @@ import type { cancelarLancamento as cancelarAction } from "@/app/actions/lancame
  * armada enquanto a pessoa foi olhar outra coisa é uma armadilha.
  */
 
+/* 44 px no toque (TOQUE-01); com ponteiro fino, 32 px, como o selo da lista
+   densa (DENS-01). */
 const BASE =
-  "inline-flex min-h-11 min-w-11 w-fit items-center justify-center rounded-pill px-2.5 py-0.5 text-[13px] " +
+  "inline-flex min-h-11 min-w-11 w-fit items-center justify-center rounded-pill px-2.5 py-0.5 text-[13px] md:pointer-fine:min-h-8 " +
   "transition-[background-color,border-color,opacity] duration-200 " +
   "disabled:cursor-progress disabled:opacity-60";
 

@@ -61,7 +61,10 @@ export function ValorConfirmavel({
 
   if (!aberto) {
     return (
-      <span className="flex flex-col items-start gap-0.5 md:items-end">
+      /* Na mesma linha do valor, à esquerda dele, a partir de 768 px: a
+         previsão continua à vista sem dobrar a altura da linha (DENS-01, AC
+         5). O DOM segue valor e depois texto; a ordem na tela é invertida. */
+      <span className="flex flex-col items-start gap-0.5 md:flex-row-reverse md:items-baseline md:justify-start md:gap-2">
         <button
           type="button"
           onClick={() => setAberto(true)}
