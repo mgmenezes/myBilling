@@ -355,7 +355,7 @@ ficaram para trás.
 - [x] O teste falha com M17 (sem o ouvinte de `pointerdown` no `document`)
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `test(lancamentos): clicar fora fecha o menu sem foco dentro`
+**Commit**: `test(lancamentos): clicar fora fecha o menu sem foco dentro` (`c4cf6ad`)
 
 #### F6: O foco volta ao "⋯" de dentro do menu
 **What**: no e2e de 1.920 px, levar o foco ao "Excluir" do menu aberto antes do `Escape`, para o `toBeFocused()` provar a volta do foco. Hoje o foco já está no "⋯" quando o `Escape` é apertado (observação 5).
@@ -364,8 +364,8 @@ ficaram para trás.
 **Reuses**: `linha`
 **Requirement**: DENS-02
 **Done when**:
-- [ ] Com o foco no "Excluir" do menu aberto, `Escape` fecha o menu e o foco volta ao "⋯" (DENS-02 AC 5)
-- [ ] O e2e falha com M6 (o `Escape` fecha sem devolver o foco)
+- [x] Com o foco no "Excluir" do menu aberto, `Escape` fecha o menu e o foco volta ao "⋯" (DENS-02 AC 5)
+- [x] O e2e falha com M6 (o `Escape` fecha sem devolver o foco)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(lancamentos): o Escape devolve o foco de dentro do menu`

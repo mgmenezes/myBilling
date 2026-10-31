@@ -352,6 +352,11 @@ test.describe("o menu da linha, em 1.920 px", () => {
     const gatilho = item.getByRole("button", { name: "Mais ações para Item A" });
     await gatilho.click();
     await expect(gatilho).toHaveAttribute("aria-expanded", "true");
+    /* O foco vai para dentro do menu antes do Escape: só assim a volta ao
+       "⋯" depende do menu, e não do foco que já estava nele. */
+    const excluir = item.getByRole("button", { name: /^Excluir/ });
+    await excluir.focus();
+    await expect(excluir).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(gatilho).toHaveAttribute("aria-expanded", "false");
     await expect(gatilho).toBeFocused();
