@@ -355,7 +355,7 @@ controlado, com o tipo em texto quando a lista de tipos é `null`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `refactor(meios): campos do meio fora do cadastro inline`
+**Commit**: `refactor(meios): campos do meio fora do cadastro inline` (`6e4032d`)
 **Nota**: `CamposDoMeio` também recebe `diasPelaLargura`, que o design não listava. O cadastro inline
 ganhou a prop em `formulario-pela-coluna` (FPC-01), depois do design: com ela, os dias ficam lado a
 lado pela largura do contêiner (`@md`) nos formulários de lançamento, e sem ela pela janela (`sm`)
@@ -371,16 +371,24 @@ na importação. Os dois testes do ponto de virada estão em `campos-do-meio.tes
 **Reuses**: o padrão de `lancamentos/page.tsx:199-237`
 **Requirement**: CADCOL-04, CADCOL-09, CADCOL-10
 **Done when**:
-- [ ] Na ordem do DOM: cabeçalho, painel e lista (CADCOL-09 AC 5, a ordem; a medida é da T15)
-- [ ] Nada aberto: nenhum `complementary` com o nome do painel; o bloco vazio com o título e a dica recebidos está no DOM (CADCOL-09 ACs 3 e 6, os textos; a visibilidade por largura é medida na T15 e na T21)
-- [ ] Algo aberto: `aside` com o `id` e o `aria-label` recebidos, o conteúdo recebido e "Fechar", que chama `aoFechar` (CADCOL-04 AC 15)
-- [ ] `TituloDoPainel` desenha um `h2` com `tabIndex={-1}`
-- [ ] `Escape` com o foco num campo do painel chama `aoFechar`; `Escape` fora do painel, não (CADCOL-10 AC 3)
-- [ ] Mudar `focarTitulo` leva o foco ao `h2` do conteúdo; montar já aberto não leva (CADCOL-10 AC 2, CADCOL-11 AC 2)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] Na ordem do DOM: cabeçalho, painel e lista (CADCOL-09 AC 5, a ordem; a medida é da T15)
+- [x] Nada aberto: nenhum `complementary` com o nome do painel; o bloco vazio com o título e a dica recebidos está no DOM (CADCOL-09 ACs 3 e 6, os textos; a visibilidade por largura é medida na T15 e na T21)
+- [x] Algo aberto: `aside` com o `id` e o `aria-label` recebidos, o conteúdo recebido e "Fechar", que chama `aoFechar` (CADCOL-04 AC 15)
+- [x] `TituloDoPainel` desenha um `h2` com `tabIndex={-1}`
+- [x] `Escape` com o foco num campo do painel chama `aoFechar`; `Escape` fora do painel, não (CADCOL-10 AC 3)
+- [x] Mudar `focarTitulo` leva o foco ao `h2` do conteúdo; montar já aberto não leva (CADCOL-10 AC 2, CADCOL-11 AC 2)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(cadastros): coluna de cadastro com o painel do item`
+**Nota**: a coluna ganhou a guarda de foco de Todo mês (`painel-do-fixo.tsx`), que o design não
+listava: o botão de envio que se desabilita enquanto grava perde o foco para o `body`, e o `Escape`
+deixaria de alcançar o painel. A guarda devolve o foco ao título com `preventScroll`, para a
+mensagem junto do botão continuar à vista (L-057). Os três testes seguem L-056: o botão
+desabilitado, o habilitado e o campo. A grade e o título são desta fatia, e não peças tiradas de
+Todo mês, como decide a spec ("Componente da coluna"): `TodoMes` e `PainelDoFixo` desenham a mesma
+forma presos ao estado deles. `TituloDoPainel` marca o `h2` com `data-titulo-do-painel`, e é por
+essa marca que a coluna o acha para dar o foco.
 
 #### T10: `CabecalhoDeCadastros`, o título e as abas
 **What**: o `h1` "Cadastros", a ação ao lado e a navegação "Cadastros" com as duas abas.
