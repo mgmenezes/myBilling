@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
-worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 a
-T7 concluídas, com o e2e da T6 pendente)
+worktree `.worktrees/cadastros-colunas`, rebaseada sobre a `main` em `e8b1540`, com Todo mês; lote 1
+(T1 a T7) concluído, e o lote 2 (T8 a T15) em execução)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -202,7 +202,7 @@ lançamentos do mês.
 - [x] Gate quick passa; nenhum teste de antes some
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): contar o uso de categorias e meios no mês` (`b0171ac`)
+**Commit**: `feat(domain): contar o uso de categorias e meios no mês` (`26442fb`)
 
 #### T2: `obterUsoNoMes`, materializar e contar
 **What**: o caso de uso de leitura: materializa a janela, lê fixos e lançamentos do mês e chama
@@ -218,7 +218,7 @@ lançamentos do mês.
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: unit, integration
 **Gate**: full
-**Commit**: `feat(cadastros): ler o uso no mês depois de materializar` (`4c300fd`)
+**Commit**: `feat(cadastros): ler o uso no mês depois de materializar` (`e9072bf`)
 
 ### Phase 2 — A edição do meio e as revalidações
 
@@ -244,7 +244,7 @@ lançamentos do mês.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): o que muda ao editar um meio de pagamento` (`27bbb93`)
+**Commit**: `feat(domain): o que muda ao editar um meio de pagamento` (`c5e36f7`)
 **Nota**: a mensagem do código novo ganhou um teste em `src/lib/erros.test.ts`, arquivo que não
 estava em **Where**. Sem ele, o item da mensagem não teria assertion: `erros.ts` não tinha teste, e
 o domínio não pode importar `@/lib`.
@@ -269,7 +269,7 @@ o domínio não pode importar `@/lib`.
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
-**Commit**: `feat(cadastros): gravar nome e dias de um meio de pagamento` (`7f9ed4c`)
+**Commit**: `feat(cadastros): gravar nome e dias de um meio de pagamento` (`6e3547f`)
 
 #### T5: `editarMeioDePagamento`, o caso de uso
 **What**: o caso de uso que recusa o meio inexistente ou arquivado, aplica `mudancasDoMeio`, confere o
@@ -288,7 +288,7 @@ nome entre os ativos e grava.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(cadastros): editar nome e dias de um meio de pagamento` (`d118aac`)
+**Commit**: `feat(cadastros): editar nome e dias de um meio de pagamento` (`687eff5`)
 
 #### T6: As actions de meio: editar e a revalidação de criar
 **What**: o schema da edição, a action `editarMeioDePagamento`, as mensagens e
@@ -309,14 +309,15 @@ nome entre os ativos e grava.
 - [x] Cada recusa com a mensagem e o campo: "Já existe outro meio de pagamento com esse nome." em `nome`; "Esse meio de pagamento não existe mais."; a mensagem do ciclo; `VALIDACAO` com o campo de cada dia; nada gravado e nada revalidado em nenhuma delas (CADCOL-07 ACs 6, 10, 11 e 12)
 - [x] Falha do banco vira `ERRO_INESPERADO` com referência, sem gravar nem revalidar
 - [x] `criarMeioDePagamento` revalida `("/", "layout")`, recusa o nome de um ativo em qualquer caixa com "Já existe um meio de pagamento com esse nome." e cria com o nome de um arquivado (CADCOL-08 ACs 4 e 5)
-- [ ] `pnpm exec playwright test e2e/importacao.spec.ts e2e/compra-parcelada.spec.ts` passa sem mudança: o meio criado dentro do diálogo e do formulário continua selecionado
+- [x] `pnpm exec playwright test e2e/importacao.spec.ts e2e/compra-parcelada.spec.ts` passa sem mudança: o meio criado dentro do diálogo e do formulário continua selecionado
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
-**Commit**: `feat(meios): action de editar meio e revalidação do layout` (`bd90d4b`)
-**Nota**: o item do Playwright fica aberto. O lote 1 roda sem e2e, por decisão do orquestrador: a
-porta 3100 é de outro agente. `importacao.spec.ts` e `compra-parcelada.spec.ts` rodam no gate e2e
-do lote 2, depois do rebase, antes de a T8 mexer em `cadastro-de-meio-inline.tsx`.
+**Commit**: `feat(meios): action de editar meio e revalidação do layout` (`5c7b63d`)
+**Nota**: o item do Playwright ficou aberto no lote 1, que rodou sem e2e por decisão do
+orquestrador: a porta 3100 era de outro agente. No lote 2, depois do rebase sobre a `main` em
+`e8b1540` e antes de a T8 mexer em `cadastro-de-meio-inline.tsx`, os dois arquivos passaram sem
+mudança: 13 testes.
 
 #### T7: `criarCategoria` revalida as telas da categoria
 **What**: o sucesso de `criarCategoria` passa a chamar `revalidarTelasDaCategoria()`, que inclui a
@@ -332,7 +333,7 @@ tela de Cadastros.
 - [x] Gate full passa; a contagem de testes só cresce
 **Tests**: integration
 **Gate**: full
-**Commit**: `feat(categorias): criar categoria revalida a tela de Cadastros`
+**Commit**: `feat(categorias): criar categoria revalida a tela de Cadastros` (`e059bb5`)
 
 ### Phase 3 — As peças comuns
 
@@ -347,14 +348,20 @@ controlado, com o tipo em texto quando a lista de tipos é `null`.
 **Reuses**: os campos de `cadastro-de-meio-inline.tsx:133-195`, `TIPOS_DE_MEIO`, `MAX_NOME_MEIO`
 **Requirement**: CADCOL-07, CADCOL-08
 **Done when**:
-- [ ] `cadastro-de-meio-inline.test.tsx`, `form-lancamento-avulso.test.tsx` e `passo-pendencias.test.tsx` passam sem mudança
-- [ ] Com `tipos`, "Tipo" é o seletor com eles; com `null`, o tipo aparece em texto com "O tipo não muda. Para trocar, cadastre outro meio.", sem `combobox` nem `radio` de tipo (CADCOL-07 ACs 2 e 4)
-- [ ] "Dia de fechamento" e "Dia de vencimento" só aparecem com o tipo cartão: uma assertion com cartão e uma com conta (CADCOL-07 AC 3, CADCOL-08 AC 2)
-- [ ] O rótulo do nome vem por prop
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] `cadastro-de-meio-inline.test.tsx`, `form-lancamento-avulso.test.tsx` e `passo-pendencias.test.tsx` passam sem mudança
+- [x] Com `tipos`, "Tipo" é o seletor com eles; com `null`, o tipo aparece em texto com "O tipo não muda. Para trocar, cadastre outro meio.", sem `combobox` nem `radio` de tipo (CADCOL-07 ACs 2 e 4)
+- [x] "Dia de fechamento" e "Dia de vencimento" só aparecem com o tipo cartão: uma assertion com cartão e uma com conta (CADCOL-07 AC 3, CADCOL-08 AC 2)
+- [x] O rótulo do nome vem por prop
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `refactor(meios): campos do meio fora do cadastro inline`
+**Nota**: `CamposDoMeio` também recebe `diasPelaLargura`, que o design não listava. O cadastro inline
+ganhou a prop em `formulario-pela-coluna` (FPC-01), depois do design: com ela, os dias ficam lado a
+lado pela largura do contêiner (`@md`) nos formulários de lançamento, e sem ela pela janela (`sm`)
+na importação. Os dois testes do ponto de virada estão em `campos-do-meio.test.tsx`. O tipo
+`TipoDeMeio` passou a morar em `campos-do-meio.tsx`, e o inline o reexporta, para
+`passo-pendencias.tsx` continuar igual.
 
 #### T9: `ColunaDeCadastro`, o painel e a coluna única
 **What**: a grade em coluna única (cabeçalho, painel, lista), o invólucro do painel com título,

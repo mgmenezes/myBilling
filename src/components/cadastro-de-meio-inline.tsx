@@ -7,11 +7,11 @@ import type {
 } from "@/app/actions/meios-de-pagamento";
 import {
   entradaMeioPagamentoSchema,
-  MAX_NOME_MEIO,
   TIPOS_DE_MEIO,
 } from "@/application/schemas/meio-pagamento.schema";
 import { descreverMeio } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
+import { CamposDoMeio, type TipoDeMeio } from "./campos-do-meio";
 
 /**
  * Cadastrar um meio de pagamento sem sair de onde se está.
@@ -19,8 +19,10 @@ import { CadastroInline } from "./cadastro-inline";
  * Saiu de `form-lancamento-avulso.tsx`, movido e não copiado, para que a
  * importação da planilha cadastre o meio que falta no passo "O que precisa de
  * você" (IMP-04, AC 2) com os mesmos campos, a mesma validação e a mesma
- * action. Os campos de `form-compra.tsx` e `form-recorrencia.tsx` continuam
- * duplicados; é dívida registrada no design da importação.
+ * action. Os campos em si moram em `CamposDoMeio`, que o painel de Cadastros
+ * também usa para criar e editar meio (CADCOL-07 e 08). Os campos de
+ * `form-compra.tsx` e `form-recorrencia.tsx` continuam duplicados; é dívida
+ * registrada no design da importação.
  *
  * O componente guarda o estado dos campos do cadastro. Quem o usa recebe o
  * meio criado e o que ele é, em `aoCriado`, e decide o que fazer com eles:
@@ -56,15 +58,11 @@ export interface CadastroDeMeioInlineProps {
   readonly children: ReactNode;
 }
 
-export type TipoDeMeio = (typeof TIPOS_DE_MEIO)[number]["valor"];
+/* O tipo nasceu aqui e mora em `CamposDoMeio`; quem já o importava daqui
+   continua importando. */
+export type { TipoDeMeio };
 
 const TODOS_OS_TIPOS = TIPOS_DE_MEIO.map((opcao) => opcao.valor);
-
-const ROTULO_CLASSE = "text-[14px] font-medium text-ink";
-const CONTROLE_CLASSE =
-  "w-full rounded-md border border-line bg-surface px-4 py-2.5 text-[15px] text-ink " +
-  "transition-colors duration-200 hover:border-line-strong " +
-  "aria-[invalid=true]:border-negativo aria-[invalid=true]:border-2";
 
 function inteiro(texto: string): number {
   const valor = Number.parseInt(texto, 10);
@@ -137,69 +135,19 @@ export function CadastroDeMeioInline({
           : "Ele passa a valer para todos os meses, inclusive os que ainda não chegaram.")
       }
       campos={(idCadastro) => (
-        <>
-          <div className="flex flex-col gap-1">
-            <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-nome-meio`}>
-              Nome do novo meio de pagamento
-            </label>
-            <input
-              id={`${idCadastro}-nome-meio`}
-              className={CONTROLE_CLASSE}
-              value={nomeMeio}
-              onChange={(e) => setNomeMeio(e.target.value)}
-              maxLength={MAX_NOME_MEIO}
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-tipo-meio`}>
-              Tipo
-            </label>
-            <select
-              id={`${idCadastro}-tipo-meio`}
-              className={CONTROLE_CLASSE}
-              value={tipoMeio}
-              onChange={(e) => setTipoMeio(e.target.value as TipoDeMeio)}
-            >
-              {tipos.map((opcao) => (
-                <option key={opcao.valor} value={opcao.valor}>
-                  {opcao.rotulo}
-                </option>
-              ))}
-            </select>
-          </div>
-          {tipoMeio === "CARTAO_CREDITO" ? (
-            <div
-              className={`flex flex-col gap-2 ${diasPelaLargura ? "@md:flex-row" : "sm:flex-row"}`}
-            >
-              <div className="flex w-full flex-col gap-1">
-                <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-fechamento`}>
-                  Dia de fechamento
-                </label>
-                <input
-                  id={`${idCadastro}-fechamento`}
-                  className={CONTROLE_CLASSE}
-                  inputMode="numeric"
-                  value={diaFechamento}
-                  onChange={(e) => setDiaFechamento(e.target.value)}
-                  placeholder="25"
-                />
-              </div>
-              <div className="flex w-full flex-col gap-1">
-                <label className={ROTULO_CLASSE} htmlFor={`${idCadastro}-vencimento`}>
-                  Dia de vencimento
-                </label>
-                <input
-                  id={`${idCadastro}-vencimento`}
-                  className={CONTROLE_CLASSE}
-                  inputMode="numeric"
-                  value={diaVencimento}
-                  onChange={(e) => setDiaVencimento(e.target.value)}
-                  placeholder="5"
-                />
-              </div>
-            </div>
-          ) : null}
-        </>
+        <CamposDoMeio
+          idBase={idCadastro}
+          valores={{ nome: nomeMeio, tipo: tipoMeio, diaFechamento, diaVencimento }}
+          aoMudar={(parcial) => {
+            if (parcial.nome !== undefined) setNomeMeio(parcial.nome);
+            if (parcial.tipo !== undefined) setTipoMeio(parcial.tipo);
+            if (parcial.diaFechamento !== undefined) setDiaFechamento(parcial.diaFechamento);
+            if (parcial.diaVencimento !== undefined) setDiaVencimento(parcial.diaVencimento);
+          }}
+          rotuloDoNome="Nome do novo meio de pagamento"
+          tipos={tipos.map((opcao) => opcao.valor)}
+          diasPelaLargura={diasPelaLargura}
+        />
       )}
     >
       {children}
