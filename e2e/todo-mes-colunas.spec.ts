@@ -279,6 +279,14 @@ function tituloDoPainel(page: Page): Locator {
   return painel(page).getByRole("heading", { level: 2 });
 }
 
+/** O dado do painel lido pelo termo: o `dd` logo depois do `dt` com esse texto. */
+function dadoDoPainel(page: Page, termo: string): Locator {
+  return painel(page)
+    .locator("dt")
+    .filter({ hasText: new RegExp(`^${termo}$`) })
+    .locator("xpath=following-sibling::dd[1]");
+}
+
 /** O total do alto: a definição do par cujo termo é `termo`. */
 function total(page: Page, termo: string): Locator {
   return page
@@ -374,7 +382,7 @@ test('"Entradas fixas" antes de "Saídas fixas", as saídas pelo dia e depois pe
   await expect(entradas.getByText("1 · R$ 1.000,00", { exact: true })).toBeVisible();
 });
 
-test('cada linha mostra o que o mês tem: A "confirmado" em R$ 105,00, C "Encerrado" em R$ 30,00, e D com "—" e "Começa em Junho de 2026" (FIXCOL-01, ACs 8 e 9; FIXCOL-02, ACs 1, 2 e 4)', async ({
+test('cada linha mostra o que o mês tem: A "confirmado" em R$ 105,00, C "Encerrado" em R$ 30,00, D com "—" e "Começa em Junho de 2026", e B e Entrada A, que começam em março, sem o selo (FIXCOL-01, ACs 8 e 9; FIXCOL-02, ACs 1, 2 e 4; FIXCOL-04, ACs 2 e 3)', async ({
   page,
 }) => {
   await abrir(page, `/${MARCO}/fixos`);
@@ -391,6 +399,23 @@ test('cada linha mostra o que o mês tem: A "confirmado" em R$ 105,00, C "Encerr
   await expect(
     botaoDaLinha(page, "Fixo D").getByText("Começa em Junho de 2026", { exact: true }),
   ).toBeVisible();
+
+  /* Começar no próprio mês aberto não é começar depois: B e Entrada A começam
+     em março e ficam sem o selo, na linha e no painel (o lado colado do
+     limiar, L-029). */
+  for (const descricao of ["Fixo B", "Entrada A"]) {
+    await expect(botaoDaLinha(page, descricao)).toBeVisible();
+    await expect(botaoDaLinha(page, descricao).getByText(/^Começa em/)).toHaveCount(0);
+  }
+  await botaoDaLinha(page, "Fixo B").click();
+  await expect(tituloDoPainel(page)).toHaveText("Fixo B");
+  await expect(painel(page).getByText("em Março de 2026", { exact: true })).toBeVisible();
+  await expect(dadoDoPainel(page, "Começou em")).toHaveText("Março de 2026");
+  await expect(
+    painel(page)
+      .locator("dt")
+      .filter({ hasText: /^Começa em$/ }),
+  ).toHaveCount(0);
 });
 
 test('o painel de A mostra "confirmado · previa R$ 100,00" e as três vigências na ordem, com "vale em Março" na de fevereiro (FIXCOL-04, ACs 1 a 4)', async ({

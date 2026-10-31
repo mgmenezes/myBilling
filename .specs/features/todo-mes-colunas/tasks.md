@@ -488,7 +488,7 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 - [x] Abrir a última linha continua trazendo o título para a janela (`todo-mes-colunas.spec.ts:609`, FIXCOL-08 AC 5), e `editar-fixo.spec.ts` passa sem mudança
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `fix(fixos): a confirmação de salvar fica à vista, junto do botão`
+**Commit**: `fix(fixos): a confirmação de salvar fica à vista, junto do botão` (`ae12b8e`)
 **Nota**:
 - **Os e2e novos falham no código de `d964e84`**, rodados um a um:
   - na edição e no cadastro em 1.280 × 720, e na edição em 1.920 × 1.080, a confirmação fica fora da janela (`ratio` 0);
@@ -505,12 +505,13 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 **Reuses**: `botaoDaLinha`, `painel`
 **Requirement**: FIXCOL-01 (e FIXCOL-04)
 **Done when**:
-- [ ] Na linha de Fixo B e na de Entrada A, nenhum "Começa em" (FIXCOL-01 AC 9)
-- [ ] No painel de B, "em Março de 2026" e o termo "Começou em" com "Março de 2026", sem o termo "Começa em" (FIXCOL-04 ACs 2 e 3)
-- [ ] O teste falha com M3 (`page.tsx:135`, `> 0` → `>= 0`)
+- [x] Na linha de Fixo B e na de Entrada A, nenhum "Começa em" (FIXCOL-01 AC 9)
+- [x] No painel de B, "em Março de 2026" e o termo "Começou em" com "Março de 2026", sem o termo "Começa em" (FIXCOL-04 ACs 2 e 3)
+- [x] O teste falha com M3 (`page.tsx:135`, `> 0` → `>= 0`)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(fixos): quem começa no mês aberto não leva o selo`
+**Nota**: com M3, o teste falha na primeira linha nova: a linha de Fixo B ganha "Começa em Março de 2026". Um ajudante novo, `dadoDoPainel`, lê o `dd` logo depois do `dt` com o termo; a F3 o reaproveita. As linhas citadas de `todo-mes-colunas.spec.ts` na traceability foram remapeadas, porque o ajudante e as assertions novas deslocam os testes de baixo. O gate passa: os 40 testes do arquivo, 1.825 unitários, `typecheck` e `lint`.
 
 #### F3: Os dados do painel lidos na página real
 **What**: o Fix 3. No teste de `e2e/todo-mes-colunas.spec.ts:396`, cada dado do painel é lido pelo termo dele:
