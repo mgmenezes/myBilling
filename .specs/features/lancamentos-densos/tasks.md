@@ -342,7 +342,7 @@ ficaram para trás.
 - [x] O teste falha com M13 (`2xl:sticky` → `min-[1600px]:sticky` no cartão de filtros)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): coluna presa no limiar de 1.536 px`
+**Commit**: `test(lancamentos): coluna presa no limiar de 1.536 px` (`0b73ecd`)
 
 #### F5: Clicar fora fecha o menu sem foco dentro
 **What**: no teste do componente, abrir o menu com `fireEvent.click`, sem dar foco ao "⋯", como o Safari faz, e fechar com `fireEvent.pointerDown(document.body)` (Fix 5, sonda P5, L-046).
@@ -351,8 +351,8 @@ ficaram para trás.
 **Reuses**: `montar`, `gatilho`
 **Requirement**: DENS-02
 **Done when**:
-- [ ] Aberto sem foco dentro, um `pointerdown` fora fecha o menu e tira o "Excluir" (DENS-02 AC 5)
-- [ ] O teste falha com M17 (sem o ouvinte de `pointerdown` no `document`)
+- [x] Aberto sem foco dentro, um `pointerdown` fora fecha o menu e tira o "Excluir" (DENS-02 AC 5)
+- [x] O teste falha com M17 (sem o ouvinte de `pointerdown` no `document`)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `test(lancamentos): clicar fora fecha o menu sem foco dentro`

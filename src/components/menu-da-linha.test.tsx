@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento } from "@/app/actions/lancamentos";
@@ -80,6 +80,22 @@ describe("o menu da linha (DENS-02)", () => {
     await userEvent.click(gatilho());
 
     await userEvent.click(screen.getByRole("button", { name: "fora" }));
+
+    expect(gatilho().getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+  });
+
+  /*
+   * No Safari, clicar num botão não lhe dá foco: o menu abre sem foco dentro,
+   * nenhum `focusout` acontece, e só o `pointerdown` fora o fecha (L-046).
+   */
+  it("clicar fora fecha o menu também quando ele abriu sem foco dentro (AC 5)", () => {
+    montar();
+    fireEvent.click(gatilho());
+    expect(gatilho().getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(document.body);
+
+    fireEvent.pointerDown(document.body);
 
     expect(gatilho().getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
