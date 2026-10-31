@@ -50,7 +50,7 @@ linhas por vez:
 | Situação na coluna | O mesmo seletor de hoje, com as mesmas opções | O protótipo mostrava um alternador; o seletor evita mudar o filtro nesta fatia | n (decisão do autor) |
 | Título do bloco | Preso no alto ao rolar as linhas do bloco, com o resumo ao lado, a partir de 1.536 px | Ao rolar uma lista longa, a pessoa continua sabendo em que bloco está. Abaixo de 1.536 px a barra compacta ocupa o alto da tela, e os dois disputariam o lugar | n (decisão do autor) |
 | Valor confirmável do fixo | "previsto" ou "confirmado · previa R$ X" na mesma linha, à esquerda do valor | Mantém os dois valores e a palavra "confirmado" à vista (FIXO-04, AC 3) sem segunda linha | n (decisão do autor) |
-| Largura da lista | Até 1.000 px, centrada no espaço entre o menu e a coluna de filtros | A razão dos 1.024 px (descrição longe do valor) continua valendo; substitui TRES-01, AC 8 só em Lançamentos | n (decisão do autor) |
+| Largura da lista e da coluna | Lista até 1.100 px, centrada entre o menu e a coluna; coluna de filtros com 288 px; células com 12 px de respiro lateral com ponteiro fino | Medido na T4: com a lista em 1.000 px e a coluna em 320 px, sobravam 936 px úteis, e a linha do fixo confirmado e vencido quebrava. A razão dos 1.024 px (descrição longe do valor) continua valendo: são cinco colunas ocupando a largura, e não uma linha esticada. Substitui TRES-01, AC 8 só em Lançamentos | n (decisão do autor) |
 | Celular | Cartão por lançamento abaixo de 768 px, como hoje; só o "Excluir" vai para o menu "⋯" e a parcela fica curta | O dono usa sobretudo o monitor grande; o menu e a parcela valem para a lista inteira | n (decisão do autor) |
 
 **Open questions:** none - all resolved or logged above.
@@ -134,7 +134,7 @@ para filtrar sem rolar até o topo.
 6. WHILE a página rola a partir de 1.536 px THE system SHALL não mostrar a barra de filtros compacta
 7. The system SHALL manter os mesmos parâmetros da URL e o mesmo resultado de cada filtro (REDE-01,
    LST-01)
-8. WHEN Lançamentos é exibida a partir de 1.536 px THEN o sistema SHALL limitar a lista a 1.000 px
+8. WHEN Lançamentos é exibida a partir de 1.536 px THEN o sistema SHALL limitar a lista a 1.100 px
    de largura, centrada no espaço entre o menu e a coluna de filtros
 
 **Independent Test**: em 1.920 px, filtrar por uma categoria na coluna, rolar até o fim e ver a
@@ -194,9 +194,9 @@ tela.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DENS-01 | P1: Uma linha por lançamento | Execute | In progress: `texto-da-parcela.test.ts` prova "faltam 2", "faltam 1" e "última"; `tabela-lancamentos.test.tsx` prova "2/4 · faltam 2", "3/4 · faltam 1" e "4/4 · última" na célula da descrição, em linha e com o número tabular; `lista-enxuta.spec.ts` mede a parcela na mesma altura da descrição, e `compra-parcelada.spec.ts` lê "8/10 · faltam 2" e "10/10 · última", AC 2 (T1); `lancamentos-densos.spec.ts` mede toda linha com até 48 px em 1.280 e 1.920 px, inclusive a parcela, o fixo confirmado e o vencido, AC 1, o selo com o mesmo nome e o mesmo `aria-pressed` alternando o pagamento, AC 3, "Vencido" à direita do selo, AC 4, e "confirmado · previa R$ 100,00" à esquerda do valor, na mesma altura, AC 5; os e2e de TRC, FIXO-04, VENC-01 e TOQUE-01 passam sem mudança, AC 6 (T2) |
+| DENS-01 | P1: Uma linha por lançamento | Execute | In progress: `texto-da-parcela.test.ts` prova "faltam 2", "faltam 1" e "última"; `tabela-lancamentos.test.tsx` prova "2/4 · faltam 2", "3/4 · faltam 1" e "4/4 · última" na célula da descrição, em linha e com o número tabular; `lista-enxuta.spec.ts` mede a parcela na mesma altura da descrição, e `compra-parcelada.spec.ts` lê "8/10 · faltam 2" e "10/10 · última", AC 2 (T1); `lancamentos-densos.spec.ts` mede toda linha com até 48 px em 1.280 e 1.920 px, inclusive a parcela, o fixo confirmado e o vencido, AC 1, o selo com o mesmo nome e o mesmo `aria-pressed` alternando o pagamento, AC 3, "Vencido" à direita do selo, AC 4, e "confirmado · previa R$ 100,00" à esquerda do valor, na mesma altura, AC 5; os e2e de TRC, FIXO-04, VENC-01 e TOQUE-01 passam sem mudança, AC 6 (T2); a altura medida também em 1.536 px, a janela mais estreita com a coluna aberta (T4) |
 | DENS-02 | P1: Excluir no menu da linha | Execute | In progress: `menu-da-linha.test.tsx` prova o "⋯" com o nome "Mais ações para Almoço" e sem "Excluir" à vista, AC 1, o menu aberto com "Excluir", AC 3, os dois toques com o menu aberto, AC 4, e o `Escape` e o clique fora fechando, com o foco de volta ao "⋯", AC 5; `tabela-lancamentos.test.tsx` prova o "⋯" no avulso e na receita avulsa e a ausência dele na parcela e no fixo, AC 2; `lancamentos-densos.spec.ts` prova, em 1.920 px, o "⋯" só nos avulsos e nenhum "Excluir" fora do menu, ACs 1, 2 e 6, e o `Escape`, o foco e a exclusão em dois toques baixando o bloco de R$ 50,00 para R$ 30,00, ACs 3 a 5; `acessibilidade.spec.ts` mede o selo, o "⋯" e o "Excluir" do menu com 44 × 44 em 400 px, AC 7; os e2e de AVUL-03 abrem o menu antes (T3) |
-| DENS-03 | P1: Filtros numa coluna à direita | Design | Pending |
+| DENS-03 | P1: Filtros numa coluna à direita | Execute | In progress: `lancamentos-densos.spec.ts` prova, em 1.920 px, os filtros à direita da lista com o `border-left` computado de 1px e com busca, chips, meio, pessoa e situação, AC 1, a contagem acima da busca, AC 3, o chip "Categoria Um" dentro da coluna filtrando a lista, ACs 4 e 7, e a lista com até 1.100 px, centrada, AC 8; rolando até o fim em 1.920 × 480, a busca à vista e nenhuma barra compacta, ACs 2 e 6; em 1.535 px o cartão acima da lista e em 1.536 px à direita dela, ACs 1 e 5; `busca-e-filtros.spec.ts`, `lista-enxuta.spec.ts` e `categorias.spec.ts` passam sem mudança, AC 7 (T4) |
 | DENS-04 | P2: Títulos dos blocos presos ao rolar | Design | Pending |
 
 ---

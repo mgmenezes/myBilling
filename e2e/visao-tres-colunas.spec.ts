@@ -210,14 +210,15 @@ test.describe("em 1.920 px", () => {
    * título da tela. Sem a `AreaEstreita`, esse bloco seria a página inteira,
    * da largura da área à direita do menu.
    */
-  test("Lançamentos, Todo mês e Categorias ficam em até 1.024 px, centrados na área à direita do menu (TRES-01, AC 8)", async ({
+  /*
+   * Lançamentos saiu deste laço: em 1.920 px ela tem a lista densa com a
+   * coluna de filtros (DENS-03, AC 8, que substitui TRES-01, AC 8 nessa tela),
+   * provada em `e2e/lancamentos-densos.spec.ts`.
+   */
+  test("Todo mês e Categorias ficam em até 1.024 px, centrados na área à direita do menu (TRES-01, AC 8)", async ({
     page,
   }) => {
-    for (const caminho of [
-      `/${MARCO}/lancamentos`,
-      `/${MARCO}/fixos`,
-      `/${MARCO}/cadastros/categorias`,
-    ]) {
+    for (const caminho of [`/${MARCO}/fixos`, `/${MARCO}/cadastros/categorias`]) {
       await abrir(page, caminho);
       const titulo = page.getByRole("heading", { level: 1 });
       await expect(titulo).toBeVisible();

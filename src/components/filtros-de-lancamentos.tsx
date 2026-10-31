@@ -82,7 +82,9 @@ export function FiltrosDeLancamentos({
   }
 
   return (
-    <search className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 sm:p-5">
+    /* A partir de 1.536 px o cartão é a coluna da direita da lista
+       (DENS-03): sem moldura, os seletores empilhados e a contagem no alto. */
+    <search className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 sm:p-5 2xl:rounded-none 2xl:border-0 2xl:bg-transparent 2xl:p-6">
       <div className="flex flex-col gap-1">
         <label className="text-[13px] text-ink-muted" htmlFor={`${id}-busca`}>
           Buscar por descrição
@@ -111,7 +113,7 @@ export function FiltrosDeLancamentos({
         aoEscolher={(categoriaId) => navegarCom({ categoriaId: categoriaId ?? "" })}
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-3 2xl:grid-cols-1">
         {seletor("meioPagamentoId", "Meio de pagamento", meios)}
         {seletor("usuarioId", "Pessoa", usuarios)}
         <div className="flex flex-col gap-1">
@@ -132,7 +134,7 @@ export function FiltrosDeLancamentos({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3 2xl:order-first 2xl:border-t-0 2xl:border-b 2xl:pt-0 2xl:pb-3">
         <p role="status" className="text-[14px] text-ink-muted">
           {quantidadeVisivel === 1 ? "1 lançamento" : `${quantidadeVisivel} lançamentos`}
           {ativos === 0 ? "" : ` com ${ativos === 1 ? "1 filtro" : `${ativos} filtros`}`}

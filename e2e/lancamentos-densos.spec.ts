@@ -156,25 +156,31 @@ async function caixa(
   return medida;
 }
 
-/* O limiar da linha baixa (DENS-01, AC 1): 1.280 px, o notebook comum. */
-test("em 1.280 px, com ponteiro fino, toda linha das tabelas mede até 48 px (DENS-01, AC 1)", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await abrir(page, `/${MARCO}/lancamentos`);
-  await expect(linha(page, "Compra A")).toContainText("1/3 · faltam 2");
+/*
+ * A linha baixa a partir de 1.280 px (DENS-01, AC 1): no notebook comum, com
+ * os filtros no topo, e em 1.536 px, a janela mais estreita com a coluna de
+ * filtros aberta, que é onde a lista tem menos largura.
+ */
+for (const largura of [1280, 1536]) {
+  test(`em ${largura} px, com ponteiro fino, toda linha das tabelas mede até 48 px (DENS-01, AC 1)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 900 });
+    await abrir(page, `/${MARCO}/lancamentos`);
+    await expect(linha(page, "Compra A")).toContainText("1/3 · faltam 2");
 
-  const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
-    linhas.map((tr) => ({
-      linha: tr.querySelector("td")?.textContent ?? "",
-      altura: tr.getBoundingClientRect().height,
-    })),
-  );
-  expect(alturas).toHaveLength(6);
-  for (const { linha: nome, altura } of alturas) {
-    expect(altura, nome).toBeLessThanOrEqual(48);
-  }
-});
+    const alturas = await page.locator("table tbody tr").evaluateAll((linhas) =>
+      linhas.map((tr) => ({
+        linha: tr.querySelector("td")?.textContent ?? "",
+        altura: tr.getBoundingClientRect().height,
+      })),
+    );
+    expect(alturas).toHaveLength(6);
+    for (const { linha: nome, altura } of alturas) {
+      expect(altura, nome).toBeLessThanOrEqual(48);
+    }
+  });
+}
 
 test.describe("em 1.920 px, com ponteiro fino", () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
@@ -282,4 +288,105 @@ test.describe("o menu da linha, em 1.920 px", () => {
     await expect(linha(page, "Item A")).toHaveCount(0);
     await expect(gastos).toContainText("1 · R$ 30,00");
   });
+});
+
+/** O cartão de filtros, que a partir de 1.536 px é a coluna da direita. */
+function cartao(page: Page): Locator {
+  return page.locator("#cartao-de-filtros");
+}
+
+test.describe("a coluna de filtros, em 1.920 px", () => {
+  test.use({ viewport: { width: 1920, height: 1080 } });
+
+  test("os filtros ficam à direita da lista, separados por uma linha fina, com a contagem no alto (DENS-03, ACs 1 e 3)", async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+
+    const coluna = await caixa(cartao(page));
+    const entradas = await caixa(page.getByRole("region", { name: "Entradas" }));
+    expect(coluna.x).toBeGreaterThanOrEqual(entradas.x + entradas.width);
+
+    const linhaFina = await cartao(page)
+      .locator("xpath=..")
+      .evaluate((elemento) => {
+        const estilo = getComputedStyle(elemento);
+        return { largura: estilo.borderLeftWidth, tipo: estilo.borderLeftStyle };
+      });
+    expect(linhaFina).toEqual({ largura: "1px", tipo: "solid" });
+
+    const filtros = cartao(page).locator("search");
+    await expect(filtros.getByLabel("Buscar por descrição")).toBeVisible();
+    await expect(filtros.getByRole("list", { name: "Categoria" })).toBeVisible();
+    for (const rotulo of ["Meio de pagamento", "Pessoa", "Situação"]) {
+      await expect(filtros.getByLabel(rotulo)).toBeVisible();
+    }
+    const contagem = await caixa(filtros.getByRole("status"));
+    const busca = await caixa(filtros.getByLabel("Buscar por descrição"));
+    expect(contagem.y + contagem.height).toBeLessThanOrEqual(busca.y);
+  });
+
+  test("os chips da coluna são os de hoje: dentro da coluna, e escolher um filtra a lista (DENS-03, ACs 4 e 7)", async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+
+    const coluna = await caixa(cartao(page));
+    const chip = cartao(page).getByRole("button", { name: /^Categoria Um · / });
+    const caixaDoChip = await caixa(chip);
+    expect(caixaDoChip.x).toBeGreaterThanOrEqual(coluna.x);
+    expect(caixaDoChip.x + caixaDoChip.width).toBeLessThanOrEqual(coluna.x + coluna.width);
+
+    await chip.click();
+    await expect(page).toHaveURL(/categoriaId=/);
+    await expect(cartao(page).getByRole("button", { name: /^Categoria Um · / })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await expect(linha(page, "Entrada A")).toHaveCount(0);
+  });
+
+  test("a lista mede até 1.100 px e fica centrada entre o menu e a coluna (DENS-03, AC 8)", async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+
+    const menu = await caixa(page.getByRole("complementary", { name: "Menu do myBilling" }));
+    const coluna = await caixa(cartao(page).locator("xpath=.."));
+    const lista = await caixa(page.getByRole("region", { name: "Entradas" }));
+    expect(lista.width).toBeLessThanOrEqual(1100);
+    const folgaEsquerda = lista.x - (menu.x + menu.width);
+    const folgaDireita = coluna.x - (lista.x + lista.width);
+    expect(Math.abs(folgaEsquerda - folgaDireita)).toBeLessThanOrEqual(1);
+  });
+});
+
+test("rolando até o fim em 1.920 px, a coluna continua à vista e a barra compacta não aparece (DENS-03, ACs 2 e 6)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 480 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+
+  await expect(cartao(page).getByLabel("Buscar por descrição")).toBeInViewport();
+  await expect(page.getByRole("search", { name: "Busca e filtros ativos" })).toHaveCount(0);
+});
+
+/* O limiar da coluna (DENS-03, ACs 1 e 5), dos dois lados (L-029). */
+test("em 1.535 px os filtros ficam no topo, acima da lista; em 1.536 px, na coluna à direita (DENS-03, ACs 1 e 5)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1535, height: 900 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+  const entradas = page.getByRole("region", { name: "Entradas" });
+
+  const noTopo = await caixa(cartao(page));
+  expect(noTopo.y + noTopo.height).toBeLessThanOrEqual((await caixa(entradas)).y);
+
+  await page.setViewportSize({ width: 1536, height: 900 });
+  const naColuna = await caixa(cartao(page));
+  const lista = await caixa(entradas);
+  expect(naColuna.x).toBeGreaterThanOrEqual(lista.x + lista.width);
 });

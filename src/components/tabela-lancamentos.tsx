@@ -117,11 +117,11 @@ const BLOCOS_DE_DESPESA: ReadonlyArray<BlocoDeDespesa> = [
 ];
 
 /* Com ponteiro fino a linha baixa: o seletor baixa para 36 px, o selo para
-   32 px, e a célula fica com 4 px de respiro. A linha mede 44 px, e o dobro
-   de lançamentos cabe na tela (DENS-01, AC 1). No toque, 44 px de alvo e o
-   respiro de antes (TOQUE-01). */
+   32 px, e a célula fica com 4 px de respiro em cima e 12 px dos lados. A
+   linha mede 44 px, e o dobro de lançamentos cabe na tela (DENS-01, AC 1). No
+   toque, 44 px de alvo e o respiro de antes (TOQUE-01). */
 const CELULA =
-  "block md:table-cell md:px-4 md:py-3.5 md:align-top md:pointer-fine:py-1 md:pointer-fine:align-middle";
+  "block md:table-cell md:px-4 md:py-3.5 md:align-top md:pointer-fine:px-3 md:pointer-fine:py-1 md:pointer-fine:align-middle";
 const CABECALHO = "md:px-4 md:pb-2 text-left text-[13px] font-medium text-ink-muted";
 
 export function TabelaLancamentos({
@@ -345,7 +345,11 @@ function BlocoDeLancamentos({
                     permanentemente vazia empurra descrição e valor para as
                     pontas da tela. "Excluir" fica dentro do menu (DENS-02).
                   */}
-                    <span className="flex flex-wrap items-center gap-2">
+                    {/* A partir de 1.280 px, com ponteiro fino, selo, "Vencido" e
+                        "⋯" numa linha só: quem cede espaço é a descrição (DENS-01,
+                        AC 1). Abaixo disso eles quebram, para a tabela caber na
+                        coluna estreita (LST-05, AC 3). */}
+                    <span className="flex flex-wrap items-center gap-2 xl:pointer-fine:flex-nowrap">
                       <BotaoPago
                         lancamentoId={lancamento.id}
                         descricao={lancamento.descricao}

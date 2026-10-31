@@ -15,7 +15,6 @@ import {
   MESES_DE_PROJECAO,
   materializarRecorrencias,
 } from "@/application/recorrencias/materializar/handler";
-import { AreaEstreita } from "@/components/area-estreita";
 import { BarraDeFiltrosCompacta } from "@/components/barra-de-filtros-compacta";
 import { DialogoDeCadastro } from "@/components/dialogo-de-cadastro";
 import { FiltrosDeLancamentos } from "@/components/filtros-de-lancamentos";
@@ -183,24 +182,42 @@ export default async function PaginaDeLancamentos({
     usuarios: new Map(usuarios.map((u) => [u.id, u.nome])),
   });
 
+  /*
+   * **Um cartão de filtros só, que muda de lugar por CSS** (DENS-03). Abaixo de
+   * 1.536 px a página é a de antes: cabeçalho, filtros e lista numa coluna de
+   * até 1.024 px. A partir de 1.536 px vira uma grade de duas colunas: a lista
+   * no centro, com até 1.100 px, e os filtros presos numa coluna à direita,
+   * separada por uma linha fina. Um só `#cartao-de-filtros` e um só
+   * `<search>`: as buscas da tela e dos testes continuam achando o mesmo
+   * cartão, e a barra compacta, que o observa, nunca o vê sair da tela quando
+   * ele está preso, então não aparece.
+   *
+   * Por que 1.536 px, e não 1.280 px: com o menu e a coluna, uma janela de
+   * 1.280 px deixaria 656 px para a lista, menos que os 736 px de antes.
+   */
   return (
-    <AreaEstreita>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
-          <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
-            <CadastroDeLancamento
-              competencia={resultado.value}
-              dataPadrao={dataPadrao}
-              meios={meios}
-              categorias={opcoesDeCategoria}
-              usuarios={opcoesDeUsuario}
-            />
-          </DialogoDeCadastro>
-        </div>
+    <div className="mx-auto grid w-full max-w-conteudo gap-6 px-4 py-8 sm:px-6 sm:py-10 2xl:max-w-none 2xl:grid-cols-[minmax(0,1fr)_18rem] 2xl:gap-0 2xl:p-0">
+      <div className="flex flex-wrap items-center justify-between gap-4 2xl:col-start-1 2xl:row-start-1 2xl:mx-auto 2xl:w-full 2xl:max-w-[1100px] 2xl:px-6 2xl:pt-10 2xl:pb-6">
+        <h1 className="text-[28px] leading-[1.1] sm:text-[34px]">Lançamentos</h1>
+        <DialogoDeCadastro rotuloDoBotao="+ Novo lançamento" titulo="Novo lançamento">
+          <CadastroDeLancamento
+            competencia={resultado.value}
+            dataPadrao={dataPadrao}
+            meios={meios}
+            categorias={opcoesDeCategoria}
+            usuarios={opcoesDeUsuario}
+          />
+        </DialogoDeCadastro>
+      </div>
 
-        {/* O id é o que a barra compacta observa e para onde "Filtros" leva. */}
-        <div id="cartao-de-filtros">
+      {/* A coluna, da altura da página, leva a linha fina; o cartão dentro
+            dela fica preso no alto. O id é o que a barra compacta observa e
+            para onde "Filtros" leva. */}
+      <div className="2xl:col-start-2 2xl:row-span-2 2xl:row-start-1 2xl:border-l 2xl:border-line">
+        <div
+          id="cartao-de-filtros"
+          className="2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto"
+        >
           <FiltrosDeLancamentos
             categorias={gastoPorCategoria}
             meios={meios.map((m) => ({ id: m.id, nome: m.nome }))}
@@ -209,13 +226,15 @@ export default async function PaginaDeLancamentos({
             quantidadeVisivel={visiveis.length}
           />
         </div>
-        <BarraDeFiltrosCompacta alvo="cartao-de-filtros" ativos={ativos} />
+      </div>
+      <BarraDeFiltrosCompacta alvo="cartao-de-filtros" ativos={ativos} />
 
-        {/*
+      {/*
           Distinguir "mês sem lançamento" de "nenhum resultado para este filtro"
           (LANC-03). São situações diferentes e a saída de cada uma é diferente:
           uma pede cadastro, a outra pede limpar filtro.
         */}
+      <div className="min-w-0 2xl:col-start-1 2xl:row-start-2 2xl:mx-auto 2xl:w-full 2xl:max-w-[1100px] 2xl:px-6 2xl:pb-10">
         {visao.lancamentos.length > 0 && visiveis.length === 0 ? (
           <p className="rounded-xl border border-dashed border-line px-6 py-12 text-center text-[15px] text-ink-muted">
             Nenhum lançamento corresponde aos filtros aplicados. O mês tem{" "}
@@ -235,6 +254,6 @@ export default async function PaginaDeLancamentos({
           />
         )}
       </div>
-    </AreaEstreita>
+    </div>
   );
 }

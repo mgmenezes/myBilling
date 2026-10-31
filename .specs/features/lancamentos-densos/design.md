@@ -10,13 +10,13 @@ hoje, guiou cada escolha abaixo.
 filtros, que muda de lugar só por CSS:
 
 ```
-<div class="grid 2xl:grid-cols-[minmax(0,1fr)_20rem]">
-  cabeçalho (h1 + "+ Novo lançamento")   2xl: coluna 1, linha 1    mx-auto max-w-[1000px]
+<div class="grid 2xl:grid-cols-[minmax(0,1fr)_18rem]">
+  cabeçalho (h1 + "+ Novo lançamento")   2xl: coluna 1, linha 1    mx-auto max-w-[1100px]
   <div 2xl: coluna 2, linhas 1-2, border-l>                        (a linha fina, da altura toda)
     <div id="cartao-de-filtros" 2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto>
       FiltrosDeLancamentos
   BarraDeFiltrosCompacta
-  lista (blocos)                          2xl: coluna 1, linha 2    mx-auto max-w-[1000px]
+  lista (blocos)                          2xl: coluna 1, linha 2    mx-auto max-w-[1100px]
 </div>
 ```
 
@@ -103,7 +103,7 @@ prova.
 | --- | --- |
 | 1.920 px | Toda linha com até 48 px, inclusive parcela, fixo confirmado e vencido (DENS-01); a parcela "2/3 · faltam 1" na mesma altura da descrição |
 | 1.920 px | O "⋯" só nas linhas de avulso; abrir, excluir, confirmar, a linha some (DENS-02) |
-| 1.920 px | A coluna de filtros à direita da lista, com o `border-left` computado; presa ao rolar até o fim; sem a barra compacta; a lista com até 1.000 px e centrada (DENS-03) |
+| 1.920 px | A coluna de filtros à direita da lista, com o `border-left` computado; presa ao rolar até o fim; sem a barra compacta; a lista com até 1.100 px e centrada (DENS-03) |
 | 1.920 px | O título "Fixos" no alto ao rolar até o meio do bloco (DENS-04) |
 | 1.535 px e 1.536 px | O limiar dos dois lados: filtros no topo a 1.535 px e na coluna a 1.536 px |
 | 400 px | Sem rolagem lateral |
