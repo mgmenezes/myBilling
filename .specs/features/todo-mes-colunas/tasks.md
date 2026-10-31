@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
 **Status**: Em execução, lote 2 (plano aprovado pelo dono em 2026-10-30; T1 a T7 no lote 1, T8 a T11 no lote 2, à espera do Verifier; branch `feat/todo-mes-colunas`, em worktree
-`.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `33c9567`, que já traz
-`lancamentos-densos` (AD-020); os hashes da T1 à T6 são os de depois do rebase)
+`.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a `main` em `e39eeae`, que já traz
+`lancamentos-densos` (AD-020) com a F13; os hashes da T1 à T11 são os de depois do rebase)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
 (T8–T11), com a oferta de sub-agentes antes do Execute.
 
@@ -163,7 +163,7 @@ ocorrência e soma os dois totais a partir dos lançamentos.
 - [x] Gate quick passa; nenhum dos 1.703 testes de antes some
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`7e88093`)
+**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`ac45664`)
 
 #### T2: `obterTodoMes`, materializar e ler o mês
 **What**: o caso de uso de leitura de Todo mês: materializa a janela, lê fixos e lançamentos do mês e
@@ -179,7 +179,7 @@ chama `fixosDoMes`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`5c7d9fc`)
+**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`fd138a5`)
 
 ### Phase 2 — As peças da tela
 
@@ -204,7 +204,7 @@ os selos, o valor do mês, a linha aberta e os vazios; e o tipo `ItemDeFixo`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`3d43de7`)
+**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`f8758c8`)
 
 #### T4: `DetalheDoFixo`, o fixo aberto
 **What**: o detalhe do painel: valor do mês e nota, aviso de encerrado, dados, "Valor ao longo dos
@@ -222,7 +222,7 @@ meses" e as três ações.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`02b8d7e`)
+**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`617c3ad`)
 
 #### T5: `CicloDoFixo`, mudar o valor e encerrar
 **What**: o `fieldset` de "Mudar o valor" e "Encerrar" de `lista-de-fixos.tsx:291-364`, fora do
@@ -238,7 +238,7 @@ cartão, com o mesmo comportamento e um `h3`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`1ff2b66`)
+**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`11fd7d1`)
 **Nota**: a prop `descricao` do design saiu de `CicloDoFixo`. Ela servia à `legend` invisível ("Mudar o valor de <descrição>"); o título à vista é "Mudar o valor" ou "Encerrar", e a descrição já é o título do painel. Nenhum AC muda.
 
 #### T6: `PainelDoFixo`, os modos do painel
@@ -262,7 +262,7 @@ fixo fora da lista), com "Fechar", `Escape`, "Voltar" e o foco no título.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`bfcc81b`)
+**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`db60cec`)
 **Nota**: "montar o painel não leva o foco" vale para a montagem com `focarTitulo` 0, que é a carga da página com `?fixo=`. Abaixo de 1.536 px o painel só existe com algo aberto (T7), então ele nasce no mesmo render em que a pessoa abre e o número muda: a montagem com um número diferente de 0 também leva o foco, e há teste para os dois casos. O subtítulo "Saída fixa · vence dia N" fica no cabeçalho em todo modo de um fixo da lista, e não só no detalhe.
 
 #### T7: `TodoMes`, o estado da tela e o endereço
@@ -283,7 +283,7 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço` (`d1f0862`)
+**Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço` (`f19f634`)
 **Nota**: fechar o aviso de um fixo que saiu da lista devolve o foco ao "+ Novo fixo", porque o botão da linha não existe mais; o FIXCOL-08, AC 4 só nomeia a linha e o cadastro. O hash desta task entra no `tasks.md` com a T8, porque um commit não carrega o próprio hash.
 
 ### Phase 3 — A página
@@ -334,7 +334,7 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e os cinco e2e antigos desta task
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (`f09dbfd`; o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
+**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (`2ec425f`; o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
 **Nota**:
 - **A linha de até 48 px, medida no navegador.** Em 1.280 px toda linha media de 50 a 53 px. O botão da linha era `inline-flex` e ganhava a folga da letra na linha de texto da célula; com a descrição longa, a pill da categoria ainda quebrava em duas linhas. O botão virou `flex`, como o selo de Lançamentos, e a pill, o dia e o meio não quebram a partir de 768 px: quem cede largura é a descrição, e só a linha dela cresce. O botão ganhou `min-w-11`, porque "Fixo B" media 43,6 px de largura em 400 px (TOQUE-01). Mexe em `tabela-de-fixos.tsx`, fora da lista desta task, sem mudar teste dele.
 - **O foco ao trocar de modo**, pedido no lote 2. "Mudar valor", "Encerrar" e "Editar" levam o foco ao título do modo novo; "Cancelar", "Voltar" e "Registrar" o devolvem ao título do painel. O botão de envio que se desabilita enquanto grava ("Gravando…") também devolve o foco ao título do painel. Sem isso, o Chrome tirava o foco para o `body`, e o `Escape` depois de salvar não fechava o painel (`editar-fixo.spec.ts`). Mexe em `painel-do-fixo.tsx` e `ciclo-do-fixo.tsx`, com nove testes novos em `painel-do-fixo.test.tsx`. Nenhum AC muda: é a regra do FIXCOL-08.
@@ -365,7 +365,7 @@ quando nada está aberto; o laço do TRES-01 AC 8 deixa Todo mês.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px` (`2afe4f9`)
+**Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px` (`60f20f6`)
 **Nota**:
 - **O painel sempre montado.** A coluna existe sempre, com a dica quando nada está aberto, e abaixo de 1.536 px leva `hidden 2xl:block`, como o design pedia. O jsdom não aplica o CSS. Por isso, os seis testes de `todo-mes.test.tsx` que esperavam o painel fora do DOM passam a esperar o painel em "Nenhum fixo aberto", numa coluna com `hidden 2xl:block`. Os dois testes do painel aberto ganham a coluna sem `hidden`. A prova de que nada aparece abaixo de 1.536 px fica no e2e, em 1.280 e 1.535 px. A regra que eles provam (FIXCOL-07, ACs 5 e 6) não muda: muda o jeito de esconder, que a T7 fazia desmontando.
 - **A quarta linha da grade.** A partir de 1.536 px as linhas são `auto auto auto 1fr`, e a coluna ocupa as quatro. Sem a linha flexível, um painel mais alto que a lista, como a edição num mês de poucos fixos, abriria espaço entre o título, os totais e as seções.
@@ -391,7 +391,7 @@ formulário na coluna e fora dela.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner` (`b2b201d`)
+**Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner` (`767e57d`)
 **Nota**: as janelas do limiar são 777 e 778 px, em que o formulário mede 447 e 448 px; o plano supunha um menu de 241 px, e ele mede 240. O teste mede a largura antes de conferir os pares, para o limiar continuar colado se o respiro em volta mudar. Com `@sm` no lugar de `@md`, o teste do limiar falha. O cadastro e a edição foram medidos também em 1.280 px, e não só na coluna.
 
 ### Phase 4 — Fechamento
@@ -421,7 +421,7 @@ formulário na coluna e fora dela.
 - [x] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
-**Commit**: `docs(todo-mes-colunas): registrar Todo mês em linhas`
+**Commit**: `docs(todo-mes-colunas): registrar Todo mês em linhas` (`5a8d472`)
 **Nota**:
 - **As linhas citadas da T8 no `spec.md` foram corrigidas.** O helper das alturas que a T9 pôs no alto de `e2e/todo-mes-colunas.spec.ts` deslocou os testes da T8 em 33 linhas, e a traceability apontava para as linhas de antes.
 - **`Dialogo`**, em `dialogo-de-cadastro.tsx`, continua exportado, mas o único que o usa agora é o `DialogoDeCadastro` do mesmo arquivo. O comentário diz isso; a exportação fica, porque tirá-la não é desta fatia.
