@@ -457,7 +457,7 @@ seção "Onde ela aparece", reusada pelo meio.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(categorias): a categoria aberta, com cor, nome e onde aparece`
+**Commit**: `feat(categorias): a categoria aberta, com cor, nome e onde aparece` (`d43ff80`)
 **Nota**: `OndeAparece` recebe o `href` pronto, como pede o design; com `genero="ele"`, o teste dele
 usa um `href` com `?meioPagamentoId=`, e quem monta o do meio é o `DetalheDoMeio` (T17). O endereço
 da categoria, `/2026-03/lancamentos?categoriaId=<id>`, é provado em `detalhe-da-categoria.test.tsx`.
@@ -472,15 +472,18 @@ resultado.
 **Reuses**: `nomeCategoriaSchema`, `TituloDoPainel`, `criarCategoria` (por prop)
 **Requirement**: CADCOL-05
 **Done when**:
-- [ ] O título "Nova categoria" num `TituloDoPainel`; campo "Nome", a nota de CADCOL-05 AC 1, "Criar categoria" e "Cancelar" (CADCOL-05 AC 1)
-- [ ] Nome vazio e nome com 61 caracteres recusados sem chamar o servidor, com a mensagem junto do campo; 60 caracteres passam (CADCOL-05 AC 5, L-029, L-041)
-- [ ] O sucesso chama `aoCriada` com o id e "Categoria criada.", "Essa categoria já existia." ou "Categoria reativada.", conforme `jaExistia` e `reativada`: uma assertion para cada (CADCOL-05 ACs 2 a 4)
-- [ ] A recusa do servidor aparece em `alert`, sem `aoCriada`
-- [ ] "Cancelar" chama `aoCancelar` sem chamar o servidor (CADCOL-05 AC 6)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] O título "Nova categoria" num `TituloDoPainel`; campo "Nome", a nota de CADCOL-05 AC 1, "Criar categoria" e "Cancelar" (CADCOL-05 AC 1)
+- [x] Nome vazio e nome com 61 caracteres recusados sem chamar o servidor, com a mensagem junto do campo; 60 caracteres passam (CADCOL-05 AC 5, L-029, L-041)
+- [x] O sucesso chama `aoCriada` com o id e "Categoria criada.", "Essa categoria já existia." ou "Categoria reativada.", conforme `jaExistia` e `reativada`: uma assertion para cada (CADCOL-05 ACs 2 a 4)
+- [x] A recusa do servidor aparece em `alert`, sem `aoCriada`
+- [x] "Cancelar" chama `aoCancelar` sem chamar o servidor (CADCOL-05 AC 6)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(categorias): formulário de nova categoria`
+**Nota**: a categoria reativada volta do servidor com `jaExistia` e `reativada` verdadeiros
+(`categorias.ts:86`); o aviso "Categoria reativada." vence, e o teste usa essa combinação. O botão
+"Criar categoria" não se desabilita enquanto grava: nenhum AC pede, e o nome repetido só reaproveita.
 
 #### T14: `CadastroDeCategorias`, o estado da aba e o endereço
 **What**: o componente cliente da aba: cabeçalho com "+ Nova categoria", painel e tabela na
