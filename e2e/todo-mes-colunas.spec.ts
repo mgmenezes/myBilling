@@ -1078,6 +1078,12 @@ test("com o formulário em 447 px, um campo por linha; em 448 px, os pares lado 
  * escolha do dono em 2026-10-31). O foco fica na confirmação, e o `Escape`
  * continua fechando o painel (FIXCOL-08, ACs 3 e 4). `toBeVisible()` não olha
  * a janela: a prova é `toBeInViewport` (L-057).
+ *
+ * A medida vale depois da página relida, e não só no instante da confirmação:
+ * a página relida chega uns 200 ms depois, e o Next rolava a janela até o alto
+ * quando o `?fixo=` tinha mudado desde a carga. Por isso a edição abre o fixo
+ * pelo clique, e o cadastro parte de uma carga com `?fixo=`: nos dois, o
+ * endereço mudou antes de salvar.
  */
 
 /**
@@ -1111,23 +1117,39 @@ async function oTituloEntrou(page: Page): Promise<boolean> {
   );
 }
 
+/** Dois quadros: o observador entrega o que mudou no quadro seguinte ao da mudança. */
+async function doisQuadros(page: Page): Promise<void> {
+  await page.evaluate(
+    () =>
+      new Promise<void>((pronto) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => pronto())),
+      ),
+  );
+}
+
 const GRAVACOES = [
   {
     modo: "edição",
+    /** A carga sem `?fixo=`: o clique na linha o põe no endereço. */
+    endereco: () => `/${MARCO}/fixos`,
     botao: "Salvar alterações",
     confirmacao: "Alterações salvas.",
     preencher: (form: Locator) => form.getByLabel("Descrição").fill("Fixo A2"),
-    /** Para onde o `Escape` devolve o foco: a linha do fixo, já renomeada. */
+    /** A linha que só existe na página relida, e para onde o `Escape` devolve o foco. */
+    linhaNova: (page: Page) => botaoDaLinha(page, "Fixo A2"),
     origem: (page: Page) => botaoDaLinha(page, "Fixo A2"),
   },
   {
     modo: "cadastro",
+    /** A carga com A aberto: o "+ Novo fixo" tira o `?fixo=` do endereço. */
+    endereco: () => `/${MARCO}/fixos?fixo=${ids.a}`,
     botao: "Cadastrar gasto fixo",
     confirmacao: "Fixo E passa a aparecer em todo mês.",
     preencher: async (form: Locator) => {
       await form.getByLabel("Descrição").fill("Fixo E");
       await form.getByLabel(/De quanto costuma ser/).fill("20,00");
     },
+    linhaNova: (page: Page) => botaoDaLinha(page, "Fixo E"),
     origem: (page: Page) => page.getByRole("button", { name: "+ Novo fixo" }),
   },
 ] as const;
@@ -1136,12 +1158,12 @@ for (const [largura, altura] of [
   [1280, 720],
   [1920, 1080],
 ] as const) {
-  for (const { modo, botao, confirmacao, preencher, origem } of GRAVACOES) {
-    test(`em ${largura} × ${altura}, depois de "${botao}", a confirmação fica inteira na janela, com o foco nela, e a tela não vai ao título do painel (FIXCOL-05, AC 5; FIXCOL-06, AC 3)`, async ({
+  for (const { modo, endereco, botao, confirmacao, preencher, linhaNova, origem } of GRAVACOES) {
+    test(`em ${largura} × ${altura}, depois de "${botao}" e da página relida, a confirmação fica inteira na janela, com o foco nela, e a tela não vai ao título do painel (FIXCOL-05, AC 5; FIXCOL-06, AC 3)`, async ({
       page,
     }) => {
       await page.setViewportSize({ width: largura, height: altura });
-      await abrir(page, `/${MARCO}/fixos`);
+      await abrir(page, endereco());
       const form = await abrirFormulario(page, modo);
       await preencher(form);
       const enviar = form.getByRole("button", { name: botao });
@@ -1152,6 +1174,8 @@ for (const [largura, altura] of [
 
       const status = form.getByRole("status");
       await expect(status).toHaveText(confirmacao);
+      await expect(linhaNova(page)).toBeAttached();
+      await doisQuadros(page);
       await expect(status).toBeInViewport({ ratio: 1 });
       await expect(status).toBeFocused();
       expect(await oTituloEntrou(page)).toBe(false);

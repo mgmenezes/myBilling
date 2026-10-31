@@ -261,6 +261,27 @@ describe("abrir um fixo e o endereço (FIXCOL-09, ACs 1 a 3; FIXCOL-08, AC 2)", 
     expect(window.history.length).toBe(entradasNoHistorico);
   });
 
+  /* Trocar o `?fixo=` relê a página, para a página que o Next guarda ser a do
+     endereço: sem isso, a primeira action depois da troca rolava a janela até
+     o alto, e a confirmação de salvar saía da janela (FIXCOL-05, AC 5;
+     FIXCOL-06, AC 3). A rolagem se mede no e2e; aqui, quando relê. */
+  it("abrir um fixo, que muda o `?fixo=`, relê a página uma vez", async () => {
+    const { usuario } = montar();
+
+    await usuario.click(botaoDaLinha("Fixo B"));
+
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("abrir o cadastro com o endereço já sem `?fixo=` não relê a página", async () => {
+    const { usuario } = montar();
+
+    await usuario.click(screen.getByRole("button", { name: "+ Novo fixo" }));
+
+    expect(window.location.search).toBe("?outro=1");
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
   it("`fixoInicial` da lista abre o painel com ele, sem roubar o foco", () => {
     montar({ fixoInicial: "rec-e" });
 

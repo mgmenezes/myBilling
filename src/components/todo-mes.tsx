@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type {
   encerrarRecorrencia as encerrarAction,
@@ -22,6 +23,13 @@ import { ID_DO_PAINEL, type ItemDeFixo, idDoBotaoDaLinha, TabelaDeFixos } from "
  * o parâmetro no servidor e o entrega em `fixoInicial`; um id que não está na
  * lista do mês é ignorado. O cadastro não vai para o endereço.
  *
+ * **Trocar o `?fixo=` relê a página**, sem rolar (`router.refresh()`). O Next
+ * guarda a página que desenhou para o endereço da carga. Sem reler, a primeira
+ * action que revalida depois da troca recebe a página de outro endereço,
+ * trata-a como página nova e rola a janela até o alto: a confirmação de salvar
+ * saía da janela uns 200 ms depois de aparecer (FIXCOL-05, AC 5; FIXCOL-06,
+ * AC 3). Relida a cada troca, a página do Next é sempre a do endereço.
+ *
  * **Um painel só, que muda de lugar por CSS** (FIXCOL-07), como o cartão de
  * filtros de Lançamentos. Abaixo de 1.536 px a tela é uma coluna de até
  * 1.024 px, e o painel vem entre os totais e a lista, só enquanto algo está
@@ -36,8 +44,11 @@ import { ID_DO_PAINEL, type ItemDeFixo, idDoBotaoDaLinha, TabelaDeFixos } from "
  * saiu da lista (FIXCOL-08, ACs 2 e 4).
  */
 
-/** Põe ou tira `?fixo=` sem mexer nos outros parâmetros e sem entrada nova no histórico. */
-function gravarNoEndereco(id: string | null): void {
+/**
+ * Põe ou tira `?fixo=` sem mexer nos outros parâmetros e sem entrada nova no
+ * histórico. Diz se o endereço mudou.
+ */
+function gravarNoEndereco(id: string | null): boolean {
   const parametros = new URLSearchParams(window.location.search);
   if (id === null) {
     parametros.delete("fixo");
@@ -45,7 +56,9 @@ function gravarNoEndereco(id: string | null): void {
     parametros.set("fixo", id);
   }
   const busca = parametros.toString();
+  const antes = window.location.search;
   window.history.replaceState(null, "", busca === "" ? window.location.pathname : `?${busca}`);
+  return window.location.search !== antes;
 }
 
 export function TodoMes({
@@ -88,6 +101,13 @@ export function TodoMes({
   /* 0 na carga: o painel aberto por `?fixo=` não rouba o foco. */
   const [focarTitulo, setFocarTitulo] = useState(0);
   const botaoNovo = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
+
+  function mudarEndereco(id: string | null): void {
+    if (gravarNoEndereco(id)) {
+      router.refresh();
+    }
+  }
 
   function abrirFixo(id: string): void {
     const item = itens.find((i) => i.id === id);
@@ -96,13 +116,13 @@ export function TodoMes({
     }
     setAberto({ tipo: "fixo", id, descricao: item.descricao });
     setFocarTitulo((n) => n + 1);
-    gravarNoEndereco(id);
+    mudarEndereco(id);
   }
 
   function abrirCadastro(): void {
     setAberto({ tipo: "novo" });
     setFocarTitulo((n) => n + 1);
-    gravarNoEndereco(null);
+    mudarEndereco(null);
   }
 
   function fechar(): void {
@@ -110,7 +130,7 @@ export function TodoMes({
       aberto.tipo === "fixo" ? document.getElementById(idDoBotaoDaLinha(aberto.id)) : null;
     (linha ?? botaoNovo.current)?.focus();
     setAberto({ tipo: "nada" });
-    gravarNoEndereco(null);
+    mudarEndereco(null);
   }
 
   return (

@@ -6,11 +6,11 @@
 AC 9, FIXCOL-04 AC 3 e FIXCOL-06 AC 1), a condição da guarda de foco sem teste e a confirmação de
 salvar fora da janela. O dono escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a
 confirmação fica à vista, junto do botão clicado, e a tela não vai mais ao título do painel.
-Correções F1–F5 pendentes (plano aprovado pelo dono em 2026-10-30; T1 a T11 concluídas; branch
+Correções F1–F6 em andamento; a F6 foi achada no gate da F3 (plano aprovado pelo dono em 2026-10-30; T1 a T11 concluídas; branch
 `feat/todo-mes-colunas`, em worktree `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a
 `main` em `e39eeae`, que já traz `lancamentos-densos` (AD-020) com a F13; os hashes da T1 à T11 são
 os de depois do rebase)
-**Total**: 16 tasks em 5 fases (T1–T11 e as correções F1–F5). As fases 1 a 4 deram dois lotes
+**Total**: 17 tasks em 5 fases (T1–T11 e as correções F1–F6). As fases 1 a 4 deram dois lotes
 (T1–T7 e T8–T11), com a oferta de sub-agentes antes do Execute; a fase 5 é um lote só, inline.
 
 ---
@@ -145,7 +145,8 @@ Dois lotes: T1 a T7, e T8 a T11, nesta ordem.
 
 ```
 F1 -> F2
-F2 -> F3
+F2 -> F6
+F6 -> F3
 F3 -> F4
 F4 -> F5
 ```
@@ -153,8 +154,10 @@ F4 -> F5
 F1 a F5 fecham os Fixes 1 a 5 de `validation.md` (rodada 1, FAIL). A F1 leva à spec a escolha do
 dono em 2026-10-31 para a confirmação de salvar, "Onde você clicou", e muda o código: a guarda de
 foco do painel deixa de rolar a tela, e a confirmação recebe o foco. As F2 a F5 acrescentam, cada
-uma, o teste que falta: passa na HEAD e falha com o mutante do Verifier (M3, M16, M17 e M5). Lote
-único, inline. O e2e roda na porta 3101, com uma cópia da configuração fora do repositório, porque a
+uma, o teste que falta: passa na HEAD e falha com o mutante do Verifier (M3, M16, M17 e M5). A F6
+nasceu no gate da F3 e roda antes dela: uns 200 ms depois da confirmação, o Next rolava a janela até
+o alto, e a medida da F1 não via isso. A F3 passa a depender da F6. Lote único, inline. O e2e roda na
+porta 3101, com uma cópia da configuração fora do repositório, porque a
 3100 está com outra worktree.
 
 ---
@@ -496,6 +499,7 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
   - em 400 × 800, o alerta de "Registrar" fica com 43% dentro da janela.
 - **Sem o `preventScroll` na guarda**, e com o foco na confirmação, ela termina à vista do mesmo jeito: o `focus()` a traz de volta. Só o vigia do título pega o pulo. O título entra na janela em três dos quatro testes, e o alerta da recusa volta a sair dela.
 - **Contagens.** `form-recorrencia.test.tsx` ganha dois testes, que falham sem o foco na confirmação; a suíte unitária vai de 1.823 a 1.825. No e2e, passam os 40 de `todo-mes-colunas.spec.ts` (35 e os 5 novos), os 3 de `editar-fixo.spec.ts`, sem mudança, e os 8 de `recorrencias.spec.ts`.
+- **Completada pela F6.** Estes testes mediam a confirmação no instante em que ela aparecia. Uns 200 ms depois, a página relida chegava e o Next rolava a janela até o alto, quando o `?fixo=` tinha mudado desde a carga. A F6 corrige isso e passa a medir depois da página relida.
 - **Na recusa, o foco fica no título do painel**, segurado pela guarda sem rolar. Ele continua dentro do painel, e o `Escape` fecha, mas em 400 px o título pode estar fora da janela. O AC 7 só pede o alerta no painel, que `role="alert"` anuncia. Levar o foco ao alerta mudaria também a validação no navegador de "Mudar valor", que hoje deixa o foco no botão: fica para o dono decidir.
 
 #### F2: Quem começa no mês aberto não leva "Começa em"
@@ -510,7 +514,7 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 - [x] O teste falha com M3 (`page.tsx:135`, `> 0` → `>= 0`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(fixos): quem começa no mês aberto não leva o selo`
+**Commit**: `test(fixos): quem começa no mês aberto não leva o selo` (`5cdacdc`)
 **Nota**: com M3, o teste falha na primeira linha nova: a linha de Fixo B ganha "Começa em Março de 2026". Um ajudante novo, `dadoDoPainel`, lê o `dd` logo depois do `dt` com o termo; a F3 o reaproveita. As linhas citadas de `todo-mes-colunas.spec.ts` na traceability foram remapeadas, porque o ajudante e as assertions novas deslocam os testes de baixo. O gate passa: os 40 testes do arquivo, 1.825 unitários, `typecheck` e `lint`.
 
 #### F3: Os dados do painel lidos na página real
@@ -520,7 +524,7 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 
 Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o nome certo não coincidir com o da única pessoa (L-014, L-024, L-054).
 **Where**: `e2e/todo-mes-colunas.spec.ts`
-**Depends on**: F2
+**Depends on**: F6
 **Reuses**: `painel`, `botaoDaLinha`, `pool`
 **Requirement**: FIXCOL-04
 **Done when**:
@@ -558,6 +562,36 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 **Gate**: build
 **Commit**: `test(fixos): a guarda de foco só age no botão desabilitado`
 
+#### F6: A tela não volta ao alto depois de salvar
+**What**: achada ao rodar o gate da F3, e feita antes dela. O teste da edição em 1.280 × 720 falhou uma vez: o título do painel tinha entrado na janela. Uma sonda mostrou o motivo. Uns 200 ms depois da confirmação, a página relida chegava e o Next rolava a janela até o alto (`y` 0), e a confirmação saía da janela de novo. A F1 media no instante em que a confirmação aparecia e não via isso.
+- **A causa.** O `?fixo=` vai para o endereço por `history.replaceState`, e o Next guarda a página que desenhou para o endereço da carga. A primeira action que revalida depois da troca recebe a página de outro endereço. O Next a trata como página nova e rola até o primeiro elemento dela (`ScrollAndFocusHandler`, em `layout-router.js`: `scrollTop = 0`). Em 1.280 × 720, a edição aberta pelo clique rolou até o alto em 6 de 6 vezes. Aberta por uma carga com `?fixo=`, não rolou, e o cadastro sem `?fixo=` também não.
+- **A correção.** `TodoMes` relê a página sem rolar (`router.refresh()`) quando o `?fixo=` muda, e só então. A página que o Next guarda passa a ser sempre a do endereço, e a action não encontra página nova.
+- **Os testes da F1** passam a medir depois da página relida: a linha nova na tabela, e mais dois quadros. A edição abre pelo clique, e o cadastro parte de uma carga com `?fixo=`, os dois casos em que o endereço muda antes de salvar.
+
+**Por que reler** (decisão do autor). Os outros caminhos:
+- `router.replace(url, { scroll: false })` também sincroniza, mas troca o `replaceState` que o FIXCOL-09 e o `todo-mes.test.tsx` usam;
+- passar ao `replaceState` o estado interno do Next (`__NA`) esconde a troca dele, mas o `HistoryUpdater` do Next reescreve o endereço a cada atualização, e o `?fixo=` sumiria depois de salvar;
+- devolver a rolagem depois da do Next dependeria da ordem dos commits do React.
+
+O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o endereço, em segundo plano. O painel abre na hora, pelo estado da tela, e a página não recarrega (FIXCOL-09 AC 1).
+**Where**:
+- `src/components/todo-mes.tsx`
+- `src/components/todo-mes.test.tsx`
+- `e2e/todo-mes-colunas.spec.ts`
+
+**Depends on**: F2
+**Reuses**: `gravarNoEndereco`, `useRouter` (já no mock de `todo-mes.test.tsx`), `vigiarOTitulo`
+**Requirement**: FIXCOL-05, FIXCOL-06 (e FIXCOL-09)
+**Done when**:
+- [x] Em 1.280 × 720 e em 1.920 × 1.080, depois de salvar a edição aberta pelo clique e de cadastrar a partir de uma carga com `?fixo=`, e depois da página relida: a confirmação inteira na janela, com o foco nela, e o título do painel sem entrar na janela (FIXCOL-05 AC 5, FIXCOL-06 AC 3)
+- [x] Os quatro testes falham sem a releitura, rodados um a um: a confirmação fica com `ratio` 0 em três deles e 0,18 na edição em 1.920 × 1.080
+- [x] Abrir um fixo, que muda o `?fixo=`, relê a página uma vez; abrir o cadastro com o endereço igual não relê (`todo-mes.test.tsx`). Cada teste falha com o seu mutante: sem a releitura, e relendo sempre
+- [x] Os 7 arquivos de e2e que abrem Todo mês passam, com 89 testes, e os quatro da F1 passam 12 de 12 em três repetições
+**Tests**: componentes, e2e
+**Gate**: e2e
+**Commit**: `fix(fixos): a tela não volta ao alto depois de salvar`
+**Nota**: a suíte unitária vai de 1.825 a 1.827.
+
 ---
 
 ## Validação antes da aprovação
@@ -582,6 +616,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 | F3 | 1 teste e2e | ✅ |
 | F4 | 1 medida e2e, em dois testes | ✅ |
 | F5 | 1 teste de componente | ✅ |
+| F6 | 1 comportamento (reler a página ao trocar o `?fixo=`) e os testes dele | ✅ |
 
 ### Diagrama × `Depends on`
 
@@ -600,9 +635,10 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 | T11 | T10 (fase anterior) | fase 4 | ✅ |
 | F1 | nenhuma | início da fase 5 | ✅ |
 | F2 | F1 | F1 -> F2 | ✅ |
-| F3 | F2 | F2 -> F3 | ✅ |
+| F3 | F6 | F6 -> F3 | ✅ |
 | F4 | F3 | F3 -> F4 | ✅ |
 | F5 | F4 | F4 -> F5 | ✅ |
+| F6 | F2 | F2 -> F6 | ✅ |
 
 ### Testes × matriz
 
@@ -618,3 +654,4 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 | F1 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
 | F2 a F4 | Página e fluxo (só o teste) | e2e | e2e | ✅ |
 | F5 | Componentes (só o teste) | componentes | componentes | ✅ |
+| F6 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
