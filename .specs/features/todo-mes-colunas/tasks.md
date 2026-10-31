@@ -2,9 +2,9 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-31, com uma lacuna Minor: a corrida do
-endereço (FIXCOL-09 ACs 1 e 4), nascida na F7. As cinco lacunas da rodada 1 estão fechadas, e o
-sensor matou 12 de 12 mutantes. Correções F8 e F9 concluídas, à espera da rodada 3 do Verifier.
+**Status**: Verified, PASS na rodada 3 de `validation.md`, em 2026-10-31: os 62 ACs com prova, e o
+sensor matou 13 de 13 mutantes. Rodada 2: FAIL, com uma lacuna Minor, a corrida do endereço
+(FIXCOL-09 ACs 1 e 4), nascida na F7 e fechada pela F8; a F9 trocou um teste que provava o mock.
 Rodada 1: FAIL em 2026-10-31, com três lacunas de teste (FIXCOL-01 AC 9, FIXCOL-04 AC 3 e FIXCOL-06
 AC 1), a condição da guarda de foco sem teste e a confirmação de salvar fora da janela. O dono
 escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a confirmação fica à vista, junto do
@@ -706,7 +706,7 @@ A traceability do FIXCOL-09 deixa de dizer "por `replaceState`". O "sem entrada 
 - [x] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
 **Tests**: componentes
 **Gate**: build
-**Commit**: `test(fixos): o teste do endereço prova o componente, e não o mock`
+**Commit**: `test(fixos): o teste do endereço prova o componente, e não o mock` (`d26ae96`)
 **Nota**:
 - **O mock.** O mock do roteador ganha `push`, para o teste afirmar que ele não é chamado. O `navegar` ganha o segundo parâmetro no tipo, para o teste ler as opções da chamada. O comentário do alto do arquivo diz que a prova do endereço é a chamada, e que os testes que leem a URL contam com o mock.
 - **Os mutantes.** O teste falha com `router.push` no lugar de `router.replace`, sem destino no `navegar`. Falha também com o destino montado sem os outros parâmetros, sem `outro=1`. No código de `8d4ce41` ele passa: é a mesma conduta, provada agora pela chamada.
