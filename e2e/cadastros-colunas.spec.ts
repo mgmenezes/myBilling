@@ -2107,3 +2107,31 @@ test.describe("com ponteiro grosso, em 768 px", () => {
     expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
   });
 });
+
+/*
+ * "+ Nova categoria" e "+ Novo meio" ao lado do título, em todas as larguras
+ * (CADCOL-01, AC 6; L-055): a ordem do DOM não prova o lugar na tela. Medido
+ * no celular e colado no limiar em que a grade da coluna muda.
+ */
+for (const largura of [400, 1535, 1536]) {
+  test(`em ${largura} px, "+ Nova categoria" e "+ Novo meio" ficam ao lado do título "Cadastros", na faixa vertical dele e à direita (CADCOL-01, AC 6)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 900 });
+    for (const a of ABAS_MEDIDAS) {
+      await a.abrir(page, a.caminho);
+      const titulo = await caixa(page.getByRole("heading", { level: 1, name: "Cadastros" }));
+      const acao = await caixa(a.novo(page));
+      expect(acao.y, `${a.aba}: a ação começa acima da base do título`).toBeLessThan(
+        titulo.y + titulo.height,
+      );
+      expect(
+        acao.y + acao.height,
+        `${a.aba}: a ação termina abaixo do topo do título`,
+      ).toBeGreaterThan(titulo.y);
+      expect(acao.x, `${a.aba}: a ação fica à direita do título`).toBeGreaterThanOrEqual(
+        titulo.x + titulo.width,
+      );
+    }
+  });
+}

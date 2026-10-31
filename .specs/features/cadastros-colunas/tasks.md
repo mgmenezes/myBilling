@@ -1085,7 +1085,7 @@ Medir antes de escolher a correção. As saídas sugeridas:
   continuam passando
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `fix(cadastros): nenhuma largura rola de lado`
+**Commit**: `fix(cadastros): nenhuma largura rola de lado` (`7ee5281`)
 **Nota**:
 - **As fixtures.** "Categoria C", cuja cor automática é verde-água pela `corAutomatica` do app; o
   meio "CartaoComNomeDeQuarentaLetrasNumaPalavra" (40) e a categoria
@@ -1133,12 +1133,22 @@ está provada (L-055).
 **Reuses**: o cabeçalho de `CabecalhoDeCadastros`
 **Requirement**: CADCOL-01
 **Done when**:
-- [ ] Em 400, 1.535 e 1.536 px, nas duas abas, a caixa de "+ Nova categoria" ou "+ Novo meio" fica na
+- [x] Em 400, 1.535 e 1.536 px, nas duas abas, a caixa de "+ Nova categoria" ou "+ Novo meio" fica na
   faixa vertical do `h1` e à direita dele
-- [ ] O teste falha com E14b (o cabeçalho em coluna só a partir de 1.536 px)
+- [x] O teste falha com E14b (o cabeçalho em coluna só a partir de 1.536 px)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): a ação ao lado do título em todas as larguras`
+**Nota**:
+- **O teste** é um laço de três larguras no fim do arquivo (`:2117`), que percorre as duas abas por
+  `ABAS_MEDIDAS`. A faixa vertical é a sobreposição das duas caixas: a ação começa acima da base do
+  `h1` e termina abaixo do topo dele. Cada cláusula tem a sua assertion, e "à direita" é a terceira.
+- **O mutante.** Na HEAD, os três casos passam. Com E14b (`2xl:flex-col` em
+  `cabecalho-de-cadastros.tsx:38`), o de 1.536 px falha em Categorias: a ação começa em 180,9 px, e
+  a base do título está em 164,9. Os de 400 e 1.535 px passam, porque o mutante só age a partir de
+  1.536 px.
+- **Gate:** 2.087 unitários, `typecheck` e `lint` 0, e os 61 testes de `cadastros-colunas.spec.ts`
+  (58 e os 3 novos). Nenhuma citação da traceability mudou.
 
 #### F6: A tela fica parada ao salvar
 **What**: o mutante E15 de `validation.md`, que sobreviveu sem lacuna na spec. O dono escolheu em
