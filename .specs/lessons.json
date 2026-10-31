@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 62,
+  "next_id": 67,
   "lessons": [
     {
       "id": "L-001",
@@ -954,17 +954,19 @@
       "text": "AC de posição 'em todas as larguras' precisa de medida em cada faixa em que a grade muda; numa grade com row-start, a ordem do DOM não prova a ordem na tela.",
       "signal": "surviving_mutant",
       "scope": "e2e,layout",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "todo-mes-colunas"
+        "todo-mes-colunas",
+        "cadastros-colunas"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "M17 src/components/todo-mes.tsx:121; FIXCOL-06 AC 1 (e2e,layout)"
+        "M17 src/components/todo-mes.tsx:121; FIXCOL-06 AC 1 (e2e,layout)",
+        "E14b src/components/cabecalho-de-cadastros.tsx:38; CADCOL-01 AC 6; validation.md G5 (e2e,layout)"
       ],
       "created": "2026-10-31T14:38:38Z",
-      "last_seen": "2026-10-31T14:38:38Z"
+      "last_seen": "2026-10-31T21:03:38Z"
     },
     {
       "id": "L-056",
@@ -1073,6 +1075,96 @@
       ],
       "created": "2026-10-31T17:27:57Z",
       "last_seen": "2026-10-31T17:27:57Z"
+    },
+    {
+      "id": "L-062",
+      "key": "spec_deviation::medida que desmente um ac de layout volta ao proprio ac antes do commit registrada so na nota da task o ac continua prometendo o contrario e a traceability o da por provado",
+      "text": "Medida que desmente um AC de layout volta ao próprio AC antes do commit; registrada só na Nota da task, o AC continua prometendo o contrário e a traceability o dá por provado.",
+      "signal": "spec_deviation",
+      "scope": "spec,layout",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "CADCOL-06 AC 8; Nota da T16 em tasks.md; sonda E (cartão em 3 linhas em 400 px); validation.md G1 (spec,layout)"
+      ],
+      "created": "2026-10-31T21:03:38Z",
+      "last_seen": "2026-10-31T21:03:38Z"
+    },
+    {
+      "id": "L-063",
+      "key": "surviving_mutant::cada clausula de um ac com limiar precisa de assertion no caso colado nele medir ali so outras clausulas do mesmo ac deixa aquela provada longe do limiar",
+      "text": "Cada cláusula de um AC com limiar precisa de assertion no caso colado nele; medir ali só outras cláusulas do mesmo AC deixa aquela provada longe do limiar.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites,layout",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E17 src/components/tabela-de-categorias.tsx:149; E18 src/components/tabela-de-meios.tsx:182; CADCOL-02 e CADCOL-06 AC 8; validation.md G2 (testes,limites,layout)"
+      ],
+      "created": "2026-10-31T21:03:38Z",
+      "last_seen": "2026-10-31T21:03:38Z"
+    },
+    {
+      "id": "L-064",
+      "key": "surviving_mutant::ac de alvo de toque em qualquer largura e ponteiro precisa de medida com ponteiro fino acima do breakpoint em que outro alvo encolhe medir so no celular e no toque deixa o alvo do mouse encolher com a suite verde",
+      "text": "AC de alvo de toque 'em qualquer largura e ponteiro' precisa de medida com ponteiro fino acima do breakpoint em que outro alvo encolhe; medir só no celular e no toque deixa o alvo do mouse encolher com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,layout,toque",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E19 src/components/coluna-de-cadastro.tsx:142; CADCOL-10 AC 7; validation.md G3 (e2e,layout,toque)"
+      ],
+      "created": "2026-10-31T21:03:38Z",
+      "last_seen": "2026-10-31T21:03:38Z"
+    },
+    {
+      "id": "L-065",
+      "key": "spec_precision_gap::tabela que vira cartao num breakpoint precisa de ac de sem rolagem lateral em cada faixa em que e tabela provado com o texto mais largo de cada coluna que nao quebra e com um nome de uma palavra so a regra so no celular deixa a tabela sair da coluna logo acima do breakpoint",
+      "text": "Tabela que vira cartão num breakpoint precisa de AC de 'sem rolagem lateral' em cada faixa em que é tabela, provado com o texto mais largo de cada coluna que não quebra e com um nome de uma palavra só; a regra só no celular deixa a tabela sair da coluna logo acima do breakpoint.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,layout",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "sondas B, B2 e T ('Supermercado' rola 10 px em 768 px); E7 src/components/tabela-de-meios.tsx:67; CADCOL-09 AC 7; validation.md G4 (spec,layout)"
+      ],
+      "created": "2026-10-31T21:03:38Z",
+      "last_seen": "2026-10-31T21:03:38Z"
+    },
+    {
+      "id": "L-066",
+      "key": "surviving_mutant::medida de continua a vista depois de salvar precisa de janela em que o alvo comeca fora dela com o alvo ja a vista na pagina no alto uma rolagem ate o alto passa verde",
+      "text": "Medida de 'continua à vista depois de salvar' precisa de janela em que o alvo começa fora dela; com o alvo já à vista na página no alto, uma rolagem até o alto passa verde.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,foco",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "E15 src/components/detalhe-do-meio.tsx:144; e2e/cadastros-colunas.spec.ts:1022; sonda D; validation.md ponto (d) (e2e,foco)"
+      ],
+      "created": "2026-10-31T21:03:38Z",
+      "last_seen": "2026-10-31T21:03:38Z"
     }
   ]
 }

@@ -2,11 +2,17 @@
 
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
-**Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
-worktree `.worktrees/cadastros-colunas`, rebaseada sobre a `main` em `e8b1540`, com Todo mês; os três
-lotes, T1 a T22, concluídos, à espera do Verifier)
-**Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
-e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
+**Status**: Rodada 1 de `validation.md`: FAIL em 2026-10-31, com 89 de 94 ACs provados, 40 de 46
+mutantes mortos e cinco lacunas (G1 a G5). O dono decidiu em 2026-10-31:
+- G1: "Aceitar a quebra": abaixo de 768 px, a linha de baixo quebra quando não cabe;
+- G4: "Nunca rolar de lado", em largura nenhuma;
+- E15: "Sim, como em Todo mês": a tela fica parada ao salvar.
+
+As correções F1–F6 estão em execução. Antes disso: plano aprovado pelo dono em 2026-10-30, e T1 a
+T22 concluídas na branch `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`,
+rebaseada sobre a `main` em `e8b1540`, com Todo mês.
+**Total**: 28 tasks em 7 fases (T1–T22 e as correções F1–F6). As fases 1 a 6 deram três lotes
+(T1–T7, T8–T15 e T16–T22), com a oferta de sub-agentes antes do Execute. A fase 7 é um lote só.
 
 **Pré-condição**: Todo mês (AD-021) entra antes. Antes da T1, esta branch é rebaseada sobre a que
 tiver Todo mês (`feat/todo-mes-colunas`, ou `main` depois do merge), e a base de testes é medida de
@@ -174,6 +180,24 @@ T21 -> T22
 ```
 
 Três lotes: T1 a T7, T8 a T15, e T16 a T22, nesta ordem.
+
+### Phase 7 — Correções da verificação (rodada 1)
+
+```
+F1 -> F2
+F2 -> F3
+F3 -> F4
+F4 -> F5
+F5 -> F6
+```
+
+F1 a F5 fecham os Fix Plans 1 a 5 de `validation.md` (rodada 1, FAIL).
+- A F1 e a F4 levam à spec as escolhas do dono de 2026-10-31.
+- A F6 vem do mutante E15, que sobreviveu sem lacuna na spec: o dono pediu a mesma garantia de Todo
+  mês.
+- Cada task começa pelo teste, que passa na HEAD e falha com o mutante do Verifier, ou falha antes
+  da correção.
+- Todas mexem em `e2e/cadastros-colunas.spec.ts`, por isso vão em fila.
 
 ---
 
@@ -896,7 +920,7 @@ a dica quando nada está aberto; o teste de TRES-01, AC 8 passa para 1.535 px.
 - [x] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
-**Commit**: `docs(cadastros-colunas): registrar Cadastros em abas`
+**Commit**: `docs(cadastros-colunas): registrar Cadastros em abas` (`e4789ef`)
 **Nota**:
 - **Contagens do gate, nesta worktree, em 2026-10-31:** `pnpm verify` saiu 0, com 2.087 testes
   unitários em 132 arquivos, 406 de integração em 25 arquivos e o build; branches em `src/domain`,
@@ -913,6 +937,169 @@ a dica quando nada está aberto; o teste de TRES-01, AC 8 passa para 1.535 px.
 - **O `pnpm db:up` não rodou nesta worktree:** o Postgres em Docker já estava de pé, e o compose
   daqui usaria outro nome de projeto, com outro contêiner na mesma porta. O gate usou o banco de
   teste `mybilling_test_cad`.
+
+### Phase 7 — Correções da verificação (rodada 1)
+
+#### F1: Abaixo de 768 px, a linha de baixo quebra quando não cabe
+**What**: o Fix Plan 1 de `validation.md` (G1), com a escolha do dono em 2026-10-31: "Aceitar a
+quebra".
+- O CADCOL-02 AC 8 e o CADCOL-06 AC 8 passam a dizer: de 400 a 767 px, a pill ou o nome ficam
+  sozinhos na primeira linha de texto. Abaixo dela vêm a cor e as contagens, ou o tipo, os dias e as
+  contagens, com o nome escrito, e quebram em mais linhas quando não cabem. Não há cabeçalho de
+  tabela.
+- A linha "Celular" das premissas registra a escolha do dono.
+- O teste de 400 px dos meios passa a medir o cartão, que hoje não mede.
+
+**Where**:
+- `.specs/features/cadastros-colunas/spec.md` (os dois ACs, a premissa e a traceability)
+- `e2e/cadastros-colunas.spec.ts`
+
+**Depends on**: nenhuma
+**Reuses**: a contagem de linhas de texto pelas caixas do texto (sonda E de `validation.md`)
+**Requirement**: CADCOL-02, CADCOL-06
+**Done when**:
+- [ ] Os dois ACs 8 dizem a regra nova, com a confirmação do dono em 2026-10-31. A linha "Celular"
+  das premissas passa a `y`
+- [ ] Em 400 px, na linha de "Cartão Roxo":
+  - nenhuma caixa de texto do tipo, dos dias ou das contagens fica na faixa vertical do nome;
+  - todas essas caixas ficam abaixo dele.
+- [ ] Em 400 px, "Conta Corrente" e "Categoria Um" ocupam duas linhas de texto, contadas pelas caixas
+  do texto
+- [ ] O teste do cartão falha com um mutante que sobe o tipo para a linha do nome
+- [ ] `validate_spec.py` passa
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): no celular, a linha de baixo quebra quando não cabe`
+
+#### F2: A regra do AC 8 medida colado no limiar, em 767 px
+**What**: o Fix Plan 2 (G2). Nos dois testes de 767 px, o de categorias e o de meios, entram as
+assertions de 400 px:
+- a pill ou o nome fica em cima;
+- a cor e as contagens, ou o tipo, os dias e as contagens, ficam abaixo dele.
+
+A regra é a da F1.
+**Where**: `e2e/cadastros-colunas.spec.ts`
+**Depends on**: F1
+**Reuses**: as medidas da F1
+**Requirement**: CADCOL-02, CADCOL-06
+**Done when**:
+- [ ] Em 767 px, nas duas tabelas, a regra do AC 8, medida no navegador
+- [ ] Cada teste falha com o seu mutante: E17 (`md:table-row` → `sm:table-row` em
+  `tabela-de-categorias.tsx`) e E18 (o mesmo em `tabela-de-meios.tsx`)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): a linha do celular medida em 767 px`
+
+#### F3: Os alvos de 44 × 44 com ponteiro fino a partir de 768 px
+**What**: o Fix Plan 3 (G3). O CADCOL-10 AC 7 vale "em qualquer largura e ponteiro". Hoje os alvos
+são medidos só em 400 px e com toque em 1.920 px.
+**Where**: `e2e/cadastros-colunas.spec.ts`
+**Depends on**: F2
+**Reuses**: as medidas de alvo de `:744` e do teste de toque da T21
+**Requirement**: CADCOL-10
+**Done when**:
+- [ ] Com ponteiro fino, em 768 e em 1.536 px, nas duas abas, cada um destes alvos mede ao menos
+  44 × 44, conferido com o painel aberto e com os dois formulários de criação abertos pela ação
+  (L-060):
+  - as abas, "+ Nova categoria", "+ Novo meio" e "Fechar";
+  - "Salvar", "Salvar alterações", "Criar categoria", "Criar meio" e "Cancelar";
+  - "Ver em Lançamentos" e as onze opções de cor.
+- [ ] O teste falha com E19 (`md:pointer-fine:min-h-9 md:pointer-fine:min-w-9` no "Fechar")
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): os alvos de 44 px também com ponteiro fino`
+
+#### F4: Nenhuma largura rola de lado
+**What**: o Fix Plan 4 (G4), com a escolha do dono em 2026-10-31: "Nunca rolar de lado".
+- O CADCOL-09 AC 7 passa a dizer: em qualquer largura a partir de 400 px, cada aba cabe sem
+  rolagem lateral. Vale com nada aberto, com um item aberto e com o formulário de criação aberto.
+- O Edge Case "Nome longo" ganha uma frase: uma palavra só, mais larga que a coluna, quebra no meio.
+- Uma premissa nova registra a escolha do dono.
+
+Sondas do Verifier, que mostram por que isso falha hoje:
+- em 768 px, a categoria de cor automática verde-água, que tem o rótulo mais largo da coluna Cor,
+  rola a página 10 px com mouse e 24 px no toque;
+- uma palavra de 40 letras no meio e de 60 na categoria rola a página em 400, 768 e 1.024 px.
+
+Medir antes de escolher a correção. As saídas sugeridas:
+- a cor quebra entre 768 e 1.023 px (`lg:` no lugar de `md:whitespace-nowrap`, em
+  `tabela-de-categorias.tsx`), como o tipo do meio na T16;
+- `[overflow-wrap:anywhere]` no botão da linha das duas tabelas e no `TituloDoPainel`.
+
+**Where**:
+- `.specs/features/cadastros-colunas/spec.md` (o AC, o Edge Case, a premissa e a traceability)
+- `src/components/tabela-de-categorias.tsx`, `src/components/tabela-de-meios.tsx` e
+  `src/components/coluna-de-cadastro.tsx`, conforme a medida
+- `e2e/cadastros-colunas.spec.ts`
+
+**Depends on**: F3
+**Reuses**: o laço de larguras e a medida de rolagem lateral de `:744` e `:1432`
+**Requirement**: CADCOL-09, CADCOL-02, CADCOL-06
+**Done when**:
+- [ ] O AC 7, o Edge Case e a premissa dizem a regra nova, com a escolha do dono
+- [ ] Nas duas abas, nos três estados (nada aberto, item aberto, formulário de criação aberto pela
+  ação), não há rolagem lateral (`scrollWidth` ≤ `clientWidth`) em 400, 767, 768, 1.023, 1.024,
+  1.279, 1.280, 1.535, 1.536 e 1.920 px. As fixtures do teste:
+  - uma categoria de nome genérico cuja cor automática é verde-água;
+  - um meio de 40 caracteres numa palavra só;
+  - uma categoria de 60 caracteres numa palavra só.
+  As fixtures entram só neste teste, sem mudar as contagens nem a ordem que os outros esperam
+- [ ] Em 768 px, também com toque (`hasTouch`), a mesma medida. Ela mata E7
+- [ ] Os testes falham no código de `e4789ef` e passam com a correção
+- [ ] As linhas de até 48 px (CADCOL-02 e CADCOL-06, AC 7) e os testes de 768 px da T15 e da T20
+  continuam passando
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `fix(cadastros): nenhuma largura rola de lado`
+
+#### F5: "+ Nova…" ao lado do título, medido no navegador
+**What**: o Fix Plan 5 (G5). O CADCOL-01 AC 6 diz "em todas as larguras", e hoje só a ordem do DOM
+está provada (L-055).
+**Where**: `e2e/cadastros-colunas.spec.ts`
+**Depends on**: F4
+**Reuses**: o cabeçalho de `CabecalhoDeCadastros`
+**Requirement**: CADCOL-01
+**Done when**:
+- [ ] Em 400, 1.535 e 1.536 px, nas duas abas, a caixa de "+ Nova categoria" ou "+ Novo meio" fica na
+  faixa vertical do `h1` e à direita dele
+- [ ] O teste falha com E14b (o cabeçalho em coluna só a partir de 1.536 px)
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): a ação ao lado do título em todas as larguras`
+
+#### F6: A tela fica parada ao salvar
+**What**: o mutante E15 de `validation.md`, que sobreviveu sem lacuna na spec. O dono escolheu em
+2026-10-31 "Sim, como em Todo mês": ao salvar no painel, a tela não pula.
+- Entra o CADCOL-04 AC 16: ao salvar a cor ou o nome da categoria, a página e a coluna do painel
+  ficam na rolagem em que estavam, e o controle acionado continua à vista.
+- Entra o CADCOL-07 AC 16: o mesmo ao salvar o nome ou os dias do meio.
+- Uma premissa registra a escolha do dono.
+
+Criar não entra: o painel abre na criada e leva o foco ao título, por desenho (CADCOL-10 AC 2).
+**Where**:
+- `.specs/features/cadastros-colunas/spec.md` (os dois ACs, a premissa e a traceability)
+- `e2e/cadastros-colunas.spec.ts`
+- o código, só se o teste mostrar um pulo hoje. Nesse caso, usar o padrão de Todo mês: `preventScroll`
+  e `router.replace` com `scroll: false`. Registrar na Nota
+
+**Depends on**: F5
+**Reuses**: `redeLenta`, se precisar; a espera pela página relida dos testes de `:573` e `:1001`
+**Requirement**: CADCOL-04, CADCOL-07
+**Done when**:
+- [ ] Os dois ACs e a premissa, com a escolha do dono; `validate_spec.py` passa
+- [ ] O teste roda em 400 × 700, 1.280 × 480 e 1.920 × 480, numa janela baixa o bastante para o
+  controle começar fora dela. Em 1.920 px, a coluna presa rola sozinha, e o que se mede ali é o
+  `scrollTop` dela. Os passos:
+  1. rolar até o controle ("Salvar alterações" do meio, "Salvar" do nome e uma opção de cor);
+  2. acionar o controle;
+  3. esperar o aviso e a página relida, com a linha já mudada.
+  Depois, o `scrollY` e o `scrollTop` da coluna ficam iguais aos de antes (± 1 px), e o controle
+  fica `toBeInViewport({ ratio: 1 })`
+- [ ] Cada caso falha com E15 (`window.scrollTo(0, 0)` depois de salvar) no formulário dele
+- [ ] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+**Tests**: e2e
+**Gate**: build
+**Commit**: `test(cadastros): a tela fica parada ao salvar`
 
 ---
 

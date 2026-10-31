@@ -50,6 +50,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout) (+1 more)
 - last seen: 2026-10-31T04:36:51Z
 
+### L-055 - AC de posição 'em todas as larguras' precisa de medida em cada faixa em que a grade muda; numa grade com row-start, a ordem do DOM não prova a ordem na tela.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: todo-mes-colunas, cadastros-colunas
+- evidence: M17 src/components/todo-mes.tsx:121; FIXCOL-06 AC 1 (e2e,layout) (+1 more)
+- last seen: 2026-10-31T21:03:38Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -318,12 +324,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M16 src/app/(app)/[competencia]/fixos/page.tsx:130; FIXCOL-04 AC 3 (e2e,composicao)
 - last seen: 2026-10-31T14:38:38Z
 
-### L-055 - AC de posição 'em todas as larguras' precisa de medida em cada faixa em que a grade muda; numa grade com row-start, a ordem do DOM não prova a ordem na tela.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
-- features: todo-mes-colunas
-- evidence: M17 src/components/todo-mes.tsx:121; FIXCOL-06 AC 1 (e2e,layout)
-- last seen: 2026-10-31T14:38:38Z
-
 ### L-056 - Guarda que só age sob uma condição precisa de teste com o mesmo tipo de elemento sem a condição; testar só outro tipo de elemento deixa a condição sumir com a suíte verde.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
 - features: todo-mes-colunas
@@ -359,6 +359,36 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: formulario-pela-coluna
 - evidence: src/components/cadastro-de-meio-inline.tsx:172 e src/components/form-compra.tsx:447 (M11 e M12, rodada 2) (e2e,layout)
 - last seen: 2026-10-31T17:27:57Z
+
+### L-062 - Medida que desmente um AC de layout volta ao próprio AC antes do commit; registrada só na Nota da task, o AC continua prometendo o contrário e a traceability o dá por provado.
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `spec,layout` · harmful: 0
+- features: cadastros-colunas
+- evidence: CADCOL-06 AC 8; Nota da T16 em tasks.md; sonda E (cartão em 3 linhas em 400 px); validation.md G1 (spec,layout)
+- last seen: 2026-10-31T21:03:38Z
+
+### L-063 - Cada cláusula de um AC com limiar precisa de assertion no caso colado nele; medir ali só outras cláusulas do mesmo AC deixa aquela provada longe do limiar.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites,layout` · harmful: 0
+- features: cadastros-colunas
+- evidence: E17 src/components/tabela-de-categorias.tsx:149; E18 src/components/tabela-de-meios.tsx:182; CADCOL-02 e CADCOL-06 AC 8; validation.md G2 (testes,limites,layout)
+- last seen: 2026-10-31T21:03:38Z
+
+### L-064 - AC de alvo de toque 'em qualquer largura e ponteiro' precisa de medida com ponteiro fino acima do breakpoint em que outro alvo encolhe; medir só no celular e no toque deixa o alvo do mouse encolher com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout,toque` · harmful: 0
+- features: cadastros-colunas
+- evidence: E19 src/components/coluna-de-cadastro.tsx:142; CADCOL-10 AC 7; validation.md G3 (e2e,layout,toque)
+- last seen: 2026-10-31T21:03:38Z
+
+### L-065 - Tabela que vira cartão num breakpoint precisa de AC de 'sem rolagem lateral' em cada faixa em que é tabela, provado com o texto mais largo de cada coluna que não quebra e com um nome de uma palavra só; a regra só no celular deixa a tabela sair da coluna logo acima do breakpoint.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,layout` · harmful: 0
+- features: cadastros-colunas
+- evidence: sondas B, B2 e T ('Supermercado' rola 10 px em 768 px); E7 src/components/tabela-de-meios.tsx:67; CADCOL-09 AC 7; validation.md G4 (spec,layout)
+- last seen: 2026-10-31T21:03:38Z
+
+### L-066 - Medida de 'continua à vista depois de salvar' precisa de janela em que o alvo começa fora dela; com o alvo já à vista na página no alto, uma rolagem até o alto passa verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,foco` · harmful: 0
+- features: cadastros-colunas
+- evidence: E15 src/components/detalhe-do-meio.tsx:144; e2e/cadastros-colunas.spec.ts:1022; sonda D; validation.md ponto (d) (e2e,foco)
+- last seen: 2026-10-31T21:03:38Z
 
 ## Quarantined (failed when applied - ignore)
 
