@@ -10,8 +10,9 @@ Correções F1–F7 concluídas, à espera da rodada 2 do Verifier. A F6 e a F7 
 da F3 e da F5: a rolagem até o alto que o Next fazia depois de trocar o `?fixo=` (plano aprovado
 pelo dono em 2026-10-30; T1 a T11 concluídas; branch
 `feat/todo-mes-colunas`, em worktree `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a
-`main` em `e39eeae`, que já traz `lancamentos-densos` (AD-020) com a F13; os hashes da T1 à T11 são
-os de depois do rebase)
+`main` em `a121594`, que já traz `lancamentos-densos` (AD-020) fechada e `formulario-pela-coluna`;
+os hashes dos commits da T1 à F7 são os de depois do rebase, e as provas da fase 5 citam os de
+antes: `d964e84` é hoje `8faeace`)
 **Total**: 18 tasks em 5 fases (T1–T11 e as correções F1–F7). As fases 1 a 4 deram dois lotes
 (T1–T7 e T8–T11), com a oferta de sub-agentes antes do Execute; a fase 5 é um lote só, inline.
 
@@ -192,7 +193,7 @@ ocorrência e soma os dois totais a partir dos lançamentos.
 - [x] Gate quick passa; nenhum dos 1.703 testes de antes some
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`ac45664`)
+**Commit**: `feat(domain): fixos do mês com o valor da ocorrência` (`3d36ec7`)
 
 #### T2: `obterTodoMes`, materializar e ler o mês
 **What**: o caso de uso de leitura de Todo mês: materializa a janela, lê fixos e lançamentos do mês e
@@ -208,7 +209,7 @@ chama `fixosDoMes`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`fd138a5`)
+**Commit**: `feat(recorrencias): ler Todo mês a partir das ocorrências` (`c7bef2f`)
 
 ### Phase 2 — As peças da tela
 
@@ -233,7 +234,7 @@ os selos, o valor do mês, a linha aberta e os vazios; e o tipo `ItemDeFixo`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`f8758c8`)
+**Commit**: `feat(fixos): a tabela de fixos em duas seções` (`26a6cf1`)
 
 #### T4: `DetalheDoFixo`, o fixo aberto
 **What**: o detalhe do painel: valor do mês e nota, aviso de encerrado, dados, "Valor ao longo dos
@@ -251,7 +252,7 @@ meses" e as três ações.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`617c3ad`)
+**Commit**: `feat(fixos): o detalhe do fixo aberto, com o valor ao longo dos meses` (`40f380c`)
 
 #### T5: `CicloDoFixo`, mudar o valor e encerrar
 **What**: o `fieldset` de "Mudar o valor" e "Encerrar" de `lista-de-fixos.tsx:291-364`, fora do
@@ -267,7 +268,7 @@ cartão, com o mesmo comportamento e um `h3`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`11fd7d1`)
+**Commit**: `refactor(fixos): mudar o valor e encerrar fora do cartão` (`23d55cc`)
 **Nota**: a prop `descricao` do design saiu de `CicloDoFixo`. Ela servia à `legend` invisível ("Mudar o valor de <descrição>"); o título à vista é "Mudar o valor" ou "Encerrar", e a descrição já é o título do painel. Nenhum AC muda.
 
 #### T6: `PainelDoFixo`, os modos do painel
@@ -291,7 +292,7 @@ fixo fora da lista), com "Fechar", `Escape`, "Voltar" e o foco no título.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`db60cec`)
+**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`2a5b529`)
 **Nota**: "montar o painel não leva o foco" vale para a montagem com `focarTitulo` 0, que é a carga da página com `?fixo=`. Abaixo de 1.536 px o painel só existe com algo aberto (T7), então ele nasce no mesmo render em que a pessoa abre e o número muda: a montagem com um número diferente de 0 também leva o foco, e há teste para os dois casos. O subtítulo "Saída fixa · vence dia N" fica no cabeçalho em todo modo de um fixo da lista, e não só no detalhe.
 
 #### T7: `TodoMes`, o estado da tela e o endereço
@@ -312,7 +313,7 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço` (`f19f634`)
+**Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço` (`690545b`)
 **Nota**: fechar o aviso de um fixo que saiu da lista devolve o foco ao "+ Novo fixo", porque o botão da linha não existe mais; o FIXCOL-08, AC 4 só nomeia a linha e o cadastro. O hash desta task entra no `tasks.md` com a T8, porque um commit não carrega o próprio hash.
 
 ### Phase 3 — A página
@@ -363,7 +364,7 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e os cinco e2e antigos desta task
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (`2ec425f`; o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
+**Commit**: `feat(fixos): a página de Todo mês em linhas, com o fixo aberto no painel` (`1258d2c`; o plano dizia "Todo mês em linhas…"; o `check_commit.py` recusa descrição começando em maiúscula)
 **Nota**:
 - **A linha de até 48 px, medida no navegador.** Em 1.280 px toda linha media de 50 a 53 px. O botão da linha era `inline-flex` e ganhava a folga da letra na linha de texto da célula; com a descrição longa, a pill da categoria ainda quebrava em duas linhas. O botão virou `flex`, como o selo de Lançamentos, e a pill, o dia e o meio não quebram a partir de 768 px: quem cede largura é a descrição, e só a linha dela cresce. O botão ganhou `min-w-11`, porque "Fixo B" media 43,6 px de largura em 400 px (TOQUE-01). Mexe em `tabela-de-fixos.tsx`, fora da lista desta task, sem mudar teste dele.
 - **O foco ao trocar de modo**, pedido no lote 2. "Mudar valor", "Encerrar" e "Editar" levam o foco ao título do modo novo; "Cancelar", "Voltar" e "Registrar" o devolvem ao título do painel. O botão de envio que se desabilita enquanto grava ("Gravando…") também devolve o foco ao título do painel. Sem isso, o Chrome tirava o foco para o `body`, e o `Escape` depois de salvar não fechava o painel (`editar-fixo.spec.ts`). Mexe em `painel-do-fixo.tsx` e `ciclo-do-fixo.tsx`, com nove testes novos em `painel-do-fixo.test.tsx`. Nenhum AC muda: é a regra do FIXCOL-08.
@@ -394,7 +395,7 @@ quando nada está aberto; o laço do TRES-01 AC 8 deixa Todo mês.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px` (`60f20f6`)
+**Commit**: `feat(fixos): o painel numa coluna à direita a partir de 1.536 px` (`2b8b167`)
 **Nota**:
 - **O painel sempre montado.** A coluna existe sempre, com a dica quando nada está aberto, e abaixo de 1.536 px leva `hidden 2xl:block`, como o design pedia. O jsdom não aplica o CSS. Por isso, os seis testes de `todo-mes.test.tsx` que esperavam o painel fora do DOM passam a esperar o painel em "Nenhum fixo aberto", numa coluna com `hidden 2xl:block`. Os dois testes do painel aberto ganham a coluna sem `hidden`. A prova de que nada aparece abaixo de 1.536 px fica no e2e, em 1.280 e 1.535 px. A regra que eles provam (FIXCOL-07, ACs 5 e 6) não muda: muda o jeito de esconder, que a T7 fazia desmontando.
 - **A quarta linha da grade.** A partir de 1.536 px as linhas são `auto auto auto 1fr`, e a coluna ocupa as quatro. Sem a linha flexível, um painel mais alto que a lista, como a edição num mês de poucos fixos, abriria espaço entre o título, os totais e as seções.
@@ -420,7 +421,7 @@ formulário na coluna e fora dela.
 - [x] Gate e2e passa com `e2e/todo-mes-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner` (`767e57d`)
+**Commit**: `feat(fixos): o formulário de fixo pela largura do contêiner` (`83e9b0b`)
 **Nota**: as janelas do limiar são 777 e 778 px, em que o formulário mede 447 e 448 px; o plano supunha um menu de 241 px, e ele mede 240. O teste mede a largura antes de conferir os pares, para o limiar continuar colado se o respiro em volta mudar. Com `@sm` no lugar de `@md`, o teste do limiar falha. O cadastro e a edição foram medidos também em 1.280 px, e não só na coluna.
 
 ### Phase 4 — Fechamento
@@ -450,7 +451,7 @@ formulário na coluna e fora dela.
 - [x] `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
-**Commit**: `docs(todo-mes-colunas): registrar Todo mês em linhas` (`5a8d472`)
+**Commit**: `docs(todo-mes-colunas): registrar Todo mês em linhas` (`d698a01`)
 **Nota**:
 - **As linhas citadas da T8 no `spec.md` foram corrigidas.** O helper das alturas que a T9 pôs no alto de `e2e/todo-mes-colunas.spec.ts` deslocou os testes da T8 em 33 linhas, e a traceability apontava para as linhas de antes.
 - **`Dialogo`**, em `dialogo-de-cadastro.tsx`, continua exportado, mas o único que o usa agora é o `DialogoDeCadastro` do mesmo arquivo. O comentário diz isso; a exportação fica, porque tirá-la não é desta fatia.
@@ -496,7 +497,7 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 - [x] Abrir a última linha continua trazendo o título para a janela (`todo-mes-colunas.spec.ts:609`, FIXCOL-08 AC 5), e `editar-fixo.spec.ts` passa sem mudança
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `fix(fixos): a confirmação de salvar fica à vista, junto do botão` (`ae12b8e`)
+**Commit**: `fix(fixos): a confirmação de salvar fica à vista, junto do botão` (`f7b3842`)
 **Nota**:
 - **Os e2e novos falham no código de `d964e84`**, rodados um a um:
   - na edição e no cadastro em 1.280 × 720, e na edição em 1.920 × 1.080, a confirmação fica fora da janela (`ratio` 0);
@@ -519,7 +520,7 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 - [x] O teste falha com M3 (`page.tsx:135`, `> 0` → `>= 0`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(fixos): quem começa no mês aberto não leva o selo` (`5cdacdc`)
+**Commit**: `test(fixos): quem começa no mês aberto não leva o selo` (`bca56a0`)
 **Nota**: com M3, o teste falha na primeira linha nova: a linha de Fixo B ganha "Começa em Março de 2026". Um ajudante novo, `dadoDoPainel`, lê o `dd` logo depois do `dt` com o termo; a F3 o reaproveita. As linhas citadas de `todo-mes-colunas.spec.ts` na traceability foram remapeadas, porque o ajudante e as assertions novas deslocam os testes de baixo. O gate passa: os 40 testes do arquivo, 1.825 unitários, `typecheck` e `lint`.
 
 #### F3: Os dados do painel lidos na página real
@@ -538,7 +539,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 - [x] O teste falha com M16 (`page.tsx:130`, `pessoa: recorrencia.usuarioId`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(fixos): os dados do painel lidos pelo termo na página` (`43cfa47`)
+**Commit**: `test(fixos): os dados do painel lidos pelo termo na página` (`206f11e`)
 **Nota**: com M16, o teste falha em "De quem é", que mostra o id da pessoa no lugar de "Pessoa B". A segunda pessoa é semeada dentro do teste, e o Fixo A e a ocorrência dele passam a ser dela; os outros testes continuam com uma pessoa só. A prova foi refeita depois da F6, que mexe em `TodoMes`. O gate passa: os 40 testes do arquivo, 1.827 unitários, `typecheck` e `lint`.
 
 #### F4: "+ Novo fixo" acima dos totais em toda largura
@@ -552,7 +553,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 - [x] O teste falha com M17 (`todo-mes.tsx:121`, `2xl:row-start-1` → `2xl:row-start-4`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(fixos): o novo fixo acima dos totais em toda largura` (`e8cf658`)
+**Commit**: `test(fixos): o novo fixo acima dos totais em toda largura` (`1751ad2`)
 **Nota**: a medida mora num ajudante, `novoFixoNoAlto`, chamado no teste da coluna (1.536 e 1.920 px) e no de 400 px. Com M17, o teste falha em 1.536 e em 1.920 px: o "+ Novo fixo" termina em 684 px, abaixo do topo dos totais, em 87,5 px. Em 400 px o mutante não muda nada, porque só mexe na grade de 2xl. O gate passa: os 40 testes do arquivo, 1.827 unitários, `typecheck` e `lint`.
 
 #### F5: A guarda de foco só age no botão desabilitado
@@ -567,7 +568,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 - [x] Gate quick passa: 1.828 unitários, `typecheck` e `lint`. O gate build passa para a F7, que virou a última da fase
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `test(fixos): a guarda de foco só age no botão desabilitado` (`508b7dd`)
+**Commit**: `test(fixos): a guarda de foco só age no botão desabilitado` (`4b37dd2`)
 **Nota**: o teste desfoca o botão com `fireEvent.blur`, que no jsdom não tira o foco dele. Sem a guarda, o foco fica no botão; com M5, a guarda o leva ao título, e o teste falha. Ele é o único que falha com M5: 38 dos 39 testes do arquivo passam. O `pnpm verify` rodado para esta task saiu 0, com 1.828 unitários, 364 de integração e o build. O e2e inteiro, não: o teste "rolando até o fim em 1920 × 480" falhou, por causa da F6. É a F7.
 
 #### F6: A tela não volta ao alto depois de salvar
@@ -597,7 +598,7 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 - [x] Os 7 arquivos de e2e que abrem Todo mês passam, com 89 testes, e os quatro da F1 passam 12 de 12 em três repetições
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `fix(fixos): a tela não volta ao alto depois de salvar` (`976a959`)
+**Commit**: `fix(fixos): a tela não volta ao alto depois de salvar` (`a259f53`)
 **Nota**:
 - A suíte unitária vai de 1.825 a 1.827.
 - **Substituída pela F7.** A releitura não tirava a rolagem até o alto, só mudava a hora dela: a página ia ao alto logo depois de abrir um fixo com a página rolada. A F7 troca o `?fixo=` pelo roteador do Next, sem rolar, e os dois testes de unidade desta task passam a provar a navegação.
@@ -626,7 +627,7 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 - [x] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
 **Tests**: componentes, e2e
 **Gate**: build
-**Commit**: `fix(fixos): o endereço do fixo pelo roteador do Next, sem rolar`
+**Commit**: `fix(fixos): o endereço do fixo pelo roteador do Next, sem rolar` (`10a4659`)
 **Nota**: o gate build da fase, com cada código de saída conferido sozinho:
 - `pnpm verify` sai 0: `lint` em 330 arquivos; 1.828 unitários em 115 arquivos, com 100% de branches em `src/domain` (367/367); 364 de integração em 23 arquivos; e o build;
 - o e2e inteiro, na porta 3101, sai 0 na primeira passada: 175 testes em 15 arquivos, 41 deles em `todo-mes-colunas.spec.ts`.
