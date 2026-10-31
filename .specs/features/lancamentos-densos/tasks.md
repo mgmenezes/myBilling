@@ -2,8 +2,8 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 1 de `validation.md`, em 2026-10-30; correções F1–F7 concluídas, à espera da rodada 2 do Verifier (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F7 concluídas)
-**Total**: 13 tasks em 4 fases (T1–T6 e as correções F1–F7), executadas inline
+**Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-30, por uma lacuna menor (o limiar de 768 px); correção F8 em andamento (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F7 concluídas)
+**Total**: 14 tasks em 5 fases (T1–T6 e as correções F1–F8), executadas inline
 
 ---
 
@@ -123,6 +123,15 @@ que o dono confirmou, e prova esse lugar no navegador. As F2 a F5 acrescentam, c
 sonda do Verifier provou: passa na HEAD e falha com o mutante (M12, M11, M13 e M17). A F6 fecha a
 observação 5, o foco que já estava no "⋯" antes do `Escape`. A F7 fecha a observação 7, os textos que
 ficaram para trás.
+
+### Phase 5 — Correções da verificação (rodada 2)
+
+```
+F8
+```
+
+A F8 fecha o Fix 1 da rodada 2 (FAIL, uma lacuna menor): o lado de baixo do limiar de 768 px dos
+alvos de 44 px, que só era medido em 400 px (sonda P6, mutantes N11 e N11b).
 
 ---
 
@@ -394,4 +403,23 @@ ficaram para trás.
 - [x] `pnpm verify` e o e2e inteiro passam: 1.704 unitários, 364 de integração, build e 129 e2e
 **Tests**: none
 **Gate**: build
-**Commit**: `docs(lancamentos-densos): acertar os textos que ficaram para trás`
+**Commit**: `docs(lancamentos-densos): acertar os textos que ficaram para trás` (`12ef0ca`)
+
+### Phase 5 — Correções da verificação (rodada 2)
+
+#### F8: Os alvos de 44 px logo abaixo de 768 px
+**What**: um `describe` em 767 × 900, com o ponteiro fino do projeto, que confere `matchMedia("(pointer: fine)")`, abre o "⋯" de um avulso e mede o selo, o "⋯" e o "Excluir" com ao menos 44 × 44 (Fix 1 da rodada 2, sonda P6, L-029, L-048). A lista de limiares das Global Constraints passa a ter 768 px.
+**Where**:
+- `e2e/lancamentos-densos.spec.ts`
+- `.specs/features/lancamentos-densos/tasks.md` (Global Constraints)
+
+**Depends on**: F7
+**Reuses**: `abrir`, `linha`, `caixa`
+**Requirement**: DENS-02 (e TOQUE-01, AC 1, para o selo)
+**Done when**:
+- [ ] Em 767 px, com ponteiro fino, o selo, o "⋯" e o "Excluir" do menu aberto medem ao menos 44 × 44 (DENS-02 AC 7; TOQUE-01 AC 1)
+- [ ] O teste falha com N11 (`sm:pointer-fine:` no "⋯" e no "Excluir") e com N11b (o mesmo no selo)
+- [ ] As Global Constraints listam o limiar de 768 px entre os provados dos dois lados
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(lancamentos): alvos de 44 px logo abaixo de 768 px`

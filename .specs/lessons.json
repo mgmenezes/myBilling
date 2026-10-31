@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 48,
+  "next_id": 49,
   "lessons": [
     {
       "id": "L-001",
@@ -871,6 +871,24 @@
       ],
       "created": "2026-10-31T01:41:02Z",
       "last_seen": "2026-10-31T01:41:02Z"
+    },
+    {
+      "id": "L-048",
+      "key": "surviving_mutant::a lista de limiares a provar dos dois lados sai de todo ac que diz abaixo de ou a partir de inclusive do breakpoint antigo que a fatia reaproveita listar so os limiares novos deixa o antigo provado longe dele",
+      "text": "A lista de limiares a provar dos dois lados sai de todo AC que diz 'abaixo de' ou 'a partir de', inclusive do breakpoint antigo que a fatia reaproveita; listar só os limiares novos deixa o antigo provado longe dele.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites",
+      "status": "candidate",
+      "features": [
+        "lancamentos-densos"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "validation.md rodada 2: N11 (src/components/menu-da-linha.tsx:84, botao-excluir.tsx:32) e N11b (botao-pago.tsx:32); DENS-02 AC 7, limiar de 768 px; sonda P6 (testes,limites)"
+      ],
+      "created": "2026-10-31T03:31:54Z",
+      "last_seen": "2026-10-31T03:31:54Z"
     }
   ]
 }

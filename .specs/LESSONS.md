@@ -294,6 +294,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: DENS-02 AC 1; src/components/tabela-lancamentos.tsx:363-369; AD-020 trade-off (spec,decisoes)
 - last seen: 2026-10-31T01:41:02Z
 
+### L-048 - A lista de limiares a provar dos dois lados sai de todo AC que diz 'abaixo de' ou 'a partir de', inclusive do breakpoint antigo que a fatia reaproveita; listar só os limiares novos deixa o antigo provado longe dele.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites` · harmful: 0
+- features: lancamentos-densos
+- evidence: validation.md rodada 2: N11 (src/components/menu-da-linha.tsx:84, botao-excluir.tsx:32) e N11b (botao-pago.tsx:32); DENS-02 AC 7, limiar de 768 px; sonda P6 (testes,limites)
+- last seen: 2026-10-31T03:31:54Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
