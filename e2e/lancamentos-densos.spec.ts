@@ -390,3 +390,53 @@ test("em 1.535 px os filtros ficam no topo, acima da lista; em 1.536 px, na colu
   const lista = await caixa(entradas);
   expect(naColuna.x).toBeGreaterThanOrEqual(lista.x + lista.width);
 });
+
+/**
+ * Rola até o meio do bloco "Fixos": o topo da seção passa do alto da tela, e
+ * as linhas dele continuam à vista.
+ */
+async function rolarAteOMeioDosFixos(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const titulo = document.getElementById("bloco-fixos");
+    const secao = titulo?.closest("section");
+    if (secao === null || secao === undefined) {
+      throw new Error("o bloco Fixos não está na página");
+    }
+    window.scrollTo(0, secao.getBoundingClientRect().top + window.scrollY + 60);
+  });
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+}
+
+/* O limiar dos títulos presos (DENS-04), dos dois lados (L-029). */
+test('em 1.536 px o título "Fixos" fica preso no alto ao rolar até o meio do bloco; em 1.535 px, não (DENS-04, AC 1)', async ({
+  page,
+}) => {
+  const titulo = page.getByRole("heading", { level: 3, name: "Fixos" });
+
+  await page.setViewportSize({ width: 1536, height: 420 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+  await rolarAteOMeioDosFixos(page);
+  expect(Math.abs((await caixa(titulo)).y)).toBeLessThanOrEqual(1);
+  await expect(linha(page, "Fixo B")).toBeInViewport();
+
+  await page.setViewportSize({ width: 1535, height: 420 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+  await rolarAteOMeioDosFixos(page);
+  expect((await caixa(titulo)).y).toBeLessThan(-1);
+});
+
+test("com o título preso, recolher e expandir o bloco continua funcionando (DENS-04, AC 2)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await abrir(page, `/${MARCO}/lancamentos`);
+  const alternar = page.getByRole("button", { name: "Fixos" });
+
+  await alternar.click();
+  await expect(alternar).toHaveAttribute("aria-expanded", "false");
+  await expect(linha(page, "Fixo A")).toBeHidden();
+
+  await alternar.click();
+  await expect(alternar).toHaveAttribute("aria-expanded", "true");
+  await expect(linha(page, "Fixo A")).toBeVisible();
+});

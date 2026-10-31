@@ -73,7 +73,11 @@ export function BlocoRecolhivel({
 
   return (
     <section aria-labelledby={`bloco-${id}`} className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      {/* A partir de 1.536 px o título fica preso no alto enquanto as linhas do
+          bloco passam (DENS-04). Abaixo disso a barra compacta ocupa o alto da
+          tela. A `section` limita o quanto ele acompanha; a `div` das linhas
+          não ganha nada, porque o HTML dela é lido como está (LST-02). */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 2xl:sticky 2xl:top-0 2xl:z-10 2xl:bg-canvas">
         <h3 id={`bloco-${id}`} className="text-[17px] font-medium tracking-[-0.01em]">
           <button
             type="button"

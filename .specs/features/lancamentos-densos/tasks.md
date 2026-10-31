@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T4 concluídas)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T5 concluídas)
 **Total**: 6 tasks em 3 fases (T1–T6), um lote só, executado inline
 
 ---
@@ -233,9 +233,9 @@ Lote único, inline: T1 a T6, nesta ordem.
 **Reuses**: `BlocoRecolhivel`
 **Requirement**: DENS-04
 **Done when**:
-- [ ] Em 1.920 px, rolando até o meio de "Fixos", o título "Fixos" está no alto da tela (DENS-04 AC 1)
-- [ ] Em 1.535 px o título não prende (limiar dos dois lados, 1.535 e 1.536 px)
-- [ ] O recolher e expandir e o HTML de LST-02 passam sem mudança (DENS-04 AC 2)
+- [x] Em 1.920 px, rolando até o meio de "Fixos", o título "Fixos" está no alto da tela (DENS-04 AC 1)
+- [x] Em 1.535 px o título não prende (limiar dos dois lados, 1.535 e 1.536 px)
+- [x] O recolher e expandir e o HTML de LST-02 passam sem mudança (DENS-04 AC 2)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `feat(lancamentos): títulos dos blocos presos ao rolar`
