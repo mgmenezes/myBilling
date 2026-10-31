@@ -1,9 +1,112 @@
 # Lançamentos em lista densa — Validação
 
-## Validation: lancamentos-densos (rodada 4) — **FAIL**
+## Validation: lancamentos-densos (rodada 5, focada) — **PASS**
 
-**Result**: FAIL ❌ — rodada 4 (2026-10-31, `33c9567`). O dono autorizou esta rodada além das três do
-processo. A lacuna abaixo vai a ele.
+**Result**: PASS ✅ — rodada 5, focada (2026-10-31, `e39eeae`).
+
+O veredito combina a rodada 4 (`33c9567`), que valeu para tudo o mais, com esta conferência focada
+na única lacuna dela, **por escolha do dono em 2026-10-31**: "corrigir e conferir só isso". Não foi
+uma rodada inteira. O que a rodada 4 provou fora do DENS-01 AC 5 não foi refeito, e a diferença entre
+`33c9567` e `e39eeae` só toca `e2e/` e `.specs/`, como a Rodada 5 abaixo mostra.
+
+- **Lacuna da rodada 4 (Minor), fechada:** o DENS-01 AC 5 agora tem caso em 768 px, a ponta antiga da
+  faixa "de 768 a 1.279 px" (`e2e/lancamentos-densos.spec.ts:321-332`). G1 (`md:items-end` →
+  `lg:items-end`) morre nele, e mais dois mutantes da ponta de 768 px também.
+- **Gate deste escopo:** `typecheck` 0, `lint` 0, `lancamentos-densos.spec.ts` 23 de 23.
+- **Sensor:** 3 mutantes, 3 mortos, todos em 768 px.
+
+A seção "Rodada 4" abaixo guarda o relatório que o veredito ainda usa, com as lacunas dela marcadas
+como fechadas.
+
+---
+
+## Rodada 5 (focada, 2026-10-31, `e39eeae`)
+
+**Verificador**: sub-agente independente da rodada 5 (autor ≠ verificador). No worktree real,
+escreveu só este arquivo. O sensor rodou numa `git worktree` descartável em `e39eeae`, no scratchpad,
+com `pnpm install --offline --frozen-lockfile` próprio (um symlink de `node_modules` é recusado pelo
+Turbopack). A worktree foi removida no fim. Sem `git stash`, sem commit.
+
+### 1. Integridade
+
+- `git diff --name-only 33c9567..e39eeae` toca só `.specs/` (`LESSONS.md`, `lessons.json`, `spec.md`,
+  `tasks.md`, `validation.md`) e `e2e/lancamentos-densos.spec.ts`. **Nenhum arquivo de produção.**
+- No teste, o diff é um hunk só (`:303-334`): o título e o comentário ganham o 768 px e a L-052, e o
+  bloco de 1.279 px vira um laço sobre `[768, 1279]`.
+- Nenhum teste foi removido, pulado ou afrouxado:
+  - as assertions de 1.279 px são as mesmas de antes (`:326`, `:327-330`), só com a mensagem
+    `${descricao} em ${largura} px`;
+  - as de 1.280 px estão intactas (`:334-340`: `toBeLessThanOrEqual(valor.x + 1)`,
+    `toBeLessThan(valor.y + valor.height)`, `toBeGreaterThan(valor.y)`);
+  - nenhum `skip`, nenhum timeout mexido.
+- `src/components/valor-confirmavel.tsx:70` é igual ao da rodada 4.
+
+### 2. Spec-anchored
+
+| Cláusula do AC | Resultado da spec | `file:line` + assertion | Result |
+| --- | --- | --- | --- |
+| DENS-01 AC 5, "de 768 a 1.279 px, embaixo do valor", em 768 px | a previsão começa no pé do valor ou abaixo | `e2e/lancamentos-densos.spec.ts:326` - `expect(previsao.y, onde).toBeGreaterThanOrEqual(valor.y + valor.height)`, com `largura` 768, no Fixo A "confirmado · previa R$ 100,00" e no Fixo B "previsto" (`:314-317`) | ✅ PASS |
+| "alinhado à direita com ele", em 768 px | a borda direita da previsão e a do valor a até 1 px | `:327-330` - `expect(Math.abs(previsao.x + previsao.width - (valor.x + valor.width)), onde).toBeLessThanOrEqual(1)` | ✅ PASS |
+| as mesmas duas cláusulas em 1.279 px | idem | o mesmo laço, `largura` 1279 | ✅ PASS (sem mudança de assertion) |
+| "a partir de 1.280 px, na mesma linha, à esquerda dele" | a previsão termina antes do começo do valor, na mesma altura | `:337-339` | ✅ PASS (intacto) |
+
+O viewport começa em 768 px (`:319`) e o laço o refaz (`:322`), então a primeira medida é mesmo em
+768 px, após `abrir()`. A medida lê as caixas do botão do valor e do texto da previsão
+(`valorEPrevisao`, `:286-301`), as mesmas dos outros lados.
+
+**O que ainda não está provado no AC 5:** nada que ele prometa.
+- O AC não diz nada abaixo de 768 px: lá a lista é cartão (spec, edge case "Celular", e o cabeçalho
+  do AC 5 "de 768 a 1.279 px"). Não há cláusula para provar.
+- As larguras do meio da faixa (800, 1.023, 1.024, 1.100) não têm caso. A sonda H da rodada 4 as
+  mediu e passaram, e os mutantes que mudam o meio da faixa (`lg:`) morrem nas duas pontas. O AC
+  não pede ponto intermediário, e a classe é uma só, de 768 a 1.279 px: não há terceiro limiar.
+
+### 3. Gate deste escopo, em `e39eeae`
+
+| Comando | Saída |
+| --- | --- |
+| `pnpm typecheck` | exit 0 |
+| `pnpm lint` | exit 0 |
+| `pnpm exec playwright test e2e/lancamentos-densos.spec.ts` | exit 0, **23 de 23**, sem retry |
+
+Logs em `scratchpad/verif-trc-r5/` (`typecheck.log`, `lint.log`, `e2e.log`). O gate completo da
+rodada 4 (unit 1.705, integração 364, e2e 134 de 134, build) vale para `33c9567`, e `e39eeae` não
+mudou produção.
+
+### 4. Sensor de discriminação
+
+Profundidade: leve, focada. Cada mutante entrou sozinho no worktree descartável, na linha 70 de
+`src/components/valor-confirmavel.tsx`, e saiu com `git checkout`. A linha de base do mesmo worktree,
+sem mutante, passou antes (`-g "em 768 e 1.279"`, exit 0).
+
+| # | `file:line` | Mutação | Morto por |
+| --- | --- | --- | --- |
+| G1 | `src/components/valor-confirmavel.tsx:70` | `md:items-end` → `lg:items-end` | ✅ e2e `:329-330`, "Fixo A em 768 px": esperado ≤ 1, recebido 115,9375 |
+| M2 | `valor-confirmavel.tsx:70` | sem `md:items-end` (o `items-start` vale em toda a faixa) | ✅ e2e `:329-330`, "Fixo A em 768 px": 115,9375 |
+| M3 | `valor-confirmavel.tsx:70` | `md:items-end` → `min-[800px]:items-end`: o alinhamento começa 32 px acima de 768 px | ✅ e2e `:329-330`, "Fixo A em 768 px": 115,9375 |
+
+**Resultado**: 3 de 3 mortos, todos na assertion de 768 px (a mensagem diz "em 768 px"). Os três
+passariam antes na rodada 4 (G1 era o vivo). **PASS ✅**
+
+**Isolamento**: `git status --porcelain` do worktree real, antes e depois: ` M next-env.d.ts`. A
+worktree descartável foi removida (`git worktree list` sem ela).
+
+### 5. Veredito
+
+O DENS-01 AC 5 tem prova nas duas pontas da faixa e em 1.280 px, para os dois textos. A lacuna da
+rodada 4 está fechada, e nenhuma lacuna nova apareceu. Nenhum mutante vivo, então nenhuma lição
+nova. L-052 (registrada na rodada 4) foi aplicada pela F13 e funcionou: G1 agora morre.
+
+---
+
+## Rodada 4 (2026-10-31, `33c9567`): FAIL, uma lacuna, fechada pela F13 na rodada 5
+
+O relatório abaixo é o da rodada 4, mantido porque o veredito ainda se apoia nele para tudo fora do
+DENS-01 AC 5. O texto do veredito dela vai marcado como histórico.
+
+*(Histórico)* Veredito da rodada 4: reprovado ❌ — rodada 4 (2026-10-31, `33c9567`). O dono autorizou esta rodada
+além das três do processo. A lacuna vai ao dono. **Fechada** pela F13 (`e39eeae`) e conferida na
+rodada 5.
 
 As três lacunas da rodada 3 estão fechadas:
 - **Lacuna 1 (Major), a tabela Fixos fora da coluna em 1.024 px:** a F9 (`5479bcd`) leva a previsão
@@ -450,12 +553,12 @@ Situação das candidatas desta fatia:
 
 ## Requirement Traceability Update
 
-| Requisito | Rodada 1 | Rodada 2 | Rodada 3 | Rodada 4 |
-| --- | --- | --- | --- | --- |
-| DENS-01 | ❌ Needs Fix | ✅ Verified | ❌ Needs Fix | ❌ Needs Fix (Fix 1: o AC 5 na ponta de 768 px) |
-| DENS-02 | ❌ Needs Fix | ❌ Needs Fix | ❌ Needs Fix | ✅ Verified |
-| DENS-03 | ❌ Needs Fix | ✅ Verified | ✅ Verified | ✅ Verified |
-| DENS-04 | ✅ Verified | ✅ Verified | ❌ Needs Fix | ✅ Verified |
+| Requisito | Rodada 1 | Rodada 2 | Rodada 3 | Rodada 4 | Rodada 5 (focada) |
+| --- | --- | --- | --- | --- | --- |
+| DENS-01 | ❌ Needs Fix | ✅ Verified | ❌ Needs Fix | ❌ Needs Fix (Fix 1: o AC 5 na ponta de 768 px) | ✅ Verified (rodada 5, focada, `e39eeae`) |
+| DENS-02 | ❌ Needs Fix | ❌ Needs Fix | ❌ Needs Fix | ✅ Verified | ✅ Verified (rodada 4; não refeito) |
+| DENS-03 | ❌ Needs Fix | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified (rodada 4; não refeito) |
+| DENS-04 | ✅ Verified | ✅ Verified | ❌ Needs Fix | ✅ Verified | ✅ Verified (rodada 4; não refeito) |
 
 A `spec.md` não foi alterada pelo verificador.
 
@@ -463,7 +566,9 @@ A `spec.md` não foi alterada pelo verificador.
 
 ## Summary
 
-**Overall**: ❌ Not Ready, por uma lacuna Minor de teste.
+**Overall (rodada 5, focada)**: ✅ Ready. A lacuna Minor da rodada 4 está fechada: G1, M2 e M3 morrem no caso de 768 px, e o gate do escopo é verde (typecheck 0, lint 0, e2e 23 de 23). O veredito combina a rodada 4 (tudo o mais) com esta conferência focada, por escolha do dono.
+
+*(Histórico, rodada 4)* ❌ Not Ready, por uma lacuna Minor de teste.
 - As três lacunas da rodada 3 estão fechadas, e os mutantes que as mostraram (F2, F3 e F6) morrem.
 - A F9 está certa no código: a sonda H mede a previsão embaixo do valor e alinhada à direita de 768 a
   1.279 px, e a sonda I mede as tabelas dentro da coluna de 1.024 a 1.535 px.
@@ -494,5 +599,5 @@ A `spec.md` não foi alterada pelo verificador.
   preso fica no alto e no limiar (G18, G19);
 - nenhum teste antigo foi afrouxado.
 
-**Próximo passo**: levar a Lacuna 1 ao dono. Ela se fecha com um caso a mais num teste que já existe,
+**Próximo passo (rodada 4, fechado pela F13)**: levar a Lacuna 1 ao dono. Ela se fecha com um caso a mais num teste que já existe,
 e a sonda H mostra o que ele precisa afirmar.

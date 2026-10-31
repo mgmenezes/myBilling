@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: FAIL na rodada 4 de `validation.md`, em 2026-10-31, por uma lacuna menor (a previsão do fixo alinhada à direita na ponta de 768 px da faixa do DENS-01, AC 5); o dono escolheu em 2026-10-31 corrigir e conferir só essa lacuna, sem uma rodada inteira; correção F13 concluída, à espera do Verifier focado nela (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F13 concluídas)
+**Status**: Verified, PASS na rodada 5 de `validation.md`, focada na F13, em 2026-10-31 (FAIL nas rodadas 1 a 4, com F1–F13 concluídas; o dono autorizou a rodada 4 além do limite de três e escolheu conferir só a F13 depois dela; plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T6 e F1 a F13 concluídas)
 **Total**: 19 tasks em 7 fases (T1–T6 e as correções F1–F13), executadas inline
 
 ---
@@ -541,4 +541,4 @@ rodada inteira.
 - [x] As Global Constraints listam 768 px também para a previsão do fixo
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(lancamentos): previsão do fixo alinhada à direita em 768 px`
+**Commit**: `test(lancamentos): previsão do fixo alinhada à direita em 768 px` (`e39eeae`)
