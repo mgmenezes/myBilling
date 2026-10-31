@@ -356,5 +356,19 @@ for (const qual of FORMULARIOS) {
     await expect.poll(async () => (await caixa(form)).width).toBeGreaterThanOrEqual(448);
     expect((await caixa(form)).width).toBeLessThan(449);
     expect(await posicaoDosPares(form, PARES[qual])).toEqual(esperado(PARES[qual], true));
+
+    /* Os dias do cartão novo seguem o mesmo limiar. Só depois dos pares:
+       com o cadastro aberto o atalho some e a linha do rótulo do meio fica
+       uns pixels mais baixa, o que desalinha o par de baixo. */
+    await page.setViewportSize({ width: 479, height: 900 });
+    await expect.poll(async () => (await caixa(form)).width).toBeLessThan(448);
+    await abrirCartaoNovo(form);
+    expect(await posicaoDosPares(form, [DIAS_DO_CARTAO])).toEqual(
+      esperado([DIAS_DO_CARTAO], false),
+    );
+
+    await page.setViewportSize({ width: 480, height: 900 });
+    await expect.poll(async () => (await caixa(form)).width).toBeGreaterThanOrEqual(448);
+    expect(await posicaoDosPares(form, [DIAS_DO_CARTAO])).toEqual(esperado([DIAS_DO_CARTAO], true));
   });
 }
