@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T6 concluídas; branch `feat/todo-mes-colunas`, em worktree
+**Status**: Em execução, lote 1 (plano aprovado pelo dono em 2026-10-30; T1 a T7 concluídas, lote 1 fechado; branch `feat/todo-mes-colunas`, em worktree
 `.worktrees/todo-mes-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`, de propósito: as
 duas fatias mexem em `e2e/visao-tres-colunas.spec.ts`, `docs/design.md` e `.specs/STATE.md`)
 **Total**: 11 tasks em 4 fases (T1–T11). Dá dois lotes: fases 1 e 2 (T1–T7) e fases 3 e 4
@@ -262,7 +262,7 @@ fixo fora da lista), com "Fechar", `Escape`, "Voltar" e o foco no título.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo`
+**Commit**: `feat(fixos): o painel do fixo, com cadastro e edição sem diálogo` (`1a0e28f`)
 **Nota**: "montar o painel não leva o foco" vale para a montagem com `focarTitulo` 0, que é a carga da página com `?fixo=`. Abaixo de 1.536 px o painel só existe com algo aberto (T7), então ele nasce no mesmo render em que a pessoa abre e o número muda: a montagem com um número diferente de 0 também leva o foco, e há teste para os dois casos. O subtítulo "Saída fixa · vence dia N" fica no cabeçalho em todo modo de um fixo da lista, e não só no detalhe.
 
 #### T7: `TodoMes`, o estado da tela e o endereço
@@ -273,17 +273,18 @@ estado do que está aberto, `?fixo=` e o foco de volta.
 **Reuses**: `TabelaDeFixos`, `PainelDoFixo`
 **Requirement**: FIXCOL-03, FIXCOL-06, FIXCOL-07, FIXCOL-08, FIXCOL-09
 **Done when**:
-- [ ] "Todo mês" e "+ Novo fixo" vêm antes dos totais e das seções na ordem do DOM (FIXCOL-06 AC 1)
-- [ ] Os totais "Saídas fixas em Março de 2026" e "Entradas fixas em Março de 2026", cada um com o seu valor, procurados no par termo e definição (FIXCOL-03 AC 1)
-- [ ] Abrir uma linha mostra o fixo no painel e chama `history.replaceState` com `?fixo=<id>`, mantendo os outros parâmetros; `pushState` não é chamado (FIXCOL-09 AC 1)
-- [ ] `fixoInicial` da lista abre o painel com ele; um id que não está na lista deixa o painel fechado, sem erro (FIXCOL-09 ACs 2 e 3)
-- [ ] "+ Novo fixo" fecha o fixo aberto, mostra o cadastro e tira `?fixo=` (FIXCOL-06 AC 2, FIXCOL-09 AC 4)
-- [ ] Fechar tira `?fixo=` e devolve o foco ao botão da linha; fechar o cadastro devolve ao "+ Novo fixo" (FIXCOL-08 AC 4, FIXCOL-09 AC 4)
-- [ ] Sem nada aberto, nenhum painel no DOM; com algo aberto, o painel entre os totais e as seções (FIXCOL-07 ACs 5 e 6, na ordem do DOM; a medida é da T8)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] "Todo mês" e "+ Novo fixo" vêm antes dos totais e das seções na ordem do DOM (FIXCOL-06 AC 1)
+- [x] Os totais "Saídas fixas em Março de 2026" e "Entradas fixas em Março de 2026", cada um com o seu valor, procurados no par termo e definição (FIXCOL-03 AC 1)
+- [x] Abrir uma linha mostra o fixo no painel e chama `history.replaceState` com `?fixo=<id>`, mantendo os outros parâmetros; `pushState` não é chamado (FIXCOL-09 AC 1)
+- [x] `fixoInicial` da lista abre o painel com ele; um id que não está na lista deixa o painel fechado, sem erro (FIXCOL-09 ACs 2 e 3)
+- [x] "+ Novo fixo" fecha o fixo aberto, mostra o cadastro e tira `?fixo=` (FIXCOL-06 AC 2, FIXCOL-09 AC 4)
+- [x] Fechar tira `?fixo=` e devolve o foco ao botão da linha; fechar o cadastro devolve ao "+ Novo fixo" (FIXCOL-08 AC 4, FIXCOL-09 AC 4)
+- [x] Sem nada aberto, nenhum painel no DOM; com algo aberto, o painel entre os totais e as seções (FIXCOL-07 ACs 5 e 6, na ordem do DOM; a medida é da T8)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(fixos): o estado de Todo mês, com o fixo aberto no endereço`
+**Nota**: fechar o aviso de um fixo que saiu da lista devolve o foco ao "+ Novo fixo", porque o botão da linha não existe mais; o FIXCOL-08, AC 4 só nomeia a linha e o cadastro. O hash desta task entra no `tasks.md` com a T8, porque um commit não carrega o próprio hash.
 
 ### Phase 3 — A página
 
