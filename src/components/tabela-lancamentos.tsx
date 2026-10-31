@@ -20,8 +20,8 @@ import type { ChaveDeBloco } from "@/lib/blocos-recolhidos";
 import { formatarBRL, formatarData } from "@/lib/formatar";
 import { BlocoRecolhivel } from "./bloco-recolhivel";
 import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
-import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
+import { MenuDaLinha } from "./menu-da-linha";
 import { SeletorDeCategoria, type SeletorDeCategoriaProps } from "./seletor-de-categoria";
 import { restoDaParcela } from "./texto-da-parcela";
 import { Chip } from "./ui";
@@ -339,12 +339,11 @@ function BlocoDeLancamentos({
                   </td>
                   <td className={CELULA}>
                     {/*
-                    Excluir mora ao lado do selo, e não numa coluna própria.
-                    Coluna própria ficaria vazia em toda linha de parcela e de
-                    gasto fixo — que são a maioria —, e coluna permanentemente
-                    vazia empurra descrição e valor para as pontas da tela, que
-                    é a dívida de interface que a pílula de categoria veio
-                    reduzir.
+                    O menu "⋯" do avulso mora ao lado do selo, e não numa
+                    coluna própria. Coluna própria ficaria vazia em toda linha
+                    de parcela e de gasto fixo — que são a maioria —, e coluna
+                    permanentemente vazia empurra descrição e valor para as
+                    pontas da tela. "Excluir" fica dentro do menu (DENS-02).
                   */}
                     <span className="flex flex-wrap items-center gap-2">
                       <BotaoPago
@@ -359,7 +358,7 @@ function BlocoDeLancamentos({
                       {/* Parcela quebraria a soma da compra; ocorrência renasce
                         na materialização seguinte. Nem uma nem outra oferece. */}
                       {lancamento.origem === "AVULSO" ? (
-                        <BotaoExcluir
+                        <MenuDaLinha
                           lancamentoId={lancamento.id}
                           descricao={lancamento.descricao}
                           excluir={excluir}

@@ -692,8 +692,12 @@ describe("Receita na entrada e seletor no gasto (TRC-01, TRC-02)", () => {
   });
 });
 
-describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
-  it("oferece o controle na linha de lançamento avulso", () => {
+/*
+ * Com a lista densa, "Excluir" mora no menu "⋯" da linha (DENS-02): a linha
+ * do avulso tem o "⋯", e o "Excluir" só aparece com o menu aberto.
+ */
+describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () => {
+  it('oferece o controle na linha de lançamento avulso, dentro do menu "⋯" (DENS-02, ACs 1, 3 e 6)', async () => {
     render(
       <TabelaLancamentos
         competenciaCorrente={MARCO}
@@ -707,6 +711,8 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
       />,
     );
 
+    expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Mais ações para Almoço" }));
     expect(screen.getByRole("button", { name: "Excluir, Almoço" })).toBeDefined();
   });
 
@@ -736,6 +742,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
     );
 
     expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Mais ações/ })).toBeNull();
   });
 
   it("não oferece na linha de gasto fixo: a ocorrência renasce na materialização", () => {
@@ -755,9 +762,10 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
     );
 
     expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Mais ações/ })).toBeNull();
   });
 
-  it("oferece na receita avulsa, que também é cancelável", () => {
+  it("oferece na receita avulsa, que também é cancelável", async () => {
     render(
       <TabelaLancamentos
         competenciaCorrente={MARCO}
@@ -773,6 +781,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6)", () => {
       />,
     );
 
+    await userEvent.click(screen.getByRole("button", { name: "Mais ações para Pix recebido" }));
     expect(screen.getByRole("button", { name: "Excluir, Pix recebido" })).toBeDefined();
   });
 });
@@ -850,7 +859,8 @@ describe("os dois controles da linha continuam separados (TOQUE-01)", () => {
    * separar, e no celular a pessoa precisa **ver** onde um acaba. O tamanho é
    * medido no e2e; o que se trava aqui é o espaçamento entre eles.
    */
-  it("o selo e o excluir ficam no mesmo contêiner, com espaçamento entre si", () => {
+  /* Com a lista densa, o controle ao lado do selo é o "⋯" do menu (DENS-02). */
+  it('o selo e o "⋯" ficam no mesmo contêiner, com espaçamento entre si', () => {
     render(
       <TabelaLancamentos
         competenciaCorrente={MARCO}
@@ -865,11 +875,11 @@ describe("os dois controles da linha continuam separados (TOQUE-01)", () => {
     );
 
     const selo = screen.getByRole("button", { name: /Previsto/ });
-    const excluir = screen.getByRole("button", { name: "Excluir, Almoço" });
+    const menu = screen.getByRole("button", { name: "Mais ações para Almoço" });
     const contêiner = selo.parentElement;
 
     expect(contêiner).not.toBeNull();
-    expect(contêiner?.contains(excluir)).toBe(true);
+    expect(contêiner?.contains(menu)).toBe(true);
     expect(contêiner?.className).toContain("gap-2");
   });
 });

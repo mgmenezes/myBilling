@@ -239,3 +239,47 @@ test.describe("em 1.920 px, com ponteiro fino", () => {
     );
   });
 });
+
+test.describe("o menu da linha, em 1.920 px", () => {
+  test.use({ viewport: { width: 1920, height: 1080 } });
+
+  test('só as linhas de avulso têm o "⋯", e nenhuma linha mostra "Excluir" fora dele (DENS-02, ACs 1, 2 e 6)', async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+
+    for (const avulso of ["Entrada A", "Item A", "Item B"]) {
+      await expect(
+        linha(page, avulso).getByRole("button", { name: `Mais ações para ${avulso}` }),
+      ).toBeVisible();
+    }
+    for (const outro of ["Fixo A", "Fixo B", "Compra A"]) {
+      await expect(linha(page, outro).getByRole("button", { name: /^Mais ações/ })).toHaveCount(0);
+    }
+    await expect(page.getByRole("button", { name: /^Excluir/ })).toHaveCount(0);
+  });
+
+  test('Escape fecha o menu e devolve o foco ao "⋯"; excluir pelo menu, em dois toques, tira a linha e baixa o total do bloco (DENS-02, ACs 3 a 5)', async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/lancamentos`);
+    const gastos = page.getByRole("region", { name: "Gastos do Mês" });
+    await expect(gastos).toContainText("2 · R$ 50,00");
+
+    const item = linha(page, "Item A");
+    const gatilho = item.getByRole("button", { name: "Mais ações para Item A" });
+    await gatilho.click();
+    await expect(gatilho).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Escape");
+    await expect(gatilho).toHaveAttribute("aria-expanded", "false");
+    await expect(gatilho).toBeFocused();
+
+    await gatilho.click();
+    await item.getByRole("button", { name: /^Excluir/ }).click();
+    await expect(item).toBeVisible();
+    await item.getByRole("button", { name: /^Confirmar/ }).click();
+
+    await expect(linha(page, "Item A")).toHaveCount(0);
+    await expect(gastos).toContainText("1 · R$ 30,00");
+  });
+});

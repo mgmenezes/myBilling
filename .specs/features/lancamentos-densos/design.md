@@ -71,7 +71,7 @@ filtros, que muda de lugar só por CSS:
   para uma ação só.
 - **Tamanho:** 44×44 px no toque e abaixo de 768 px; 32×32 px com ponteiro fino a partir de 768 px.
 
-A tabela renderiza o `MenuDaLinha` só na linha de avulso, no lugar do `BotaoExcluir`.
+A tabela renderiza o `MenuDaLinha` só na linha de avulso, no lugar do `BotaoExcluir`, na célula da situação, ao lado do selo. O protótipo punha o "⋯" no fim da linha; numa coluna própria ele deixaria uma coluna vazia em toda linha de parcela e de fixo, e o teste de LST-05 exige exatamente cinco colunas.
 
 ## Títulos presos (DENS-04)
 

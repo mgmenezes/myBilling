@@ -255,6 +255,8 @@ test("excluir um avulso devolve o total do mês ao valor anterior (AVUL-03, AC 2
   await page.goto(`/${MARCO}/lancamentos`);
   const linha = page.getByRole("row", { name: /Erro de digita/ });
   await expect(linha).toBeVisible();
+  /* "Excluir" mora no menu "⋯" da linha (DENS-02). */
+  await linha.getByRole("button", { name: /^Mais ações/ }).click();
   await linha.getByRole("button", { name: /^Excluir/ }).click();
   await linha.getByRole("button", { name: /^Confirmar/ }).click();
 
@@ -269,6 +271,7 @@ test("o primeiro toque em Excluir não exclui (AVUL-03, AC 7)", async ({ page })
   await page.keyboard.press("Escape");
 
   const linha = page.getByRole("row", { name: /Almoço/ });
+  await linha.getByRole("button", { name: /^Mais ações/ }).click();
   await linha.getByRole("button", { name: /^Excluir/ }).click();
 
   await expect(linha.getByRole("button", { name: /^Confirmar/ })).toBeVisible();
@@ -289,6 +292,8 @@ test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 6)", asy
   const linha = linhaNoBloco(page, "Cartão de Crédito", "Compra parcelada A");
   await expect(linha).toBeVisible();
   await expect(linha.getByRole("button", { name: /^Excluir/ })).toHaveCount(0);
+  /* Nem o menu "⋯", que só existe para o excluir (DENS-02, AC 2). */
+  await expect(linha.getByRole("button", { name: /^Mais ações/ })).toHaveCount(0);
   /* O selo de pago continua lá: só a exclusão é que não se aplica. */
   await expect(linha.getByRole("button", { name: /Previsto/ })).toBeVisible();
 });

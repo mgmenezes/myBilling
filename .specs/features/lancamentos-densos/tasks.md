@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/lancamentos-densos/spec.md`
 **Design**: `.specs/features/lancamentos-densos/design.md`
-**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 e T2 concluídas)
+**Status**: Em execução (plano aprovado pelo dono em 2026-10-30; branch `feat/lancamentos-densos`, em worktree, a partir do `main` em `b42f9b6`; T1 a T3 concluídas)
 **Total**: 6 tasks em 3 fases (T1–T6), um lote só, executado inline
 
 ---
@@ -183,12 +183,12 @@ Lote único, inline: T1 a T6, nesta ordem.
 **Reuses**: `BotaoExcluir`
 **Requirement**: DENS-02
 **Done when**:
-- [ ] O "⋯" aparece só na linha do avulso, com o nome "Mais ações para <descrição>" (DENS-02 ACs 1 e 2)
-- [ ] Acionar o "⋯" abre o painel com "Excluir"; dois toques excluem, como hoje (DENS-02 ACs 3 e 4)
-- [ ] `Escape` fecha e devolve o foco ao "⋯"; clicar fora fecha (DENS-02 AC 5)
-- [ ] Nenhum "Excluir" fora do menu, em nenhuma largura (DENS-02 AC 6)
-- [ ] Em 400 px, o "⋯" e o "Excluir" medem ao menos 44×44, medidos no navegador (DENS-02 AC 7)
-- [ ] No e2e de 1.920 px, excluir pelo menu tira a linha e baixa o total do bloco
+- [x] O "⋯" aparece só na linha do avulso, com o nome "Mais ações para <descrição>" (DENS-02 ACs 1 e 2)
+- [x] Acionar o "⋯" abre o painel com "Excluir"; dois toques excluem, como hoje (DENS-02 ACs 3 e 4)
+- [x] `Escape` fecha e devolve o foco ao "⋯"; clicar fora fecha (DENS-02 AC 5)
+- [x] Nenhum "Excluir" fora do menu, em nenhuma largura (DENS-02 AC 6)
+- [x] Em 400 px, o "⋯" e o "Excluir" medem ao menos 44×44, medidos no navegador (DENS-02 AC 7)
+- [x] No e2e de 1.920 px, excluir pelo menu tira a linha e baixa o total do bloco
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `feat(lancamentos): excluir no menu da linha`

@@ -115,7 +115,12 @@ async function medir(controle: Locator): Promise<Retangulo> {
   });
 }
 
-test("os dois controles da linha medem ao menos 44 × 44 em 400 pixels (TOQUE-01, ACs 1 a 3)", async ({
+/*
+ * Com a lista densa, o excluir mora no menu "⋯" da linha (DENS-02). No toque,
+ * os três alvos continuam com 44 × 44: o selo e o "⋯" na linha, e o "Excluir"
+ * dentro do menu aberto (DENS-02, AC 7; TOQUE-01).
+ */
+test('o selo, o "⋯" e o Excluir do menu medem ao menos 44 × 44 em 400 pixels (TOQUE-01, ACs 1 a 3; DENS-02, AC 7)', async ({
   page,
 }) => {
   await cadastrarGastoAvulso(page, "Gasto avulso A");
@@ -124,28 +129,36 @@ test("os dois controles da linha medem ao menos 44 × 44 em 400 pixels (TOQUE-01
 
   const linha = page.getByRole("row", { name: /Gasto avulso A/ });
   const selo = await medir(linha.getByRole("button", { name: /^Previsto/ }));
+  const gatilho = linha.getByRole("button", { name: /^Mais ações/ });
+  const menu = await medir(gatilho);
+  await gatilho.click();
   const excluir = await medir(linha.getByRole("button", { name: /^Excluir/ }));
 
-  expect(selo.largura).toBeGreaterThanOrEqual(ALVO_MINIMO);
-  expect(selo.altura).toBeGreaterThanOrEqual(ALVO_MINIMO);
-  expect(excluir.largura).toBeGreaterThanOrEqual(ALVO_MINIMO);
-  expect(excluir.altura).toBeGreaterThanOrEqual(ALVO_MINIMO);
+  for (const alvo of [selo, menu, excluir]) {
+    expect(alvo.largura).toBeGreaterThanOrEqual(ALVO_MINIMO);
+    expect(alvo.altura).toBeGreaterThanOrEqual(ALVO_MINIMO);
+  }
 });
 
-test("os dois alvos continuam separados, e a linha não transborda a janela", async ({ page }) => {
+test("os alvos da linha continuam separados, e a linha não transborda a janela, nem com o menu aberto", async ({
+  page,
+}) => {
   await cadastrarGastoAvulso(page, "Gasto avulso A");
 
   const linha = page.getByRole("row", { name: /Gasto avulso A/ });
   const selo = await medir(linha.getByRole("button", { name: /^Previsto/ }));
-  const excluir = await medir(linha.getByRole("button", { name: /^Excluir/ }));
+  const gatilho = linha.getByRole("button", { name: /^Mais ações/ });
+  const menu = await medir(gatilho);
 
   /* Lado a lado ou um abaixo do outro, o que não pode é encostar: no celular
      a pessoa precisa ver onde um alvo acaba. */
-  const separacao = Math.max(excluir.esquerda - selo.direita, excluir.topo - selo.base);
+  const separacao = Math.max(menu.esquerda - selo.direita, menu.topo - selo.base);
   expect(separacao).toBeGreaterThan(0);
 
-  /* A pílula cresceu; a linha continua cabendo. */
+  /* A pílula cresceu; a linha continua cabendo, também com o menu aberto. */
   await expect(linha.getByRole("button", { name: /^Previsto/ })).toBeVisible();
+  await gatilho.click();
+  await expect(linha.getByRole("button", { name: /^Excluir/ })).toBeVisible();
   const transbordo = await page.evaluate(() =>
     Math.max(0, document.documentElement.scrollWidth - document.documentElement.clientWidth),
   );
