@@ -3,8 +3,8 @@
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
 **Status**: Aprovado pelo dono em 2026-10-30; em execução (branch `feat/cadastros-colunas`, em
-worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1
-concluída)
+worktree `.worktrees/cadastros-colunas`, a partir de `feat/lancamentos-densos` em `514ab25`; T1 e
+T2 concluídas)
 **Total**: 22 tasks em 6 fases (T1–T22). Dá três lotes: fases 1 e 2 (T1–T7), fases 3 e 4 (T8–T15)
 e fases 5 e 6 (T16–T22), com a oferta de sub-agentes antes do Execute.
 
@@ -202,7 +202,7 @@ lançamentos do mês.
 - [x] Gate quick passa; nenhum teste de antes some
 **Tests**: unit
 **Gate**: quick
-**Commit**: `feat(domain): contar o uso de categorias e meios no mês`
+**Commit**: `feat(domain): contar o uso de categorias e meios no mês` (`b0171ac`)
 
 #### T2: `obterUsoNoMes`, materializar e contar
 **What**: o caso de uso de leitura: materializa a janela, lê fixos e lançamentos do mês e chama
@@ -212,10 +212,10 @@ lançamentos do mês.
 **Reuses**: `materializarRecorrencias`, `MESES_DE_PROJECAO`, `@/application/ports/fakes`, `obterVisaoMensal`, `filtrarLancamentos`
 **Requirement**: CADCOL-03
 **Done when**:
-- [ ] Com os fakes, num mês nunca aberto, a ocorrência do fixo entra em `lancamentos` da categoria e do meio dele; ler antes de materializar derruba as duas contagens (CADCOL-03 AC 5)
-- [ ] Para cada categoria e cada meio da fixture (avulso cancelado, avulso de abril, parcela, receita fixa sem categoria, fixo encerrado em fevereiro), `lancamentos` é igual a `filtrarLancamentos((await obterVisaoMensal(fakes, competencia)).lancamentos, { categoriaId })` `.length`, e o mesmo com `meioPagamentoId` (CADCOL-03 AC 4, L-014)
-- [ ] Integração com Postgres: um fixo inserido sem ocorrência, um avulso cancelado e um de abril; as contagens de março saem certas, e chamar duas vezes não cria ocorrência nova (CADCOL-03 ACs 3 e 5)
-- [ ] Gate full passa; a contagem de testes só cresce
+- [x] Com os fakes, num mês nunca aberto, a ocorrência do fixo entra em `lancamentos` da categoria e do meio dele; ler antes de materializar derruba as duas contagens (CADCOL-03 AC 5)
+- [x] Para cada categoria e cada meio da fixture (avulso cancelado, avulso de abril, parcela, receita fixa sem categoria, fixo encerrado em fevereiro), `lancamentos` é igual a `filtrarLancamentos((await obterVisaoMensal(fakes, competencia)).lancamentos, { categoriaId })` `.length`, e o mesmo com `meioPagamentoId` (CADCOL-03 AC 4, L-014)
+- [x] Integração com Postgres: um fixo inserido sem ocorrência, um avulso cancelado e um de abril; as contagens de março saem certas, e chamar duas vezes não cria ocorrência nova (CADCOL-03 ACs 3 e 5)
+- [x] Gate full passa; a contagem de testes só cresce
 **Tests**: unit, integration
 **Gate**: full
 **Commit**: `feat(cadastros): ler o uso no mês depois de materializar`
