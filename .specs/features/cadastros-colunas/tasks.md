@@ -480,7 +480,7 @@ resultado.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(categorias): formulário de nova categoria`
+**Commit**: `feat(categorias): formulário de nova categoria` (`f624fd9`)
 **Nota**: a categoria reativada volta do servidor com `jaExistia` e `reativada` verdadeiros
 (`categorias.ts:86`); o aviso "Categoria reativada." vence, e o teste usa essa combinação. O botão
 "Criar categoria" não se desabilita enquanto grava: nenhum AC pede, e o nome repetido só reaproveita.
@@ -496,18 +496,35 @@ resultado.
 **Reuses**: `ColunaDeCadastro`, `CabecalhoDeCadastros`, `TabelaDeCategorias`, `DetalheDaCategoria`, `NovaCategoria`, `useAvisos`
 **Requirement**: CADCOL-01, CADCOL-04, CADCOL-05, CADCOL-10, CADCOL-11
 **Done when**:
-- [ ] "+ Nova categoria" dentro do cabeçalho, antes do painel e da tabela na ordem do DOM (CADCOL-01 AC 6)
-- [ ] Abrir uma linha mostra a categoria no painel e chama `history.replaceState` com `?categoria=<id>`, mantendo os outros parâmetros; `pushState` não é chamado (CADCOL-04 AC 1, CADCOL-11 AC 1)
-- [ ] `categoriaInicial` da lista abre o painel sem levar o foco; um id fora da lista deixa o painel fechado, sem erro (CADCOL-11 ACs 2 e 3)
-- [ ] "+ Nova categoria" fecha a categoria aberta, mostra o formulário e tira `?categoria=` (CADCOL-05 AC 1, CADCOL-11 AC 4)
-- [ ] Depois de criar: o painel abre na categoria criada, a URL leva o id dela, o foco vai ao título e o aviso é o de `NovaCategoria` (CADCOL-05 ACs 2 a 4, CADCOL-10 AC 2)
-- [ ] "Fechar" e `Escape` devolvem o foco ao botão da linha; fechar o formulário devolve ao "+ Nova categoria"; a URL fica sem `categoria` (CADCOL-10 AC 4, CADCOL-11 AC 4)
-- [ ] Trocar de categoria, ou abrir o "+ Nova categoria", com um nome digitado descarta o digitado sem gravar; reabrir mostra o gravado (CADCOL-04 AC 14); equivalente de 344
-- [ ] A categoria aberta que some dos itens, numa renderização nova, volta o painel ao vazio e tira o parâmetro
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] "+ Nova categoria" dentro do cabeçalho, antes do painel e da tabela na ordem do DOM (CADCOL-01 AC 6)
+- [x] Abrir uma linha mostra a categoria no painel e pede `?categoria=<id>` ao `router.replace(…, { scroll: false })` do Next, mantendo os outros parâmetros; `push` e `pushState` não são chamados (CADCOL-04 AC 1, CADCOL-11 AC 1; desvio na Nota)
+- [x] `categoriaInicial` da lista abre o painel sem levar o foco; um id fora da lista deixa o painel fechado, sem erro (CADCOL-11 ACs 2 e 3)
+- [x] "+ Nova categoria" fecha a categoria aberta, mostra o formulário e tira `?categoria=` (CADCOL-05 AC 1, CADCOL-11 AC 4)
+- [x] Depois de criar: o painel abre na categoria criada, a URL leva o id dela, o foco vai ao título e o aviso é o de `NovaCategoria` (CADCOL-05 ACs 2 a 4, CADCOL-10 AC 2)
+- [x] "Fechar" e `Escape` devolvem o foco ao botão da linha; fechar o formulário devolve ao "+ Nova categoria"; a URL fica sem `categoria` (CADCOL-10 AC 4, CADCOL-11 AC 4)
+- [x] Trocar de categoria, ou abrir o "+ Nova categoria", com um nome digitado descarta o digitado sem gravar; reabrir mostra o gravado (CADCOL-04 AC 14); equivalente de 344
+- [x] A categoria aberta que some dos itens, numa renderização nova, volta o painel ao vazio e tira o parâmetro
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(categorias): o estado da aba de categorias, com a aberta no endereço`
+**Nota** (desvios):
+- **O endereço vai pelo roteador do Next, e não por `history.replaceState`.** Todo mês trocou o
+  mecanismo depois do plano desta fatia (`todo-mes.tsx`, `mudarEndereco`; L-058): o `replaceState`
+  deixava no Next uma rolagem até o alto pendente, e a confirmação de salvar saía da janela. A
+  peça é o hook `useParametroNaUrl(nome, inicial)`, e não a função `trocarParametroNaUrl`: ela
+  precisa do roteador e de uma ref com o último valor pedido, que é com o que compara. Todo mês
+  continua com a cópia dele; a peça comum às três telas é a dívida da spec. A T19 usa o mesmo hook,
+  com `"meio"`. O teste do hook é `parametro-na-url.test.tsx`, porque precisa do jsdom.
+- **A categoria aberta só fecha quando estava na lista anterior e não está na nova.** O Next
+  resolve o pedido da action antes de desenhar a página relida
+  (`server-action-reducer.js:263`, `resolve(actionResult)` antes de `navigateToKnownRoute`), e a
+  categoria criada, ou a reativada, pode chegar ao painel antes de chegar à tabela. Uma regra de
+  "fechar quando não está na lista" fecharia a criada. O foco no título dela espera a lista. O
+  teste da lista atrasada passa por uma página relida sem ela antes da lista nova (mutante M4).
+- **"+ Nova categoria" leva `aria-controls` e `aria-expanded`**, como o "+ Novo fixo" de Todo mês.
+- **Mutante equivalente:** abrir o estado numa `categoriaInicial` fora da lista, em vez de "nada",
+  não muda nada à vista: o painel não tem o que desenhar e nenhuma linha casa com o id.
 
 #### T15: A aba Categorias de ponta a ponta
 **What**:
@@ -616,7 +633,7 @@ ajuda e as mensagens de hoje.
 e `?meio=`.
 **Where**: `src/components/cadastro-de-meios.tsx` (+ teste)
 **Depends on**: T9, T10, T14, T16, T17, T18
-**Reuses**: `ColunaDeCadastro`, `CabecalhoDeCadastros`, `TabelaDeMeios`, `DetalheDoMeio`, `NovoMeio`, `trocarParametroNaUrl`
+**Reuses**: `ColunaDeCadastro`, `CabecalhoDeCadastros`, `TabelaDeMeios`, `DetalheDoMeio`, `NovoMeio`, `useParametroNaUrl` (era `trocarParametroNaUrl`; ver a Nota da T14)
 **Requirement**: CADCOL-01, CADCOL-07, CADCOL-08, CADCOL-10, CADCOL-11
 **Done when**:
 - [ ] "+ Novo meio" no cabeçalho, antes do painel e da tabela (CADCOL-01 AC 6)

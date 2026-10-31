@@ -449,13 +449,15 @@ a grade de 1.536 px:
 - **Estado:**
   - `aberto`: `{ tipo: "nada" }`, `{ tipo: "nova" }` ou `{ tipo: "categoria", id }`;
   - `focarTitulo`.
-- **URL:** `trocarParametroNaUrl("categoria", id | null)`, em `src/components/parametro-na-url.ts`:
-  `history.replaceState` com os outros parâmetros mantidos. A navegação nativa integra com o roteador
-  (`node_modules/next/dist/docs/01-app/01-getting-started/04-linking-and-navigating.md`, "Native
-  History API").
+- **URL:** `useParametroNaUrl("categoria", categoriaInicial)`, em `src/components/parametro-na-url.ts`:
+  `router.replace(…, { scroll: false })` com os outros parâmetros mantidos, comparando com o último
+  valor pedido (L-058). Revisto na T14: o plano era `history.replaceState`, que Todo mês trocou
+  depois de a confirmação de salvar sair da janela (`todo-mes.tsx`, `mudarEndereco`).
 - **Estado inicial:** `categoriaInicial` vale só se o id está entre os itens; senão, nada aberto.
-- **Item que sai da tabela:** com `aberto.id` fora dos itens depois de uma resposta, a tela volta a
-  "nada" e tira o parâmetro.
+- **Item que sai da tabela:** com `aberto.id` na lista anterior e fora da nova, a tela volta a
+  "nada" e tira o parâmetro. Revisto na T14: o Next resolve o pedido da action antes de desenhar a
+  página relida, e a categoria criada ainda não está na tabela quando o painel abre nela; ela
+  espera a lista, e o foco no título também.
 - **Depois de criar:** abre a categoria criada, põe o id na URL, aumenta `focarTitulo` e avisa com o
   texto de `NovaCategoria`.
 - **Devolver o foco:** fechar devolve o foco a `#abrir-categoria-<id>` ou ao "+ Nova categoria".
@@ -522,7 +524,7 @@ a grade de 1.536 px:
 | Decision | Choice | Rationale |
 | --- | --- | --- |
 | Onde mora o estado | `CadastroDeCategorias` e `CadastroDeMeios`, um componente cliente por aba | O "+ Nova…", as linhas e o painel dividem o mesmo "aberto" |
-| Seleção na URL | Lida no servidor, escrita com `history.replaceState` | Sem `useSearchParams`, sem `Suspense` e sem ida ao servidor por clique, como Todo mês |
+| Seleção na URL | Lida no servidor, escrita com `router.replace(…, { scroll: false })` (revisto na T14; era `history.replaceState`) | Sem `useSearchParams` e sem `Suspense`, como Todo mês. Custa uma ida ao servidor a cada abrir ou fechar que muda o endereço; o painel abre na hora, pelo estado da tela |
 | Papel do painel | `<aside aria-label="Painel da categoria">` e `"Painel do meio de pagamento"` | Nome estável para os testes; o título muda com o conteúdo |
 | Port de escrita | `EdicaoDeMeioRepository`, separada de `CadastroRepository` | Mantém a port de leitura sem escrita para os casos de uso de mês e de compra |
 | "Nada mudou" | No domínio (`mudancasDoMeio`), e de novo no navegador | Uma regra só decide; o navegador evita a ida ao servidor (L-041) |
