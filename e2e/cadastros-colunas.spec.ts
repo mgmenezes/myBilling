@@ -321,6 +321,76 @@ async function medirAlvo(alvo: Locator, nome: string): Promise<void> {
   expect(medida.height, `altura de ${nome}`).toBeGreaterThanOrEqual(44);
 }
 
+interface CaixaDeTexto {
+  readonly topo: number;
+  readonly base: number;
+}
+
+/**
+ * As caixas do texto à vista nos elementos: uma por linha de cada nó de
+ * texto, como o navegador as desenha. O texto escondido não tem caixa.
+ */
+async function caixasDoTexto(alvos: Locator): Promise<CaixaDeTexto[]> {
+  return alvos.evaluateAll((elementos) => {
+    const caixas: Array<{ topo: number; base: number }> = [];
+    for (const elemento of elementos) {
+      const andarilho = document.createTreeWalker(elemento, NodeFilter.SHOW_TEXT);
+      for (let no = andarilho.nextNode(); no !== null; no = andarilho.nextNode()) {
+        if ((no.textContent ?? "").trim() === "") {
+          continue;
+        }
+        const trecho = document.createRange();
+        trecho.selectNodeContents(no);
+        for (const retangulo of trecho.getClientRects()) {
+          if (retangulo.width > 0 && retangulo.height > 0) {
+            caixas.push({ topo: retangulo.top, base: retangulo.bottom });
+          }
+        }
+      }
+    }
+    return caixas;
+  });
+}
+
+/** Quantas linhas de texto as caixas ocupam: as que se sobrepõem na vertical são uma linha só. */
+function linhasDeTexto(caixas: ReadonlyArray<CaixaDeTexto>): number {
+  let linhas = 0;
+  let baseDaLinha = Number.NEGATIVE_INFINITY;
+  for (const { topo, base } of [...caixas].sort((a, b) => a.topo - b.topo)) {
+    if (topo >= baseDaLinha - 1) {
+      linhas++;
+      baseDaLinha = base;
+    } else {
+      baseDaLinha = Math.max(baseDaLinha, base);
+    }
+  }
+  return linhas;
+}
+
+/**
+ * De 400 a 767 px, o nome sozinho na primeira linha de texto e o resto da
+ * linha da tabela embaixo dele (CADCOL-02 e CADCOL-06, AC 8). Devolve as
+ * caixas do nome e as do resto, para contar as linhas.
+ */
+async function nomeSozinhoEmCima(
+  linhaDaTabela: Locator,
+  rotulo: string,
+): Promise<{ nome: CaixaDeTexto[]; resto: CaixaDeTexto[] }> {
+  const nome = await caixasDoTexto(linhaDaTabela.locator("td").first().getByRole("button"));
+  const resto = await caixasDoTexto(linhaDaTabela.locator("td:not(:first-child)"));
+  expect(nome.length, `${rotulo}: caixas do nome`).toBeGreaterThan(0);
+  expect(resto.length, `${rotulo}: caixas do resto`).toBeGreaterThan(0);
+  const topoDoNome = Math.min(...nome.map(({ topo }) => topo));
+  const baseDoNome = Math.max(...nome.map(({ base }) => base));
+  for (const { topo, base } of resto) {
+    expect(base <= topoDoNome || topo >= baseDoNome, `${rotulo}: caixa na faixa do nome`).toBe(
+      true,
+    );
+    expect(topo, `${rotulo}: caixa abaixo do nome`).toBeGreaterThanOrEqual(baseDoNome);
+  }
+  return { nome, resto };
+}
+
 /* ------------------------------------------------------------------------
  * A composição: o uso no mês, a materialização e a concordância com
  * Lançamentos (CADCOL-03; L-001, L-014).
@@ -750,6 +820,12 @@ test("em 400 px, com Categoria Um aberta: sem rolagem lateral, as contagens abai
   await expect(tituloDoPainel(page)).toHaveText("Categoria Um");
 
   expect(await transbordoHorizontal(page)).toBe(0);
+
+  /* A pill sozinha na primeira linha de texto e, embaixo, a cor e as
+     contagens, que quebram só quando não cabem. Aqui cabem: duas linhas,
+     contadas pelas caixas do texto (CADCOL-02, AC 8). */
+  const categoriaUm = await nomeSozinhoEmCima(linha(page, "Categoria Um"), "Categoria Um");
+  expect(linhasDeTexto([...categoriaUm.nome, ...categoriaUm.resto])).toBe(2);
 
   /* Duas linhas de texto: a pill em cima; a cor e as contagens embaixo, na mesma linha. */
   const pill = await caixa(botaoDaLinha(page, "Categoria Um"));
@@ -1438,6 +1514,17 @@ test.describe("a aba Meios de pagamento", () => {
     await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
 
     expect(await transbordoHorizontal(page)).toBe(0);
+
+    /* O nome sozinho na primeira linha de texto e, embaixo, o tipo, os dias e
+       as contagens, que quebram quando não cabem (CADCOL-06, AC 8): nenhuma
+       caixa do texto deles na faixa do nome, e todas abaixo dele. Na conta,
+       sem dias, cabem: duas linhas, contadas pelas caixas do texto. */
+    await nomeSozinhoEmCima(linhaDoMeio(page, "Cartão Roxo"), "Cartão Roxo");
+    const contaCorrente = await nomeSozinhoEmCima(
+      linhaDoMeio(page, "Conta Corrente"),
+      "Conta Corrente",
+    );
+    expect(linhasDeTexto([...contaCorrente.nome, ...contaCorrente.resto])).toBe(2);
 
     /* O nome em cima; o tipo, os dias e as contagens embaixo dele. Na conta,
      sem dias, o tipo e as contagens na mesma linha. */

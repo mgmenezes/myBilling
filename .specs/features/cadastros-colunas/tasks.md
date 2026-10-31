@@ -958,18 +958,34 @@ quebra".
 **Reuses**: a contagem de linhas de texto pelas caixas do texto (sonda E de `validation.md`)
 **Requirement**: CADCOL-02, CADCOL-06
 **Done when**:
-- [ ] Os dois ACs 8 dizem a regra nova, com a confirmação do dono em 2026-10-31. A linha "Celular"
+- [x] Os dois ACs 8 dizem a regra nova, com a confirmação do dono em 2026-10-31. A linha "Celular"
   das premissas passa a `y`
-- [ ] Em 400 px, na linha de "Cartão Roxo":
+- [x] Em 400 px, na linha de "Cartão Roxo":
   - nenhuma caixa de texto do tipo, dos dias ou das contagens fica na faixa vertical do nome;
   - todas essas caixas ficam abaixo dele.
-- [ ] Em 400 px, "Conta Corrente" e "Categoria Um" ocupam duas linhas de texto, contadas pelas caixas
+- [x] Em 400 px, "Conta Corrente" e "Categoria Um" ocupam duas linhas de texto, contadas pelas caixas
   do texto
-- [ ] O teste do cartão falha com um mutante que sobe o tipo para a linha do nome
-- [ ] `validate_spec.py` passa
+- [x] O teste do cartão falha com um mutante que sobe o tipo para a linha do nome
+- [x] `validate_spec.py` passa
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): no celular, a linha de baixo quebra quando não cabe`
+**Nota**:
+- **A medida.** Três ajudantes novos em `e2e/cadastros-colunas.spec.ts`, que a F2 reaproveita:
+  - `caixasDoTexto` lê as caixas do texto à vista, uma por linha de cada nó de texto, como a sonda E;
+  - `linhasDeTexto` conta as linhas, juntando as caixas que se sobrepõem na vertical;
+  - `nomeSozinhoEmCima` afirma as duas cláusulas do Done-when, cada uma com a sua assertion.
+- **As assertions novas** estão em `:827-828` (Categoria Um) e `:1522-1527` (Cartão Roxo e Conta
+  Corrente), antes das medidas antigas das células, que continuam.
+- **O mutante.** Sem o `w-full` na célula do nome (`tabela-de-meios.tsx:188`), o tipo sobe para a
+  linha do nome. O teste falha com ele na primeira assertion nova: "Cartão Roxo: caixa na faixa do
+  nome". Na HEAD, os dois testes de 400 px passam.
+- **A traceability foi remapeada.** Os ajudantes e as assertions novas deslocam os testes de baixo,
+  e as citações de `e2e/cadastros-colunas.spec.ts` na tabela acompanham.
+- **Fica um comentário velho fora do Where:** o cabeçalho de `tabela-de-meios.tsx` e o de
+  `tabela-de-categorias.tsx` ainda falam em "cartão de duas linhas de texto". O de meios já diz que
+  o cartão de crédito quebra em 400 px.
+- **Gate:** 2.087 unitários, `typecheck` e `lint` 0, e os 54 testes de `cadastros-colunas.spec.ts`.
 
 #### F2: A regra do AC 8 medida colado no limiar, em 767 px
 **What**: o Fix Plan 2 (G2). Nos dois testes de 767 px, o de categorias e o de meios, entram as
