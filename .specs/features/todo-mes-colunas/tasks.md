@@ -4,7 +4,7 @@
 **Design**: `.specs/features/todo-mes-colunas/design.md`
 **Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-31, com uma lacuna Minor: a corrida do
 endereço (FIXCOL-09 ACs 1 e 4), nascida na F7. As cinco lacunas da rodada 1 estão fechadas, e o
-sensor matou 12 de 12 mutantes. Correções F8 e F9 pendentes.
+sensor matou 12 de 12 mutantes. Correções F8 e F9 concluídas, à espera da rodada 3 do Verifier.
 Rodada 1: FAIL em 2026-10-31, com três lacunas de teste (FIXCOL-01 AC 9, FIXCOL-04 AC 3 e FIXCOL-06
 AC 1), a condição da guarda de foco sem teste e a confirmação de salvar fora da janela. O dono
 escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a confirmação fica à vista, junto do
@@ -678,7 +678,7 @@ Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 d
 - [x] Os testes de corrida falham no código de `8d4ce41`: a comparação com `window.location` é aplicada de volta e desfeita. Eles passam com a correção. Os testes de endereço de antes passam sem mudança no corpo
 **Tests**: componentes, e2e
 **Gate**: e2e
-**Commit**: `fix(fixos): o endereço segue o último fixo pedido, e não a barra`
+**Commit**: `fix(fixos): o endereço segue o último fixo pedido, e não a barra` (`307106b`)
 **Nota**:
 - **A rede lenta no e2e.** No servidor local, a página chega uns 60 ms depois do clique, antes do clique seguinte do Playwright (uns 100 ms), e a corrida não acontecia no teste. Uma sonda mostrou a URL já trocada na hora do segundo clique. Os três testes seguram cada leitura de página (`_rsc`) por 600 ms com `page.route`, como numa rede lenta. Antes, "abrir e logo fechar" falhava 1 de 3 no código de `8d4ce41`, e "abrir e logo o cadastro" passava 3 de 3. Com a rede lenta, os três falham 3 de 3 no código de `8d4ce41` e passam 3 de 3 com a correção. Nenhum tempo de teste mudou.
 - **O que espera o quê.** O e2e confere o endereço depois de todas as leituras de página pedidas terminarem, e de mais dois quadros: só então nenhuma navegação pendente pode mudá-lo. O primeiro teste aperta `Escape` logo depois do clique, sem `toBeFocused`: o foco no título já está lá quando o clique volta, e esperá-lo daria tempo à navegação.
@@ -700,13 +700,19 @@ A traceability do FIXCOL-09 deixa de dizer "por `replaceState`". O "sem entrada 
 **Reuses**: o mock do roteador de `todo-mes.test.tsx`
 **Requirement**: FIXCOL-09
 **Done when**:
-- [ ] O teste afirma a chamada do componente, e não o efeito do mock (FIXCOL-09 AC 1)
-- [ ] Ele falha com o componente chamando `router.push`, e com o destino sem os outros parâmetros (mutantes)
-- [ ] A traceability do FIXCOL-09 diz `router.replace`
-- [ ] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
+- [x] O teste afirma a chamada do componente, e não o efeito do mock (FIXCOL-09 AC 1)
+- [x] Ele falha com o componente chamando `router.push`, e com o destino sem os outros parâmetros (mutantes)
+- [x] A traceability do FIXCOL-09 diz `router.replace`
+- [x] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
 **Tests**: componentes
 **Gate**: build
 **Commit**: `test(fixos): o teste do endereço prova o componente, e não o mock`
+**Nota**:
+- **O mock.** O mock do roteador ganha `push`, para o teste afirmar que ele não é chamado. O `navegar` ganha o segundo parâmetro no tipo, para o teste ler as opções da chamada. O comentário do alto do arquivo diz que a prova do endereço é a chamada, e que os testes que leem a URL contam com o mock.
+- **Os mutantes.** O teste falha com `router.push` no lugar de `router.replace`, sem destino no `navegar`. Falha também com o destino montado sem os outros parâmetros, sem `outro=1`. No código de `8d4ce41` ele passa: é a mesma conduta, provada agora pela chamada.
+- **O gate build**, com cada código de saída conferido sozinho:
+  - `pnpm verify` sai 0: `lint` em 331 arquivos; 1.832 unitários em 115 arquivos, com 100% de branches em `src/domain` (367/367); 364 de integração em 23 arquivos; e o build.
+  - O e2e inteiro, na porta 3100, sai 0 na primeira passada: 193 testes em 16 arquivos, 44 deles em `todo-mes-colunas.spec.ts`. Antes da fase eram 190.
 
 ---
 

@@ -15,17 +15,25 @@ import { TodoMes } from "./todo-mes";
  * Derivado de FIXCOL-03 (AC 1), FIXCOL-06 (ACs 1 e 2), FIXCOL-07 (ACs 3, 5 e 6,
  * na ordem do DOM; a medida é do e2e), FIXCOL-08 (ACs 2 e 4) e FIXCOL-09.
  *
- * O endereço é o do jsdom: o teste lê `window.location` depois de cada gesto,
- * e não só a chamada a `history`, porque o que importa é a URL que fica.
+ * O endereço é o do jsdom. O que o componente faz é pedir o endereço ao
+ * roteador do Next, por `router.replace`, e isso se prova pela chamada. Os
+ * testes que leem `window.location` depois de cada gesto contam com o mock,
+ * que muda a URL como o Next muda depois da resposta.
  */
 
-const { refresh, navegar } = vi.hoisted(() => ({
+const { refresh, navegar, empurrar } = vi.hoisted(() => ({
   refresh: vi.fn(),
   /* O `router.replace` do Next troca o endereço sem entrada nova no histórico:
      aqui, pelo `replaceState` do jsdom, para os testes lerem a URL que fica. */
-  navegar: vi.fn((endereco: string) => window.history.replaceState(null, "", endereco)),
+  navegar: vi.fn((endereco: string, _opcoes?: { readonly scroll?: boolean }) =>
+    window.history.replaceState(null, "", endereco),
+  ),
+  /* O `router.push`, que criaria uma entrada no histórico. */
+  empurrar: vi.fn(),
 }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh, replace: navegar }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh, replace: navegar, push: empurrar }),
+}));
 
 const UUID_CONTA = "22222222-2222-4222-8222-222222222222";
 const UUID_U = "11111111-1111-4111-8111-111111111111";
@@ -96,6 +104,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   refresh.mockReset();
   navegar.mockReset();
+  empurrar.mockReset();
 });
 
 interface Opcoes {
@@ -251,20 +260,23 @@ describe("abrir um fixo e o endereço (FIXCOL-09, ACs 1 a 3; FIXCOL-08, AC 2)", 
     expect(document.activeElement).toBe(tituloDoPainel());
   });
 
-  it("põe `?fixo=<id>` na URL por replaceState, mantém os outros parâmetros e não cria entrada", async () => {
-    const replace = vi.spyOn(window.history, "replaceState");
-    const push = vi.spyOn(window.history, "pushState");
-    const entradasNoHistorico = window.history.length;
+  /* O que o componente faz, e não o que o mock faz: ele pede o endereço ao
+     `router.replace`, que não cria entrada no histórico. O "sem entrada nova"
+     no navegador está no e2e, pelo `history.length`. */
+  it("põe `?fixo=<id>` pelo `router.replace`, sem rolar, mantém os outros parâmetros e não cria entrada", async () => {
+    const pushState = vi.spyOn(window.history, "pushState");
     const { usuario } = montar();
 
     await usuario.click(botaoDaLinha("Fixo B"));
 
-    expect(replace).toHaveBeenCalled();
-    expect(push).not.toHaveBeenCalled();
-    expect(window.location.pathname).toBe(ENDERECO);
-    expect(new URLSearchParams(window.location.search).get("fixo")).toBe("rec-b");
-    expect(new URLSearchParams(window.location.search).get("outro")).toBe("1");
-    expect(window.history.length).toBe(entradasNoHistorico);
+    const [destino, opcoes] = navegar.mock.lastCall ?? [];
+    /* Relativo: o caminho fica o mesmo. */
+    expect(destino?.startsWith("?")).toBe(true);
+    expect(new URLSearchParams(destino).get("fixo")).toBe("rec-b");
+    expect(new URLSearchParams(destino).get("outro")).toBe("1");
+    expect(opcoes).toEqual({ scroll: false });
+    expect(empurrar).not.toHaveBeenCalled();
+    expect(pushState).not.toHaveBeenCalled();
   });
 
   /* Trocar o `?fixo=` passa pelo roteador do Next, sem rolar: pelo
