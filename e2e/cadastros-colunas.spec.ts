@@ -787,3 +787,709 @@ test("em 400 px, com Categoria Um aberta: sem rolagem lateral, as contagens abai
     await medirAlvo(painel(page).getByRole("button", { name: nome }), nome);
   }
 });
+
+/* ========================================================================
+ * A aba Meios de pagamento (T20). A mesma fixture de março: "Conta
+ * Corrente" tem 2 fixos (A e Entrada A; B terminou em fevereiro) e 2
+ * lançamentos (as ocorrências de A e de Entrada A; o Gasto B está cancelado
+ * e o Gasto C é de abril); "Cartão Roxo" tem 0 fixos (C começa em abril) e 1
+ * lançamento (o Gasto A). "conta Azul" e "Rótulo Âmbar" não têm uso.
+ * ====================================================================== */
+
+const MEIOS = `/${MARCO}/cadastros/meios-de-pagamento`;
+/** Quarenta caracteres, o limite do nome, num cartão de dias com dois algarismos (L-045). */
+const MEIO_LONGO = "Cartão com nome longo para apertar linha";
+const DICA_DO_MEIO =
+  "Escolha um meio na lista para renomear, corrigir os dias do cartão e ver onde ele aparece.";
+/** A ordem do português: sem caixa e sem acento. */
+const ORDEM_DOS_MEIOS = ["Cartão Roxo", "conta Azul", "Conta Corrente", "Rótulo Âmbar"];
+
+async function inserirMeio(
+  nome: string,
+  tipo: "CARTAO_CREDITO" | "CONTA_CORRENTE" | "ROTULO",
+  dias: { readonly fechamento: number; readonly vencimento: number } | null = null,
+): Promise<string> {
+  return dias === null
+    ? primeiroId(
+        "INSERT INTO meio_pagamento (nome, tipo, gera_fatura) VALUES ($1, $2, false) RETURNING id",
+        [nome, tipo],
+      )
+    : primeiroId(
+        `INSERT INTO meio_pagamento (nome, tipo, gera_fatura, dia_fechamento, dia_vencimento)
+         VALUES ($1, $2, true, $3, $4) RETURNING id`,
+        [nome, tipo, dias.fechamento, dias.vencimento],
+      );
+}
+
+async function idDoMeio(nome: string): Promise<string> {
+  return primeiroId("SELECT id FROM meio_pagamento WHERE nome = $1", [nome]);
+}
+
+/** Meios a mais, para a tabela passar da altura da janela. */
+async function semearMeiosAMais(): Promise<void> {
+  for (let indice = 1; indice <= 12; indice++) {
+    await inserirMeio(`Rótulo Extra ${String(indice).padStart(2, "0")}`, "ROTULO");
+  }
+}
+
+async function abrirMeios(page: Page, caminho: string): Promise<void> {
+  await page.goto(caminho);
+  await expect(page.getByRole("heading", { level: 1, name: "Cadastros" })).toBeVisible();
+  await expect(tabelaDeMeios(page)).toBeVisible();
+}
+
+function tabelaDeMeios(page: Page): Locator {
+  return page.getByRole("table", { name: "Meios de pagamento" });
+}
+
+function botaoDoMeio(page: Page, nome: string): Locator {
+  return tabelaDeMeios(page).getByRole("button", { name: nome, exact: true });
+}
+
+/** A linha de um meio; o `has` é procurado dentro de cada linha. */
+function linhaDoMeio(page: Page, nome: string): Locator {
+  return tabelaDeMeios(page)
+    .getByRole("row")
+    .filter({ has: page.getByRole("button", { name: nome, exact: true }) });
+}
+
+/** As células da linha: Meio, Tipo, Fecha, Vence, Fixos e Lançamentos. */
+function celulaDoMeio(page: Page, nome: string, indice: number): Locator {
+  return linhaDoMeio(page, nome).getByRole("cell").nth(indice);
+}
+
+/**
+ * A mesma célula pela posição no DOM. Abaixo de 768 px o "—" da conta some da
+ * tela e da árvore de acessibilidade, e a posição pelo papel muda.
+ */
+function tdDoMeio(page: Page, nome: string, indice: number): Locator {
+  return linhaDoMeio(page, nome).locator("td").nth(indice);
+}
+
+function painelDoMeio(page: Page): Locator {
+  return page.getByRole("complementary", { name: "Painel do meio de pagamento" });
+}
+
+function tituloDoPainelDoMeio(page: Page): Locator {
+  return painelDoMeio(page).getByRole("heading", { level: 2 });
+}
+
+/** O subtítulo, logo abaixo do título: o tipo e, no cartão, os dias. */
+function subtituloDoMeio(page: Page): Locator {
+  return tituloDoPainelDoMeio(page).locator("xpath=following-sibling::p[1]");
+}
+
+function formularioDoMeio(page: Page, nome: string): Locator {
+  return painelDoMeio(page).getByRole("form", { name: `Editar ${nome}` });
+}
+
+function formularioDeNovoMeio(page: Page): Locator {
+  return painelDoMeio(page).getByRole("form", { name: "Novo meio de pagamento" });
+}
+
+function botaoNovoMeio(page: Page): Locator {
+  return page.getByRole("button", { name: "+ Novo meio", exact: true });
+}
+
+/** A mensagem junto do campo: o `alert` no bloco dele, e o campo marcado. */
+async function erroJuntoDo(campo: Locator): Promise<Locator> {
+  await expect(campo).toHaveAttribute("aria-invalid", "true");
+  return campo.locator("xpath=..").getByRole("alert");
+}
+
+test.describe("a aba Meios de pagamento", () => {
+  /* ------------------------------------------------------------------------
+   * A composição: o uso no mês e a concordância com Lançamentos (CADCOL-03;
+   * CADCOL-06, AC 5; CADCOL-07, AC 13; L-001, L-014).
+   * ---------------------------------------------------------------------- */
+
+  test("abrindo Meios de pagamento de março antes de qualquer outra tela, as contagens vêm das ocorrências criadas ao abrir, e Ver em Lançamentos mostra o mesmo número (CADCOL-03, ACs 1 a 6; CADCOL-06, AC 5; CADCOL-07, AC 13)", async ({
+    page,
+  }) => {
+    const antes = await pool.query(
+      "SELECT 1 FROM movimento WHERE recorrencia_id = $1 AND competencia = $2",
+      [ids.fixoA, `${MARCO}-01`],
+    );
+    expect(antes.rowCount).toBe(0);
+    await page.setViewportSize({ width: 1280, height: 900 });
+
+    await abrirMeios(page, MEIOS);
+
+    await expect(celulaDoMeio(page, "Conta Corrente", 4)).toHaveText("2 fixos");
+    await expect(celulaDoMeio(page, "Conta Corrente", 5)).toHaveText("2 lançamentos");
+    await expect(celulaDoMeio(page, "Cartão Roxo", 4)).toHaveText("0 fixos");
+    await expect(celulaDoMeio(page, "Cartão Roxo", 5)).toHaveText("1 lançamento");
+    await expect(celulaDoMeio(page, "conta Azul", 4)).toHaveText("0 fixos");
+    await expect(celulaDoMeio(page, "conta Azul", 5)).toHaveText("0 lançamentos");
+
+    await botaoDoMeio(page, "Conta Corrente").click();
+    const secao = painelDoMeio(page).getByRole("region", { name: "Onde ele aparece" });
+    await expect(secao.locator("dd")).toHaveText(["2", "2"]);
+    await secao.getByRole("link", { name: "Ver em Lançamentos" }).click();
+
+    await expect(page).toHaveURL(
+      new RegExp(`/${MARCO}/lancamentos\\?meioPagamentoId=${base.contaId}$`),
+    );
+    await expect(page.locator("#cartao-de-filtros").getByRole("status")).toHaveText(
+      /^2 lançamentos com 1 filtro\./,
+    );
+  });
+
+  /* ------------------------------------------------------------------------
+   * A aba, a ordem e as colunas (CADCOL-01; CADCOL-06, ACs 2 a 4).
+   * ---------------------------------------------------------------------- */
+
+  test('a aba "Meios de pagamento" leva à rota do mesmo mês, marcada, com "Cadastros" ativo (CADCOL-01, ACs 2, 3 e 5)', async ({
+    page,
+  }) => {
+    await abrir(page, CATEGORIAS);
+
+    await abas(page).getByRole("link", { name: "Meios de pagamento" }).click();
+
+    await expect(page).toHaveURL(new RegExp(`${MEIOS}$`));
+    await expect(tabelaDeMeios(page)).toBeVisible();
+    await expect(abas(page).getByRole("link", { name: "Meios de pagamento" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(abas(page).getByRole("link", { name: "Categorias" })).not.toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(navegacao(page, "Cadastros")).toHaveAttribute("aria-current", "page");
+    await expect(botaoNovoMeio(page)).toBeVisible();
+  });
+
+  test("os meios na ordem do português, que difere da do banco e da do código de caractere, com o tipo e os dias lidos dentro de cada linha (CADCOL-06, ACs 2 a 4)", async ({
+    page,
+  }) => {
+    /* A fixture discrimina (L-001, L-036): o banco e o código de caractere põem
+     "conta Azul" em outro lugar. */
+    const doBanco = await pool.query<{ nome: string }>(
+      "SELECT nome FROM meio_pagamento WHERE arquivado_em IS NULL ORDER BY nome",
+    );
+    expect(doBanco.rows.map(({ nome }) => nome)).not.toEqual(ORDEM_DOS_MEIOS);
+    expect([...ORDEM_DOS_MEIOS].sort()).not.toEqual(ORDEM_DOS_MEIOS);
+
+    await abrirMeios(page, MEIOS);
+
+    await expect(tabelaDeMeios(page).getByRole("button")).toHaveText(ORDEM_DOS_MEIOS);
+    /* "fecha" e "vence" são o nome do dia, escrito para quem não vê o cabeçalho. */
+    await expect(celulaDoMeio(page, "Cartão Roxo", 1)).toHaveText("Cartão de crédito");
+    await expect(celulaDoMeio(page, "Cartão Roxo", 2)).toHaveText("fecha dia 25");
+    await expect(celulaDoMeio(page, "Cartão Roxo", 3)).toHaveText("vence dia 5");
+    for (const [nome, tipo] of [
+      ["conta Azul", "Conta corrente"],
+      ["Conta Corrente", "Conta corrente"],
+      ["Rótulo Âmbar", "Rótulo"],
+    ] as const) {
+      await expect(celulaDoMeio(page, nome, 1), nome).toHaveText(tipo);
+      await expect(celulaDoMeio(page, nome, 2), nome).toHaveText("—");
+      await expect(celulaDoMeio(page, nome, 3), nome).toHaveText("—");
+    }
+  });
+
+  /* ------------------------------------------------------------------------
+   * Editar pelo painel, com a confirmação à vista (CADCOL-07, ACs 5, 6 e 14;
+   * L-057).
+   * ---------------------------------------------------------------------- */
+
+  for (const janela of [
+    { width: 1280, height: 720 },
+    { width: 1920, height: 1080 },
+  ]) {
+    test(`em ${janela.width} × ${janela.height}, corrigir os dias de Cartão Roxo para 10 e 17: o aviso, os dias novos na linha e no subtítulo, e o botão e o subtítulo à vista (CADCOL-07, AC 5)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(janela);
+      await abrirMeios(page, MEIOS);
+      await botaoDoMeio(page, "Cartão Roxo").click();
+      const form = formularioDoMeio(page, "Cartão Roxo");
+      await form.getByRole("textbox", { name: "Dia de fechamento" }).fill("10");
+      await form.getByRole("textbox", { name: "Dia de vencimento" }).fill("17");
+      const salvar = form.getByRole("button", { name: "Salvar alterações" });
+
+      await salvar.click();
+
+      await expect(aviso(page)).toHaveText("Meio de pagamento salvo.");
+      /* A linha muda quando a página relida chega, depois da resposta. */
+      await expect(celulaDoMeio(page, "Cartão Roxo", 2)).toHaveText("fecha dia 10");
+      await expect(celulaDoMeio(page, "Cartão Roxo", 3)).toHaveText("vence dia 17");
+      await expect(subtituloDoMeio(page)).toHaveText(
+        "Cartão de crédito · fecha dia 10 · vence dia 17",
+      );
+      await doisQuadros(page);
+      await expect(salvar).toBeInViewport({ ratio: 1 });
+      await expect(subtituloDoMeio(page)).toBeInViewport({ ratio: 1 });
+      const gravado = await pool.query<{ dia_fechamento: number; dia_vencimento: number }>(
+        "SELECT dia_fechamento, dia_vencimento FROM meio_pagamento WHERE id = $1",
+        [base.cartaoId],
+      );
+      expect(gravado.rows[0]).toEqual({ dia_fechamento: 10, dia_vencimento: 17 });
+    });
+  }
+
+  test('renomear Cartão Roxo para "conta azul" é recusado junto do campo, e nada muda na linha (CADCOL-07, AC 6)', async ({
+    page,
+  }) => {
+    await abrirMeios(page, MEIOS);
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    const form = formularioDoMeio(page, "Cartão Roxo");
+    const nome = form.getByRole("textbox", { name: "Nome" });
+    await nome.fill("conta azul");
+
+    await form.getByRole("button", { name: "Salvar alterações" }).click();
+
+    await expect(await erroJuntoDo(nome)).toHaveText(
+      "Já existe outro meio de pagamento com esse nome.",
+    );
+    await expect(aviso(page)).toHaveCount(0);
+    await expect(tabelaDeMeios(page).getByRole("button")).toHaveText(ORDEM_DOS_MEIOS);
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    const gravado = await pool.query<{ nome: string }>(
+      "SELECT nome FROM meio_pagamento WHERE id = $1",
+      [base.cartaoId],
+    );
+    expect(gravado.rows[0]?.nome).toBe("Cartão Roxo");
+  });
+
+  test('renomear Cartão Roxo para "Cartão Lilás": a linha muda de lugar, e Lançamentos, aberto pela navegação sem recarregar, já tem o nome novo no filtro de meio (CADCOL-07, ACs 5 e 14)', async ({
+    page,
+  }) => {
+    /* Entre "Cartão Lilás" e "Cartão Roxo" na ordem, para a linha mudar de lugar. */
+    await inserirMeio("Cartão Marrom", "CONTA_CORRENTE");
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abrirMeios(page, MEIOS);
+    await expect(tabelaDeMeios(page).getByRole("button").nth(1)).toHaveText("Cartão Roxo");
+    await page.evaluate(() => {
+      (window as unknown as { marcador?: string }).marcador = "sem recarregar";
+    });
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    const form = formularioDoMeio(page, "Cartão Roxo");
+    await form.getByRole("textbox", { name: "Nome" }).fill("Cartão Lilás");
+
+    await form.getByRole("button", { name: "Salvar alterações" }).click();
+
+    await expect(aviso(page)).toHaveText("Meio de pagamento salvo.");
+    await expect(tabelaDeMeios(page).getByRole("button")).toHaveText([
+      "Cartão Lilás",
+      "Cartão Marrom",
+      "conta Azul",
+      "Conta Corrente",
+      "Rótulo Âmbar",
+    ]);
+    await expect(botaoDoMeio(page, "Cartão Lilás")).toHaveAttribute("aria-expanded", "true");
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Lilás");
+
+    await navegacao(page, "Lançamentos").click();
+
+    await expect(page).toHaveURL(new RegExp(`/${MARCO}/lancamentos$`));
+    const filtroDeMeio = page.locator("#cartao-de-filtros search").getByLabel("Meio de pagamento");
+    await expect(filtroDeMeio.locator("option", { hasText: "Cartão Lilás" })).toHaveCount(1);
+    await expect(filtroDeMeio.locator("option", { hasText: "Cartão Roxo" })).toHaveCount(0);
+    expect(await page.evaluate(() => (window as unknown as { marcador?: string }).marcador)).toBe(
+      "sem recarregar",
+    );
+  });
+
+  /* ------------------------------------------------------------------------
+   * Criar pelo painel (CADCOL-08, ACs 4 e 5; L-057).
+   * ---------------------------------------------------------------------- */
+
+  for (const janela of [
+    { width: 1280, height: 720 },
+    { width: 1920, height: 1080 },
+  ]) {
+    test(`em ${janela.width} × ${janela.height}, criar "Cartão Novo", com fechamento 3 e vencimento 10: a linha aparece e o painel abre nele, à vista; criar "conta corrente" é recusado junto do campo (CADCOL-08, ACs 4 e 5)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(janela);
+      await abrirMeios(page, MEIOS);
+
+      await botaoNovoMeio(page).click();
+      await expect(tituloDoPainelDoMeio(page)).toHaveText("Novo meio de pagamento");
+      const form = formularioDeNovoMeio(page);
+      await form.getByRole("textbox", { name: "Nome" }).fill("Cartão Novo");
+      await form.getByRole("textbox", { name: "Dia de fechamento" }).fill("3");
+      await form.getByRole("textbox", { name: "Dia de vencimento" }).fill("10");
+      await form.getByRole("button", { name: "Criar meio" }).click();
+
+      await expect(aviso(page)).toHaveText("Meio de pagamento criado.");
+      await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Novo");
+      await expect(subtituloDoMeio(page)).toHaveText(
+        "Cartão de crédito · fecha dia 3 · vence dia 10",
+      );
+      await expect(botaoDoMeio(page, "Cartão Novo")).toHaveAttribute("aria-expanded", "true");
+      await expect(tituloDoPainelDoMeio(page)).toBeFocused();
+      await doisQuadros(page);
+      await expect(tituloDoPainelDoMeio(page)).toBeInViewport({ ratio: 1 });
+      await expect(subtituloDoMeio(page)).toBeInViewport({ ratio: 1 });
+      const criado = await idDoMeio("Cartão Novo");
+      await expect.poll(() => parametro(page, "meio")).toBe(criado);
+
+      await botaoNovoMeio(page).click();
+      const outro = formularioDeNovoMeio(page);
+      await outro.getByRole("combobox", { name: "Tipo" }).selectOption({ label: "Conta corrente" });
+      const nome = outro.getByRole("textbox", { name: "Nome" });
+      await nome.fill("conta corrente");
+      await outro.getByRole("button", { name: "Criar meio" }).click();
+
+      await expect(await erroJuntoDo(nome)).toHaveText(
+        "Já existe um meio de pagamento com esse nome.",
+      );
+      await expect(tabelaDeMeios(page).getByRole("button")).toHaveCount(5);
+      const contas = await pool.query("SELECT 1 FROM meio_pagamento WHERE lower(nome) = $1", [
+        "conta corrente",
+      ]);
+      expect(contas.rowCount).toBe(1);
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+   * O endereço (CADCOL-11) e o teclado (CADCOL-10).
+   * ---------------------------------------------------------------------- */
+
+  test("abrir põe `?meio=<id>` sem recarregar e sem entrada no histórico; recarregar mostra o mesmo aberto; um id inexistente deixa o painel fechado (CADCOL-11, ACs 1 a 3)", async ({
+    page,
+  }) => {
+    await abrirMeios(page, MEIOS);
+    await page.evaluate(() => {
+      (window as unknown as { marcador?: string }).marcador = "sem recarregar";
+    });
+    const entradasNoHistorico = await page.evaluate(() => window.history.length);
+
+    await botaoDoMeio(page, "Cartão Roxo").click();
+
+    await expect.poll(() => parametro(page, "meio")).toBe(base.cartaoId);
+    expect(await page.evaluate(() => (window as unknown as { marcador?: string }).marcador)).toBe(
+      "sem recarregar",
+    );
+    expect(await page.evaluate(() => window.history.length)).toBe(entradasNoHistorico);
+
+    await page.reload();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+
+    await abrirMeios(page, `${MEIOS}?meio=00000000-0000-4000-8000-000000000000`);
+    await expect(painelDoMeio(page)).toHaveCount(0);
+    /* Dentro do `main`: o anunciador de rota do Next é um `alert` vazio fora dele. */
+    await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
+  });
+
+  test("pelo teclado: Tab até a linha, Enter abre com o foco no título; Escape fecha, devolve o foco e tira o parâmetro; espaço também abre (CADCOL-10, ACs 1 a 4)", async ({
+    page,
+  }) => {
+    const contaAzul = await idDoMeio("conta Azul");
+    await abrirMeios(page, MEIOS);
+    await botaoDoMeio(page, "Cartão Roxo").focus();
+
+    await page.keyboard.press("Tab");
+    await expect(botaoDoMeio(page, "conta Azul")).toBeFocused();
+    await page.keyboard.press("Enter");
+
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("conta Azul");
+    await expect(tituloDoPainelDoMeio(page)).toBeFocused();
+    await expect.poll(() => parametro(page, "meio")).toBe(contaAzul);
+
+    await page.keyboard.press("Escape");
+
+    await expect(painelDoMeio(page)).toHaveCount(0);
+    await expect(botaoDoMeio(page, "conta Azul")).toBeFocused();
+    await expect.poll(() => parametro(page, "meio")).toBeNull();
+
+    await page.keyboard.press("Shift+Tab");
+    await expect(botaoDoMeio(page, "Cartão Roxo")).toBeFocused();
+    await page.keyboard.press(" ");
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    await expect(tituloDoPainelDoMeio(page)).toBeFocused();
+  });
+
+  test("abrir e logo fechar com Escape, sem esperar a URL, termina sem `?meio=` (CADCOL-11, AC 4)", async ({
+    page,
+  }) => {
+    await abrirMeios(page, MEIOS);
+    await redeLenta(page);
+    const leituras = vigiarLeituras(page);
+
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    await page.keyboard.press("Escape");
+
+    await leituras.terminar();
+    await expect(botaoDoMeio(page, "Cartão Roxo")).toHaveAttribute("aria-expanded", "false");
+    expect(parametro(page, "meio")).toBeNull();
+  });
+
+  test("com o meio aberto no endereço, fechar e logo reabrir, sem esperar a URL, termina com ele (CADCOL-11, AC 1)", async ({
+    page,
+  }) => {
+    await abrirMeios(page, `${MEIOS}?meio=${base.cartaoId}`);
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    await tituloDoPainelDoMeio(page).focus();
+    await redeLenta(page);
+    const leituras = vigiarLeituras(page);
+
+    await page.keyboard.press("Escape");
+    await botaoDoMeio(page, "Cartão Roxo").click();
+
+    await leituras.terminar();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    expect(parametro(page, "meio")).toBe(base.cartaoId);
+  });
+
+  /* ------------------------------------------------------------------------
+   * Os dois dias pela largura do formulário, colados em 448 px (FPC-01;
+   * L-060, L-061). Cada formulário é aberto pela ação dele: a edição pela
+   * linha, a criação pelo "+ Novo meio".
+   * ---------------------------------------------------------------------- */
+
+  async function diasLadoALado(form: Locator): Promise<boolean> {
+    const fechamento = await caixa(form.getByRole("textbox", { name: "Dia de fechamento" }));
+    const vencimento = await caixa(form.getByRole("textbox", { name: "Dia de vencimento" }));
+    if (Math.abs(fechamento.y - vencimento.y) <= 1 && vencimento.x > fechamento.x) {
+      return true;
+    }
+    expect(vencimento.y, "o vencimento abaixo do fechamento").toBeGreaterThanOrEqual(
+      fechamento.y + fechamento.height,
+    );
+    return false;
+  }
+
+  for (const modo of ["edição", "criação"] as const) {
+    test(`com o formulário de ${modo} em 447 px, um dia embaixo do outro; em 448 px, lado a lado (FPC-01; L-061)`, async ({
+      page,
+    }) => {
+      async function abrirFormulario(): Promise<Locator> {
+        if (modo === "criação") {
+          await botaoNovoMeio(page).click();
+          return formularioDeNovoMeio(page);
+        }
+        await botaoDoMeio(page, "Cartão Roxo").click();
+        return formularioDoMeio(page, "Cartão Roxo");
+      }
+
+      await page.setViewportSize({ width: 777, height: 1080 });
+      await abrirMeios(page, MEIOS);
+      const form = await abrirFormulario();
+      await expect(form).toBeVisible();
+      const estreito = (await caixa(form)).width;
+      expect(estreito).toBeLessThan(448);
+      expect(estreito).toBeGreaterThanOrEqual(447);
+      expect(await diasLadoALado(form)).toBe(false);
+
+      await page.setViewportSize({ width: 778, height: 1080 });
+      await expect.poll(async () => (await caixa(form)).width).toBeGreaterThanOrEqual(448);
+      expect((await caixa(form)).width).toBeLessThan(449);
+      expect(await diasLadoALado(form)).toBe(true);
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+   * Abaixo de 1.536 px: uma coluna só (CADCOL-09, ACs 5 e 6; CADCOL-10, AC 5;
+   * CADCOL-07, AC 15; CADCOL-06, AC 7).
+   * ---------------------------------------------------------------------- */
+
+  test("em 1.280 px, sem nada aberto não há painel; aberto, ele fica entre as abas e a tabela (CADCOL-09, ACs 5 e 6)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abrirMeios(page, MEIOS);
+    await expect(painelDoMeio(page)).toHaveCount(0);
+    await expect(page.getByText(DICA_DO_MEIO)).toBeHidden();
+
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+
+    const caixaDasAbas = await caixa(abas(page));
+    const caixaDoPainel = await caixa(painelDoMeio(page));
+    const caixaDaTabela = await caixa(tabelaDeMeios(page));
+    expect(caixaDoPainel.y).toBeGreaterThanOrEqual(caixaDasAbas.y + caixaDasAbas.height);
+    expect(caixaDaTabela.y).toBeGreaterThanOrEqual(caixaDoPainel.y + caixaDoPainel.height);
+  });
+
+  test("em 1.280 px, abrir a última linha, com a página rolada, traz o título do painel para dentro da janela (CADCOL-10, AC 5)", async ({
+    page,
+  }) => {
+    await semearMeiosAMais();
+    await page.setViewportSize({ width: 1280, height: 420 });
+    await abrirMeios(page, MEIOS);
+    const ultima = botaoDoMeio(page, "Rótulo Extra 12");
+    await ultima.scrollIntoViewIfNeeded();
+    await expect(abas(page)).not.toBeInViewport();
+
+    await ultima.click();
+
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Rótulo Extra 12");
+    await expect(tituloDoPainelDoMeio(page)).toBeInViewport();
+  });
+
+  test("em 1.280 px, a linha aberta tem o fundo diferente de todas as outras (CADCOL-07, AC 15)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abrirMeios(page, MEIOS);
+    await botaoDoMeio(page, "conta Azul").click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("conta Azul");
+    await page.mouse.move(0, 0);
+    await doisQuadros(page);
+
+    const fundos = await tabelaDeMeios(page)
+      .locator("tbody tr")
+      .evaluateAll((linhas) =>
+        linhas.map((tr) => ({
+          nome: tr.querySelector("button")?.textContent ?? "",
+          fundo: getComputedStyle(tr).backgroundColor,
+        })),
+      );
+    const aberto = fundos.find(({ nome }) => nome === "conta Azul");
+    const outros = fundos.filter(({ nome }) => nome !== "conta Azul");
+    expect(outros).toHaveLength(3);
+    for (const outro of outros) {
+      expect(outro.fundo, outro.nome).not.toBe(aberto?.fundo);
+    }
+  });
+
+  test("em 1.280 px, com ponteiro fino, toda linha da tabela mede até 48 px, inclusive a de nome com 40 caracteres (CADCOL-06, AC 7)", async ({
+    page,
+  }) => {
+    await semearMeiosAMais();
+    await inserirMeio(MEIO_LONGO, "CARTAO_CREDITO", { fechamento: 28, vencimento: 28 });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await abrirMeios(page, MEIOS);
+    expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+
+    const alturas = await tabelaDeMeios(page)
+      .locator("tbody tr")
+      .evaluateAll((linhas) =>
+        linhas.map((tr) => ({
+          nome: tr.querySelector("button")?.textContent ?? "",
+          altura: tr.getBoundingClientRect().height,
+        })),
+      );
+    /* Os quatro de março, os doze a mais e o de nome longo: toda linha. */
+    expect(alturas).toHaveLength(17);
+    expect(alturas.map(({ nome }) => nome)).toContain(MEIO_LONGO);
+    for (const { nome, altura } of alturas) {
+      expect(altura, nome).toBeLessThanOrEqual(48);
+    }
+  });
+
+  /* ------------------------------------------------------------------------
+   * O limiar de 768 px, dos dois lados (CADCOL-06, AC 8; CADCOL-10, AC 6;
+   * L-029), e o ponteiro grosso acima dele (L-044).
+   * ---------------------------------------------------------------------- */
+
+  test("em 767 px, nenhum cabeçalho à vista, o nome de cada dia e de cada contagem escrito e o botão de cada linha com 44 px; em 768 px, os seis cabeçalhos à vista, os nomes só para leitor de tela, o botão mais baixo e nenhuma rolagem lateral, com o nome de 40 caracteres (CADCOL-06, AC 8; CADCOL-10, AC 6)", async ({
+    page,
+  }) => {
+    await inserirMeio(MEIO_LONGO, "CARTAO_CREDITO", { fechamento: 28, vencimento: 28 });
+    await page.setViewportSize({ width: 767, height: 900 });
+    await abrirMeios(page, MEIOS);
+    await expect(tabelaDeMeios(page).getByRole("columnheader")).toHaveCount(0);
+    expect(await transbordoHorizontal(page)).toBe(0);
+    for (const nome of ORDEM_DOS_MEIOS) {
+      expect((await caixa(botaoDoMeio(page, nome))).height, nome).toBeGreaterThanOrEqual(44);
+    }
+    const nomeDoDia = celulaDoMeio(page, "Cartão Roxo", 2).locator("span").first();
+    const nomeDaContagem = celulaDoMeio(page, "Cartão Roxo", 5).locator("span").last();
+    expect((await caixa(nomeDoDia)).width).toBeGreaterThan(10);
+    expect((await caixa(nomeDaContagem)).width).toBeGreaterThan(10);
+
+    await page.setViewportSize({ width: 768, height: 900 });
+    await expect(tabelaDeMeios(page).getByRole("columnheader")).toHaveText([
+      "Meio de pagamento",
+      "Tipo",
+      "Fecha",
+      "Vence",
+      "Fixos em Março",
+      "Lançamentos em Março",
+    ]);
+    expect(await transbordoHorizontal(page)).toBe(0);
+    for (const nome of ORDEM_DOS_MEIOS) {
+      expect((await caixa(botaoDoMeio(page, nome))).height, nome).toBeLessThan(44);
+    }
+    expect((await caixa(nomeDoDia)).width).toBeLessThanOrEqual(1);
+    expect((await caixa(nomeDaContagem)).width).toBeLessThanOrEqual(1);
+  });
+
+  test.describe("com ponteiro grosso, em 1.280 px", () => {
+    test.use({ hasTouch: true, viewport: { width: 1280, height: 900 } });
+
+    test("o botão de cada linha mede ao menos 44 × 44 (CADCOL-10, AC 6)", async ({ page }) => {
+      await abrirMeios(page, MEIOS);
+      expect(await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)).toBe(true);
+
+      const botoes = await tabelaDeMeios(page).getByRole("button").all();
+      expect(botoes).toHaveLength(4);
+      for (const botao of botoes) {
+        await medirAlvo(botao, (await botao.textContent()) ?? "linha");
+      }
+    });
+  });
+
+  /* ------------------------------------------------------------------------
+   * No celular (CADCOL-09, AC 7; CADCOL-06, AC 8; CADCOL-10, AC 7).
+   * ---------------------------------------------------------------------- */
+
+  test("em 400 px, com Cartão Roxo aberto: sem rolagem lateral, o nome em cima e o resto embaixo, e todo alvo do painel, das abas e da ação com 44 × 44; o formulário de criação também (CADCOL-09, AC 7; CADCOL-06, AC 8; CADCOL-10, AC 7)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 400, height: 900 });
+    await abrirMeios(page, MEIOS);
+    await botaoDoMeio(page, "Cartão Roxo").click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+
+    expect(await transbordoHorizontal(page)).toBe(0);
+
+    /* O nome em cima; o tipo, os dias e as contagens embaixo dele. Na conta,
+     sem dias, o tipo e as contagens na mesma linha. */
+    for (const [nome, visiveis] of [
+      ["Cartão Roxo", [1, 2, 3, 4, 5]],
+      ["Conta Corrente", [1, 4, 5]],
+    ] as const) {
+      const botao = await caixa(botaoDoMeio(page, nome));
+      for (const indice of visiveis) {
+        const celula = await caixa(tdDoMeio(page, nome, indice));
+        expect(celula.y, `${nome}, coluna ${indice}`).toBeGreaterThanOrEqual(
+          botao.y + botao.height,
+        );
+      }
+    }
+    const tipoDaConta = await caixa(tdDoMeio(page, "Conta Corrente", 1));
+    const fixosDaConta = await caixa(tdDoMeio(page, "Conta Corrente", 4));
+    const lancamentosDaConta = await caixa(tdDoMeio(page, "Conta Corrente", 5));
+    expect(Math.abs(fixosDaConta.y - tipoDaConta.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs(lancamentosDaConta.y - tipoDaConta.y)).toBeLessThanOrEqual(1);
+    await expect(tdDoMeio(page, "Conta Corrente", 2)).toBeHidden();
+    await expect(tdDoMeio(page, "Conta Corrente", 3)).toBeHidden();
+    await expect(tdDoMeio(page, "Conta Corrente", 4)).toHaveText("2 fixos");
+    await expect(tdDoMeio(page, "Cartão Roxo", 2)).toHaveText("fecha dia 25");
+
+    const form = formularioDoMeio(page, "Cartão Roxo");
+    for (const [nome, alvo] of [
+      ["Dia de fechamento", form.getByRole("textbox", { name: "Dia de fechamento" })],
+      ["Dia de vencimento", form.getByRole("textbox", { name: "Dia de vencimento" })],
+      ["Salvar alterações", form.getByRole("button", { name: "Salvar alterações" })],
+      ["Fechar", painelDoMeio(page).getByRole("button", { name: "Fechar" })],
+      ["Ver em Lançamentos", painelDoMeio(page).getByRole("link", { name: "Ver em Lançamentos" })],
+      ["aba Categorias", abas(page).getByRole("link", { name: "Categorias" })],
+      ["aba Meios de pagamento", abas(page).getByRole("link", { name: "Meios de pagamento" })],
+      ["+ Novo meio", botaoNovoMeio(page)],
+    ] as const) {
+      await medirAlvo(alvo, nome);
+    }
+
+    /* O formulário de criação, aberto pela ação, medido aberto (L-060). */
+    await botaoNovoMeio(page).click();
+    await expect(tituloDoPainelDoMeio(page)).toHaveText("Novo meio de pagamento");
+    expect(await transbordoHorizontal(page)).toBe(0);
+    const novo = formularioDeNovoMeio(page);
+    for (const [nome, alvo] of [
+      ["Dia de fechamento", novo.getByRole("textbox", { name: "Dia de fechamento" })],
+      ["Dia de vencimento", novo.getByRole("textbox", { name: "Dia de vencimento" })],
+      ["Criar meio", novo.getByRole("button", { name: "Criar meio" })],
+      ["Cancelar", novo.getByRole("button", { name: "Cancelar" })],
+      ["Fechar", painelDoMeio(page).getByRole("button", { name: "Fechar" })],
+    ] as const) {
+      await medirAlvo(alvo, nome);
+    }
+  });
+});

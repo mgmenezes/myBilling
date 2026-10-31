@@ -727,7 +727,7 @@ e `?meio=`.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(meios): o estado da aba de meios, com o aberto no endereço`
+**Commit**: `feat(meios): o estado da aba de meios, com o aberto no endereço` (`ec6c83f`)
 **Nota** (desvios, os mesmos da T14):
 - **O endereço vai por `useParametroNaUrl("meio", meioInicial)`**, o `router.replace(…, { scroll:
   false })` com a ref do último valor pedido (L-058), e não por `history.replaceState`, como o
@@ -759,23 +759,54 @@ e `?meio=`.
 **Reuses**: `obterUsoNoMes`, `CadastroDeMeios`, `editarMeioDePagamento`, `criarMeioDePagamento`
 **Requirement**: CADCOL-01, CADCOL-03, CADCOL-06, CADCOL-07, CADCOL-08, CADCOL-09, CADCOL-10, CADCOL-11
 **Done when**:
-- [ ] A aba "Meios de pagamento" leva à rota nova no mesmo mês, com a aba marcada e "Cadastros" ativo (CADCOL-01 ACs 2, 3 e 5)
-- [ ] A ordem "Cartão Roxo", "conta Azul", "Conta Corrente", "Rótulo Âmbar", que difere da do banco e da do código de caractere (CADCOL-06 AC 2, L-001, L-036)
-- [ ] Tipo, "dia 25", "dia 5" e "—" lidos dentro de cada linha (CADCOL-06 ACs 3 e 4, L-018)
-- [ ] Abrindo a aba de março antes de qualquer outra tela: "Conta Corrente" com "2" e "2", "Cartão Roxo" com "0" e "1"; "Ver em Lançamentos" de "Conta Corrente" leva a "2 lançamentos" (CADCOL-03 ACs 1 a 6, L-001, L-014)
-- [ ] Corrigir os dias de "Cartão Roxo" para 10 e 17: o aviso "Meio de pagamento salvo.", "dia 10" e "dia 17" na linha e no subtítulo (CADCOL-07 AC 5)
-- [ ] Renomear "Cartão Roxo" para "conta azul": a recusa junto do campo, e nada muda na linha (CADCOL-07 AC 6)
-- [ ] Renomear para "Cartão Lilás": a linha muda de lugar; abrir Lançamentos pela navegação, sem recarregar, e ver "Cartão Lilás" entre as opções do filtro de meio (CADCOL-07 AC 14, L-014)
-- [ ] Criar "Cartão Novo", cartão com fechamento 3 e vencimento 10: a linha aparece e o painel abre nele; criar "conta corrente" é recusado junto do campo (CADCOL-08 ACs 4 e 5)
-- [ ] `?meio=`, recarregar e id inexistente; `Tab`, `Enter`, `Escape` e o foco (CADCOL-11 ACs 1 a 3, CADCOL-10 ACs 1 a 4)
-- [ ] Em 1.280 px: o painel entre as abas e a tabela; nenhum painel sem nada aberto; toda linha com até 48 px, com ponteiro fino (CADCOL-09 ACs 5 e 6, CADCOL-06 AC 7, L-030)
-- [ ] Em 767 e 768 px, os cabeçalhos e o botão da linha como na T15; com `hasTouch` em 1.280 px, o botão de cada linha com 44 × 44 (CADCOL-06 AC 8, CADCOL-10 AC 6, L-029, L-044)
-- [ ] Em 400 px, com "Cartão Roxo" aberto: sem rolagem lateral; os dois dias, "Salvar alterações", "Fechar", as abas e "+ Novo meio" com ao menos 44 × 44 (CADCOL-09 AC 7, CADCOL-10 AC 7)
-- [ ] O teste de TRES-01, AC 10 em 400 px percorre também `/2026-03/cadastros/meios-de-pagamento` (L-030)
-- [ ] Gate e2e passa com `e2e/cadastros-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
+- [x] A aba "Meios de pagamento" leva à rota nova no mesmo mês, com a aba marcada e "Cadastros" ativo (CADCOL-01 ACs 2, 3 e 5)
+- [x] A ordem "Cartão Roxo", "conta Azul", "Conta Corrente", "Rótulo Âmbar", que difere da do banco e da do código de caractere (CADCOL-06 AC 2, L-001, L-036)
+- [x] Tipo, "dia 25", "dia 5" e "—" lidos dentro de cada linha (CADCOL-06 ACs 3 e 4, L-018)
+- [x] Abrindo a aba de março antes de qualquer outra tela: "Conta Corrente" com "2" e "2", "Cartão Roxo" com "0" e "1"; "Ver em Lançamentos" de "Conta Corrente" leva a "2 lançamentos" (CADCOL-03 ACs 1 a 6, L-001, L-014)
+- [x] Corrigir os dias de "Cartão Roxo" para 10 e 17: o aviso "Meio de pagamento salvo.", "dia 10" e "dia 17" na linha e no subtítulo (CADCOL-07 AC 5)
+- [x] Renomear "Cartão Roxo" para "conta azul": a recusa junto do campo, e nada muda na linha (CADCOL-07 AC 6)
+- [x] Renomear para "Cartão Lilás": a linha muda de lugar; abrir Lançamentos pela navegação, sem recarregar, e ver "Cartão Lilás" entre as opções do filtro de meio (CADCOL-07 AC 14, L-014)
+- [x] Criar "Cartão Novo", cartão com fechamento 3 e vencimento 10: a linha aparece e o painel abre nele; criar "conta corrente" é recusado junto do campo (CADCOL-08 ACs 4 e 5)
+- [x] `?meio=`, recarregar e id inexistente; `Tab`, `Enter`, `Escape` e o foco (CADCOL-11 ACs 1 a 3, CADCOL-10 ACs 1 a 4)
+- [x] Em 1.280 px: o painel entre as abas e a tabela; nenhum painel sem nada aberto; toda linha com até 48 px, com ponteiro fino (CADCOL-09 ACs 5 e 6, CADCOL-06 AC 7, L-030)
+- [x] Em 767 e 768 px, os cabeçalhos e o botão da linha como na T15; com `hasTouch` em 1.280 px, o botão de cada linha com 44 × 44 (CADCOL-06 AC 8, CADCOL-10 AC 6, L-029, L-044)
+- [x] Em 400 px, com "Cartão Roxo" aberto: sem rolagem lateral; os dois dias, "Salvar alterações", "Fechar", as abas e "+ Novo meio" com ao menos 44 × 44 (CADCOL-09 AC 7, CADCOL-10 AC 7)
+- [x] O teste de TRES-01, AC 10 em 400 px percorre também `/2026-03/cadastros/meios-de-pagamento` (L-030)
+- [x] Gate e2e passa com `e2e/cadastros-colunas.spec.ts` e `e2e/visao-tres-colunas.spec.ts`
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `feat(meios): a aba Meios de pagamento, com o meio aberto no painel`
+**Nota** (desvios):
+- **"Cartão Lilás" não muda de lugar entre os meios de março**: ele vem antes de "conta Azul", como
+  "Cartão Roxo". O teste do renome põe "Cartão Marrom" na fixture, entre os dois na ordem, e a linha
+  passa da segunda para a primeira posição, aberta e marcada. O filtro de meio de Lançamentos,
+  aberto pelo item da navegação, com um marcador em `window` que prova que não houve recarga, tem
+  "Cartão Lilás" e não tem "Cartão Roxo" (CADCOL-07, AC 14).
+- **A confirmação à vista (L-057) se mede no que está junto do botão**, e não no aviso, que é
+  `fixed`: depois de salvar os dias e de a página relida chegar (a linha com "fecha dia 10"),
+  "Salvar alterações" e o subtítulo com os dias novos ficam inteiros na janela, em 1.280 × 720 e em
+  1.920 × 1.080; depois de criar, o título do criado, com o foco, e o subtítulo dele.
+- **O limiar de 448 px do formulário fica entre 777 e 778 px de janela**, como em Todo mês: em
+  777 px o formulário tem 447 px e os dias ficam um embaixo do outro; em 778 px, 448 px e lado a
+  lado. Os dois formulários, cada um aberto pela ação dele: a edição pela linha e a criação pelo
+  "+ Novo meio" (L-060, L-061).
+- **Em 767 e 768 px, a página não rola de lado, com um meio de 40 caracteres na tabela** (o
+  desvio da T16, que deixou a tabela sem folga em 768 px). Em 767 px o nome do dia e o da contagem
+  aparecem; em 768 px medem até 1 px.
+- **Em 400 px, o "—" da conta some da tela e da árvore de acessibilidade**, e a posição da célula
+  pelo papel muda; o teste de 400 px lê as células pela posição no DOM (`tdDoMeio`). O nome fica em
+  cima e as outras células abaixo dele; na conta, o tipo e as contagens na mesma linha. No cartão,
+  o que vai embaixo quebra em duas linhas (Nota da T16).
+- **Testes além do Done-when, cada um preso a um AC ou lição:** a corrida do endereço com a rede
+  lenta, abrir e logo fechar e fechar e logo reabrir (L-058, CADCOL-11); a linha aberta com fundo
+  diferente das outras três (CADCOL-07, AC 15); abrir a última de dezesseis linhas com a página
+  rolada traz o título à janela (CADCOL-10, AC 5); "Ver em Lançamentos" e os dois dias do formulário
+  de criação com 44 × 44 em 400 px (CADCOL-10, AC 7; L-060).
+- **Os testes da aba de meios ficam num `test.describe("a aba Meios de pagamento")`**: os títulos
+  repetiam os de categorias, e o Playwright recusa título repetido.
+- **Mutante equivalente nas larguras da T20:** tirar o `lg:whitespace-nowrap` do tipo não muda nada
+  em 1.280 px (toda linha com 45 px, com o nome de 40 caracteres); a faixa de 1.024 a 1.279 px não
+  tem AC de altura. A T21 mede de novo em 1.536 px, onde a tabela é mais estreita.
 
 ### Phase 6 — A coluna e o fechamento
 

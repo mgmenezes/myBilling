@@ -603,6 +603,7 @@ test.describe("em 400 px", () => {
       `/${MARCO}/lancamentos`,
       `/${MARCO}/fixos`,
       `/${MARCO}/cadastros/categorias`,
+      `/${MARCO}/cadastros/meios-de-pagamento`,
     ]) {
       await abrir(page, caminho);
       await expect(menu(page)).toBeVisible();
