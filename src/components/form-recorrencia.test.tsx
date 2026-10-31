@@ -200,6 +200,23 @@ describe("formulário de gasto fixo", () => {
 
     expect(screen.getByLabelText("Nome do novo meio de pagamento")).toBeTruthy();
   });
+
+  /* A confirmação à vista, onde a pessoa clicou (FIXCOL-06, AC 3; a escolha
+     do dono em 2026-10-31): ela recebe o foco quando aparece, logo antes do
+     botão de envio. A janela é medida no e2e. */
+  it("cadastrar leva o foco à confirmação, logo antes do botão", async () => {
+    const { usuario } = montar();
+
+    await usuario.type(screen.getByLabelText("Descrição"), "Fixo E");
+    await usuario.type(screen.getByLabelText(/De quanto costuma ser/), "20,00");
+    await usuario.click(screen.getByRole("button", { name: "Cadastrar gasto fixo" }));
+
+    const confirmacao = await screen.findByRole("status");
+    await waitFor(() => expect(document.activeElement).toBe(confirmacao));
+    expect(confirmacao.nextElementSibling).toBe(
+      screen.getByRole("button", { name: "Cadastrar gasto fixo" }),
+    );
+  });
 });
 
 /**
@@ -552,5 +569,19 @@ describe("FormRecorrencia — em edição", () => {
     expect(screen.getByLabelText("Dia que costuma cair")).toBeTruthy();
     expect(screen.queryByRole("option", { name: "Cartão Azul" })).toBeNull();
     expect(screen.getByRole("button", { name: "Salvar alterações" })).toBeTruthy();
+  });
+
+  /* FIXCOL-05, AC 5, com a escolha do dono em 2026-10-31. */
+  it("salvar leva o foco à confirmação, logo antes do botão", async () => {
+    const usuario = montarEdicao();
+
+    await usuario.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+    const confirmacao = await screen.findByRole("status");
+    expect(confirmacao.textContent).toBe("Alterações salvas.");
+    await waitFor(() => expect(document.activeElement).toBe(confirmacao));
+    expect(confirmacao.nextElementSibling).toBe(
+      screen.getByRole("button", { name: "Salvar alterações" }),
+    );
   });
 });

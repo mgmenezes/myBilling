@@ -2,7 +2,7 @@
 
 import { CheckCircleIcon, WarningCircleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useId, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import type { criarCategoria as criarCategoriaAction } from "@/app/actions/categorias";
 import type { criarMeioDePagamento as criarMeioAction } from "@/app/actions/meios-de-pagamento";
 import type {
@@ -204,6 +204,17 @@ export function FormRecorrencia({
   const [campos, setCampos] = useState<Record<string, string>>({});
   const [erroGeral, setErroGeral] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
+  /* A confirmação recebe o foco quando aparece: fica à vista, logo antes do
+     botão que a pessoa clicou, e o próximo `Tab` volta a ele (FIXCOL-05, AC 5;
+     FIXCOL-06, AC 3). Enquanto gravava, o painel segurou o foco no título sem
+     rolar a tela; se a confirmação nascer fora da janela, o `focus()` a traz. */
+  const refDaConfirmacao = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (confirmacao !== "") {
+      refDaConfirmacao.current?.focus();
+    }
+  }, [confirmacao]);
 
   function payloadDeCategoria() {
     return entradaCategoriaSchema.safeParse({ nome: nomeCategoria });
@@ -694,7 +705,9 @@ export function FormRecorrencia({
 
       {confirmacao === "" ? null : (
         <p
+          ref={refDaConfirmacao}
           role="status"
+          tabIndex={-1}
           className="flex items-center gap-2 rounded-lg border border-line bg-surface-soft px-4 py-3 text-[15px] font-medium text-positivo"
         >
           <CheckCircleIcon size={18} weight="fill" aria-hidden="true" className="shrink-0" />

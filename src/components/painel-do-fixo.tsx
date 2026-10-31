@@ -37,7 +37,12 @@ import { ID_DO_PAINEL, type ItemDeFixo } from "./tabela-de-fixos";
  * aparece: o do controle ou da edição, ou o do painel na volta ao detalhe.
  * Do mesmo jeito, o botão de envio que se desabilita enquanto grava
  * ("Gravando…") devolve o foco ao título do painel, e não ao `body`: sem isso,
- * o `Escape` depois de salvar não alcançaria o painel (FIXCOL-08, AC 3).
+ * o `Escape` depois de salvar não alcançaria o painel (FIXCOL-08, AC 3). Esse
+ * foco vai **sem rolar**: a pessoa está no pé do formulário, e a confirmação,
+ * ou o alerta da recusa, aparece ali, junto do botão que ela clicou, à vista
+ * (FIXCOL-05, AC 5; FIXCOL-06, AC 3). Rolando, a tela ia ao título e a
+ * mensagem saía da janela. Quando a confirmação aparece, o formulário leva o
+ * foco a ela.
  *
  * **O fixo que sai do mês depois de uma ação** (encerrado a partir do mês
  * aberto, ou com "Termina em" antes dele) deixa de estar em `itens` quando a
@@ -114,13 +119,14 @@ export function PainelDoFixo({
       }}
       onBlur={(evento) => {
         /* Sem destino e com o botão desabilitado: é o navegador tirando o
-           foco de quem passou a gravar, e não a pessoa saindo do painel. */
+           foco de quem passou a gravar, e não a pessoa saindo do painel. O
+           foco fica no painel sem levar a tela ao título. */
         if (
           evento.relatedTarget === null &&
           evento.target instanceof HTMLButtonElement &&
           evento.target.disabled
         ) {
-          titulo.current?.focus();
+          titulo.current?.focus({ preventScroll: true });
         }
       }}
       /* Abaixo de 1.536 px, um cartão entre os totais e a lista. Na coluna, o

@@ -1046,3 +1046,122 @@ test("com o formulário em 447 px, um campo por linha; em 448 px, os pares lado 
   expect((await caixa(form)).width).toBeLessThan(449);
   expect(await paresDoFormulario(form)).toEqual(LADO_A_LADO);
 });
+
+/*
+ * A confirmação de salvar fica à vista, junto do botão que a pessoa clicou, e
+ * a tela não vai ao título do painel (FIXCOL-05, AC 5; FIXCOL-06, AC 3; a
+ * escolha do dono em 2026-10-31). O foco fica na confirmação, e o `Escape`
+ * continua fechando o painel (FIXCOL-08, ACs 3 e 4). `toBeVisible()` não olha
+ * a janela: a prova é `toBeInViewport` (L-057).
+ */
+
+/**
+ * Vigia o título do painel durante a gravação e marca se ele entra na janela
+ * depois de estar fora dela. Espera a primeira leitura do observador, para a
+ * marca não depender de quem chega primeiro.
+ */
+async function vigiarOTitulo(page: Page): Promise<void> {
+  await tituloDoPainel(page).evaluate(
+    (titulo) =>
+      new Promise<void>((pronto) => {
+        const janela = window as unknown as { tituloEntrou?: boolean };
+        janela.tituloEntrou = false;
+        let visivel: boolean | null = null;
+        new IntersectionObserver((registros) => {
+          for (const registro of registros) {
+            if (visivel === false && registro.isIntersecting) {
+              janela.tituloEntrou = true;
+            }
+            visivel = registro.isIntersecting;
+          }
+          pronto();
+        }).observe(titulo);
+      }),
+  );
+}
+
+async function oTituloEntrou(page: Page): Promise<boolean> {
+  return page.evaluate(
+    () => (window as unknown as { tituloEntrou?: boolean }).tituloEntrou === true,
+  );
+}
+
+const GRAVACOES = [
+  {
+    modo: "edição",
+    botao: "Salvar alterações",
+    confirmacao: "Alterações salvas.",
+    preencher: (form: Locator) => form.getByLabel("Descrição").fill("Fixo A2"),
+    /** Para onde o `Escape` devolve o foco: a linha do fixo, já renomeada. */
+    origem: (page: Page) => botaoDaLinha(page, "Fixo A2"),
+  },
+  {
+    modo: "cadastro",
+    botao: "Cadastrar gasto fixo",
+    confirmacao: "Fixo E passa a aparecer em todo mês.",
+    preencher: async (form: Locator) => {
+      await form.getByLabel("Descrição").fill("Fixo E");
+      await form.getByLabel(/De quanto costuma ser/).fill("20,00");
+    },
+    origem: (page: Page) => page.getByRole("button", { name: "+ Novo fixo" }),
+  },
+] as const;
+
+for (const [largura, altura] of [
+  [1280, 720],
+  [1920, 1080],
+] as const) {
+  for (const { modo, botao, confirmacao, preencher, origem } of GRAVACOES) {
+    test(`em ${largura} × ${altura}, depois de "${botao}", a confirmação fica inteira na janela, com o foco nela, e a tela não vai ao título do painel (FIXCOL-05, AC 5; FIXCOL-06, AC 3)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: largura, height: altura });
+      await abrir(page, `/${MARCO}/fixos`);
+      const form = await abrirFormulario(page, modo);
+      await preencher(form);
+      const enviar = form.getByRole("button", { name: botao });
+      await enviar.scrollIntoViewIfNeeded();
+      await vigiarOTitulo(page);
+
+      await enviar.click();
+
+      const status = form.getByRole("status");
+      await expect(status).toHaveText(confirmacao);
+      await expect(status).toBeInViewport({ ratio: 1 });
+      await expect(status).toBeFocused();
+      expect(await oTituloEntrou(page)).toBe(false);
+
+      await page.keyboard.press("Escape");
+      await expect(origem(page)).toBeFocused();
+      await expect(origem(page)).toHaveAttribute("aria-expanded", "false");
+    });
+  }
+}
+
+/*
+ * A mesma guarda servia ao "Registrar": recusado, o alerta aparece abaixo dos
+ * botões, e a tela que ia ao título o deixava fora da janela em 400 × 800
+ * (FIXCOL-05, AC 7).
+ */
+test.describe("em 400 × 800", () => {
+  test.use({ viewport: { width: 400, height: 800 } });
+
+  test('"Registrar" recusado deixa o alerta inteiro na janela, e o `Escape` fecha o painel (FIXCOL-05, AC 7)', async ({
+    page,
+  }) => {
+    await abrir(page, `/${MARCO}/fixos`);
+    await botaoDaLinha(page, "Fixo B").click();
+    await painel(page).getByRole("button", { name: "Mudar valor" }).click();
+    await painel(page).getByLabel("Novo valor (R$)").fill("60,00");
+    /* Sem o mês, a action recusa. */
+    await painel(page).getByLabel("Vale a partir de").fill("");
+
+    await painel(page).getByRole("button", { name: "Registrar" }).click();
+
+    const alerta = painel(page).getByRole("alert");
+    await expect(alerta).toHaveText("Informe o mês no formato AAAA-MM.");
+    await expect(alerta).toBeInViewport({ ratio: 1 });
+    await page.keyboard.press("Escape");
+    await expect(painel(page)).toHaveCount(0);
+  });
+});

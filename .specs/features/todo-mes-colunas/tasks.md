@@ -477,18 +477,26 @@ Escolhida: B. A guarda continua necessária: entre o clique e a resposta da acti
 **Reuses**: `abrirFormulario`, `painel`, `tituloDoPainel`, `botaoDaLinha`; o `tabIndex={-1}` dos títulos do painel
 **Requirement**: FIXCOL-05, FIXCOL-06 (e FIXCOL-08, o foco)
 **Done when**:
-- [ ] O FIXCOL-05 AC 5 e o FIXCOL-06 AC 3 dizem que a confirmação fica à vista, junto do botão que salvou, com a confirmação do dono em 2026-10-31. A premissa registra a escolha do dono e, numa linha à parte, o foco na confirmação como decisão do autor
-- [ ] Em 1.280 × 720 e em 1.920 × 1.080, na edição e no cadastro, depois de "Salvar alterações" e de "Cadastrar gasto fixo" (FIXCOL-05 AC 5, FIXCOL-06 AC 3, FIXCOL-08 ACs 3 e 4):
+- [x] O FIXCOL-05 AC 5 e o FIXCOL-06 AC 3 dizem que a confirmação fica à vista, junto do botão que salvou, com a confirmação do dono em 2026-10-31. A premissa registra a escolha do dono e, numa linha à parte, o foco na confirmação como decisão do autor
+- [x] Em 1.280 × 720 e em 1.920 × 1.080, na edição e no cadastro, depois de "Salvar alterações" e de "Cadastrar gasto fixo" (FIXCOL-05 AC 5, FIXCOL-06 AC 3, FIXCOL-08 ACs 3 e 4):
   - a confirmação está inteira dentro da janela (`toBeInViewport({ ratio: 1 })`), com o foco nela;
   - o título do painel não entra na janela durante a gravação;
   - `Escape` fecha o painel e devolve o foco à linha ou ao "+ Novo fixo"
-- [ ] Em 400 × 800, "Registrar" recusado deixa o alerta inteiro dentro da janela, e `Escape` fecha o painel (FIXCOL-05 AC 7)
-- [ ] Em `form-recorrencia.test.tsx`, cadastrar e salvar a edição levam o foco à confirmação
-- [ ] Os e2e novos falham no código de `d964e84`, e o do título falha com a guarda rolando (`focus()` sem `preventScroll`)
-- [ ] Abrir a última linha continua trazendo o título para a janela (`todo-mes-colunas.spec.ts:609`, FIXCOL-08 AC 5), e `editar-fixo.spec.ts` passa sem mudança
+- [x] Em 400 × 800, "Registrar" recusado deixa o alerta inteiro dentro da janela, e `Escape` fecha o painel (FIXCOL-05 AC 7)
+- [x] Em `form-recorrencia.test.tsx`, cadastrar e salvar a edição levam o foco à confirmação
+- [x] Os e2e novos falham no código de `d964e84`, e o do título falha com a guarda rolando (`focus()` sem `preventScroll`)
+- [x] Abrir a última linha continua trazendo o título para a janela (`todo-mes-colunas.spec.ts:609`, FIXCOL-08 AC 5), e `editar-fixo.spec.ts` passa sem mudança
 **Tests**: componentes, e2e
 **Gate**: e2e
 **Commit**: `fix(fixos): a confirmação de salvar fica à vista, junto do botão`
+**Nota**:
+- **Os e2e novos falham no código de `d964e84`**, rodados um a um:
+  - na edição e no cadastro em 1.280 × 720, e na edição em 1.920 × 1.080, a confirmação fica fora da janela (`ratio` 0);
+  - no cadastro em 1.920 × 1.080, ela fica à vista, mas sem o foco;
+  - em 400 × 800, o alerta de "Registrar" fica com 43% dentro da janela.
+- **Sem o `preventScroll` na guarda**, e com o foco na confirmação, ela termina à vista do mesmo jeito: o `focus()` a traz de volta. Só o vigia do título pega o pulo. O título entra na janela em três dos quatro testes, e o alerta da recusa volta a sair dela.
+- **Contagens.** `form-recorrencia.test.tsx` ganha dois testes, que falham sem o foco na confirmação; a suíte unitária vai de 1.823 a 1.825. No e2e, passam os 40 de `todo-mes-colunas.spec.ts` (35 e os 5 novos), os 3 de `editar-fixo.spec.ts`, sem mudança, e os 8 de `recorrencias.spec.ts`.
+- **Na recusa, o foco fica no título do painel**, segurado pela guarda sem rolar. Ele continua dentro do painel, e o `Escape` fecha, mas em 400 px o título pode estar fora da janela. O AC 7 só pede o alerta no painel, que `role="alert"` anuncia. Levar o foco ao alerta mudaria também a validação no navegador de "Mudar valor", que hoje deixa o foco no botão: fica para o dono decidir.
 
 #### F2: Quem começa no mês aberto não leva "Começa em"
 **What**: o Fix 2. No teste de `e2e/todo-mes-colunas.spec.ts:377`, Fixo B e Entrada A, que começam em março, o mês aberto, ficam sem o selo "Começa em" na linha. O painel de B mostra "em Março de 2026" junto do valor e o termo "Começou em" com "Março de 2026". É o lado colado do limiar de "começa depois" (L-029, L-053).
