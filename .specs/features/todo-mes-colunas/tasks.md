@@ -2,19 +2,22 @@
 
 **Spec**: `.specs/features/todo-mes-colunas/spec.md`
 **Design**: `.specs/features/todo-mes-colunas/design.md`
-**Status**: FAIL na rodada 1 de `validation.md`, em 2026-10-31, com três lacunas de teste (FIXCOL-01
-AC 9, FIXCOL-04 AC 3 e FIXCOL-06 AC 1), a condição da guarda de foco sem teste e a confirmação de
-salvar fora da janela. O dono escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a
-confirmação fica à vista, junto do botão clicado, e a tela não vai mais ao título do painel.
-Correções F1–F7 concluídas, à espera da rodada 2 do Verifier. A F6 e a F7 foram achadas nos gates
-da F3 e da F5: a rolagem até o alto que o Next fazia depois de trocar o `?fixo=` (plano aprovado
-pelo dono em 2026-10-30; T1 a T11 concluídas; branch
+**Status**: FAIL na rodada 2 de `validation.md`, em 2026-10-31, com uma lacuna Minor: a corrida do
+endereço (FIXCOL-09 ACs 1 e 4), nascida na F7. As cinco lacunas da rodada 1 estão fechadas, e o
+sensor matou 12 de 12 mutantes. Correções F8 e F9 pendentes.
+Rodada 1: FAIL em 2026-10-31, com três lacunas de teste (FIXCOL-01 AC 9, FIXCOL-04 AC 3 e FIXCOL-06
+AC 1), a condição da guarda de foco sem teste e a confirmação de salvar fora da janela. O dono
+escolheu em 2026-10-31 "Onde você clicou": depois de salvar, a confirmação fica à vista, junto do
+botão clicado, e a tela não vai mais ao título do painel. Correções F1–F7 concluídas; a F6 e a F7
+foram achadas nos gates da F3 e da F5 (plano aprovado pelo dono em 2026-10-30; T1 a T11 concluídas;
+branch
 `feat/todo-mes-colunas`, em worktree `.worktrees/todo-mes-colunas`, rebaseada em 2026-10-31 sobre a
 `main` em `a121594`, que já traz `lancamentos-densos` (AD-020) fechada e `formulario-pela-coluna`;
 os hashes dos commits da T1 à F7 são os de depois do rebase, e as provas da fase 5 citam os de
 antes: `d964e84` é hoje `8faeace`)
-**Total**: 18 tasks em 5 fases (T1–T11 e as correções F1–F7). As fases 1 a 4 deram dois lotes
-(T1–T7 e T8–T11), com a oferta de sub-agentes antes do Execute; a fase 5 é um lote só, inline.
+**Total**: 20 tasks em 6 fases (T1–T11 e as correções F1–F9). As fases 1 a 4 deram dois lotes
+(T1–T7 e T8–T11), com a oferta de sub-agentes antes do Execute; as fases 5 e 6 são um lote cada,
+inline.
 
 ---
 
@@ -165,6 +168,18 @@ releitura da F6 só mudava a hora da rolagem até o alto. Ela troca o `?fixo=` p
 sem rolar, e fica com o gate build da fase. Lote único, inline. O e2e roda na
 porta 3101, com uma cópia da configuração fora do repositório, porque a
 3100 está com outra worktree.
+
+### Phase 6 — Correções da verificação (rodada 2)
+
+```
+F8 -> F9
+```
+
+A F8 fecha o Fix 1 de `validation.md` (rodada 2, FAIL): a corrida do endereço que a F7 abriu. A F9
+fecha a observação 4: o teste do endereço que provava o mock. As outras observações (os 24 px em
+1.920 px, o foco na recusa de "Registrar", a medida de "Nada mudou" e o custo da F7) vão para o dono.
+Lote único, inline. O e2e roda na porta 3100, com a configuração do projeto e o banco de teste da
+worktree.
 
 ---
 
@@ -634,6 +649,59 @@ O custo é uma leitura da página no servidor a cada abrir ou fechar que muda o 
 
 Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 da F6, que a F7 reescreve, e 1 da F5) e 6 e2e (5 da F1 e 1 da F7). Nenhum teste saiu, nenhum foi pulado.
 
+### Phase 6 — Correções da verificação (rodada 2)
+
+#### F8: O endereço segue o último fixo pedido, e não a barra
+**What**: o Fix 1 da rodada 2 (L-058). O `mudarEndereco` de `todo-mes.tsx` decide "já está lá" comparando com `window.location.search`. Pelo `router.replace`, a URL só muda no commit da navegação, de 86 a 117 ms depois do clique. Abrir e logo fechar, ou abrir e logo "+ Novo fixo", deixa `?fixo=<A>` na URL. Fechar e logo reabrir deixa a URL sem ele, com o fixo aberto.
+- **A correção.** Um `ref` guarda o `fixo` do último endereço pedido, e é com ele que o `mudarEndereco` compara. Os outros parâmetros continuam vindo de `window.location.search`, com o `fixo` posto ou tirado. O Next descarta a navegação pendente quando chega outra, e por isso vale o último pedido.
+- **Desvio da proposta do Verifier**, decisão do autor. Ele propôs iniciar o `ref` com o `fixoInicial` válido; aqui ele começa com o `fixoInicial` da carga, mesmo fora da lista. É o que está na URL. Iniciado só com o válido, um `?fixo=` fora da lista ficaria na URL ao abrir o cadastro, que o código de hoje tira (FIXCOL-09 AC 4).
+
+**Where**:
+- `src/components/todo-mes.tsx`
+- `src/components/todo-mes.test.tsx`
+- `e2e/todo-mes-colunas.spec.ts`
+- `.specs/features/todo-mes-colunas/spec.md` (a traceability)
+
+**Depends on**: nenhuma
+**Reuses**: o mock do roteador de `todo-mes.test.tsx`, `botaoDaLinha`, `painel`, `doisQuadros`
+**Requirement**: FIXCOL-09
+**Done when**:
+- [ ] Em `todo-mes.test.tsx`, o `replace` do mock não muda a URL, como o do Next antes da resposta. A última chamada é a do endereço certo em três casos (FIXCOL-09 ACs 1 e 4):
+  - abrir B e logo fechar;
+  - com B aberto e a URL com ele, fechar e logo reabrir B;
+  - abrir B e logo "+ Novo fixo".
+- [ ] Com um `?fixo=` fora da lista na carga, abrir o cadastro tira o parâmetro (FIXCOL-09 ACs 3 e 4)
+- [ ] No e2e, sem esperar a URL entre os passos, e conferindo o endereço depois de todas as leituras de página terminarem:
+  - clicar em A e apertar `Escape` termina sem `?fixo=`;
+  - com A aberto e a URL com ele, `Escape` e clicar em A termina com `?fixo=<A>` e A no painel;
+  - clicar em A e logo em "+ Novo fixo" termina sem `?fixo=`, com o cadastro.
+- [ ] Os testes de corrida falham no código de `8d4ce41`: a comparação com `window.location` é aplicada de volta e desfeita. Eles passam com a correção. Os testes de endereço de antes passam sem mudança no corpo
+**Tests**: componentes, e2e
+**Gate**: e2e
+**Commit**: `fix(fixos): o endereço segue o último fixo pedido, e não a barra`
+
+#### F9: O teste do endereço prova o componente, e não o mock
+**What**: a observação 4 da rodada 2. O teste "põe `?fixo=<id>` na URL por replaceState" (`todo-mes.test.tsx:254`) espia o `history.replaceState`, que é o mock do roteador quem chama, e não o componente. Ele passa a afirmar o que o componente faz:
+- `router.replace` com um destino relativo que mantém `outro=1` e põe `fixo=rec-b`, com `{ scroll: false }`;
+- nenhum `router.push` e nenhum `history.pushState`.
+
+A traceability do FIXCOL-09 deixa de dizer "por `replaceState`". O "sem entrada nova" real continua no e2e (`history.length`).
+**Where**:
+- `src/components/todo-mes.test.tsx`
+- `.specs/features/todo-mes-colunas/spec.md` (a traceability)
+
+**Depends on**: F8
+**Reuses**: o mock do roteador de `todo-mes.test.tsx`
+**Requirement**: FIXCOL-09
+**Done when**:
+- [ ] O teste afirma a chamada do componente, e não o efeito do mock (FIXCOL-09 AC 1)
+- [ ] Ele falha com o componente chamando `router.push`, e com o destino sem os outros parâmetros (mutantes)
+- [ ] A traceability do FIXCOL-09 diz `router.replace`
+- [ ] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
+**Tests**: componentes
+**Gate**: build
+**Commit**: `test(fixos): o teste do endereço prova o componente, e não o mock`
+
 ---
 
 ## Validação antes da aprovação
@@ -660,6 +728,8 @@ Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 d
 | F5 | 1 teste de componente | ✅ |
 | F6 | 1 comportamento (reler a página ao trocar o `?fixo=`) e os testes dele | ✅ |
 | F7 | 1 comportamento (o endereço pelo roteador do Next), os testes dele e o registro da decisão | ⚠️ cinco arquivos, mas coeso: o código, os dois testes e os dois documentos que diziam `history.replaceState` |
+| F8 | 1 comportamento (o último endereço pedido) e os testes dele | ✅ |
+| F9 | 1 teste de componente, reescrito | ✅ |
 
 ### Diagrama × `Depends on`
 
@@ -683,6 +753,8 @@ Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 d
 | F5 | F4 | F4 -> F5 | ✅ |
 | F6 | F2 | F2 -> F6 | ✅ |
 | F7 | F5 | F5 -> F7 | ✅ |
+| F8 | nenhuma | início da fase 6 | ✅ |
+| F9 | F8 | F8 -> F9 | ✅ |
 
 ### Testes × matriz
 
@@ -700,3 +772,5 @@ Antes da fase eram 1.823 unitários e 169 e2e. Entram 5 unitários (2 da F1, 2 d
 | F5 | Componentes (só o teste) | componentes | componentes | ✅ |
 | F6 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
 | F7 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
+| F8 | Componentes + página e fluxo | componentes, e2e | componentes, e2e | ✅ |
+| F9 | Componentes (só o teste) | componentes | componentes | ✅ |

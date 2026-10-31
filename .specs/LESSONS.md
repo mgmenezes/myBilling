@@ -336,6 +336,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: FIXCOL-05 AC 5; FIXCOL-06 AC 3; sonda 1280x720 (spec,foco)
 - last seen: 2026-10-31T14:38:38Z
 
+### L-058 - Estado que vai à URL por navegação assíncrona do roteador precisa comparar com o último endereço pedido, e não com window.location, e ter e2e que dê o passo seguinte sem esperar a URL; esperar a URL no teste esconde a corrida.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `app-router,url,e2e` · harmful: 0
+- features: todo-mes-colunas
+- evidence: FIXCOL-09 ACs 1 e 4; src/components/todo-mes.tsx:101; validation.md rodada 2, Fix 1 (app-router,url,e2e)
+- last seen: 2026-10-31T16:43:27Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 58,
+  "next_id": 59,
   "lessons": [
     {
       "id": "L-001",
@@ -1001,6 +1001,24 @@
       ],
       "created": "2026-10-31T14:38:38Z",
       "last_seen": "2026-10-31T14:38:38Z"
+    },
+    {
+      "id": "L-058",
+      "key": "ac_gap::estado que vai a url por navegacao assincrona do roteador precisa comparar com o ultimo endereco pedido e nao com window location e ter e2e que de o passo seguinte sem esperar a url esperar a url no teste esconde a corrida",
+      "text": "Estado que vai à URL por navegação assíncrona do roteador precisa comparar com o último endereço pedido, e não com window.location, e ter e2e que dê o passo seguinte sem esperar a URL; esperar a URL no teste esconde a corrida.",
+      "signal": "ac_gap",
+      "scope": "app-router,url,e2e",
+      "status": "candidate",
+      "features": [
+        "todo-mes-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FIXCOL-09 ACs 1 e 4; src/components/todo-mes.tsx:101; validation.md rodada 2, Fix 1 (app-router,url,e2e)"
+      ],
+      "created": "2026-10-31T16:43:27Z",
+      "last_seen": "2026-10-31T16:43:27Z"
     }
   ]
 }
