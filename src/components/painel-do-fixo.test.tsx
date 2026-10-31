@@ -599,4 +599,18 @@ describe("o foco que o botão desabilitado perderia (FIXCOL-08, AC 3)", () => {
 
     expect(document.activeElement).toBe(document.body);
   });
+
+  /* A guarda só age no botão desabilitado: um botão habilitado que perde o
+     foco para fora é a pessoa saindo, e não o navegador tirando o foco de
+     quem passou a gravar (L-056). */
+  it('um botão habilitado que perde o foco para fora, como "Mudar valor", não leva o foco ao título', () => {
+    montar();
+    const mudarValor = within(oPainel()).getByRole("button", { name: "Mudar valor" });
+    mudarValor.focus();
+
+    fireEvent.blur(mudarValor, { relatedTarget: null });
+
+    expect(document.activeElement).not.toBe(titulo());
+    expect(document.activeElement).toBe(mudarValor);
+  });
 });

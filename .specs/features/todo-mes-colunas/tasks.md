@@ -547,7 +547,7 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 - [x] O teste falha com M17 (`todo-mes.tsx:121`, `2xl:row-start-1` → `2xl:row-start-4`)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(fixos): o novo fixo acima dos totais em toda largura`
+**Commit**: `test(fixos): o novo fixo acima dos totais em toda largura` (`e8cf658`)
 **Nota**: a medida mora num ajudante, `novoFixoNoAlto`, chamado no teste da coluna (1.536 e 1.920 px) e no de 400 px. Com M17, o teste falha em 1.536 e em 1.920 px: o "+ Novo fixo" termina em 684 px, abaixo do topo dos totais, em 87,5 px. Em 400 px o mutante não muda nada, porque só mexe na grade de 2xl. O gate passa: os 40 testes do arquivo, 1.827 unitários, `typecheck` e `lint`.
 
 #### F5: A guarda de foco só age no botão desabilitado
@@ -557,12 +557,13 @@ Uma segunda pessoa, "Pessoa B", é semeada no teste e fica com o Fixo A, para o 
 **Reuses**: `montar`, `oPainel`, `titulo`
 **Requirement**: FIXCOL-08
 **Done when**:
-- [ ] Com o foco em "Mudar valor", um `blur` sem destino deixa o foco no botão, e não no título
-- [ ] O teste falha com M5 (sem `&& evento.target.disabled`, `painel-do-fixo.tsx:119-121`)
-- [ ] Gate build: `pnpm verify` e o e2e inteiro passam, com as contagens registradas
+- [x] Com o foco em "Mudar valor", um `blur` sem destino deixa o foco no botão, e não no título
+- [x] O teste falha com M5 (sem `&& evento.target.disabled`, `painel-do-fixo.tsx:119-121`)
+- [x] Gate quick passa: 1.828 unitários, `typecheck` e `lint`. O gate build passa para a F7, que virou a última da fase
 **Tests**: componentes
-**Gate**: build
+**Gate**: quick
 **Commit**: `test(fixos): a guarda de foco só age no botão desabilitado`
+**Nota**: o teste desfoca o botão com `fireEvent.blur`, que no jsdom não tira o foco dele. Sem a guarda, o foco fica no botão; com M5, a guarda o leva ao título, e o teste falha. Ele é o único que falha com M5: 38 dos 39 testes do arquivo passam. O `pnpm verify` rodado para esta task saiu 0, com 1.828 unitários, 364 de integração e o build. O e2e inteiro, não: o teste "rolando até o fim em 1920 × 480" falhou, por causa da F6. É a F7.
 
 #### F6: A tela não volta ao alto depois de salvar
 **What**: achada ao rodar o gate da F3, e feita antes dela. O teste da edição em 1.280 × 720 falhou uma vez: o título do painel tinha entrado na janela. Uma sonda mostrou o motivo. Uns 200 ms depois da confirmação, a página relida chegava e o Next rolava a janela até o alto (`y` 0), e a confirmação saía da janela de novo. A F1 media no instante em que a confirmação aparecia e não via isso.
