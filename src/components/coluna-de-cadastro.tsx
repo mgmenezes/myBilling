@@ -131,8 +131,10 @@ export function ColunaDeCadastro({
             }}
             /* Abaixo de 1.536 px, um cartão entre o cabeçalho e a lista. Na
                coluna, o cartão perde a moldura, fica preso no alto e rola por
-               conta própria quando é mais alto que a janela. */
-            className="relative flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto 2xl:rounded-none 2xl:border-0 2xl:bg-transparent 2xl:px-6 2xl:py-10"
+               conta própria quando é mais alto que a janela. O nome de uma
+               palavra só, no título e em "Cor de <nome>", quebra no meio, e o
+               painel não rola de lado (CADCOL-09, AC 7). */
+            className="relative flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 [overflow-wrap:anywhere] 2xl:sticky 2xl:top-0 2xl:max-h-dvh 2xl:overflow-y-auto 2xl:rounded-none 2xl:border-0 2xl:bg-transparent 2xl:px-6 2xl:py-10"
           >
             {aberto}
             <button

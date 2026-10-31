@@ -161,14 +161,20 @@ function LinhaDeCategoria({
           /* `flex`, e não `inline-flex`, como em Todo mês: alinhado pela base
              da linha de texto, o botão ganhava a folga da letra e a linha
              passava de 48 px. Com ponteiro fino a partir de 768 px ele baixa
-             para 36 px; no toque e abaixo de 768 px, 44 × 44 (TOQUE-01). */
-          className="flex min-h-11 w-fit min-w-11 items-center rounded-xs text-left md:pointer-fine:min-h-9"
+             para 36 px; no toque e abaixo de 768 px, 44 × 44 (TOQUE-01). Um
+             nome de uma palavra só, mais larga que a coluna, quebra no meio,
+             e a tabela não passa da tela (CADCOL-09, AC 7). */
+          className="flex min-h-11 w-fit min-w-11 items-center rounded-xs text-left [overflow-wrap:anywhere] md:pointer-fine:min-h-9"
         >
           <Chip cor={corDaCategoria(categoria)}>{categoria.nome}</Chip>
         </button>
       </td>
+      {/* Entre 768 e 1.023 px a cor pode quebrar, como o tipo do meio: a
+          tabela tem 480 px em 768 px, e "Automática (Verde-água)", o rótulo
+          mais largo, numa linha só a fazia passar da tela (CADCOL-09, AC 7).
+          A partir de 1.024 px, uma linha só. */}
       <td
-        className={`${CELULA} col-start-1 row-start-2 text-[14px] text-ink-muted md:whitespace-nowrap`}
+        className={`${CELULA} col-start-1 row-start-2 text-[14px] text-ink-muted lg:whitespace-nowrap`}
       >
         {textoDaCor(categoria.cor, corAutomatica(categoria.nome))}
       </td>

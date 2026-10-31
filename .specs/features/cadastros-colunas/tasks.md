@@ -1034,7 +1034,7 @@ são medidos só em 400 px e com toque em 1.920 px.
 - [x] O teste falha com E19 (`md:pointer-fine:min-h-9 md:pointer-fine:min-w-9` no "Fechar")
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): os alvos de 44 px também com ponteiro fino`
+**Commit**: `test(cadastros): os alvos de 44 px também com ponteiro fino` (`0e6cf23`)
 **Nota**:
 - **O teste** é um laço de duas larguras, no fim do arquivo (`:1940`), e confere que o ponteiro é
   fino. "Fechar" é medido três vezes em cada aba: com o item aberto e com o formulário de criação.
@@ -1071,21 +1071,59 @@ Medir antes de escolher a correção. As saídas sugeridas:
 **Reuses**: o laço de larguras e a medida de rolagem lateral de `:744` e `:1432`
 **Requirement**: CADCOL-09, CADCOL-02, CADCOL-06
 **Done when**:
-- [ ] O AC 7, o Edge Case e a premissa dizem a regra nova, com a escolha do dono
-- [ ] Nas duas abas, nos três estados (nada aberto, item aberto, formulário de criação aberto pela
+- [x] O AC 7, o Edge Case e a premissa dizem a regra nova, com a escolha do dono
+- [x] Nas duas abas, nos três estados (nada aberto, item aberto, formulário de criação aberto pela
   ação), não há rolagem lateral (`scrollWidth` ≤ `clientWidth`) em 400, 767, 768, 1.023, 1.024,
   1.279, 1.280, 1.535, 1.536 e 1.920 px. As fixtures do teste:
   - uma categoria de nome genérico cuja cor automática é verde-água;
   - um meio de 40 caracteres numa palavra só;
   - uma categoria de 60 caracteres numa palavra só.
   As fixtures entram só neste teste, sem mudar as contagens nem a ordem que os outros esperam
-- [ ] Em 768 px, também com toque (`hasTouch`), a mesma medida. Ela mata E7
-- [ ] Os testes falham no código de `e4789ef` e passam com a correção
-- [ ] As linhas de até 48 px (CADCOL-02 e CADCOL-06, AC 7) e os testes de 768 px da T15 e da T20
+- [x] Em 768 px, também com toque (`hasTouch`), a mesma medida. Ela mata E7
+- [x] Os testes falham no código de `e4789ef` e passam com a correção
+- [x] As linhas de até 48 px (CADCOL-02 e CADCOL-06, AC 7) e os testes de 768 px da T15 e da T20
   continuam passando
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `fix(cadastros): nenhuma largura rola de lado`
+**Nota**:
+- **As fixtures.** "Categoria C", cuja cor automática é verde-água pela `corAutomatica` do app; o
+  meio "CartaoComNomeDeQuarentaLetrasNumaPalavra" (40) e a categoria
+  "CategoriaComNomeDeSessentaLetrasNumaPalavraSoParaApertarTudo" (60). Entram só nos dois testes
+  novos, `:2077` (ponteiro fino) e `:2098` (toque em 768 px). O item aberto é o de nome numa palavra
+  só, para o título do painel também ser medido.
+- **Medido antes de corrigir**, com os componentes de `e4789ef` e ponteiro fino: 30 das 60 medidas
+  rolavam.
+  - Categorias: 72 px em 400 px, sem nada aberto e com o formulário; 115 px com o item aberto, e o
+    painel mais 132. Em 768 px, 337 px; em 1.023 e 1.024 px, 82 e 81. Em 1.536 e 1.920 px, a página
+    não rola, mas o painel do item aberto rola 143 px: a legenda "Cor de <nome>" alarga o grupo das
+    cores.
+  - Meios: em 400 px, 0 sem nada aberto e 147 px com o item aberto, e o painel mais 164. Em 768 px,
+    213 px; em 1.024 px, 89. O painel do item aberto rola 151 px em 1.536 e 1.920 px.
+  - Em 767, 1.279, 1.280 e 1.535 px, nada rola.
+  - No toque, em 768 px: 353 px em Categorias e 213 em Meios, nos três estados.
+- **A correção, em dois passos, medindo entre eles.**
+  1. `[overflow-wrap:anywhere]` no botão da linha das duas tabelas e no painel inteiro (`aside`), que
+     o título e a legenda herdam. Medido de novo, sobrava só Categorias em 768 px: 10 px, nos três
+     estados. "Automática (Verde-água)" numa linha só deixava a tabela com 514 px em 480 px.
+  2. A cor da categoria quebra entre 768 e 1.023 px (`lg:whitespace-nowrap` no lugar de
+     `md:whitespace-nowrap`), como o tipo do meio. A outra saída era baixar a largura mínima da coluna
+     do nome. Ela foi descartada, porque a T15 mediu 136 px como o mínimo para "Categoria Dois" não
+     quebrar.
+  Depois, nenhuma das 60 medidas rola, nem as 6 do toque.
+- **Desvio: a regra vai no `aside`, e não só no `TituloDoPainel`.** A legenda "Cor de <nome>" também
+  leva o nome, e mora em `detalhe-da-categoria.tsx`, fora do Where. No `aside`
+  (`coluna-de-cadastro.tsx`), uma classe só cobre os dois.
+- **O teste mede também o painel** (`scrollWidth − clientWidth` do `aside`): a partir de 1.536 px ele
+  rola por conta própria, e a medida da página não vê a rolagem lateral dele. Por isso o AC 7 diz "na
+  página e no painel".
+- **Os mutantes.** Com os componentes de `e4789ef`, os dois testes falham: o de ponteiro fino com as
+  30 medidas acima, e o de toque com as 6. Com E7 (`tabela-de-meios.tsx:67`, `md:px-2` → `md:px-4`)
+  sobre a correção, o de toque falha: Meios rola 23 px nos três estados.
+- **Gate:** 2.087 unitários, `typecheck` e `lint` 0. No e2e, os 58 de `cadastros-colunas.spec.ts` (56
+  e os 2 novos), os 6 de `categorias.spec.ts` e os 24 de `visao-tres-colunas.spec.ts`, que também
+  desenham as abas. Entre eles, as linhas de até 48 px (`:740`, `:1433`, `:1802`) e os testes de
+  768 px da T15 (`:770`) e da T20 (`:1463`).
 
 #### F5: "+ Nova…" ao lado do título, medido no navegador
 **What**: o Fix Plan 5 (G5). O CADCOL-01 AC 6 diz "em todas as larguras", e hoje só a ordem do DOM

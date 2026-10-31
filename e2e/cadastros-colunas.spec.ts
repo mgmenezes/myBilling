@@ -1989,3 +1989,121 @@ for (const largura of [768, 1536]) {
     }
   });
 }
+
+/* ========================================================================
+ * Nenhuma largura rola de lado (CADCOL-09, AC 7; L-065), escolha do dono em
+ * 2026-10-31. As fixtures apertam o que não quebra sozinho:
+ * - "Categoria C", cuja cor automática é verde-água: "Automática
+ *   (Verde-água)" é o rótulo mais largo da coluna Cor;
+ * - um meio de 40 caracteres e uma categoria de 60, o limite de cada um,
+ *   numa palavra só.
+ * Elas entram só nestes testes, sem mudar o que os outros contam.
+ * ====================================================================== */
+
+/** Quarenta caracteres, o limite do nome do meio, numa palavra só. */
+const MEIO_DE_UMA_PALAVRA = "CartaoComNomeDeQuarentaLetrasNumaPalavra";
+/** Sessenta caracteres, o limite do nome da categoria, numa palavra só. */
+const CATEGORIA_DE_UMA_PALAVRA = "CategoriaComNomeDeSessentaLetrasNumaPalavraSoParaApertarTudo";
+
+async function semearPalavrasLongas(): Promise<void> {
+  await inserirCategoria("Categoria C");
+  await inserirCategoria(CATEGORIA_DE_UMA_PALAVRA);
+  await inserirMeio(MEIO_DE_UMA_PALAVRA, "CARTAO_CREDITO", { fechamento: 28, vencimento: 28 });
+}
+
+/** O item de nome numa palavra só da aba e o título do formulário de criação dela. */
+function extremosDa(a: AbaMedida): { readonly longo: string; readonly criacao: string } {
+  return a.aba === "Categorias"
+    ? { longo: CATEGORIA_DE_UMA_PALAVRA, criacao: "Nova categoria" }
+    : { longo: MEIO_DE_UMA_PALAVRA, criacao: "Novo meio de pagamento" };
+}
+
+interface RolagemLateral {
+  readonly onde: string;
+  readonly pagina: number;
+  readonly painel: number;
+}
+
+/**
+ * Percorre, em cada aba, os três estados: nada aberto, o item de nome numa
+ * palavra só aberto e o formulário de criação aberto pela ação. Em cada um,
+ * mede em cada largura a rolagem lateral da página e a do painel, que a
+ * partir de 1.536 px rola por conta própria.
+ */
+async function medirRolagemLateral(
+  page: Page,
+  larguras: ReadonlyArray<number>,
+): Promise<RolagemLateral[]> {
+  const medidas: RolagemLateral[] = [];
+  for (const a of ABAS_MEDIDAS) {
+    const { longo, criacao } = extremosDa(a);
+    await a.abrir(page, a.caminho);
+    const estados: ReadonlyArray<readonly [string, () => Promise<void>]> = [
+      ["nada aberto", async () => {}],
+      [
+        "item aberto",
+        async () => {
+          await a.botao(page, longo).click();
+          await expect(a.titulo(page)).toHaveText(longo);
+        },
+      ],
+      [
+        "formulário de criação",
+        async () => {
+          await a.novo(page).click();
+          await expect(a.titulo(page)).toHaveText(criacao);
+        },
+      ],
+    ];
+    for (const [estado, preparar] of estados) {
+      await preparar();
+      for (const largura of larguras) {
+        await page.setViewportSize({ width: largura, height: 900 });
+        const painelDaAba = a.painel(page);
+        medidas.push({
+          onde: `${a.aba}, ${estado}, ${largura} px`,
+          pagina: await transbordoHorizontal(page),
+          painel:
+            (await painelDaAba.count()) === 0
+              ? 0
+              : await painelDaAba.evaluate((aside) => aside.scrollWidth - aside.clientWidth),
+        });
+      }
+    }
+  }
+  return medidas;
+}
+
+test("nas duas abas, de 400 a 1.920 px e colado em cada limiar, nada rola de lado: sem nada aberto, com o item de nome numa palavra só aberto e com o formulário de criação (CADCOL-09, AC 7)", async ({
+  page,
+}) => {
+  await semearPalavrasLongas();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  expect(await page.evaluate(() => window.matchMedia("(pointer: fine)").matches)).toBe(true);
+
+  const medidas = await medirRolagemLateral(
+    page,
+    [400, 767, 768, 1023, 1024, 1279, 1280, 1535, 1536, 1920],
+  );
+
+  expect(medidas).toHaveLength(60);
+  expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
+});
+
+/* No toque, em 768 px, a tabela leva o respiro do toque, mais largo que o do
+   mouse (L-065). */
+test.describe("com ponteiro grosso, em 768 px", () => {
+  test.use({ hasTouch: true, viewport: { width: 768, height: 900 } });
+
+  test("nas duas abas, nada rola de lado: sem nada aberto, com o item de nome numa palavra só aberto e com o formulário de criação (CADCOL-09, AC 7)", async ({
+    page,
+  }) => {
+    await semearPalavrasLongas();
+    expect(await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)).toBe(true);
+
+    const medidas = await medirRolagemLateral(page, [768]);
+
+    expect(medidas).toHaveLength(6);
+    expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
+  });
+});

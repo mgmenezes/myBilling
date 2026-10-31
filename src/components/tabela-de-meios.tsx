@@ -194,8 +194,10 @@ function LinhaDeMeio({
           /* `flex`, e não `inline-flex`, como em Categorias: alinhado pela
              base da linha de texto, o botão ganhava a folga da letra e a linha
              passava de 48 px. Com ponteiro fino a partir de 768 px ele baixa
-             para 36 px; no toque e abaixo de 768 px, 44 × 44 (TOQUE-01). */
-          className="flex min-h-11 w-fit min-w-11 items-center rounded-xs text-left font-medium text-ink md:pointer-fine:min-h-9"
+             para 36 px; no toque e abaixo de 768 px, 44 × 44 (TOQUE-01). Um
+             nome de uma palavra só, mais larga que a coluna, quebra no meio,
+             e a tabela não passa da tela (CADCOL-09, AC 7). */
+          className="flex min-h-11 w-fit min-w-11 items-center rounded-xs text-left font-medium text-ink [overflow-wrap:anywhere] md:pointer-fine:min-h-9"
         >
           {meio.nome}
         </button>
