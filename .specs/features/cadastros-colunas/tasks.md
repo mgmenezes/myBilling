@@ -655,7 +655,7 @@ resultado.
 - [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `feat(meios): o meio aberto, com nome e dias editáveis`
+**Commit**: `feat(meios): o meio aberto, com nome e dias editáveis` (`26fde27`)
 **Nota** (desvios):
 - **A mensagem junto do campo mora em `CamposDoMeio`, que ganhou a prop `erros`** (arquivo fora do
   Where da T17). O `aria-invalid` e o `aria-describedby` vão no próprio `input`, que é do
@@ -686,16 +686,28 @@ ajuda e as mensagens de hoje.
 **Reuses**: `CamposDoMeio`, `TituloDoPainel`, `entradaMeioPagamentoSchema`, `criarMeioDePagamento` (por prop)
 **Requirement**: CADCOL-08
 **Done when**:
-- [ ] O título "Novo meio de pagamento" num `TituloDoPainel`; "Nome", "Tipo" com os três, começando em "Cartão de crédito", "Criar meio" e "Cancelar" (CADCOL-08 AC 1)
-- [ ] Os dois dias só com cartão: uma assertion depois de escolher "Conta corrente" e outra depois de voltar a "Cartão de crédito" (CADCOL-08 AC 2)
-- [ ] A ajuda de hoje para cartão e conta e a do rótulo; nome vazio, 41 caracteres, dia 0 e dia 32 recusados sem chamar o servidor (CADCOL-08 AC 3, L-041)
-- [ ] O sucesso chama `aoCriado` com o id (CADCOL-08 AC 4)
-- [ ] A recusa "Já existe um meio de pagamento com esse nome." aparece junto do campo, sem `aoCriado` (CADCOL-08 AC 5)
-- [ ] "Cancelar" chama `aoCancelar` sem chamar o servidor (CADCOL-08 AC 6)
-- [ ] Gate quick passa; a contagem de testes só cresce
+- [x] O título "Novo meio de pagamento" num `TituloDoPainel`; "Nome", "Tipo" com os três, começando em "Cartão de crédito", "Criar meio" e "Cancelar" (CADCOL-08 AC 1)
+- [x] Os dois dias só com cartão: uma assertion depois de escolher "Conta corrente" e outra depois de voltar a "Cartão de crédito" (CADCOL-08 AC 2)
+- [x] A ajuda de hoje para cartão e conta e a do rótulo; nome vazio, 41 caracteres, dia 0 e dia 32 recusados sem chamar o servidor (CADCOL-08 AC 3, L-041)
+- [x] O sucesso chama `aoCriado` com o id (CADCOL-08 AC 4)
+- [x] A recusa "Já existe um meio de pagamento com esse nome." aparece junto do campo, sem `aoCriado` (CADCOL-08 AC 5)
+- [x] "Cancelar" chama `aoCancelar` sem chamar o servidor (CADCOL-08 AC 6)
+- [x] Gate quick passa; a contagem de testes só cresce
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(meios): formulário de novo meio no painel`
+**Nota**:
+- **Cada mensagem fica junto do campo dela**, pela prop `erros` do `CamposDoMeio` (T17), e não no
+  alerta único do cadastro inline, que mostra só a primeira. O nome, sem `maxLength` no painel,
+  chega com 41 caracteres à validação e mostra o limite. A recusa do servidor em `nome`,
+  `diaFechamento` ou `diaVencimento` vai para o campo; a sem campo, ao alerta do formulário. O
+  formulário é um `@container`, com `diasPelaLargura`, como o da edição.
+- **O aviso "Meio de pagamento criado." é da aba** (T19), como o de `NovaCategoria`: o formulário só
+  entrega o id, e o texto não depende da resposta.
+- **O teste de "Cancelar" preenche um formulário válido:** com o nome sozinho, um "Cancelar" que
+  enviasse o formulário também não chegaria ao servidor, e o mutante passava.
+- **Testes além do Done-when:** os 40 caracteres e os dias 1 e 31 chegando ao servidor (L-029, o
+  outro lado do limite) e a recusa sem campo no formulário, sem abrir nada (AC 5).
 
 #### T19: `CadastroDeMeios`, o estado da aba e o endereço
 **What**: o componente cliente da aba Meios de pagamento, com a mesma forma de `CadastroDeCategorias`
