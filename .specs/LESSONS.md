@@ -342,6 +342,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: FIXCOL-09 ACs 1 e 4; src/components/todo-mes.tsx:101; validation.md rodada 2, Fix 1 (app-router,url,e2e)
 - last seen: 2026-10-31T16:43:27Z
 
+### L-059 - Ao trocar o ponto de virada de um padrão de layout, procurar todo componente filho compartilhado que repete o mesmo padrão; trocar só os formulários pai deixa o filho com a referência antiga.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `layout,componentes` · harmful: 0
+- features: formulario-pela-coluna
+- evidence: src/components/form-compra.tsx:447 (M3, rodada 1); desvio em src/components/cadastro-de-meio-inline.tsx:165 (layout,componentes)
+- last seen: 2026-10-31T17:27:57Z
+
+### L-060 - Edge case de uma spec que nomeia um elemento aberto por ação ('+ novo', cartão novo) precisa de teste que abra a ação e meça o elemento, em cada formulário que a tem; medir só o estado inicial deixa o elemento aberto regredir.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: formulario-pela-coluna
+- evidence: spec.md formulario-pela-coluna, edge case 'Cadastro inline aberto por + novo ou + nova' (M3, rodada 1) (e2e,layout)
+- last seen: 2026-10-31T17:27:57Z
+
+### L-061 - Em teste de layout por contêiner, cada elemento que o AC ou o edge case diz seguir o mesmo ponto de virada precisa ser medido nos dois lados do limiar, e não só numa janela larga e numa estreita; duas janelas distantes deixam passar qualquer limiar intermediário.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: formulario-pela-coluna
+- evidence: src/components/cadastro-de-meio-inline.tsx:172 e src/components/form-compra.tsx:447 (M11 e M12, rodada 2) (e2e,layout)
+- last seen: 2026-10-31T17:27:57Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

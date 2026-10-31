@@ -184,7 +184,7 @@ A tabela do `spec.md` já cita as medidas de 447 e 448 px do par de dias do cart
 
 ## Lições a registrar
 
-Nada foi escrito em `.specs/lessons.json` nem em `.specs/LESSONS.md` (outra ramificação está adicionando lições; a rebase vem depois). O orquestrador registra com `lessons.py add` depois dela. Sem lição nova nesta rodada: o único sinal novo (M10, sobrevivente sem AC) é observação e não gera regra geral; o Ponto 2 não é falha de verificação.
+Nada foi escrito em `.specs/lessons.json` nem em `.specs/LESSONS.md` (outra ramificação está adicionando lições; a rebase vem depois). O orquestrador registra com `lessons.py add` depois dela. **Registradas em 2026-10-31, depois que `todo-mes-colunas` entrou na `main`: A como L-059, B como L-060 e C como L-061, todas candidatas.** Sem lição nova nesta rodada: o único sinal novo (M10, sobrevivente sem AC) é observação e não gera regra geral; o Ponto 2 não é falha de verificação.
 
 ### Lição A (da rodada 1) - ainda vale
 

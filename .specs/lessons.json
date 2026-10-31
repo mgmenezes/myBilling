@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 59,
+  "next_id": 62,
   "lessons": [
     {
       "id": "L-001",
@@ -1019,6 +1019,60 @@
       ],
       "created": "2026-10-31T16:43:27Z",
       "last_seen": "2026-10-31T16:43:27Z"
+    },
+    {
+      "id": "L-059",
+      "key": "surviving_mutant::ao trocar o ponto de virada de um padrao de layout procurar todo componente filho compartilhado que repete o mesmo padrao trocar so os formularios pai deixa o filho com a referencia antiga",
+      "text": "Ao trocar o ponto de virada de um padrão de layout, procurar todo componente filho compartilhado que repete o mesmo padrão; trocar só os formulários pai deixa o filho com a referência antiga.",
+      "signal": "surviving_mutant",
+      "scope": "layout,componentes",
+      "status": "candidate",
+      "features": [
+        "formulario-pela-coluna"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/components/form-compra.tsx:447 (M3, rodada 1); desvio em src/components/cadastro-de-meio-inline.tsx:165 (layout,componentes)"
+      ],
+      "created": "2026-10-31T17:27:57Z",
+      "last_seen": "2026-10-31T17:27:57Z"
+    },
+    {
+      "id": "L-060",
+      "key": "ac_gap::edge case de uma spec que nomeia um elemento aberto por acao novo cartao novo precisa de teste que abra a acao e meca o elemento em cada formulario que a tem medir so o estado inicial deixa o elemento aberto regredir",
+      "text": "Edge case de uma spec que nomeia um elemento aberto por ação ('+ novo', cartão novo) precisa de teste que abra a ação e meça o elemento, em cada formulário que a tem; medir só o estado inicial deixa o elemento aberto regredir.",
+      "signal": "ac_gap",
+      "scope": "e2e,layout",
+      "status": "candidate",
+      "features": [
+        "formulario-pela-coluna"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "spec.md formulario-pela-coluna, edge case 'Cadastro inline aberto por + novo ou + nova' (M3, rodada 1) (e2e,layout)"
+      ],
+      "created": "2026-10-31T17:27:57Z",
+      "last_seen": "2026-10-31T17:27:57Z"
+    },
+    {
+      "id": "L-061",
+      "key": "surviving_mutant::em teste de layout por conteiner cada elemento que o ac ou o edge case diz seguir o mesmo ponto de virada precisa ser medido nos dois lados do limiar e nao so numa janela larga e numa estreita duas janelas distantes deixam passar qualquer limiar intermediario",
+      "text": "Em teste de layout por contêiner, cada elemento que o AC ou o edge case diz seguir o mesmo ponto de virada precisa ser medido nos dois lados do limiar, e não só numa janela larga e numa estreita; duas janelas distantes deixam passar qualquer limiar intermediário.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,layout",
+      "status": "candidate",
+      "features": [
+        "formulario-pela-coluna"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/components/cadastro-de-meio-inline.tsx:172 e src/components/form-compra.tsx:447 (M11 e M12, rodada 2) (e2e,layout)"
+      ],
+      "created": "2026-10-31T17:27:57Z",
+      "last_seen": "2026-10-31T17:27:57Z"
     }
   ]
 }
