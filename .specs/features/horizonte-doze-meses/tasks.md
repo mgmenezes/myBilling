@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/horizonte-doze-meses/spec.md`
 **Design**: nenhum (fatia média; as decisões de desenho estão nas Assumptions da spec)
-**Status**: Tasks concluídas, à espera do Verifier
+**Status**: Verified, PASS em 2026-11-01 (`validation.md`): 12/12 ACs com evidência, 8 mutantes injetados e 8 mortos, `pnpm verify` e e2e verdes
 **Total**: 8 tasks em 3 fases, um lote só (execução inline, sem sub-agentes).
 **Ajuste na execução (2026-11-01)**: a T2 foi absorvida pela T1. `MovimentoRepositoryDrizzle`
 implementa a interface, então acrescentar o método à port sem o Drizzle deixa `pnpm typecheck`

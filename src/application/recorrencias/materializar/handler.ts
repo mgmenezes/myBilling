@@ -84,8 +84,8 @@ export async function materializarRecorrencias(
  * O número de meses que a materialização cobre além da competência visível.
  *
  * É o mesmo `MESES_DE_PROJECAO` da visão mensal, e a coincidência é o ponto:
- * a régua de comprometimento futuro projeta três meses, e projetar um mês cuja
- * ocorrência não foi materializada subestimaria o comprometido (FIXO-05, AC 2).
+ * a projeção enxerga doze meses (AD-023), e projetar um mês cuja ocorrência
+ * não foi materializada subestimaria o comprometido (FIXO-05, AC 2).
  * Importado de lá em vez de redigitado, para os dois não divergirem.
  */
 export { MESES_DE_PROJECAO } from "@/application/mes/obter-visao-mensal/handler";

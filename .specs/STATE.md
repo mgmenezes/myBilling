@@ -274,17 +274,20 @@
   2026-11-01: `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`). Oito tasks concluídas
   no branch `feat/horizonte-doze-meses`, worktree `.worktrees/horizonte-doze-meses`, a partir de
   `ff395ba` do `main`. Spec, tasks e traceability em `.specs/features/horizonte-doze-meses/`.
-  **À espera do Verifier.**
+  **Verifier PASS em 2026-11-01** (`validation.md`: 12/12 ACs, 8 mutantes mortos, 0 lições).
 - **O que é**: o app passa a materializar e projetar 12 meses à frente (AD-023); "Próximos meses"
   continua com 3 linhas; a janela é lida numa consulta (`listarEntre`); o seed cobre o horizonte.
 - **Completed**: T1 (absorve T2) `9efd6e9`, T3 `d3a0e6a`, T4 `76a07b1`, T5 `8dcd978`, T6 `b68cc86`,
-  T7 e T8 (commits após o gate de e2e). Gates: 2.095 unitários, 413 de integração, 267 e2e.
+  T7 `7d1c7c6`, T8 `23dc07a`, mais o commit da verificação. Gates: 2.095 unitários, 413 de integração, 267 e2e.
 - **In-progress**: nenhum.
-- **Next step**: (1) Verifier da fatia 1; (2) fatia 2, `simular`: domínio `simularCompra` e
+- **Next step**: (1) fatia 2, `simular`: domínio `simularCompra` e
   `menorParcelamentoQueCabe`, rota `/[competencia]/simular`, item "Simular" na navegação com a barra
-  inferior de cinco itens, bloco de resposta dentro do `FormCompra`, "Lançar esta compra"; (3) fatia
+  inferior de cinco itens, bloco de resposta dentro do `FormCompra`, "Lançar esta compra"; (2) fatia
   3, `landing-simulador`, que depende do branch `feat/campanha-lista-de-espera` (ainda fora do
-  `main`); (4) merge e `git push` exigem autorização separada.
+  `main`); (3) merge de `feat/horizonte-doze-meses` no `main` e `git push` exigem autorização separada.
+  Observação do Verifier para a fatia 2: o fim da janela (C + 12) é provado por espião de argumentos
+  em `obter-visao-mensal/handler.test.ts`; uma fixture em C + 12 e C + 13 deixaria o limite visível
+  pelo valor, e a fatia `simular` depende desse limite.
 - **Blockers**: nenhum.
 - **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava.
 - **Branch**: `feat/horizonte-doze-meses`.
