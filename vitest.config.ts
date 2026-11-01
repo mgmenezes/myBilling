@@ -68,6 +68,10 @@ export default defineConfig({
           environment: "node",
           server: { deps: { inline: ["next-auth", "@auth/core"] } },
           include: ["**/*.integration.test.ts"],
+          // As worktrees de outras fatias (`.worktrees/*`) carregam cópias
+          // antigas destes testes, com outra lista de migrations. Cada
+          // worktree roda a própria suíte; aqui só entra a árvore principal.
+          exclude: [...configDefaults.exclude, "**/.worktrees/**"],
           // Um único Postgres em Docker atende toda a suíte: arquivos em
           // paralelo derrubariam o schema uns dos outros (AD-010).
           fileParallelism: false,
