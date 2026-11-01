@@ -83,6 +83,13 @@ export { resumoMensal } from "./mes/resumo-mensal";
 export type { Porcentagem, ResumoCategoria, ResumoPessoa } from "./mes/resumo-por-categoria";
 export { CEM_PORCENTO, resumoPorCategoria, resumoPorPessoa } from "./mes/resumo-por-categoria";
 export type {
+  EntradaDoMenorParcelamento,
+  LinhaDaSimulacao,
+  SaldoDoMes,
+  Simulacao,
+} from "./mes/simular-compra";
+export { menorParcelamentoQueCabe, simularCompra } from "./mes/simular-compra";
+export type {
   AvaliacaoCategoria,
   AvaliacaoOrcamento,
   LimiteCategoria,

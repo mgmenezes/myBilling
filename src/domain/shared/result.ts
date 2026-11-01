@@ -43,7 +43,9 @@ export type CodigoErro =
   | "PLANILHA_BLOCO_AUSENTE"
   | "PERIODO_INVALIDO"
   | "CATEGORIA_EM_RECEITA"
-  | "CICLO_NAO_CORRESPONDE_AO_TIPO";
+  | "CICLO_NAO_CORRESPONDE_AO_TIPO"
+  | "HORIZONTE_INVALIDO"
+  | "PRIMEIRA_PARCELA_FORA_DO_HORIZONTE";
 
 export type DomainError = {
   readonly code: CodigoErro;

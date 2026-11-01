@@ -68,6 +68,9 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   PARCELA_INFERIOR_A_UM_CENTAVO: "O valor é pequeno demais para esse número de parcelas.",
   QTD_PARCELAS_INVALIDA: "A quantidade de parcelas precisa estar entre 1 e 120.",
   VALOR_NAO_POSITIVO: "Informe um valor maior que zero.",
+  HORIZONTE_INVALIDO: "O app não conseguiu montar os próximos meses. Recarregue a página.",
+  PRIMEIRA_PARCELA_FORA_DO_HORIZONTE:
+    "A primeira parcela precisa cair entre o mês aberto e doze meses à frente.",
   PARCELA_INICIAL_INVALIDA: "A parcela inicial não pode ser maior que a quantidade de parcelas.",
   MEIO_PAGAMENTO_ARQUIVADO: "Esse meio de pagamento está arquivado e não recebe compra nova.",
   MEIO_PAGAMENTO_NAO_ENCONTRADO: "Escolha um meio de pagamento válido.",
