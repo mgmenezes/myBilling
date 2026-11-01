@@ -414,6 +414,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M14 em .specs/features/simular/validation.md; src/components/navegacao-principal.tsx:123 (ui-e2e)
 - last seen: 2026-11-01T21:45:18Z
 
+### L-071 - AC com mínimo contado e itens nomeados precisa de assertion por item nomeado, não só da contagem; com itens sobrando, trocar um deles passa com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
+- features: campanha-lista-de-espera
+- evidence: mutante M10 — site/estrutura.test.mjs:309-310 (CAMP-02 AC 3, linha 'Custo' de site/index.html:330) (testes,acceptance-criteria)
+- last seen: 2026-11-02T02:26:42Z
+
+### L-072 - Itens entre parênteses num AC de mínimo lêem como exemplo; escrever 'ao menos X, entre eles A, B e C' quando cada um é obrigatório.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,acceptance-criteria` · harmful: 0
+- features: campanha-lista-de-espera
+- evidence: CAMP-02 AC 3 — spec.md:135-136, parênteses '(flexibilidade, custo, qualquer dispositivo)' (spec,acceptance-criteria)
+- last seen: 2026-11-02T02:26:42Z
+
+### L-073 - AC que restringe um token a usos nomeados precisa listar o anel de foco; o teste não pode abrir exceção que a spec não dá.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,design-tokens` · harmful: 0
+- features: campanha-lista-de-espera
+- evidence: CAMP-03 AC 2 — spec.md:165-166 vs site/estilos.css:166-170 e site/estrutura.test.mjs:144 (exceção focus-visible) (spec,design-tokens)
+- last seen: 2026-11-02T02:26:42Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 71,
+  "next_id": 74,
   "lessons": [
     {
       "id": "L-001",
@@ -1241,6 +1241,60 @@
       ],
       "created": "2026-11-01T21:45:18Z",
       "last_seen": "2026-11-01T21:45:18Z"
+    },
+    {
+      "id": "L-071",
+      "key": "surviving_mutant::ac com minimo contado e itens nomeados precisa de assertion por item nomeado nao so da contagem com itens sobrando trocar um deles passa com a suite verde",
+      "text": "AC com mínimo contado e itens nomeados precisa de assertion por item nomeado, não só da contagem; com itens sobrando, trocar um deles passa com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "campanha-lista-de-espera"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "mutante M10 — site/estrutura.test.mjs:309-310 (CAMP-02 AC 3, linha 'Custo' de site/index.html:330) (testes,acceptance-criteria)"
+      ],
+      "created": "2026-11-02T02:26:42Z",
+      "last_seen": "2026-11-02T02:26:42Z"
+    },
+    {
+      "id": "L-072",
+      "key": "spec_precision_gap::itens entre parenteses num ac de minimo leem como exemplo escrever ao menos x entre eles a b e c quando cada um e obrigatorio",
+      "text": "Itens entre parênteses num AC de mínimo lêem como exemplo; escrever 'ao menos X, entre eles A, B e C' quando cada um é obrigatório.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "campanha-lista-de-espera"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "CAMP-02 AC 3 — spec.md:135-136, parênteses '(flexibilidade, custo, qualquer dispositivo)' (spec,acceptance-criteria)"
+      ],
+      "created": "2026-11-02T02:26:42Z",
+      "last_seen": "2026-11-02T02:26:42Z"
+    },
+    {
+      "id": "L-073",
+      "key": "spec_precision_gap::ac que restringe um token a usos nomeados precisa listar o anel de foco o teste nao pode abrir excecao que a spec nao da",
+      "text": "AC que restringe um token a usos nomeados precisa listar o anel de foco; o teste não pode abrir exceção que a spec não dá.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,design-tokens",
+      "status": "candidate",
+      "features": [
+        "campanha-lista-de-espera"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "CAMP-03 AC 2 — spec.md:165-166 vs site/estilos.css:166-170 e site/estrutura.test.mjs:144 (exceção focus-visible) (spec,design-tokens)"
+      ],
+      "created": "2026-11-02T02:26:42Z",
+      "last_seen": "2026-11-02T02:26:42Z"
     }
   ]
 }

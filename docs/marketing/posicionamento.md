@@ -68,7 +68,8 @@ Outras garantias que podem aparecer como apoio, nunca como manchete:
 ## O que nunca prometer
 
 Nada desta lista existe hoje. Alguns itens estão no roadmap; outros foram descartados. Prometer
-qualquer um deles é mentir.
+qualquer um deles é mentir. Dizer que o app **não** faz ("não sincroniza com banco") é permitido e
+às vezes é a frase mais honesta da peça.
 
 | Nunca dizer | Por quê |
 | --- | --- |
