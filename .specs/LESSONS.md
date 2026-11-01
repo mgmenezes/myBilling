@@ -56,6 +56,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: L3c: src/components/lista-de-categorias.tsx:176 (componentes,validacao) (+1 more)
 - last seen: 2026-11-01T00:42:22Z
 
+### L-054 - Campo novo que a página monta para um componente, como o nome tirado de um id, precisa de e2e que leia o texto na tela; o teste do componente recebe o valor pronto e não vê a página trocar o nome pelo id.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e,composicao` · harmful: 0
+- features: todo-mes-colunas, cadastros-colunas
+- evidence: M16 src/app/(app)/[competencia]/fixos/page.tsx:130; FIXCOL-04 AC 3 (e2e,composicao) (+1 more)
+- last seen: 2026-11-01T01:57:03Z
+
 ### L-055 - AC de posição 'em todas as larguras' precisa de medida em cada faixa em que a grade muda; numa grade com row-start, a ordem do DOM não prova a ordem na tela.
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e,layout` · harmful: 0
 - features: todo-mes-colunas, cadastros-colunas
@@ -318,12 +324,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M3 src/app/(app)/[competencia]/fixos/page.tsx:135; FIXCOL-01 AC 9 (testes,limites)
 - last seen: 2026-10-31T14:38:38Z
 
-### L-054 - Campo novo que a página monta para um componente, como o nome tirado de um id, precisa de e2e que leia o texto na tela; o teste do componente recebe o valor pronto e não vê a página trocar o nome pelo id.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,composicao` · harmful: 0
-- features: todo-mes-colunas
-- evidence: M16 src/app/(app)/[competencia]/fixos/page.tsx:130; FIXCOL-04 AC 3 (e2e,composicao)
-- last seen: 2026-10-31T14:38:38Z
-
 ### L-056 - Guarda que só age sob uma condição precisa de teste com o mesmo tipo de elemento sem a condição; testar só outro tipo de elemento deixa a condição sumir com a suíte verde.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,testes` · harmful: 0
 - features: todo-mes-colunas
@@ -395,6 +395,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: cadastros-colunas
 - evidence: F6e; CADCOL-07, AC 16; e2e/cadastros-colunas.spec.ts:2165 (e2e,acceptance-criteria)
 - last seen: 2026-11-01T00:42:22Z
+
+### L-068 - Medida de 'sem rolagem lateral' precisa comparar cada região com o seu contêiner, e não só a página e o painel; um invólucro overflow-x-auto em volta da tabela rola sozinho e esconde das duas medidas a tabela que não cabe.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: cadastros-colunas
+- evidence: N5 src/components/coluna-de-cadastro.tsx:153; CADCOL-09 AC 7; e2e/cadastros-colunas.spec.ts:2113; validation.md rodada 3, G9 (e2e,layout)
+- last seen: 2026-11-01T01:57:03Z
+
+### L-069 - Edge case que diz que o texto quebra precisa de assertion de que cada caixa do texto fica dentro do contêiner; medir só a ausência de rolagem deixa passar o corte com reticências, que não rola.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,layout` · harmful: 0
+- features: cadastros-colunas
+- evidence: N7 src/components/coluna-de-cadastro.tsx:50; Edge Case 'Nome longo' no painel; validation.md rodada 3, G10 (e2e,layout)
+- last seen: 2026-11-01T01:57:03Z
 
 ## Quarantined (failed when applied - ignore)
 

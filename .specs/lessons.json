@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 68,
+  "next_id": 70,
   "lessons": [
     {
       "id": "L-001",
@@ -938,17 +938,19 @@
       "text": "Campo novo que a página monta para um componente, como o nome tirado de um id, precisa de e2e que leia o texto na tela; o teste do componente recebe o valor pronto e não vê a página trocar o nome pelo id.",
       "signal": "surviving_mutant",
       "scope": "e2e,composicao",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "todo-mes-colunas"
+        "todo-mes-colunas",
+        "cadastros-colunas"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "M16 src/app/(app)/[competencia]/fixos/page.tsx:130; FIXCOL-04 AC 3 (e2e,composicao)"
+        "M16 src/app/(app)/[competencia]/fixos/page.tsx:130; FIXCOL-04 AC 3 (e2e,composicao)",
+        "S3 src/app/(app)/[competencia]/cadastros/meios-de-pagamento/page.tsx:74; S3b categorias/page.tsx:70; CADCOL-04 AC 11; CADCOL-07 AC 13; validation.md rodada 3, G8 (e2e,composicao)"
       ],
       "created": "2026-10-31T14:38:38Z",
-      "last_seen": "2026-10-31T14:38:38Z"
+      "last_seen": "2026-11-01T01:57:03Z"
     },
     {
       "id": "L-055",
@@ -1185,6 +1187,42 @@
       ],
       "created": "2026-11-01T00:42:22Z",
       "last_seen": "2026-11-01T00:42:22Z"
+    },
+    {
+      "id": "L-068",
+      "key": "surviving_mutant::medida de sem rolagem lateral precisa comparar cada regiao com o seu conteiner e nao so a pagina e o painel um involucro overflow x auto em volta da tabela rola sozinho e esconde das duas medidas a tabela que nao cabe",
+      "text": "Medida de 'sem rolagem lateral' precisa comparar cada região com o seu contêiner, e não só a página e o painel; um invólucro overflow-x-auto em volta da tabela rola sozinho e esconde das duas medidas a tabela que não cabe.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,layout",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "N5 src/components/coluna-de-cadastro.tsx:153; CADCOL-09 AC 7; e2e/cadastros-colunas.spec.ts:2113; validation.md rodada 3, G9 (e2e,layout)"
+      ],
+      "created": "2026-11-01T01:57:03Z",
+      "last_seen": "2026-11-01T01:57:03Z"
+    },
+    {
+      "id": "L-069",
+      "key": "surviving_mutant::edge case que diz que o texto quebra precisa de assertion de que cada caixa do texto fica dentro do conteiner medir so a ausencia de rolagem deixa passar o corte com reticencias que nao rola",
+      "text": "Edge case que diz que o texto quebra precisa de assertion de que cada caixa do texto fica dentro do contêiner; medir só a ausência de rolagem deixa passar o corte com reticências, que não rola.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,layout",
+      "status": "candidate",
+      "features": [
+        "cadastros-colunas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "N7 src/components/coluna-de-cadastro.tsx:50; Edge Case 'Nome longo' no painel; validation.md rodada 3, G10 (e2e,layout)"
+      ],
+      "created": "2026-11-01T01:57:03Z",
+      "last_seen": "2026-11-01T01:57:03Z"
     }
   ]
 }

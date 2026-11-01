@@ -12,16 +12,22 @@ As correções F1–F6 fecharam G1 a G5.
 
 A rodada 2 deu FAIL em 2026-10-31: 94 de 96 ACs provados e 35 de 37 mutantes mortos. Ficaram duas
 lacunas de teste, G6 e G7, e nenhuma depende do dono. O código já faz o certo nas duas. As correções
-F7–F10 estão concluídas, só com teste, comentário e spec, e esperam a rodada 3 do Verifier, a última
-do limite.
+F7–F10 fecharam G6 e G7, só com teste, comentário e spec. Em 2026-10-31, com a fatia ainda em
+verificação, o dono pediu para testar a tela e mandar para o GitHub. A `main` e o `origin/main` foram
+para `92063b4`.
+
+A rodada 3, a última do limite, deu FAIL em 2026-10-31: 93 de 96 ACs provados e 33 de 37 mutantes
+mortos, com três lacunas de teste (G8 a G10). O código já faz o certo nas três (sondas A, B e C). O
+dono escolheu "Corrigir e checar só isso", como na rodada 5 de Lançamentos. As correções F11–F13 estão
+em execução, e depois vem um Verifier focado nelas.
 
 Antes disso: o dono aprovou o plano em 2026-10-30, e T1 a T22 foram concluídas na branch
 `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`. A branch foi rebaseada sobre a
 `main` em `e8b1540`, que já tem Todo mês.
-**Total**: 32 tasks em 8 fases (T1–T22 e as correções F1–F10).
+**Total**: 35 tasks em 9 fases (T1–T22 e as correções F1–F13).
 - As fases 1 a 6 deram três lotes: T1–T7, T8–T15 e T16–T22. A oferta de sub-agentes veio antes do
   Execute.
-- As fases 7 e 8 são um lote cada.
+- As fases 7, 8 e 9 são um lote cada.
 
 **Pré-condição**: Todo mês (AD-021) entra antes. Antes da T1, esta branch é rebaseada sobre a que
 tiver Todo mês (`feat/todo-mes-colunas`, ou `main` depois do merge), e a base de testes é medida de
@@ -223,6 +229,18 @@ já faz o certo, como mostram as sondas P3 e P5.
 - A F10 junta o Fix 3, os comentários de "duas linhas de texto", e a observação 5, a citação
   deslocada da traceability.
 - Lote único, em fila.
+
+### Phase 9 — Correções da verificação (rodada 3)
+
+```
+F11 -> F12
+F12 -> F13
+```
+
+F11 a F13 fecham os Fixes 1 a 3 da rodada 3 de `validation.md` (G8 a G10). São só de teste, porque o
+código já faz o certo (sondas A, B e C). A rodada 3 era a última do limite. O dono escolheu
+"Corrigir e checar só isso" em 2026-10-31: depois destas correções roda um Verifier focado nelas, e
+não uma rodada inteira. Lote único, em fila.
 
 ---
 
@@ -1379,7 +1397,7 @@ comentários); `spec.md` (traceability)
 - [x] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
-**Commit**: `docs(cadastros): acertar os comentários e a citação que ficaram para trás`
+**Commit**: `docs(cadastros): acertar os comentários e a citação que ficaram para trás` (`92063b4`)
 **Nota**:
 - **Os comentários.** Os quatro trechos dizem a regra do AC 8 revisto: o nome, ou a pill, sozinho na
   primeira linha de texto e, embaixo, o resto, que quebra em mais linhas quando não cabe.
@@ -1405,6 +1423,57 @@ comentários); `spec.md` (traceability)
 - **As contagens da fase 8.** Antes eram 2.087 unitários, 406 de integração e 263 e2e. A fase
   acrescenta 1 unitário (F7) e 3 e2e (F8). A F9 põe assertions nos dois testes da F4, e não testes
   novos.
+
+### Phase 9 — Correções da verificação (rodada 3)
+
+#### F11: O rótulo do mês lido na tela
+**What**: o Fix 1 da rodada 3 (G8). A página monta "Março de 2026" (`categorias/page.tsx:70`,
+`meios-de-pagamento/page.tsx:74`). Os e2e de "Onde ela aparece" e "Onde ele aparece" leem só os `dd`.
+O cabeçalho de `detalhe-do-meio.tsx:15` ainda diz "ACs 1 a 6 e 9 a 13", e entra nesta task porque é
+um comentário só.
+**Where**: `e2e/cadastros-colunas.spec.ts`; `src/components/detalhe-do-meio.tsx` (só o comentário);
+`spec.md` (traceability)
+**Depends on**: nenhuma
+**Reuses**: os testes de `:399` e `:989`
+**Requirement**: CADCOL-04, CADCOL-07
+**Done when**:
+- [ ] Nas duas abas, `secao.locator("dt")` com "Fixos em Março de 2026" e "Lançamentos em Março de
+  2026" (CADCOL-04 AC 11, CADCOL-07 AC 13)
+- [ ] Os dois testes passam na HEAD e falham com S3 e S3b, um cada
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): o rótulo do mês lido na tela`
+
+#### F12: A tabela cabe no contêiner dela
+**What**: o Fix 2 da rodada 3 (G9). Hoje `medirRolagemLateral` mede três coisas: a página, o
+`aside` e o texto do nome contra a tabela. Não mede um invólucro que rola por conta própria.
+**Where**: `e2e/cadastros-colunas.spec.ts`; `spec.md` (traceability do CADCOL-09)
+**Depends on**: F11
+**Reuses**: `medirRolagemLateral`; a sonda B da rodada 3
+**Requirement**: CADCOL-09
+**Done when**:
+- [ ] Nas 66 medidas da F4, nenhum elemento da página com `overflow-x` diferente de `visible` tem
+  `scrollWidth > clientWidth`. Os campos de texto ficam fora, porque rolam o próprio valor
+- [ ] O teste passa na HEAD e falha com N5 em 400 px, e com N4 também com ponteiro fino em 768 px
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): nenhuma região rola de lado`
+
+#### F13: A palavra longa quebra dentro do painel
+**What**: o Fix 3 da rodada 3 (G10). A cláusula "quebra no meio, no painel" do Edge Case só tem a
+medida da rolagem do `aside`, e um corte com reticências não rola.
+**Where**: `e2e/cadastros-colunas.spec.ts`; `spec.md` (traceability)
+**Depends on**: F12
+**Reuses**: `textoForaDaTabela`
+**Requirement**: CADCOL-09, Edge Case "Nome longo"
+**Done when**:
+- [ ] No estado "item aberto", as caixas do texto do título do painel e da legenda "Cor de <nome>"
+  ficam dentro da caixa do `aside` (± 1 px)
+- [ ] O teste passa na HEAD e falha com N7 em 400, 1.536 e 1.920 px
+- [ ] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+**Tests**: e2e
+**Gate**: build
+**Commit**: `test(cadastros): a palavra longa quebra dentro do painel`
 
 ---
 
