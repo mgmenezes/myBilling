@@ -7,9 +7,9 @@ import { DetalheDoMeio } from "./detalhe-do-meio";
 import type { ItemDeMeio } from "./tabela-de-meios";
 
 /**
- * Derivado de CADCOL-07 (ACs 1 a 6 e 9 a 13) e do Done-when da T17: o meio
- * aberto no painel, com o nome e os dias editáveis, o tipo em texto e onde ele
- * aparece.
+ * Derivado de CADCOL-07 (ACs 1 a 6 e 8 a 13) e dos Done-when da T17 e da F7:
+ * o meio aberto no painel, com o nome e os dias editáveis, o tipo em texto e
+ * onde ele aparece.
  *
  * Os limites dos dois lados (L-029, L-041): 40 caracteres chegam ao servidor e
  * 41 não; os dias 1 e 31 chegam, e 0 e 32 não. Toda mensagem de campo é
@@ -250,6 +250,27 @@ describe("salvar (CADCOL-07, AC 5)", () => {
       meioPagamentoId: CONTA,
       nome: "Conta Nova",
       ciclo: null,
+    });
+  });
+});
+
+/*
+ * A caixa conta (L-041): a regra mora no servidor e também aqui, onde o
+ * painel decide "nada mudou" antes de chamá-lo.
+ */
+describe("só a caixa do nome (CADCOL-07, AC 8)", () => {
+  it("trocar Cartão Roxo por cartão roxo grava, com os dias gravados, e avisa Meio de pagamento salvo.", async () => {
+    const { editar, usuario } = montar();
+    await trocar(usuario, campo("Nome"), "cartão roxo");
+
+    await usuario.click(salvar());
+
+    expect((await screen.findByRole("status")).textContent).toBe("Meio de pagamento salvo.");
+    expect(editar).toHaveBeenCalledTimes(1);
+    expect(editar).toHaveBeenCalledWith({
+      meioPagamentoId: CARTAO,
+      nome: "cartão roxo",
+      ciclo: { diaFechamento: 25, diaVencimento: 5 },
     });
   });
 });

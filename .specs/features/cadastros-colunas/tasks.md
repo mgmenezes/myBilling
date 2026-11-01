@@ -1253,12 +1253,23 @@ mesmo caso já tem teste (`detalhe-da-categoria.test.tsx:411`).
 **Reuses**: o molde de `detalhe-da-categoria.test.tsx:411`
 **Requirement**: CADCOL-07
 **Done when**:
-- [ ] O teste troca "Cartão Roxo" por "cartão roxo" e salva. Ele afirma `editar` chamado uma vez com
+- [x] O teste troca "Cartão Roxo" por "cartão roxo" e salva. Ele afirma `editar` chamado uma vez com
   `nome: "cartão roxo"` e os dias gravados, e o aviso "Meio de pagamento salvo." (CADCOL-07 AC 8)
-- [ ] O teste passa na HEAD e falha com B8, a comparação `pedido.nome === meio.nome` feita sem caixa
+- [x] O teste passa na HEAD e falha com B8, a comparação `pedido.nome === meio.nome` feita sem caixa
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `test(meios): mudar só a caixa do nome do meio grava`
+**Nota**:
+- **O teste** é um bloco novo do AC 8, entre o do AC 5 e o do AC 9 de
+  `src/components/detalhe-do-meio.test.tsx` (`:262`), no molde de `detalhe-da-categoria.test.tsx:411`.
+  Ele espera o aviso (`:268`) e depois afirma `editar` chamado uma vez com `nome: "cartão roxo"` e os
+  dias 25 e 5 (`:269-274`). O cabeçalho do arquivo passa a citar o AC 8. O componente não muda.
+- **O mutante.** Na HEAD, os 25 testes do arquivo passam. Com B8 (`pedido.nome.toLowerCase() ===
+  meio.nome.toLowerCase()` em `detalhe-do-meio.tsx:132`), o teste novo falha em `:268` com `Unable to
+  find role="status"`: o painel decide que nada mudou, não chama o servidor nem avisa. Os outros 24
+  passam. O componente voltou por `git checkout`.
+- **Gate quick:** 2.088 unitários em 132 arquivos (2.087 e o novo), branches de `src/domain` em
+  393/393, `typecheck` e `lint` 0 (368 arquivos).
 
 #### F8: Salvar o nome do meio também deixa a tela parada
 **What**: o Fix 2 da rodada 2 (G7). O CADCOL-07 AC 16 diz "o nome ou os dias". Hoje `GRAVACOES`
