@@ -18,8 +18,8 @@ para `92063b4`.
 
 A rodada 3, a última do limite, deu FAIL em 2026-10-31: 93 de 96 ACs provados e 33 de 37 mutantes
 mortos, com três lacunas de teste (G8 a G10). O código já faz o certo nas três (sondas A, B e C). O
-dono escolheu "Corrigir e checar só isso", como na rodada 5 de Lançamentos. As correções F11–F13 estão
-em execução, e depois vem um Verifier focado nelas.
+dono escolheu "Corrigir e checar só isso", como na rodada 5 de Lançamentos. As correções F11–F13
+fecharam G8 a G10, só com teste, um comentário e spec, e aguardam o Verifier focado nelas.
 
 Antes disso: o dono aprovou o plano em 2026-10-30, e T1 a T22 foram concluídas na branch
 `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`. A branch foi rebaseada sobre a
@@ -1481,7 +1481,7 @@ um comentário só.
 - [x] O teste passa na HEAD e falha com N5 em 400 px, e com N4 também com ponteiro fino em 768 px
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): nenhuma região rola de lado`
+**Commit**: `test(cadastros): nenhuma região rola de lado` (`a5bb161`)
 **Nota**:
 - **A medida.** `regioesQueRolamDeLado` (`e2e/cadastros-colunas.spec.ts:2082`), ao lado de
   `textoForaDaTabela`, percorre todo elemento da página e devolve os que têm `overflow-x` diferente
@@ -1523,13 +1523,49 @@ medida da rolagem do `aside`, e um corte com reticências não rola.
 **Reuses**: `textoForaDaTabela`
 **Requirement**: CADCOL-09, Edge Case "Nome longo"
 **Done when**:
-- [ ] No estado "item aberto", as caixas do texto do título do painel e da legenda "Cor de <nome>"
+- [x] No estado "item aberto", as caixas do texto do título do painel e da legenda "Cor de <nome>"
   ficam dentro da caixa do `aside` (± 1 px)
-- [ ] O teste passa na HEAD e falha com N7 em 400, 1.536 e 1.920 px
-- [ ] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+- [x] O teste passa na HEAD e falha com N7 em 400, 1.536 e 1.920 px
+- [x] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: e2e
 **Gate**: build
 **Commit**: `test(cadastros): a palavra longa quebra dentro do painel`
+**Nota**:
+- **A medida.** `textoForaDaTabela` passa a `textoForaDe(alvo, conteiner)`
+  (`e2e/cadastros-colunas.spec.ts:2054`), que mede o texto contra a tabela ou contra o `aside`. A
+  chamada do botão da linha passa `"table"`, e a medida dela não muda. `textoDoNomeForaDoPainel`
+  (`:2084`) mede o título do painel e, na categoria, a legenda "Cor de <nome>", e devolve o que mais
+  passa. `medirRolagemLateral` guarda essa medida no estado "item aberto", e 0 nos outros dois.
+- **As assertions.** Nenhuma medida passa de 1 px: `:2197-2200` nas 60 do teste de ponteiro fino e
+  `:2226-2229` nas 6 com toque em 768 px, logo depois da do nome contra a tabela. Os títulos dos dois
+  testes passam a dizer "dentro da tabela e do painel". Nenhum teste novo.
+- **No meio, só o título.** O painel do meio não tem legenda com o nome: "Editar <nome>" é o nome
+  acessível do formulário, sem texto à vista.
+- **O mutante.** Na HEAD, os dois testes passam. Com N7, `truncate` no `TituloDoPainel` em
+  `coluna-de-cadastro.tsx:50`:
+  - o teste de ponteiro fino falha em `:2200`, "o nome numa palavra só fora do painel". O título
+    passa do painel em Categorias em 400 px (66,5 px), 1.536 e 1.920 px (54,5 px), e em Meios em
+    400 px (163,5 px), 768 px (51,5 px), 1.536 e 1.920 px (151,5 px). São os números da sonda A;
+  - rodado sozinho, o teste com toque falha em `:2229`, com Meios em 768 px (51,5 px);
+  - o componente voltou por `git checkout`.
+- **As citações remapeadas,** porque a medida entrou antes delas:
+  - no CADCOL-09, `:2155` → `:2180` e `:2184` → `:2213`, à mão, porque os títulos mudaram;
+    `:2168-2171` → `:2193-2196`, `:2193-2196` → `:2222-2225`, `:2173-2176` → `:2202-2205`,
+    `:2198-2201` → `:2231-2234` e `:2082` → `:2104`;
+  - no CADCOL-01, `:2211` → `:2244`;
+  - no CADCOL-04 e no CADCOL-07, `:2350` → `:2383` e `:2375` → `:2408`;
+  - no CADCOL-07, `:2316` → `:2349` e `:2373-2374` → `:2406-2407`.
+  O script da F11 casou o fim de `:2193-2196` com o fecho igual da assertion nova, e essa citação foi
+  acertada à mão. No fim, cada citação do arquivo na traceability foi conferida pelo texto da linha
+  contra a de `87efa3e`: 68 iguais, mais as duas dos títulos mudados e as oito novas das F11 a F13.
+- **Gate build, nesta worktree, em 2026-10-31.** O `pnpm db:up` não rodou, como na F10: o contêiner
+  `mybilling-db` já estava de pé e saudável, e o gate usou o banco `mybilling_test_cad`.
+  - `pnpm verify` saiu 0: `typecheck`, `lint` (368 arquivos), 2.088 unitários em 132 arquivos,
+    branches de `src/domain` em 393/393, 406 de integração em 25 arquivos e o build.
+  - `pnpm test:e2e` inteiro saiu 0, com 266 testes em 17 arquivos na primeira passada, em
+    7,0 min. São 73 em `cadastros-colunas.spec.ts`.
+- **As contagens da fase 9** são as da fase 8: 2.088 unitários, 406 de integração e 266 e2e. As F11 a
+  F13 põem assertions em testes que já existiam, e não testes novos.
 
 ---
 

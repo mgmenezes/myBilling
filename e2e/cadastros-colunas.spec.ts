@@ -2034,23 +2034,30 @@ interface RolagemLateral {
   readonly painel: number;
   /** Quanto o texto do nome numa palavra só passa da tabela; 0 quando cabe nela. */
   readonly nomeForaDaTabela: number;
+  /**
+   * Quanto o nome numa palavra só, no título do painel e em "Cor de <nome>",
+   * passa do painel; 0 quando cabe nele e nos estados sem o item aberto.
+   */
+  readonly nomeForaDoPainel: number;
   /** As regiões que rolam de lado por conta própria, com o quanto cada uma rola. */
   readonly regioes: ReadonlyArray<string>;
 }
 
 /**
- * Quanto o texto à vista do botão da linha passa da caixa da tabela, pelo lado
- * que mais passa: 0 quando cada caixa do texto, uma por linha, fica dentro
- * dela. A medida da página não vê o texto que vaza dentro de um invólucro que
- * rola por conta própria (observação 2 da rodada 2).
+ * Quanto o texto à vista do alvo passa da caixa do contêiner dele, a tabela ou
+ * o painel, pelo lado que mais passa: 0 quando cada caixa do texto, uma por
+ * linha, fica dentro dela. A medida da página não vê o texto que vaza dentro de
+ * um invólucro que rola por conta própria (observação 2 da rodada 2), e a do
+ * painel não vê o texto cortado com reticências, que não rola (G10 da rodada 3;
+ * L-069).
  */
-async function textoForaDaTabela(botao: Locator): Promise<number> {
-  const excessos = await botao.evaluate((elemento) => {
-    const tabelaDoBotao = elemento.closest("table");
-    if (tabelaDoBotao === null) {
+async function textoForaDe(alvo: Locator, conteiner: "table" | "aside"): Promise<number> {
+  const excessos = await alvo.evaluate((elemento, seletor) => {
+    const caixaDoConteiner = elemento.closest(seletor);
+    if (caixaDoConteiner === null) {
       return [];
     }
-    const { left, right } = tabelaDoBotao.getBoundingClientRect();
+    const { left, right } = caixaDoConteiner.getBoundingClientRect();
     const medidos: number[] = [];
     const andarilho = document.createTreeWalker(elemento, NodeFilter.SHOW_TEXT);
     for (let no = andarilho.nextNode(); no !== null; no = andarilho.nextNode()) {
@@ -2063,9 +2070,24 @@ async function textoForaDaTabela(botao: Locator): Promise<number> {
       }
     }
     return medidos;
-  });
+  }, conteiner);
   if (excessos.length === 0) {
-    throw new Error("o nome não tem texto à vista dentro de uma tabela");
+    throw new Error(`o nome não tem texto à vista dentro de ${conteiner}`);
+  }
+  return Math.max(...excessos);
+}
+
+/**
+ * Quanto o nome numa palavra só passa do painel do item aberto, pelo texto que
+ * mais passa: o título e, na categoria, a legenda "Cor de <nome>".
+ */
+async function textoDoNomeForaDoPainel(a: AbaMedida, page: Page, nome: string): Promise<number> {
+  const titulo = a.titulo(page);
+  const cor = a.painel(page).getByRole("group", { name: `Cor de ${nome}` });
+  const textos = a.aba === "Categorias" ? [titulo, cor.locator("legend")] : [titulo];
+  const excessos: number[] = [];
+  for (const texto of textos) {
+    excessos.push(await textoForaDe(texto, "aside"));
   }
   return Math.max(...excessos);
 }
@@ -2104,7 +2126,8 @@ async function regioesQueRolamDeLado(page: Page): Promise<string[]> {
  * palavra só aberto e o formulário de criação aberto pela ação. Em cada um,
  * mede em cada largura a rolagem lateral da página e a do painel, que a
  * partir de 1.536 px rola por conta própria, quanto o texto do nome numa
- * palavra só passa da tabela e as regiões que rolam de lado dentro da página.
+ * palavra só passa da tabela e, com o item aberto, do painel, e as regiões que
+ * rolam de lado dentro da página.
  */
 async function medirRolagemLateral(
   page: Page,
@@ -2143,7 +2166,9 @@ async function medirRolagemLateral(
             (await painelDaAba.count()) === 0
               ? 0
               : await painelDaAba.evaluate((aside) => aside.scrollWidth - aside.clientWidth),
-          nomeForaDaTabela: await textoForaDaTabela(a.botao(page, longo)),
+          nomeForaDaTabela: await textoForaDe(a.botao(page, longo), "table"),
+          nomeForaDoPainel:
+            estado === "item aberto" ? await textoDoNomeForaDoPainel(a, page, longo) : 0,
           regioes: await regioesQueRolamDeLado(page),
         });
       }
@@ -2152,7 +2177,7 @@ async function medirRolagemLateral(
   return medidas;
 }
 
-test("nas duas abas, de 400 a 1.920 px e colado em cada limiar, nada rola de lado e o nome numa palavra só fica dentro da tabela: sem nada aberto, com o item de nome numa palavra só aberto e com o formulário de criação (CADCOL-09, AC 7; Edge Cases)", async ({
+test("nas duas abas, de 400 a 1.920 px e colado em cada limiar, nada rola de lado e o nome numa palavra só fica dentro da tabela e do painel: sem nada aberto, com o item de nome numa palavra só aberto e com o formulário de criação (CADCOL-09, AC 7; Edge Cases)", async ({
   page,
 }) => {
   await semearPalavrasLongas();
@@ -2169,6 +2194,10 @@ test("nas duas abas, de 400 a 1.920 px e colado em cada limiar, nada rola de lad
     medidas.filter(({ nomeForaDaTabela }) => nomeForaDaTabela > 1),
     "o nome numa palavra só fora da tabela",
   ).toEqual([]);
+  expect(
+    medidas.filter(({ nomeForaDoPainel }) => nomeForaDoPainel > 1),
+    "o nome numa palavra só fora do painel",
+  ).toEqual([]);
   expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
   expect(
     medidas.filter(({ regioes }) => regioes.length > 0),
@@ -2181,7 +2210,7 @@ test("nas duas abas, de 400 a 1.920 px e colado em cada limiar, nada rola de lad
 test.describe("com ponteiro grosso, em 768 px", () => {
   test.use({ hasTouch: true, viewport: { width: 768, height: 900 } });
 
-  test("nas duas abas, nada rola de lado e o nome numa palavra só fica dentro da tabela: sem nada aberto, com o item de nome numa palavra só aberto e com o formulário de criação (CADCOL-09, AC 7; Edge Cases)", async ({
+  test("nas duas abas, nada rola de lado e o nome numa palavra só fica dentro da tabela e do painel: sem nada aberto, com o item de nome numa palavra só aberto e com o formulário de criação (CADCOL-09, AC 7; Edge Cases)", async ({
     page,
   }) => {
     await semearPalavrasLongas();
@@ -2193,6 +2222,10 @@ test.describe("com ponteiro grosso, em 768 px", () => {
     expect(
       medidas.filter(({ nomeForaDaTabela }) => nomeForaDaTabela > 1),
       "o nome numa palavra só fora da tabela",
+    ).toEqual([]);
+    expect(
+      medidas.filter(({ nomeForaDoPainel }) => nomeForaDoPainel > 1),
+      "o nome numa palavra só fora do painel",
     ).toEqual([]);
     expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
     expect(
