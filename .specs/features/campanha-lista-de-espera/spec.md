@@ -132,8 +132,9 @@ deixo meu e-mail.
 2. WHILE na seção "Onde as contas da casa quebram", each bloco SHALL ter a cena em uma frase e a
    garantia do app em uma frase, para as cinco dores: parcela esquecida, fatura somada com a compra,
    mês que vira errado, conta fixa que muda de valor, duas pessoas e um número só
-3. The comparativo SHALL incluir ao menos duas linhas em que a planilha ou o caderno ganham
-   (flexibilidade, custo, qualquer dispositivo), e SHALL não marcar o myBilling como melhor nelas
+3. The comparativo SHALL incluir três linhas em que a planilha ou o caderno ganham, uma por tema
+   obrigatório: flexibilidade, custo e qualquer dispositivo; e SHALL não marcar o myBilling como
+   melhor em nenhuma delas
 4. The page SHALL não conter nenhuma das promessas listadas em "O que nunca prometer" do
    posicionamento, nem a palavra "grátis", nem preço
 5. WHEN um número de mercado aparece THEN the page SHALL exibir a fonte e o ano no mesmo elemento,
@@ -161,8 +162,9 @@ que o app construiu.
 
 1. The stylesheet SHALL declarar cada token de cor uma vez, com `light-dark()`, com os mesmos
    valores de `docs/design.md`, e SHALL não ter paleta duplicada em `@media (prefers-color-scheme)`
-2. The page SHALL usar `--primary` apenas em botão de chamada e em link, e a superfície invertida
-   SHALL aparecer exatamente uma vez
+2. The page SHALL usar `--primary` apenas em botão de chamada, em link e no anel de foco (como o
+   app, que usa `outline-primary` em `:focus-visible`), e a superfície invertida SHALL aparecer
+   exatamente uma vez
 3. WHEN a pessoa escolhe claro ou escuro THEN the page SHALL gravar a escolha em `data-tema` no
    `<html>`, e WHEN escolhe "sistema" THEN the page SHALL remover o atributo, e SHALL nunca escrever
    `data-tema="sistema"`
@@ -288,13 +290,13 @@ pedindo o e-mail.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CAMP-01 | P1: O posicionamento que toda peça segue — ACs 1 a 6 | Execute | ACs 1 a 6 (T1) ✅ `docs/marketing/posicionamento.md` |
-| CAMP-02 | P1: A landing page explica onde as contas de casa quebram — ACs 1 a 7 | Execute | ACs 1, 6 e 7 (T2) ✅ e ACs 2 a 5 (T3) ✅ `site/estrutura.test.mjs` |
-| CAMP-03 | P1: A landing page tem a identidade do app e é acessível — ACs 1 a 8 | Execute | ACs 1 a 5 e 8 (T2) ✅ `site/estrutura.test.mjs`; AC 7 (T3) ✅ conferido a olho nas capturas de 1280 e 360; AC 6 (T5) ✅ `site/verificar-navegador.mjs`, seis combinações sem violação |
-| CAMP-04 | P1: O botão da lista de espera — ACs 1 a 4 | Execute | ACs 1 a 4 (T2) ✅ `site/estrutura.test.mjs`, `site/formulario.mjs` |
-| CAMP-05 | P2: Capturas do app com dados sintéticos — ACs 1 a 4 | Execute | ACs 1 e 3 (T4) ✅ `site/capturar.mjs`, troca por `data-tema` conferida no navegador; ACs 2, 3 e 4 (T4) ✅ `site/estrutura.test.mjs` |
-| CAMP-06 | P2: Kit de copy — ACs 1 a 4 | Execute | ACs 1 a 4 (T6) ✅ `docs/marketing/kit-de-copy.md`: 8 headlines, curtos com 249, 228 e 227 caracteres, longo com 667 palavras |
-| CAMP-07 | P3: O repositório continua verde — ACs 1 a 3 | Execute | ACs 1 e 2 (T5) ✅ `pnpm verify` e `pnpm site:verificar` saem 0; AC 3 (T6) ✅ `.specs/HANDOFF.md` |
+| CAMP-01 | P1: O posicionamento que toda peça segue — ACs 1 a 6 | Verified | ACs 1 a 6 (T1) ✅ `docs/marketing/posicionamento.md` |
+| CAMP-02 | P1: A landing page explica onde as contas de casa quebram — ACs 1 a 7 | Verified | ACs 1, 6 e 7 (T2) ✅ e ACs 2 a 5 (T3) ✅ `site/estrutura.test.mjs` |
+| CAMP-03 | P1: A landing page tem a identidade do app e é acessível — ACs 1 a 8 | Verified | ACs 1 a 5 e 8 (T2) ✅ `site/estrutura.test.mjs`; AC 7 (T3) ✅ conferido a olho nas capturas de 1280 e 360; AC 6 (T5) ✅ `site/verificar-navegador.mjs`, seis combinações sem violação |
+| CAMP-04 | P1: O botão da lista de espera — ACs 1 a 4 | Verified | ACs 1 a 4 (T2) ✅ `site/estrutura.test.mjs`, `site/formulario.mjs` |
+| CAMP-05 | P2: Capturas do app com dados sintéticos — ACs 1 a 4 | Verified | ACs 1 e 3 (T4) ✅ `site/capturar.mjs`, troca por `data-tema` conferida no navegador; ACs 2, 3 e 4 (T4) ✅ `site/estrutura.test.mjs` |
+| CAMP-06 | P2: Kit de copy — ACs 1 a 4 | Verified | ACs 1 a 4 (T6) ✅ `docs/marketing/kit-de-copy.md`: 8 headlines, curtos com 249, 228 e 227 caracteres, longo com 667 palavras |
+| CAMP-07 | P3: O repositório continua verde — ACs 1 a 3 | Verified | ACs 1 e 2 (T5) ✅ `pnpm verify` e `pnpm site:verificar` saem 0; AC 3 (T6) ✅ `.specs/HANDOFF.md` |
 
 **Coverage:** 7 total, 7 mapeados para tasks.
 
@@ -303,6 +305,6 @@ pedindo o e-mail.
 ## Success Criteria
 
 - [ ] Uma pessoa de fora lê a página e responde o que é, para quem é, o que ganha e o que faz agora
-- [ ] `pnpm verify && pnpm site:verificar` sai 0
-- [ ] Nenhum `R$` na página, nas imagens ou nos textos fora da allowlist de fixtures
+- [x] `pnpm verify && pnpm site:verificar` sai 0 (Verifier, 2026-11-01)
+- [x] Nenhum `R$` na página nem nos textos fora da allowlist de fixtures; nas imagens, só valores gerados pelo seed
 - [ ] O dono cola a URL do Google Forms e o botão abre o formulário sem outra mudança

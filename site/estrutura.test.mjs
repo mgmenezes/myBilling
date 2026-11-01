@@ -306,14 +306,14 @@ test("CAMP-02 AC 3: o comparativo tem linhas em que a planilha ou o caderno ganh
   assert.deepEqual(cabecalhos.slice(-3), ["Caderno", "Planilha", "myBilling"]);
   const linhas = [...secao.matchAll(/<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>/g)].map((m) => m[1]);
   assert.ok(linhas.length >= 5, "ao menos cinco linhas comparadas");
-  const outrosGanham = linhas.filter((v) => /planilha|caderno/.test(v));
-  assert.ok(outrosGanham.length >= 2, "ao menos duas linhas em que planilha ou caderno ganham");
-  for (const v of outrosGanham) {
-    assert.doesNotMatch(
-      v,
-      /mybilling/i,
-      `linha em que a planilha ganha não pode marcar o myBilling: "${v}"`,
-    );
+  // Uma linha por tema obrigatório, e em nenhuma delas o myBilling vence.
+  for (const tema of ["flexibilidade", "custo", "dispositivo"]) {
+    const linha = secao.match(new RegExp(`<tr\\b[^>]*\\bdata-vantagem="${tema}"[^>]*>`));
+    assert.ok(linha, `falta a linha em que a planilha ou o caderno ganham por ${tema}`);
+    const vence = linha[0].match(/data-vence="([^"]*)"/);
+    assert.ok(vence, `linha de ${tema} sem data-vence`);
+    assert.match(vence[1], /planilha|caderno/, `em ${tema} quem ganha é a planilha ou o caderno`);
+    assert.doesNotMatch(vence[1], /mybilling/i, `em ${tema} o myBilling não pode vencer`);
   }
 });
 
