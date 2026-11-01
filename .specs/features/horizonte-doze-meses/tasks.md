@@ -143,7 +143,7 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 
 ---
 
-### T3: `obterVisaoMensal` lê a janela numa chamada
+### T3: `obterVisaoMensal` lê a janela numa chamada ✅ Concluída
 
 **What**: Trocar o laço de `listarPorCompetencia` por uma chamada a `listarEntre(C + 1, C + N)`.
 **Where**: `src/application/mes/obter-visao-mensal/handler.ts`
@@ -156,10 +156,10 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 - Skill: NONE
 
 **Done when**:
-- [ ] `handler.test.ts` prova, com um fake que conta chamadas, que a janela é lida com **uma**
-      chamada a `listarEntre` e nenhuma a `listarPorCompetencia` além da do mês aberto
-- [ ] Os testes existentes de `futuro` continuam verdes sem mudança de valor
-- [ ] Gate: `pnpm test:unit` sai 0
+- [x] `handler.test.ts` prova, com espiões, que a janela é lida com **uma** chamada a
+      `listarEntre` e nenhuma a `listarPorCompetencia` além da do mês aberto (`handler.test.ts:407-409`)
+- [x] Os testes existentes de `futuro` continuam verdes sem mudança de valor
+- [x] Gate: `pnpm test:unit` sai 0: 2.093 unitários (2.092 + 1)
 
 **Tests**: unit
 **Gate**: quick

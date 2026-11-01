@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { criarCompraParcelada } from "@/application/compras/criar-compra-parcelada/handler";
 import { criarFakes, type Fakes } from "@/application/ports/fakes";
 import type { EntradaCompraValidada } from "@/application/schemas/compra.schema";
-import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
+import { addMeses, type BlocoDoMes, type Cents, type Competencia, type Lancamento } from "@/domain";
 import { MESES_DE_PROJECAO, obterVisaoMensal } from "./handler";
 
 /**
@@ -392,6 +392,21 @@ describe("saldo dos próximos meses (SALDO-02)", () => {
       { competencia: "2026-05", comprometido: 0, saldo: -10000 },
       { competencia: "2026-06", comprometido: 0, saldo: 0 },
     ]);
+  });
+
+  /* O custo de abrir um mês é uma ida ao banco para a janela inteira, e não
+     uma por mês (HORIZ-03, AC 4). O espião prova a forma da leitura; o valor
+     projetado prova que a leitura trouxe os meses certos. */
+  it("lê os meses seguintes com uma chamada a listarEntre (HORIZ-03, AC 4)", async () => {
+    semearMesesSeguintes();
+    const entre = vi.spyOn(fakes.movimentos, "listarEntre");
+    const porCompetencia = vi.spyOn(fakes.movimentos, "listarPorCompetencia");
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    expect(entre.mock.calls).toEqual([[ABRIL, addMeses(MARCO, MESES_DE_PROJECAO)]]);
+    expect(porCompetencia.mock.calls).toEqual([[MARCO]]);
+    expect(visao.futuro[0]).toEqual({ competencia: "2026-04", comprometido: 30000, saldo: 70000 });
   });
 
   it("o saldo projetado é o mesmo do mês seguinte quando ele é aberto (AC 2)", async () => {

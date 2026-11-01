@@ -165,7 +165,7 @@ devolve zero).
 | --- | --- | --- | --- |
 | HORIZ-01 | P1: O app enxerga doze meses à frente | Tasks | Pending |
 | HORIZ-02 | P1: "Próximos meses" continua com três linhas | Tasks | Pending |
-| HORIZ-03 | P1: A janela é lida numa consulta | Execute | Implementing: ACs 1 a 3 provados no fake (`fakes.test.ts`, "listar entre duas competências") e no Postgres (`movimento.repository.integration.test.ts`, "listar entre duas competências"), com o Edge Case `inicio === fim`; AC 4 na T3 |
+| HORIZ-03 | P1: A janela é lida numa consulta | Execute | Implementing: ACs 1 a 3 provados no fake (`fakes.test.ts`, "listar entre duas competências") e no Postgres (`movimento.repository.integration.test.ts`, "listar entre duas competências"), com o Edge Case `inicio === fim`; AC 4 provado em `obter-visao-mensal/handler.test.ts` ("lê os meses seguintes com uma chamada a listarEntre") |
 | HORIZ-04 | P2: O seed deixa o banco como uma abertura de mês deixaria | Tasks | Pending |
 
 **Coverage:** 4 total, 4 mapped to tasks (T1 a T8), 0 unmapped

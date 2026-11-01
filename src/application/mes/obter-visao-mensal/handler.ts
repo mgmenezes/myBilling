@@ -83,13 +83,13 @@ export async function obterVisaoMensal(
 ): Promise<VisaoMensal> {
   const doMes = await deps.movimentos.listarPorCompetencia(competencia);
 
-  // A projeção precisa enxergar as competências seguintes, e a port lê uma
-  // competência por vez. A janela é fechada, então o número de consultas é
-  // constante (AD-008).
-  const seguintes: Lancamento[] = [];
-  for (let k = 1; k <= MESES_DE_PROJECAO; k += 1) {
-    seguintes.push(...(await deps.movimentos.listarPorCompetencia(addMeses(competencia, k))));
-  }
+  // A projeção precisa enxergar as competências seguintes. A janela inteira
+  // sai numa consulta (HORIZ-03, AC 4): um laço de `listarPorCompetencia`
+  // seria uma ida ao banco por mês da janela a cada abertura de página.
+  const seguintes = await deps.movimentos.listarEntre(
+    addMeses(competencia, 1),
+    addMeses(competencia, MESES_DE_PROJECAO),
+  );
 
   /* Uma consulta por carregamento de página, não uma por lançamento: a
      pergunta é de pertinência e o conjunto inteiro cabe na memória. */
