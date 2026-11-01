@@ -390,11 +390,8 @@ a:hover {
   gap: 12px;
 }
 
-@media (min-width: 1024px) {
-  .hero .moldura {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: 56px;
-  }
+.hero h1 {
+  max-width: 30ch;
 }
 
 /* ---- Cartão ---- */
@@ -432,4 +429,198 @@ a:hover {
 .rodape-nota {
   font-size: 14px;
   color: var(--ink-muted);
+}
+
+/* ---- Onde quebra: cinco blocos, dois em cima e três embaixo ---- */
+
+.dores {
+  display: grid;
+  gap: 16px;
+}
+
+.dor {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.dor p {
+  font-size: 15px;
+  max-width: none;
+}
+
+.dor-cena {
+  color: var(--ink-muted);
+}
+
+.dor-garantia strong {
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .dores {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .dor:nth-child(-n + 2) {
+    grid-column: span 3;
+  }
+
+  .dor:nth-child(n + 3) {
+    grid-column: span 2;
+  }
+}
+
+/* ---- Comparativo ---- */
+
+.tabela-rolavel {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+}
+
+.comparativo {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.comparativo th,
+.comparativo td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparativo thead th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.comparativo td {
+  color: var(--ink-muted);
+}
+
+.comparativo td:last-child {
+  color: var(--ink);
+}
+
+.comparativo thead th:last-child,
+.comparativo tbody td:last-child {
+  background: var(--surface-soft);
+}
+
+.comparativo tbody th[scope="row"] {
+  font-weight: 600;
+  width: 30%;
+}
+
+.comparativo .grupo th {
+  padding-top: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.comparativo tbody tr:not(.grupo):not(:last-child) th,
+.comparativo tbody tr:not(.grupo):not(:last-child) td {
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---- Para dois: três definições em linha ---- */
+
+.trio {
+  display: grid;
+  gap: 32px;
+  margin: 0;
+}
+
+.trio dt {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.trio dd {
+  margin: 0;
+  color: var(--on-inverso-suave);
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  .trio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+  }
+}
+
+/* ---- Sua planilha: dois caminhos ---- */
+
+.caminhos {
+  display: grid;
+  gap: 16px;
+}
+
+.caminhos .cartao {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.caminhos p {
+  font-size: 15px;
+  color: var(--ink-muted);
+  max-width: none;
+}
+
+@media (min-width: 768px) {
+  .caminhos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- Números: três grandezas, sem cartão ---- */
+
+.numeros {
+  display: grid;
+  gap: 32px;
+}
+
+.numero {
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.numero-valor {
+  font-size: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.numero figcaption {
+  font-size: 15px;
+  color: var(--ink-muted);
+  max-width: 36ch;
+}
+
+.numero cite {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 768px) {
+  .numeros {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+  }
 }

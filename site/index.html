@@ -16,6 +16,10 @@
     -->
     <meta name="lista-de-espera" content="COLE_AQUI_A_URL_DO_GOOGLE_FORMS" />
     <meta name="color-scheme" content="light dark" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%230052ff' d='M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm-36,80a12,12,0,1,1,12-12A12,12,0,0,1,180,144Z'/%3E%3C/svg%3E"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -155,6 +159,66 @@
               passar, e o que o myBilling não deixa.
             </p>
           </div>
+          <div class="dores">
+            <article class="dor cartao">
+              <h3>A parcela que você esqueceu</h3>
+              <p class="dor-cena">
+                Você comprou em dez vezes e precisa lembrar de anotar a parcela nos próximos nove meses. A
+                que você esquece some do saldo, e o saldo é o número que decide se dá para gastar.
+              </p>
+              <p class="dor-garantia">
+                <strong>No myBilling</strong> a compra é cadastrada uma vez. As parcelas vão para os meses
+                certos sozinhas. Uma compra de <span class="mono">R$ 1.000,00</span> em três vezes vira
+                <span class="mono">333,34</span>, <span class="mono">333,33</span> e
+                <span class="mono">333,33</span>, como na fatura.
+              </p>
+            </article>
+            <article class="dor cartao">
+              <h3>A fatura contada duas vezes</h3>
+              <p class="dor-cena">
+                Você anotou a compra no cartão. Quando a fatura veio, anotou o pagamento também. O gasto do
+                mês está dobrado e ninguém percebeu.
+              </p>
+              <p class="dor-garantia">
+                <strong>No myBilling</strong> compra no cartão e pagamento da fatura vivem em lugares
+                separados que não se somam. A dupla contagem não é improvável. É impossível.
+              </p>
+            </article>
+            <article class="dor cartao">
+              <h3>O ano que vira errado</h3>
+              <p class="dor-cena">
+                A compra de novembro em seis vezes termina em abril do ano que vem. Na planilha, a aba de
+                janeiro é outra aba, outro ano, e a parcela cai no lugar errado.
+              </p>
+              <p class="dor-garantia">
+                <strong>No myBilling</strong> o mês é contado em inteiros, sem data que vira errado. Dezembro
+                para janeiro é só mais um mês.
+              </p>
+            </article>
+            <article class="dor cartao">
+              <h3>A conta de luz que muda</h3>
+              <p class="dor-cena">
+                Toda conta fixa tem um valor previsto, e a de luz nunca é igual. Você chuta, e quando a conta
+                chega não tem onde corrigir sem apagar o que estava.
+              </p>
+              <p class="dor-garantia">
+                <strong>No myBilling</strong> a conta fixa é cadastrada uma vez com um valor previsto. Quando a
+                conta chega, você confirma o valor real, e a previsão continua visível ao lado. Reajustou?
+                Vale a partir de um mês, sem reescrever o passado.
+              </p>
+            </article>
+            <article class="dor cartao">
+              <h3>Duas pessoas, duas versões do mês</h3>
+              <p class="dor-cena">
+                São duas pessoas gastando e um saldo só. Cada uma tem uma versão do mês na cabeça, e a
+                conversa vira briga antes de virar conta.
+              </p>
+              <p class="dor-garantia">
+                <strong>No myBilling</strong> há um caixa, um saldo, e cada lançamento diz quem gastou. As duas
+                pessoas entram com a própria conta Google e veem o mesmo número.
+              </p>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -164,6 +228,74 @@
             <h2 id="titulo-comparativo">Caderno, planilha ou myBilling</h2>
             <p class="suave">Uma comparação honesta, com as linhas em que a planilha ganha.</p>
           </div>
+          <div class="tabela-rolavel">
+            <table class="comparativo">
+              <thead>
+                <tr>
+                  <th scope="col"><span class="visualmente-oculto">Situação</span></th>
+                  <th scope="col">Caderno</th>
+                  <th scope="col">Planilha</th>
+                  <th scope="col">myBilling</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="grupo">
+                  <th scope="rowgroup" colspan="4">Onde o mês fecha errado</th>
+                </tr>
+                <tr data-vence="mybilling">
+                  <th scope="row">Compra em dez vezes</th>
+                  <td>Você anota nove vezes</td>
+                  <td>Você copia em nove abas</td>
+                  <td>Cadastra uma vez</td>
+                </tr>
+                <tr data-vence="mybilling">
+                  <th scope="row">Compra no cartão e pagamento da fatura</th>
+                  <td>Depende de você lembrar</td>
+                  <td>Depende de você lembrar</td>
+                  <td>Não se somam, por construção</td>
+                </tr>
+                <tr data-vence="mybilling">
+                  <th scope="row">Dezembro para janeiro</th>
+                  <td>Caderno novo</td>
+                  <td>Aba nova, ano novo, erro novo</td>
+                  <td>Só mais um mês</td>
+                </tr>
+                <tr data-vence="mybilling">
+                  <th scope="row">Conta fixa que muda de valor</th>
+                  <td>Rabisca por cima</td>
+                  <td>Apaga a previsão</td>
+                  <td>Confirma o real, guarda a previsão</td>
+                </tr>
+                <tr data-vence="mybilling">
+                  <th scope="row">Duas pessoas, um saldo</th>
+                  <td>Um caderno só, uma letra só</td>
+                  <td>Funciona, se os dois abrirem</td>
+                  <td>Cada lançamento diz quem gastou</td>
+                </tr>
+                <tr class="grupo">
+                  <th scope="rowgroup" colspan="4">Onde o caderno e a planilha ganham</th>
+                </tr>
+                <tr data-vence="planilha caderno">
+                  <th scope="row">Anotar qualquer coisa, do jeito que quiser</th>
+                  <td>Total</td>
+                  <td>Total</td>
+                  <td>Só o que o app conhece</td>
+                </tr>
+                <tr data-vence="planilha caderno">
+                  <th scope="row">Custo</th>
+                  <td>Um caderno</td>
+                  <td>Nenhum</td>
+                  <td>Ainda não definido</td>
+                </tr>
+                <tr data-vence="planilha">
+                  <th scope="row">Abre em qualquer lugar, sem internet</th>
+                  <td>Se estiver na bolsa</td>
+                  <td>Sim</td>
+                  <td>Precisa de navegador e internet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -171,8 +303,25 @@
         <div class="moldura">
           <div class="secao-cabeca">
             <h2 id="titulo-para-dois">Para dois</h2>
-            <p class="suave">Um caixa, um saldo, e cada lançamento diz quem gastou.</p>
+            <p class="suave">
+              Os aplicativos de finanças olham para uma pessoa. A casa tem duas. O myBilling nasceu de um
+              casal que dividia as contas numa planilha, e foi feito para isso desde a primeira linha.
+            </p>
           </div>
+          <dl class="trio">
+            <div>
+              <dt>Um caixa</dt>
+              <dd>O dinheiro é da casa. Não há "a minha parte" e "a sua parte" para somar depois.</dd>
+            </div>
+            <div>
+              <dt>Dois donos</dt>
+              <dd>Cada lançamento diz quem gastou. Não para cobrar, para saber.</dd>
+            </div>
+            <div>
+              <dt>Um número</dt>
+              <dd>Os dois entram com a própria conta Google e veem o mesmo saldo, no mesmo instante.</dd>
+            </div>
+          </dl>
         </div>
       </section>
 
@@ -182,6 +331,23 @@
             <h2 id="titulo-sua-planilha">Traga a sua planilha ou comece do zero</h2>
             <p class="suave">Os dois caminhos levam ao mesmo lugar: um mês que fecha.</p>
           </div>
+          <div class="caminhos">
+            <article class="cartao">
+              <h3>Já tem planilha</h3>
+              <p>
+                Ela entra aba por aba. O app lê o mês, confere contra os totais da própria planilha e não
+                duplica o que se repete de uma aba para a outra. O que você digitou por anos vira histórico,
+                não trabalho perdido.
+              </p>
+            </article>
+            <article class="cartao">
+              <h3>Nunca controlou nada</h3>
+              <p>
+                Comece com três coisas: o salário, as contas fixas e o cartão. O resto o app vai perguntando
+                quando acontecer. O primeiro mês já fecha.
+              </p>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -189,6 +355,31 @@
         <div class="moldura">
           <div class="secao-cabeca">
             <h2 id="titulo-numeros">O que os números dizem</h2>
+            <p class="suave">Pesquisas repercutidas pela imprensa. Fonte e ano em cada uma.</p>
+          </div>
+          <div class="numeros">
+            <figure class="numero">
+              <p class="numero-valor mono">45%</p>
+              <figcaption>
+                dos casais apontam o dinheiro como o centro dos conflitos da relação.
+                <cite>Serasa, 2026</cite>
+              </figcaption>
+            </figure>
+            <figure class="numero">
+              <p class="numero-valor mono">52%</p>
+              <figcaption>
+                de quem compra parcelado não controla as parcelas. Dos que controlam, 22% usam caderno, 15%
+                planilha e 11% aplicativo.
+                <cite>CNDL e SPC Brasil, 2025</cite>
+              </figcaption>
+            </figure>
+            <figure class="numero">
+              <p class="numero-valor mono">58%</p>
+              <figcaption>
+                dos casais dizem ter alguma organização financeira em conjunto. Quatro em dez não têm.
+                <cite>Serasa com Opinion Box, 2025</cite>
+              </figcaption>
+            </figure>
           </div>
         </div>
       </section>

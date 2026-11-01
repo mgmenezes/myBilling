@@ -139,11 +139,11 @@ T5 -> T6
 **Requirement**: CAMP-02 (ACs 2 a 5)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: cinco blocos em "Onde as contas da casa quebram", cada um com dois parágrafos (AC 2)
-- [ ] Teste: o comparativo tem ao menos duas linhas marcadas `data-vence="planilha"` ou `data-vence="caderno"` (AC 3)
-- [ ] Teste: nenhuma palavra da lista "O que nunca prometer" (sincroniza, banco, open finance, app na loja, orçamento por categoria, fatura, grátis, R$ por mês) aparece como promessa; a lista vive no teste (AC 4)
-- [ ] Teste: cada `<figure class="numero">` tem `<figcaption>` com `<cite>` e um ano de quatro dígitos; no máximo três (AC 5)
-- [ ] Grandeza numérica isolada em `.mono`; nenhuma frase corrida em `.mono` (CAMP-03 AC 7, conferência manual)
+- [x] Teste: cinco blocos em "Onde as contas da casa quebram", cada um com dois parágrafos (AC 2)
+- [x] Teste: o comparativo tem ao menos duas linhas marcadas `data-vence="planilha"` ou `data-vence="caderno"` (AC 3)
+- [x] Teste: nenhuma palavra da lista "O que nunca prometer" (sincroniza, banco, open finance, app na loja, orçamento por categoria, fatura, grátis, R$ por mês) aparece como promessa; a lista vive no teste (AC 4)
+- [x] Teste: cada `<figure class="numero">` tem `<figcaption>` com `<cite>` e um ano de quatro dígitos; no máximo três (AC 5)
+- [x] Grandeza numérica isolada em `.mono`; nenhuma frase corrida em `.mono` (CAMP-03 AC 7, conferência manual)
 **Tests**: estrutural (`node:test`)
 **Gate**: site
 

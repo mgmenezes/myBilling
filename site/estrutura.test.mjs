@@ -246,3 +246,100 @@ test("CAMP-04 ACs 3 e 4: com uma URL https, todo botão é um link estático em 
 test("Edge case: URL sem TLS é tratada como placeholder", () => {
   assert.throws(() => aplicarFormulario(html, "http://exemplo.com/form"), /https/);
 });
+
+/** Texto visível, sem tags, para as asserções de copy. */
+function textoVisivel(trecho) {
+  return trecho
+    .replace(/<script[\s\S]*?<\/script>/g, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * CAMP-02 AC 4: nada da lista "O que nunca prometer" de
+ * `docs/marketing/posicionamento.md`. A lista vive aqui, em padrões: mudar a
+ * lista lá sem mudar aqui deixa o teste mentindo.
+ */
+const PROMESSAS_PROIBIDAS = [
+  /sincroniz/i,
+  /open finance/i,
+  /importa (do|de) (seu|sua) banco/i,
+  /conecte (seu|sua) banco/i,
+  /app nativo|baixe na loja|app store|google play/i,
+  /notifica/i,
+  /or[çc]amento por categoria/i,
+  /defina um limite/i,
+  /veja quanto vai vir na fatura|controle de fatura|[áa]rea de cart[õo]es/i,
+  /edite (a|sua) compra|editar (a|sua) compra/i,
+  /sem conflito|ao mesmo tempo sem/i,
+  /gr[áa]tis|gratuito|sem mensalidade|R\$\s?\d+(,\d{2})?\s?(\/|por)\s?m[êe]s/i,
+  /dispon[íi]vel agora|crie sua conta|cadastre-se/i,
+  /compara[çc][ãa]o m[êe]s a m[êe]s|gr[áa]fico de evolu[çc][ãa]o/i,
+  /quem deve a quem|acerto de contas/i,
+];
+
+test("CAMP-02 AC 2: cinco blocos de dor, cada um com a cena e a garantia", () => {
+  const secao = html.slice(html.indexOf('id="onde-quebra"'), html.indexOf('id="comparativo"'));
+  const blocos = [
+    ...secao.matchAll(/<article\b[^>]*\bclass="[^"]*\bdor\b[^"]*"[^>]*>([\s\S]*?)<\/article>/g),
+  ];
+  assert.equal(blocos.length, 5);
+  const temas = ["parcela", "fatura", "ano", "luz", "duas pessoas"];
+  const texto = textoVisivel(secao).toLowerCase();
+  for (const tema of temas) {
+    assert.ok(texto.includes(tema), `dor sem o tema "${tema}"`);
+  }
+  for (const [, corpo] of blocos) {
+    assert.match(corpo, /<h3\b/);
+    assert.match(corpo, /<p\b[^>]*\bclass="[^"]*\bdor-cena\b/);
+    assert.match(corpo, /<p\b[^>]*\bclass="[^"]*\bdor-garantia\b/);
+  }
+});
+
+test("CAMP-02 AC 3: o comparativo tem linhas em que a planilha ou o caderno ganham", () => {
+  const secao = html.slice(html.indexOf('id="comparativo"'), html.indexOf('id="para-dois"'));
+  assert.match(secao, /<table\b/);
+  const cabecalhos = [...secao.matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    textoVisivel(m[1]).trim(),
+  );
+  assert.deepEqual(cabecalhos.slice(-3), ["Caderno", "Planilha", "myBilling"]);
+  const linhas = [...secao.matchAll(/<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>/g)].map((m) => m[1]);
+  assert.ok(linhas.length >= 5, "ao menos cinco linhas comparadas");
+  const outrosGanham = linhas.filter((v) => /planilha|caderno/.test(v));
+  assert.ok(outrosGanham.length >= 2, "ao menos duas linhas em que planilha ou caderno ganham");
+  for (const v of outrosGanham) {
+    assert.doesNotMatch(
+      v,
+      /mybilling/i,
+      `linha em que a planilha ganha não pode marcar o myBilling: "${v}"`,
+    );
+  }
+});
+
+test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {
+  const texto = textoVisivel(html);
+  for (const padrao of PROMESSAS_PROIBIDAS) {
+    assert.doesNotMatch(texto, padrao, `promessa proibida: ${padrao}`);
+  }
+});
+
+test("CAMP-02 AC 5: cada número de mercado com fonte e ano, no máximo três", () => {
+  const figuras = [
+    ...html.matchAll(/<figure\b[^>]*\bclass="[^"]*\bnumero\b[^"]*"[^>]*>([\s\S]*?)<\/figure>/g),
+  ];
+  assert.ok(figuras.length >= 1 && figuras.length <= 3, `${figuras.length} números`);
+  for (const [, corpo] of figuras) {
+    const legenda = corpo.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/);
+    assert.ok(legenda, "número sem figcaption");
+    assert.match(legenda[1], /<cite\b/);
+    assert.match(textoVisivel(legenda[1]), /\b(19|20)\d{2}\b/);
+  }
+});
+
+test("Tom: sem exclamação, sem travessão, sem emoji no texto visível", () => {
+  const texto = textoVisivel(html);
+  assert.doesNotMatch(texto, /!/);
+  assert.doesNotMatch(texto, /[—–]/);
+  assert.doesNotMatch(texto, /\p{Extended_Pictographic}/u);
+});

@@ -40,3 +40,6 @@ pnpm-debug.log*
 
 # CLI do Salesforce (metadados locais de outro projeto)
 .sf/
+
+# saída do navegador do Playwright MCP
+.playwright-mcp/
