@@ -37,3 +37,6 @@ pnpm-debug.log*
 
 # worktrees locais de fatias em andamento
 .worktrees/
+
+# CLI do Salesforce (metadados locais de outro projeto)
+.sf/
