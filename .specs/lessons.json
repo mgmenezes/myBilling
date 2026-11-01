@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 70,
+  "next_id": 71,
   "lessons": [
     {
       "id": "L-001",
@@ -1223,6 +1223,24 @@
       ],
       "created": "2026-11-01T01:57:03Z",
       "last_seen": "2026-11-01T01:57:03Z"
+    },
+    {
+      "id": "L-070",
+      "key": "spec_precision_gap::fix a design decision from the assumptions table such as a font size or spacing in an acceptance criterion with a measured value or no test will ever discriminate it",
+      "text": "Fix a design decision from the Assumptions table (such as a font size or spacing) in an acceptance criterion with a measured value, or no test will ever discriminate it",
+      "signal": "spec_precision_gap",
+      "scope": "ui-e2e",
+      "status": "candidate",
+      "features": [
+        "simular"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M14 em .specs/features/simular/validation.md; src/components/navegacao-principal.tsx:123 (ui-e2e)"
+      ],
+      "created": "2026-11-01T21:45:18Z",
+      "last_seen": "2026-11-01T21:45:18Z"
     }
   ]
 }

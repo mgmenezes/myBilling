@@ -4,7 +4,7 @@
 **Design**: nenhum arquivo próprio; o desenho está no plano aprovado
 (`~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`, seção "Peças de código") e nas
 Assumptions da spec
-**Status**: Done (aguardando o Verifier)
+**Status**: Verified, PASS em 2026-11-01 (`validation.md`): 40/40 ACs com evidência, 15 mutantes injetados, 14 mortos e 1 equivalente à spec; gates verdes
 **Total**: 9 tasks em 3 fases. Passa de um lote (~8): execução inline recomendada, com a oferta de
 sub-agentes registrada na apresentação.
 

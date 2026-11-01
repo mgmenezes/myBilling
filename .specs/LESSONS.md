@@ -408,6 +408,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: N7 src/components/coluna-de-cadastro.tsx:50; Edge Case 'Nome longo' no painel; validation.md rodada 3, G10 (e2e,layout)
 - last seen: 2026-11-01T01:57:03Z
 
+### L-070 - Fix a design decision from the Assumptions table (such as a font size or spacing) in an acceptance criterion with a measured value, or no test will ever discriminate it
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `ui-e2e` · harmful: 0
+- features: simular
+- evidence: M14 em .specs/features/simular/validation.md; src/components/navegacao-principal.tsx:123 (ui-e2e)
+- last seen: 2026-11-01T21:45:18Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -26,8 +26,9 @@ import { criarCompetencia } from "@/domain";
  *
  * **Na barra inferior, sem respiro entre os itens e com a letra menor.** São
  * cinco itens em 360 px, uns 68 px cada, e "Lançamentos" não quebra (SIM-03,
- * AC 3). Em 13 px ele não cabia; em 11 px cabe, e o alvo continua sendo o
- * item inteiro, com mais de 44 px de altura (AC 4). Com o respiro do
+ * AC 3). Sem o respiro, "Lançamentos" ainda cabe em 13 px, por pouco; os 11
+ * px são decisão do dono (2026-11-01), para sobrar folga, e o alvo continua
+ * sendo o item inteiro, com mais de 44 px de altura (AC 4). Com o respiro do
  * computador, "Visão geral" ia para duas linhas e a barra ficava mais alta só
  * naquele item (COR-04, AC 10). No celular o ícone fica em cima do rótulo, e
  * o que separa um item do outro é a largura de cada um, não o respiro. No
