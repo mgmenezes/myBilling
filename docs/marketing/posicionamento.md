@@ -10,11 +10,15 @@ Fonte do que **não** existe: `docs/roadmap.md`. Spec desta fatia:
 
 ## O produto em uma frase
 
-**As contas da casa, para dois, sem o mês fechar errado.**
+**A planilha sabe o que você digitou. O myBilling sabe o que vem.**
 
 É um app web em que duas pessoas que dividem as despesas cadastram cada coisa uma vez só, e o app
-faz o resto: espalha as parcelas pelos meses, repete as contas fixas, separa o que já saiu do que
-ainda vai sair, e não deixa somar a mesma coisa duas vezes.
+faz o resto: espalha as parcelas pelos meses, repete as contas fixas, diz quanto vai sobrar em cada
+um dos próximos meses, separa o que já saiu do que ainda vai sair, e não deixa somar a mesma coisa
+duas vezes.
+
+A frase anterior, "As contas da casa, para dois, sem o mês fechar errado", continua verdadeira e
+pode aparecer como apoio. Deixou de ser a manchete em 2026-11-01 (seção "A tese").
 
 ## Para quem
 
@@ -32,24 +36,36 @@ A pessoa chega em um de três estados, e a peça precisa saber com qual está fa
 
 ## A tese
 
-**A planilha e o caderno deixam você errar. O myBilling não deixa.**
+**O app sabe o que vem.**
 
-Não vendemos "mais bonito" nem "automático". Vendemos que os erros que corrompem controle
-financeiro doméstico são **impossíveis por construção** aqui. Cada um deles tem nome, tem uma
-decisão de engenharia por trás, e tem teste que a protege. Isso é honesto, é único entre os apps do
-mercado, e é verificável no código.
+A planilha sabe o que você digitou. O caderno sabe o que você anotou. O aplicativo do banco sabe o
+saldo de hoje. Nenhum deles sabe quanto vai sobrar em abril, porque nenhum deles tem as parcelas e as
+contas fixas de abril. O myBilling tem: cada mês seguinte já nasce com o que foi decidido antes, e a
+Visão geral diz quanto vai sobrar ou faltar nos próximos meses.
+
+A cena que vende é a pessoa decidindo se dá para comprar. Hoje ela decide pelo saldo de hoje, e o
+saldo de hoje não sabe das parcelas que vêm. É essa pergunta que toda peça abre.
+
+**A garantia antiga vira apoio.** "A planilha e o caderno deixam você errar; o myBilling não deixa"
+continua verdadeira: a parcela nunca é esquecida, a fatura nunca conta duas vezes, o ano nunca vira
+errado. Ela é o motivo pelo qual a resposta sobre o futuro é confiável. Mas ninguém vê um erro que
+não aconteceu, então ela não abre a peça; ela sustenta a peça.
+
+Não vendemos "mais bonito" nem "automático". O que vendemos tem decisão de engenharia por trás e
+teste que a protege (AD-002, AD-003, AD-004, AD-023), e é verificável no código.
 
 O que **não** é a tese: não somos contra planilha. A planilha é flexível, custa zero e abre em
 qualquer lugar. A peça admite isso em voz alta, porque é verdade e porque admitir compra
 credibilidade para o resto.
 
-## As cinco dores, e o que o app garante
+## As seis cenas, e o que o app garante
 
-Estas são as cinco cenas que toda peça pode usar. Cada garantia aponta para a decisão ou spec que a
-sustenta. Garantia sem fonte aqui não existe no produto.
+Estas são as seis cenas que toda peça pode usar. A primeira é a que abre. Cada garantia aponta para
+a decisão ou spec que a sustenta. Garantia sem fonte aqui não existe no produto.
 
 | Cena (como a pessoa vive) | Garantia (o que o app faz) | Onde está provado |
 | --- | --- | --- |
+| Você quer saber se dá para comprar em dez vezes. Olha o saldo de hoje e decide. Mas as parcelas e as contas fixas dos próximos meses já estão decididas, e o saldo de hoje não sabe disso. | Cada mês seguinte já nasce com o que foi decidido antes: as parcelas, as contas fixas, o salário. A Visão geral diz quanto vai sobrar ou faltar em cada um dos próximos meses. Não dizer quantos meses: o número muda com o horizonte (AD-023). | `saldo-futuro/spec.md` (SALDO-03), `recorrencias/spec.md` (FIXO-01), AD-002, AD-023 |
 | Você comprou em dez vezes e precisa lembrar de anotar a parcela nos próximos nove meses. Esqueceu uma, o saldo mente. | A compra é cadastrada uma vez. As parcelas vão para os meses certos sozinhas, inclusive quando o ano vira. Se a compra já estava no meio (parcela 8 de 10), entra do ponto em que está, sem inventar meses passados. | AD-002, AD-004, AD-005; `mvp-gestao-financeira/spec.md` |
 | Você anotou a compra no cartão e, quando a fatura veio, anotou o pagamento também. Agora o gasto do mês está dobrado. | Pagamento de fatura e compra no cartão vivem em lugares separados que não se somam. A dupla contagem não é improvável: é impossível de escrever no sistema. | AD-003 |
 | Você mistura o que já pagou com o que ainda vai pagar e nunca sabe se o número da tela é o que falta ou o que gastou. | Dois eixos, nunca juntos na mesma tela: **Planejamento** (o que o mês comprometeu) e **Movimentações** (o que de fato saiu). Um alternador troca entre eles. | MOV-03 em `painel-e-lancamentos/spec.md`; AD-017 |
@@ -83,11 +99,27 @@ qualquer um deles é mentir. Dizer que o app **não** faz ("não sincroniza com 
 | "Disponível agora", "crie sua conta" | O acesso é por lista de e-mails. A página convida para a lista de espera, e só. |
 | Comparação mês a mês, gráficos de evolução | Roadmap. |
 | Acerto de contas entre as duas pessoas ("quem deve a quem") | Fora do MVP, por decisão. |
+| O simulador "Dá pra comprar?" como coisa que existe ("simule", "veja antes de passar o cartão", "o app responde") | Está sendo construído (fatia `simular`). Só pode aparecer como "o que vem a seguir", nas palavras da seção abaixo. |
+| "Em qual fatura cai cada parcela" | Depende da fatia de Faturas, que vem depois do simulador. |
+| Quantos meses à frente o app enxerga, em número ("três meses", "doze meses") | O número muda com o horizonte (AD-023) e a peça ficaria velha. Dizer "os próximos meses". |
 
 Também proibido, em qualquer peça: qualquer valor em reais, nome, descrição ou captura de tela que
 venha do uso real da família (AD-009). Capturas vêm do seed (`pnpm db:seed`), que usa "Pessoa A",
 "Cartão Roxo", "Compra parcelada A". Valores em texto só os de fixture da spec do MVP: R$ 1.000,00
 em 3x virando R$ 333,34, R$ 333,33 e R$ 333,33.
+
+## O que vem a seguir
+
+Exceção explícita à regra acima, decidida pelo dono em 2026-11-01: a landing e os posts podem citar o
+simulador **"Dá pra comprar?"** como a próxima coisa que a lista de espera vai receber. Só assim:
+
+- Dizer que **ainda não existe** e que **é o que estamos fazendo**. Nunca "já", "disponível",
+  "simule agora".
+- Dizer o que ele vai fazer em até duas frases: a pessoa informa o valor e o número de parcelas, e o
+  app mostra quanto sobra em cada mês antes de ela passar o cartão; se não cabe, diz em quantas vezes
+  caberia.
+- Dizer que quem está na lista de espera recebe primeiro.
+- Nenhuma data e nenhum prazo. "Em breve" fica só no botão da lista, que é outro assunto.
 
 ## Números de mercado
 
