@@ -14,14 +14,15 @@ import type { TipoMeio } from "@/domain";
  *
  * **As contagens chegam prontas** (CADCOL-03). A tabela não conta nem soma.
  *
- * **Abaixo de 768 px não há cabeçalho**, e cada linha vira um cartão de duas
- * linhas de texto: o nome em cima e, embaixo, o tipo, os dias e as contagens,
- * cada um com o nome escrito ("fecha dia 25", "1 fixo") (CADCOL-06, AC 8). A
- * partir de 768 px, o nome do dia e o da contagem ficam só para leitor de
- * tela, e o cabeçalho diz o que é. A conta e o rótulo não têm dia: no cartão
- * de duas linhas o "—" some, e na tabela fica em Fecha e em Vence (AC 4). Em
- * 400 px, o que vai embaixo do nome de um cartão de crédito quebra em duas
- * linhas: o tipo, os dois dias e as duas contagens não cabem em 336 px.
+ * **Abaixo de 768 px não há cabeçalho**, e cada linha vira um cartão: o nome
+ * sozinho na primeira linha de texto e, embaixo, o tipo, os dias e as
+ * contagens, cada um com o nome escrito ("fecha dia 25", "1 fixo"), que
+ * quebram em mais linhas quando não cabem (CADCOL-06, AC 8). Em 400 px, o
+ * tipo, os dois dias e as duas contagens de um cartão de crédito não cabem em
+ * 336 px e ocupam duas linhas. A partir de 768 px, o nome do dia e o da
+ * contagem ficam só para leitor de tela, e o cabeçalho diz o que é. A conta e
+ * o rótulo não têm dia: abaixo de 768 px o "—" some, e na tabela fica em
+ * Fecha e em Vence (AC 4).
  *
  * O tipo `ItemDeMeio` nasce aqui, no primeiro componente que o usa.
  */
@@ -145,7 +146,7 @@ function ComNome({
   );
 }
 
-/** A célula de um dia: "dia N" no cartão; "—" na conta e no rótulo, que some no cartão de duas linhas. */
+/** A célula de um dia: "dia N" no cartão de crédito; "—" na conta e no rótulo, que some abaixo de 768 px. */
 function CelulaDoDia({ nome, dia }: { readonly nome: string; readonly dia: number | null }) {
   if (dia === null) {
     return <td className={`${CELULA} hidden text-ink-muted md:table-cell`}>—</td>;
@@ -174,10 +175,11 @@ function LinhaDeMeio({
     <tr
       onClick={() => aoAbrir(meio.id)}
       /*
-       * Abaixo de 768 px, duas linhas de texto: o nome ocupa a primeira
-       * inteira, e o resto quebra na segunda (CADCOL-06, AC 8). O aberto
-       * ganha o fundo de elevação e um filete de 2 px na cor primária, à
-       * esquerda (CADCOL-07, AC 15), como em Categorias e em Todo mês.
+       * Abaixo de 768 px, o nome ocupa sozinho a primeira linha de texto, e
+       * o resto vai embaixo, quebrando em mais linhas quando não cabe
+       * (CADCOL-06, AC 8). O aberto ganha o fundo de elevação e um filete de
+       * 2 px na cor primária, à esquerda (CADCOL-07, AC 15), como em
+       * Categorias e em Todo mês.
        */
       className={`mb-3 flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border p-4 transition-colors duration-200 md:mb-0 md:table-row md:rounded-none md:border-0 md:p-0 md:[&:not(:last-child)>td]:border-b md:[&:not(:last-child)>td]:border-line ${
         aberto

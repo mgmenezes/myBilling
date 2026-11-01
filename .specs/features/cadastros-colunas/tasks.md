@@ -12,7 +12,8 @@ As correções F1–F6 fecharam G1 a G5.
 
 A rodada 2 deu FAIL em 2026-10-31: 94 de 96 ACs provados e 35 de 37 mutantes mortos. Ficaram duas
 lacunas de teste, G6 e G7, e nenhuma depende do dono. O código já faz o certo nas duas. As correções
-F7–F10 estão em execução, e a rodada 3 é a última do limite.
+F7–F10 estão concluídas, só com teste, comentário e spec, e esperam a rodada 3 do Verifier, a última
+do limite.
 
 Antes disso: o dono aprovou o plano em 2026-10-30, e T1 a T22 foram concluídas na branch
 `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`. A branch foi rebaseada sobre a
@@ -1324,7 +1325,7 @@ O teste da F4 só pega isso em 768 e 1.024 px.
   `overflow-wrap` no botão
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): o nome longo fica dentro da tabela`
+**Commit**: `test(cadastros): o nome longo fica dentro da tabela` (`7b642b6`)
 **Nota**:
 - **A medida.** `textoForaDaTabela`, ao lado de `medirRolagemLateral`, percorre os nós de texto do
   botão da linha e mede cada caixa, uma por linha de texto, contra a caixa da tabela. Ela devolve o
@@ -1373,12 +1374,37 @@ comentários); `spec.md` (traceability)
 **Reuses**: nenhuma
 **Requirement**: CADCOL-02, CADCOL-06, CADCOL-09
 **Done when**:
-- [ ] Nenhum comentário diz "duas linhas de texto" para a linha de baixo
-- [ ] A citação aponta a linha do `test(` de TRES-01 AC 10
-- [ ] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+- [x] Nenhum comentário diz "duas linhas de texto" para a linha de baixo
+- [x] A citação aponta a linha do `test(` de TRES-01 AC 10
+- [x] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(cadastros): acertar os comentários e a citação que ficaram para trás`
+**Nota**:
+- **Os comentários.** Os quatro trechos dizem a regra do AC 8 revisto: o nome, ou a pill, sozinho na
+  primeira linha de texto e, embaixo, o resto, que quebra em mais linhas quando não cabe.
+  - Em `tabela-de-meios.tsx`, o do arquivo, o da `CelulaDoDia` e o da linha. "No cartão de duas
+    linhas o — some" passa a "abaixo de 768 px o — some", que é o que o `hidden md:table-cell` faz.
+    A frase dos 400 px, em que o resto do cartão de crédito ocupa duas linhas porque não cabe em
+    336 px, continua: ela descreve a quebra, e não a regra.
+  - Em `tabela-de-categorias.tsx`, o do arquivo.
+  - A "grade de duas linhas" de `tabela-de-categorias.tsx:144` fica, porque são duas linhas de grade,
+    como a seção 6 de `validation.md` diz. Também ficam os comentários de `:81` e de
+    `tabela-de-meios.tsx:98`, que falam do nome quebrando na coluna em 768 px.
+  - Nenhuma classe mudou. `grep "duas linhas de texto"` nos dois arquivos não acha nada.
+- **A citação.** No CADCOL-09, `e2e/visao-tres-colunas.spec.ts:606` passa a `:604`, a linha do
+  `test(` de TRES-01, AC 10. A `validation.md` de Visão em três colunas também cita `:606`, mas é o
+  relatório de outra fatia e fica como está.
+- **Gate build, nesta worktree, em 2026-10-31.** O `pnpm db:up` não rodou, como na T22 e na F6: o
+  contêiner `mybilling-db` já estava de pé e saudável, e o gate usou o banco `mybilling_test_cad`.
+  - Cada passo do `pnpm verify` rodou sozinho, com o código de saída conferido, e depois o `pnpm
+    verify` inteiro. Todos saíram 0: `typecheck`, `lint` (368 arquivos), 2.088 unitários em 132
+    arquivos, branches de `src/domain` em 393/393, 406 de integração em 25 arquivos e o build.
+  - `pnpm test:e2e` inteiro saiu 0, com 266 testes em 17 arquivos na primeira passada, em 7,8 min.
+    São 73 em `cadastros-colunas.spec.ts`.
+- **As contagens da fase 8.** Antes eram 2.087 unitários, 406 de integração e 263 e2e. A fase
+  acrescenta 1 unitário (F7) e 3 e2e (F8). A F9 põe assertions nos dois testes da F4, e não testes
+  novos.
 
 ---
 

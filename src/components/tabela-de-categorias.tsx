@@ -21,8 +21,9 @@ import { Chip } from "./ui";
  * de tela, e o cabeçalho diz o que é.
  *
  * **Uma árvore de DOM só para as duas larguras**, como Todo mês: abaixo de
- * 768 px cada linha vira um cartão de duas linhas de texto, a pill em cima e
- * a cor e as contagens embaixo, por grade; a partir de 768 px, tabela.
+ * 768 px cada linha vira um cartão, por grade, com a pill sozinha na primeira
+ * linha de texto e, embaixo, a cor e as contagens, que quebram em mais linhas
+ * quando não cabem (CADCOL-02, AC 8); a partir de 768 px, tabela.
  *
  * O tipo `ItemDeCategoria` nasce aqui, no primeiro componente que o usa.
  */
