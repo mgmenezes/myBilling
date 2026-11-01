@@ -28,6 +28,14 @@ import { sessaoDaUI } from "../sessao";
 import { CadastroDeLancamento } from "./cadastro-de-lancamento";
 
 /**
+ * Quantos meses a seção "Próximos meses" mostra (HORIZ-02, AC 3). É menor que
+ * o horizonte da projeção, `MESES_DE_PROJECAO`, de propósito: o app enxerga
+ * doze meses para o simulador de compra, e doze linhas aqui dobrariam a altura
+ * da Visão geral. As três linhas são as três primeiras do horizonte.
+ */
+const LINHAS_DE_PROXIMOS_MESES = 3;
+
+/**
  * Visão geral do mês.
  *
  * O jargão contábil saiu da tela. "Eixo competência" virou **Planejamento**,
@@ -224,7 +232,7 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
               Próximos meses
             </h2>
             <HorizonteFuturo
-              meses={visaoMensal.futuro.map((mes) => ({
+              meses={visaoMensal.futuro.slice(0, LINHAS_DE_PROXIMOS_MESES).map((mes) => ({
                 competencia: mes.competencia,
                 rotulo: formatarCompetencia(mes.competencia),
                 comprometido: mes.comprometido,

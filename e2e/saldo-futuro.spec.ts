@@ -112,6 +112,8 @@ test("cada mês seguinte mostra o comprometido e quanto vai sobrar ou faltar (SA
 
   await expect(page.getByRole("heading", { name: "Próximos meses", level: 2 })).toBeVisible();
   await expect(page.getByText("Já comprometido nos próximos meses")).toHaveCount(0);
+  /* Desde o horizonte de doze meses, `futuro` traz 12 itens e esta contagem
+     prova o corte da página em três linhas (HORIZ-02, AC 1). */
   await expect(proximosMeses(page).getByRole("listitem")).toHaveCount(3);
 
   const abril = cartao(page, "Abril de 2026");

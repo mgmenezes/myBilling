@@ -202,7 +202,7 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 
 ---
 
-### T5: "Próximos meses" fica com três linhas
+### T5: "Próximos meses" fica com três linhas ✅ Concluída
 
 **What**: A Visão geral corta `futuro` nas primeiras linhas por uma constante própria
 (`LINHAS_DE_PROXIMOS_MESES = 3`), distinta do horizonte.
@@ -216,11 +216,11 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 - Skill: NONE
 
 **Done when**:
-- [ ] `e2e/saldo-futuro.spec.ts` continua a contar 3 itens na seção e a conferir "Saldo previsto"
-      de abril e maio; o teste de contagem ganha um comentário dizendo que agora prova o corte,
-      porque `futuro` tem 12
-- [ ] A constante de linhas vive na página, separada de `MESES_DE_PROJECAO` (AC 3)
-- [ ] Gate: `pnpm test:unit && pnpm test:integration && pnpm test:e2e` saem 0
+- [x] `e2e/saldo-futuro.spec.ts` continua a contar 3 itens na seção (`:117`, vermelho com 12 antes
+      do corte) e a conferir "Saldo previsto" de abril e maio; o teste de contagem ganhou o comentário
+- [x] A constante `LINHAS_DE_PROXIMOS_MESES = 3` vive na página (`page.tsx:36`), separada de
+      `MESES_DE_PROJECAO` (AC 3)
+- [x] Gate: `pnpm test:unit && pnpm test:integration && pnpm test:e2e` saem 0: 2.095, 412 e 266 e2e
 
 **Tests**: e2e
 **Gate**: full
