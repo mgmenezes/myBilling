@@ -15,6 +15,15 @@
 > autorizou o merge dos dois branches no `main` e o push quando a fatia 2 terminar. O handoff curto
 > está em `.specs/STATE.md`.
 >
+> **2026-11-01: a campanha foi reposicionada para "o app sabe o que vem"** (fatia
+> `campanha-o-que-vem`, no branch `feat/campanha-lista-de-espera`): posicionamento, landing e kit de
+> copy abrem pela cena "dá pra comprar?", respondida só com o que existe, e a landing ganhou a seção
+> "O que vem a seguir", que diz que o simulador "Dá pra comprar?" ainda não existe. Spec em
+> `.specs/features/campanha-o-que-vem/spec.md`. O diferencial e as três fatias de produto
+> (`horizonte-doze-meses`, feita no branch `feat/horizonte-doze-meses`; `simular`;
+> `landing-simulador`) estão no plano aprovado em
+> `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`.
+>
 > **A edição de gasto fixo e entrada fixa está implementada no branch `feat/editar-fixos`**, à
 > espera do Verifier. Ela **só entra no `main` depois das três importações em produção**, por
 > decisão do dono: editar um fixo importado entre uma aba e a seguinte faria a importação seguinte

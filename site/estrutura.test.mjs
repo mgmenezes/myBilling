@@ -343,14 +343,19 @@ test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo m
     /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
   );
   assert.ok(linha, "nenhuma linha de dados");
-  const linhas = [...secao.matchAll(
-    /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
-  )].map((m) => ({ vence: m[1], tema: textoVisivel(m[2]).trim() }));
+  const linhas = [
+    ...secao.matchAll(
+      /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
+    ),
+  ].map((m) => ({ vence: m[1], tema: textoVisivel(m[2]).trim() }));
   const indice = linhas.findIndex((l) => l.tema === "Quanto vai sobrar nos próximos meses");
   assert.notEqual(indice, -1, "falta a linha dos próximos meses");
   assert.equal(linhas[indice].vence, "mybilling");
   const primeiraDaPlanilha = linhas.findIndex((l) => /planilha|caderno/.test(l.vence));
-  assert.ok(indice < primeiraDaPlanilha, "a linha dos próximos meses vem antes das que a planilha ganha");
+  assert.ok(
+    indice < primeiraDaPlanilha,
+    "a linha dos próximos meses vem antes das que a planilha ganha",
+  );
 });
 
 test("VEM-02 ACs 4 e 5: a seção 'O que vem a seguir' diz que o simulador não existe, sem 'já' nem 'disponível'", () => {
