@@ -131,7 +131,7 @@ fechada não compila sem a mensagem.
 
 ---
 
-### T2: `obterHorizonteDeSaldos` lê os 13 saldos de C a C + 12
+### T2: `obterHorizonteDeSaldos` lê os 13 saldos de C a C + 12 ✅ Concluída
 
 **What**: Caso de uso que lê o mês aberto (`listarPorCompetencia`) e a janela seguinte numa chamada
 (`listarEntre(C + 1, C + 12)`) e devolve `[{ competencia, saldo }]` de C a C + 12, em ordem, com o
@@ -147,14 +147,14 @@ saldo de `saldoPrevistoDaCompetencia`. Não materializa: a página o faz.
 - Skill: NONE
 
 **Done when**:
-- [ ] `handler.test.ts` prova 13 itens, de C a C + 12, em ordem, com a virada de ano a partir de
+- [x] `handler.test.ts` prova 13 itens, de C a C + 12, em ordem, com a virada de ano a partir de
       novembro, por valores literais
-- [ ] Concordância: cada `saldo` é igual ao `saldo` de `projetarProximosMeses` para a mesma lista e o
+- [x] Concordância: cada `saldo` é igual ao `saldo` de `projetarProximosMeses` para a mesma lista e o
       de C igual a `saldoPrevistoDaCompetencia` (o mesmo número do card "Saldo previsto")
-- [ ] Espião: uma chamada a `listarEntre(C + 1, C + 12)` e uma a `listarPorCompetencia(C)`; uma
+- [x] Espião: uma chamada a `listarEntre(C + 1, C + 12)` e uma a `listarPorCompetencia(C)`; uma
       fixture em C + 12 entra e uma em C + 13 fica fora (observação do Verifier da fatia 1)
-- [ ] Cancelado não entra no saldo
-- [ ] Gate: `pnpm test:unit` sai 0
+- [x] Cancelado não entra no saldo
+- [x] Gate: `pnpm test:unit` sai 0: 2.130 unitários (+7)
 
 **Tests**: unit
 **Gate**: quick

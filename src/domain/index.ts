@@ -79,7 +79,7 @@ export { dataPadraoDoLancamento } from "./mes/data-padrao-do-lancamento";
 export type { ComprometimentoFuturo } from "./mes/projecao";
 export { projetarProximosMeses } from "./mes/projecao";
 export type { ResumoDoMes } from "./mes/resumo-mensal";
-export { resumoMensal } from "./mes/resumo-mensal";
+export { resumoMensal, saldoPrevistoDaCompetencia } from "./mes/resumo-mensal";
 export type { Porcentagem, ResumoCategoria, ResumoPessoa } from "./mes/resumo-por-categoria";
 export { CEM_PORCENTO, resumoPorCategoria, resumoPorPessoa } from "./mes/resumo-por-categoria";
 export type {
