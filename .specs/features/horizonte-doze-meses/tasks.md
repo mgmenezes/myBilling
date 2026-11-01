@@ -167,7 +167,7 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 
 ---
 
-### T4: O horizonte vira doze meses
+### T4: O horizonte vira doze meses ✅ Concluída
 
 **What**: `MESES_DE_PROJECAO` passa de 3 para 12 (materialização e projeção, a constante única);
 `futuro` passa a ter 12 itens.
@@ -181,14 +181,20 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 - Skill: NONE
 
 **Done when**:
-- [ ] `handler.test.ts` prova `futuro` com 12 itens, de C + 1 a C + 12, em ordem (AC 2), e a
-      virada de ano a partir de novembro (AC 4), com valores literais e não só pela constante
-- [ ] `materializar/handler.integration.test.ts` prova que materializar com a constante cria 13
-      ocorrências de um fixo sem fim (a aberta e 12 seguintes) e respeita `competenciaFim` dentro
-      da janela (AC 1)
-- [ ] Um teste prova que a constante da materialização é a mesma da projeção (AC 3)
-- [ ] Os testes de `obter-uso-no-mes` e `obter-todo-mes`, que usam a constante, continuam verdes
-- [ ] Gate: `pnpm test:unit && pnpm test:integration` saem 0
+- [x] `handler.test.ts` prova `futuro` com 12 itens, de C + 1 a C + 12, em ordem (AC 2,
+      `handler.test.ts:401-412`), e a virada de ano a partir de novembro (AC 4, `:424-435`), com
+      valores literais e não só pela constante
+- [x] `materializar/handler.integration.test.ts` prova que materializar com a constante cria 13
+      ocorrências de um fixo sem fim (AC 1, `:85-103`) e respeita `competenciaFim` dentro da janela
+      (`:123`)
+- [x] Um teste prova que a constante da materialização é a mesma da projeção e vale 12 (AC 3,
+      `materializar/handler.test.ts:71-72`)
+- [x] Os testes de `obter-uso-no-mes` e `obter-todo-mes`, que usam a constante, continuam verdes.
+      Três testes que fixavam a janela antiga em literal (4 ocorrências em `obter-uso-no-mes`, unit e
+      integração; 3 meses em MOV-06 AC 3) passaram a 13 e a 12, por mudança de spec, sem outra
+      alteração
+- [x] Gate: `pnpm test:unit && pnpm test:integration` saem 0: 2.095 unitários (+2) e 412 de
+      integração (+2)
 
 **Tests**: integration
 **Gate**: full

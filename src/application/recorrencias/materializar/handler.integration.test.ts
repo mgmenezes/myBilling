@@ -14,7 +14,7 @@ import {
   semearCadastroBase,
   URL_BANCO_DE_TESTE,
 } from "@/infrastructure/db/testing/banco-de-teste";
-import { materializarRecorrencias } from "./handler";
+import { MESES_DE_PROJECAO, materializarRecorrencias } from "./handler";
 
 /**
  * A materialização contra Postgres real.
@@ -75,6 +75,54 @@ async function contar(): Promise<number> {
   );
   return Number(rows[0]?.total ?? "-1");
 }
+
+describe("abrir um mês materializa doze meses à frente (HORIZ-01, AC 1)", () => {
+  it("um fixo sem fim ganha a competência aberta e as doze seguintes", async () => {
+    await criarFixo();
+
+    await materializarRecorrencias(deps(), c("2026-03"), MESES_DE_PROJECAO);
+
+    const { rows } = await pool.query<{ competencia: string }>(
+      "SELECT DISTINCT competencia::text FROM movimento WHERE recorrencia_id IS NOT NULL ORDER BY 1",
+    );
+    expect(rows.map((r) => r.competencia)).toEqual([
+      "2026-03-01",
+      "2026-04-01",
+      "2026-05-01",
+      "2026-06-01",
+      "2026-07-01",
+      "2026-08-01",
+      "2026-09-01",
+      "2026-10-01",
+      "2026-11-01",
+      "2026-12-01",
+      "2027-01-01",
+      "2027-02-01",
+      "2027-03-01",
+    ]);
+    expect(await contar()).toBe(13);
+  });
+
+  it("um fixo que termina dentro da janela para no fim dele", async () => {
+    await new RecorrenciaRepositoryDrizzle(db).criar({
+      dados: {
+        descricao: "Serviço fixo que termina",
+        natureza: "DESPESA",
+        categoriaId: base.categoriaId,
+        usuarioId: base.usuarioId,
+        meioPagamentoId: base.contaId,
+        competenciaInicio: c("2026-03"),
+        competenciaFim: c("2026-05"),
+        diaVencimento: 28,
+      },
+      valorInicial: 9900 as Cents,
+    });
+
+    await materializarRecorrencias(deps(), c("2026-03"), MESES_DE_PROJECAO);
+
+    expect(await contar()).toBe(3);
+  });
+});
 
 describe("materializar contra o banco (FIXO-02)", () => {
   it("abrir o mês cria as ocorrências faltantes da janela", async () => {
@@ -139,9 +187,9 @@ describe("materializar contra o banco (FIXO-02)", () => {
       },
       c("2026-03"),
     );
-    expect(antes.futuro.map((f) => f.comprometido)).toEqual([0, 0, 0]);
+    expect(antes.futuro.map((f) => f.comprometido)).toEqual(Array.from({ length: 12 }, () => 0));
 
-    await materializarRecorrencias(deps(), c("2026-03"), 3);
+    await materializarRecorrencias(deps(), c("2026-03"), MESES_DE_PROJECAO);
 
     const depois = await obterVisaoMensal(
       {
@@ -151,6 +199,8 @@ describe("materializar contra o banco (FIXO-02)", () => {
       },
       c("2026-03"),
     );
-    expect(depois.futuro.map((f) => f.comprometido)).toEqual([9900, 9900, 9900]);
+    expect(depois.futuro.map((f) => f.comprometido)).toEqual(
+      Array.from({ length: 12 }, () => 9900),
+    );
   });
 });

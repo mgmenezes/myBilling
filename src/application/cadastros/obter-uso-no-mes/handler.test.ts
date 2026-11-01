@@ -157,7 +157,8 @@ describe("obterUsoNoMes — materializa antes de contar (CADCOL-03, AC 5)", () =
     const primeira = await obterUsoNoMes(fakes, MARCO);
     const segunda = await obterUsoNoMes(fakes, MARCO);
 
-    expect(ocorrencias()).toHaveLength(4);
+    /* O mês aberto e os doze seguintes (HORIZ-01, AC 1). */
+    expect(ocorrencias()).toHaveLength(13);
     expect(segunda.porCategoria.get(CATEGORIA_UM)).toEqual(primeira.porCategoria.get(CATEGORIA_UM));
     expect(segunda.porCategoria.get(CATEGORIA_UM)?.lancamentos).toBe(1);
   });

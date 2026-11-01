@@ -35,8 +35,13 @@ import {
  * rotula como caixa em vez de apresentá-lo como o total do mês.
  */
 
-/** Janela fechada da projeção: recorrência sem fim não pode gerar sem limite. */
-export const MESES_DE_PROJECAO = 3;
+/**
+ * Janela fechada da projeção e da materialização: recorrência sem fim não pode
+ * gerar sem limite. Doze meses porque é até onde o simulador de compra precisa
+ * enxergar (HORIZ-01); a Visão geral exibe só as primeiras linhas, por uma
+ * constante própria dela (HORIZ-02).
+ */
+export const MESES_DE_PROJECAO = 12;
 
 export interface DependenciasVisaoMensal {
   readonly movimentos: MovimentoRepository;

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MESES_DE_PROJECAO as MESES_DA_VISAO } from "@/application/mes/obter-visao-mensal/handler";
 import {
   criarEstadoEmMemoria,
   type EstadoEmMemoria,
@@ -6,7 +7,7 @@ import {
   FakeRecorrenciaRepository,
 } from "@/application/ports/fakes";
 import type { Cents, Competencia, Natureza } from "@/domain";
-import { materializarRecorrencias } from "./handler";
+import { MESES_DE_PROJECAO, materializarRecorrencias } from "./handler";
 
 /**
  * Derivado de FIXO-01 (ACs 2 a 6), FIXO-02 (AC 1) e FIXO-05 (AC 2).
@@ -61,6 +62,16 @@ function ocorrencias(estado: EstadoEmMemoria) {
     .filter((m) => m.origem === "RECORRENCIA")
     .sort((a, b) => a.competencia.localeCompare(b.competencia));
 }
+
+describe("o horizonte é um só (HORIZ-01, AC 3)", () => {
+  /* A materialização reexporta a constante da projeção. Se um dia alguém
+     redigitar o número aqui, os dois podem divergir e a projeção passa a
+     enxergar meses sem ocorrência (FIXO-05, AC 2). */
+  it("a materialização e a projeção usam a mesma constante, de doze meses", () => {
+    expect(MESES_DE_PROJECAO).toBe(12);
+    expect(MESES_DE_PROJECAO).toBe(MESES_DA_VISAO);
+  });
+});
 
 describe("materializar a janela (FIXO-01, FIXO-02, FIXO-05)", () => {
   it("cobre a competência visível e os meses da projeção (FIXO-05, AC 2)", async () => {

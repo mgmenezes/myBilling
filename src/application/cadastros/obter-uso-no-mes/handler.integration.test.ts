@@ -108,8 +108,9 @@ describe("obterUsoNoMes contra o banco (CADCOL-03, ACs 3 e 5)", () => {
     const depoisDaPrimeira = await ocorrenciasDoFixo();
     const segunda = await obterUsoNoMes(deps(), MARCO);
 
-    expect(depoisDaPrimeira).toBe(4);
-    expect(await ocorrenciasDoFixo()).toBe(4);
+    /* O mês aberto e os doze seguintes (HORIZ-01, AC 1). */
+    expect(depoisDaPrimeira).toBe(13);
+    expect(await ocorrenciasDoFixo()).toBe(13);
     expect(segunda.porCategoria.get(base.categoriaId)).toEqual(
       primeira.porCategoria.get(base.categoriaId),
     );

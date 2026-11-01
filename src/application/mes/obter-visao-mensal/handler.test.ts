@@ -339,10 +339,20 @@ describe("comprometimento futuro (MOV-06, AC 3)", () => {
 
     const visao = await obterVisaoMensal(fakes, MARCO);
 
+    /* Os dois meses com parcela, e os dez seguintes da janela a zero (HORIZ-01). */
     expect(visao.futuro).toEqual([
       { competencia: "2026-04", comprometido: 33333, saldo: -33333 },
       { competencia: "2026-05", comprometido: 33333, saldo: -33333 },
       { competencia: "2026-06", comprometido: 0, saldo: 0 },
+      { competencia: "2026-07", comprometido: 0, saldo: 0 },
+      { competencia: "2026-08", comprometido: 0, saldo: 0 },
+      { competencia: "2026-09", comprometido: 0, saldo: 0 },
+      { competencia: "2026-10", comprometido: 0, saldo: 0 },
+      { competencia: "2026-11", comprometido: 0, saldo: 0 },
+      { competencia: "2026-12", comprometido: 0, saldo: 0 },
+      { competencia: "2027-01", comprometido: 0, saldo: 0 },
+      { competencia: "2027-02", comprometido: 0, saldo: 0 },
+      { competencia: "2027-03", comprometido: 0, saldo: 0 },
     ]);
   });
 });
@@ -391,6 +401,38 @@ describe("saldo dos próximos meses (SALDO-02)", () => {
       { competencia: "2026-04", comprometido: 30000, saldo: 70000 },
       { competencia: "2026-05", comprometido: 0, saldo: -10000 },
       { competencia: "2026-06", comprometido: 0, saldo: 0 },
+      { competencia: "2026-07", comprometido: 0, saldo: 0 },
+      { competencia: "2026-08", comprometido: 0, saldo: 0 },
+      { competencia: "2026-09", comprometido: 0, saldo: 0 },
+      { competencia: "2026-10", comprometido: 0, saldo: 0 },
+      { competencia: "2026-11", comprometido: 0, saldo: 0 },
+      { competencia: "2026-12", comprometido: 0, saldo: 0 },
+      { competencia: "2027-01", comprometido: 0, saldo: 0 },
+      { competencia: "2027-02", comprometido: 0, saldo: 0 },
+      { competencia: "2027-03", comprometido: 0, saldo: 0 },
+    ]);
+  });
+
+  /* Doze meses literais, e não `rangeCompetencias` com a constante: um
+     deslocamento de competência sem virada de ano produziria "2026-13" e
+     passaria por qualquer teste que derivasse o esperado da mesma aritmética
+     (AD-011). */
+  it("a partir de novembro, a janela atravessa o ano inteiro seguinte (HORIZ-01, ACs 2 e 4)", async () => {
+    const visao = await obterVisaoMensal(fakes, "2026-11" as Competencia);
+
+    expect(visao.futuro.map((mes) => mes.competencia)).toEqual([
+      "2026-12",
+      "2027-01",
+      "2027-02",
+      "2027-03",
+      "2027-04",
+      "2027-05",
+      "2027-06",
+      "2027-07",
+      "2027-08",
+      "2027-09",
+      "2027-10",
+      "2027-11",
     ]);
   });
 
