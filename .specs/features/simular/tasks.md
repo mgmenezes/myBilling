@@ -4,7 +4,7 @@
 **Design**: nenhum arquivo próprio; o desenho está no plano aprovado
 (`~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`, seção "Peças de código") e nas
 Assumptions da spec
-**Status**: In Progress
+**Status**: Done (aguardando o Verifier)
 **Total**: 9 tasks em 3 fases. Passa de um lote (~8): execução inline recomendada, com a oferta de
 sub-agentes registrada na apresentação.
 
@@ -353,7 +353,7 @@ com "Cabe. Nenhum mês fica no vermelho." e três linhas; o formulário de Avuls
 
 ---
 
-### T9: Registro: AD-024, roadmap e handoff
+### T9: Registro: AD-024, roadmap e handoff ✅ Concluída
 
 **What**: Registrar em `.specs/STATE.md` a decisão AD-024 (o simulador recebe saldos, não
 lançamentos; horizonte C a C + 12; "cabe" definido sobre o visível; mês já negativo não conta
@@ -370,8 +370,8 @@ só na fatia 3, então aqui não muda.
 - Skill: NONE
 
 **Done when**:
-- [ ] AD-024 escrito, Handoff atualizado, roadmap e HANDOFF.md com a fatia
-- [ ] Gate: `pnpm verify` sai 0
+- [x] AD-024 escrito, Handoff atualizado, roadmap e HANDOFF.md com a fatia
+- [x] Gate: `pnpm verify` sai 0: typecheck, lint, 2.164 unitários, 413 de integração, build
 
 **Tests**: none
 **Gate**: build

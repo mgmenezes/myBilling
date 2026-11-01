@@ -268,27 +268,63 @@
 
 ---
 
+### AD-024
+- **Decision**: O simulador "Simular" (título "Dá pra comprar?", rota `/[competencia]/simular`,
+  quinto item da navegação) é calculado no cliente, a cada tecla, por `simularCompra` e
+  `menorParcelamentoQueCabe` em `src/domain/mes/simular-compra.ts`. O domínio recebe **o saldo
+  previsto de cada mês do horizonte** (`SaldoDoMes[]`, de C a C + 12, 13 competências), e não a
+  lista de lançamentos; o saldo sai de `saldoPrevistoDaCompetencia`, a mesma função do card "Saldo
+  previsto" e de "Próximos meses". **"Cabe" é definido sobre o que o app enxerga**: nenhuma linha
+  com `saldoAntes ≥ 0` fica com `saldoDepois < 0`; um mês que já faltava não conta contra a
+  compra e é marcado `jaFaltava`; parcelas além de C + 12 ficam fora das linhas e a tela diz
+  "Enxergo até <mês>". "Em quantas vezes caberia" é o menor `n` de 1 a `MAX_PARCELAS` com o total
+  da compra. "Lançar esta compra" abre o `FormCompra` de sempre, preenchido, e grava por
+  `criarCompra`. O mesmo bloco de resposta aparece dentro do cadastro de compra na Visão geral e
+  em Lançamentos. A barra inferior passa a cinco itens, com rótulo em 11 px e sem respiro entre
+  eles.
+- **Reason**: O "antes" do simulador precisa ser o número que o app já mostra para aquele mês, senão
+  a resposta não bate com a tela e a confiança acaba (SALDO-03, AC 7). Receber saldos em vez de
+  lançamentos deixa a função rodar na tela, dentro do formulário e, na fatia 3, na landing, sem
+  que a lista de lançamentos viaje ao cliente. Culpar a compra por um mês que já estava no
+  vermelho responderia "não cabe" a quem não mudou nada; inventar saldo de mês que o app não
+  materializou somaria plano com razão (AD-003). As frases do veredito são do dono (2026-11-01).
+- **Trade-off**: Uma compra longa é julgada só pelas parcelas visíveis, e a resposta diz isso em
+  vez de fingir. A busca do menor `n` é linear até 120, barata em `ratearParcelas`, porque cada `n`
+  muda o conjunto de meses alcançados e a monotonia não é garantida. No modo "valor da parcela", a
+  busca reparte o total informado (parcela × n), e não mantém o valor da parcela. O formulário
+  aberto por "Lançar esta compra" não repete o bloco de resposta, que já está acima dele.
+- **Scope**: `src/domain/mes/simular-compra.ts`, `obter-horizonte-de-saldos/handler.ts`,
+  `resposta-da-simulacao.tsx`, `apresentar-saldo.ts`, `simulador.tsx`, `form-compra.tsx`
+  (`valoresIniciais`, `horizonte`), `[competencia]/simular/page.tsx`, `navegacao-principal.tsx`,
+  `cadastro-de-lancamento.tsx`, e os dois códigos `HORIZONTE_INVALIDO` e
+  `PRIMEIRA_PARCELA_FORA_DO_HORIZONTE` em `CodigoErro` com mensagem em `src/lib/erros.ts`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+---
+
 ## Handoff
 
-- **Feature**: `horizonte-doze-meses`, **fatia 1 do diferencial "Simular"** (plano aprovado em
-  2026-11-01: `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`). Oito tasks concluídas
-  no branch `feat/horizonte-doze-meses`, worktree `.worktrees/horizonte-doze-meses`, a partir de
-  `ff395ba` do `main`. Spec, tasks e traceability em `.specs/features/horizonte-doze-meses/`.
-  **Verifier PASS em 2026-11-01** (`validation.md`: 12/12 ACs, 8 mutantes mortos, 0 lições).
-- **O que é**: o app passa a materializar e projetar 12 meses à frente (AD-023); "Próximos meses"
-  continua com 3 linhas; a janela é lida numa consulta (`listarEntre`); o seed cobre o horizonte.
-- **Completed**: T1 (absorve T2) `9efd6e9`, T3 `d3a0e6a`, T4 `76a07b1`, T5 `8dcd978`, T6 `b68cc86`,
-  T7 `7d1c7c6`, T8 `23dc07a`, mais o commit da verificação. Gates: 2.095 unitários, 413 de integração, 267 e2e.
-- **In-progress**: nenhum.
-- **Next step**: (1) fatia 2, `simular`: domínio `simularCompra` e
-  `menorParcelamentoQueCabe`, rota `/[competencia]/simular`, item "Simular" na navegação com a barra
-  inferior de cinco itens, bloco de resposta dentro do `FormCompra`, "Lançar esta compra"; (2) fatia
-  3, `landing-simulador`, que depende do branch `feat/campanha-lista-de-espera` (ainda fora do
-  `main`); (3) merge de `feat/horizonte-doze-meses` no `main` e `git push` exigem autorização separada.
-  Observação do Verifier para a fatia 2: o fim da janela (C + 12) é provado por espião de argumentos
-  em `obter-visao-mensal/handler.test.ts`; uma fixture em C + 12 e C + 13 deixaria o limite visível
-  pelo valor, e a fatia `simular` depende desse limite.
+- **Feature**: `simular`, **fatia 2 do diferencial "Simular"** (plano aprovado em 2026-11-01:
+  `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`). Nove tasks no branch
+  `feat/simular`, worktree `.worktrees/simular`, a partir de `8bf0731` de `feat/horizonte-doze-meses`
+  (que ainda não está no `main`). Spec, tasks e traceability em `.specs/features/simular/`.
+- **O que é**: a tela "Dá pra comprar?" em `/[competencia]/simular` (AD-024): quatro campos, uma
+  linha por mês com o saldo antes e depois da compra, o veredito nas frases do dono, "Lançar esta
+  compra" abrindo o cadastro preenchido; "Simular" como quinto item da navegação com a barra
+  inferior em cinco; o mesmo bloco de resposta dentro do cadastro de compra na Visão geral e em
+  Lançamentos.
+- **Completed**: T1 `b161d04`, T2 `aa8a606`, T3 `521efbf`, T4 `3fe58f9`, T5 `d925021`, T6 `35b3a38`,
+  T7 `6abf995`, T8 `cfa2434`, T9 (este registro). Gates: 2.164 unitários (414/414 branches), 413 de
+  integração, 279 e2e.
+- **In-progress**: o Verifier independente da fatia (`validation.md`) roda depois da T9.
+- **Next step**: (1) Verifier PASS; (2) o dono autorizou em 2026-11-01 o merge de
+  `feat/horizonte-doze-meses` e `feat/simular` no `main` e o `git push` quando a fatia terminar;
+  (3) fatia 3, `landing-simulador`, que depende do branch `feat/campanha-lista-de-espera` (ainda
+  fora do `main`): bundle de `src/domain` em `site/simulador.js`, seção na landing, casa fictícia,
+  revisão de CAMP-03 AC 5, e a tabela "nunca prometer" de `posicionamento.md` deixa de listar o
+  simulador como inexistente.
 - **Blockers**: nenhum.
 - **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava.
-- **Branch**: `feat/horizonte-doze-meses`.
+- **Branch**: `feat/simular`.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.

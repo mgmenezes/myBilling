@@ -9,7 +9,11 @@
 > e depois de uma compra parcelada, diz em quantas vezes caberia quando não cabe, e lança a compra
 > com um clique. Plano aprovado em `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`,
 > em três fatias: `horizonte-doze-meses` (feita, branch `feat/horizonte-doze-meses`, AD-023),
-> `simular` e `landing-simulador`. O handoff curto está em `.specs/STATE.md`.
+> `simular` (feita em 2026-11-01, branch `feat/simular` a partir do anterior, AD-024: a tela
+> `/[competencia]/simular`, o quinto item da navegação e o bloco de resposta dentro do cadastro de
+> compra) e `landing-simulador` (a próxima; depende de `feat/campanha-lista-de-espera`). O dono
+> autorizou o merge dos dois branches no `main` e o push quando a fatia 2 terminar. O handoff curto
+> está em `.specs/STATE.md`.
 >
 > **A edição de gasto fixo e entrada fixa está implementada no branch `feat/editar-fixos`**, à
 > espera do Verifier. Ela **só entra no `main` depois das três importações em produção**, por
