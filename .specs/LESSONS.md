@@ -50,6 +50,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: LST-05 Goal e Problem Statement; validation.md lacuna 5 (spec,layout) (+1 more)
 - last seen: 2026-10-31T04:36:51Z
 
+### L-041 - Regra que o cliente e o servidor aplicam cada um precisa de caso de teste nos dois lados; provada só no servidor, o cliente barra a entrada com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `componentes,validacao` · harmful: 0
+- features: cor-por-categoria, cadastros-colunas
+- evidence: L3c: src/components/lista-de-categorias.tsx:176 (componentes,validacao) (+1 more)
+- last seen: 2026-11-01T00:42:22Z
+
 ### L-055 - AC de posição 'em todas as larguras' precisa de medida em cada faixa em que a grade muda; numa grade com row-start, a ordem do DOM não prova a ordem na tela.
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `e2e,layout` · harmful: 0
 - features: todo-mes-colunas, cadastros-colunas
@@ -240,12 +246,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: Edge Case nome igual; src/app/actions/categorias.ts:200 (spec,textos)
 - last seen: 2026-10-30T02:12:18Z
 
-### L-041 - Regra que o cliente e o servidor aplicam cada um precisa de caso de teste nos dois lados; provada só no servidor, o cliente barra a entrada com a suíte verde.
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `componentes,validacao` · harmful: 0
-- features: cor-por-categoria
-- evidence: L3c: src/components/lista-de-categorias.tsx:176 (componentes,validacao)
-- last seen: 2026-10-30T02:50:50Z
-
 ### L-042 - Teste de composição precisa de fixture com cada edge case cuja garantia mora num elo interno; só com o caminho feliz, o elo do meio filtra o caso e a suíte fica verde.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,composicao` · harmful: 0
 - features: saldo-futuro
@@ -389,6 +389,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: cadastros-colunas
 - evidence: E15 src/components/detalhe-do-meio.tsx:144; e2e/cadastros-colunas.spec.ts:1022; sonda D; validation.md ponto (d) (e2e,foco)
 - last seen: 2026-10-31T21:03:38Z
+
+### L-067 - Os casos de teste de um AC saem de cada cláusula dele, e não de cada controle; duas cláusulas que passam pelo mesmo botão viram um caso só, e a outra fica livre para regredir.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,acceptance-criteria` · harmful: 0
+- features: cadastros-colunas
+- evidence: F6e; CADCOL-07, AC 16; e2e/cadastros-colunas.spec.ts:2165 (e2e,acceptance-criteria)
+- last seen: 2026-11-01T00:42:22Z
 
 ## Quarantined (failed when applied - ignore)
 

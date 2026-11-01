@@ -8,11 +8,19 @@ mutantes mortos e cinco lacunas (G1 a G5). O dono decidiu em 2026-10-31:
 - G4: "Nunca rolar de lado", em largura nenhuma;
 - E15: "Sim, como em Todo mês": a tela fica parada ao salvar.
 
-As correções F1–F6 estão concluídas; falta a rodada 2 do Verifier. Antes disso: plano aprovado pelo dono em 2026-10-30, e T1 a
-T22 concluídas na branch `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`,
-rebaseada sobre a `main` em `e8b1540`, com Todo mês.
-**Total**: 28 tasks em 7 fases (T1–T22 e as correções F1–F6). As fases 1 a 6 deram três lotes
-(T1–T7, T8–T15 e T16–T22), com a oferta de sub-agentes antes do Execute. A fase 7 é um lote só.
+As correções F1–F6 fecharam G1 a G5.
+
+A rodada 2 deu FAIL em 2026-10-31: 94 de 96 ACs provados e 35 de 37 mutantes mortos. Ficaram duas
+lacunas de teste, G6 e G7, e nenhuma depende do dono. O código já faz o certo nas duas. As correções
+F7–F10 estão em execução, e a rodada 3 é a última do limite.
+
+Antes disso: o dono aprovou o plano em 2026-10-30, e T1 a T22 foram concluídas na branch
+`feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`. A branch foi rebaseada sobre a
+`main` em `e8b1540`, que já tem Todo mês.
+**Total**: 32 tasks em 8 fases (T1–T22 e as correções F1–F10).
+- As fases 1 a 6 deram três lotes: T1–T7, T8–T15 e T16–T22. A oferta de sub-agentes veio antes do
+  Execute.
+- As fases 7 e 8 são um lote cada.
 
 **Pré-condição**: Todo mês (AD-021) entra antes. Antes da T1, esta branch é rebaseada sobre a que
 tiver Todo mês (`feat/todo-mes-colunas`, ou `main` depois do merge), e a base de testes é medida de
@@ -198,6 +206,22 @@ F1 a F5 fecham os Fix Plans 1 a 5 de `validation.md` (rodada 1, FAIL).
 - Cada task começa pelo teste, que passa na HEAD e falha com o mutante do Verifier, ou falha antes
   da correção.
 - Todas mexem em `e2e/cadastros-colunas.spec.ts`, por isso vão em fila.
+
+### Phase 8 — Correções da verificação (rodada 2)
+
+```
+F7 -> F8
+F8 -> F9
+F9 -> F10
+```
+
+F7 e F8 fecham os Fixes 1 e 2 da rodada 2 de `validation.md` (G6 e G7). São só de teste: o código
+já faz o certo, como mostram as sondas P3 e P5.
+- A F9 é a observação 2: a medida da F4 não via uma rolagem dentro de um invólucro em 400 px. É de
+  teste, e a decisão de incluí-la é minha.
+- A F10 junta o Fix 3, os comentários de "duas linhas de texto", e a observação 5, a citação
+  deslocada da traceability.
+- Lote único, em fila.
 
 ---
 
@@ -1182,7 +1206,7 @@ Criar não entra: o painel abre na criada e leva o foco ao título, por desenho 
 - [x] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: e2e
 **Gate**: build
-**Commit**: `test(cadastros): a tela fica parada ao salvar`
+**Commit**: `test(cadastros): a tela fica parada ao salvar` (`21aa62b`)
 **Nota**:
 - **Nenhum pulo hoje.** Com o código de `19e972f`, os nove casos passam: a rolagem da página e a da
   coluna são as mesmas antes e depois de salvar. O código não muda. O padrão de Todo mês já está
@@ -1217,6 +1241,80 @@ Criar não entra: o painel abre na criada e leva o foco ao título, por desenho 
   Antes da fase 7 eram 2.087 unitários, 406 de integração e 247 e2e; a fase acrescenta 16 e2e (2 na
   F3, 2 na F4, 3 na F5 e 9 na F6). O `pnpm db:up` não rodou, como na T22: o contêiner já estava de
   pé, e o gate usou o banco `mybilling_test_cad`.
+
+### Phase 8 — Correções da verificação (rodada 2)
+
+#### F7: Mudar só a caixa do nome do meio grava, no componente
+**What**: o Fix 1 da rodada 2 (G6). O `DetalheDoMeio` decide "nada mudou" antes de chamar o
+servidor (`detalhe-do-meio.tsx:131-137`). Nenhum teste muda só a caixa do nome. Na categoria, o
+mesmo caso já tem teste (`detalhe-da-categoria.test.tsx:411`).
+**Where**: `src/components/detalhe-do-meio.test.tsx`; `spec.md` (traceability do CADCOL-07)
+**Depends on**: nenhuma
+**Reuses**: o molde de `detalhe-da-categoria.test.tsx:411`
+**Requirement**: CADCOL-07
+**Done when**:
+- [ ] O teste troca "Cartão Roxo" por "cartão roxo" e salva. Ele afirma `editar` chamado uma vez com
+  `nome: "cartão roxo"` e os dias gravados, e o aviso "Meio de pagamento salvo." (CADCOL-07 AC 8)
+- [ ] O teste passa na HEAD e falha com B8, a comparação `pedido.nome === meio.nome` feita sem caixa
+**Tests**: componentes
+**Gate**: quick
+**Commit**: `test(meios): mudar só a caixa do nome do meio grava`
+
+#### F8: Salvar o nome do meio também deixa a tela parada
+**What**: o Fix 2 da rodada 2 (G7). O CADCOL-07 AC 16 diz "o nome ou os dias". Hoje `GRAVACOES`
+(e2e `:2165-2214`) salva só os dias.
+**Where**: `e2e/cadastros-colunas.spec.ts`; `spec.md` (traceability do CADCOL-07)
+**Depends on**: F7
+**Reuses**: `GRAVACOES`, `painelDoMeio`, `botaoDoMeio`
+**Requirement**: CADCOL-07
+**Done when**:
+- [ ] `GRAVACOES` ganha um quarto caso, "o nome do meio": "Nome" muda para "Cartão Lilás", e o teste
+  espera `botaoDoMeio(page, "Cartão Lilás")` na página relida
+- [ ] O controle é procurado pelo painel, e não pelo formulário com o nome velho. O `aria-label` do
+  formulário muda com o nome
+- [ ] Os três casos novos (400 × 700, 1.280 × 480 e 1.920 × 480) passam na HEAD e falham com F6e, o
+  `scrollIntoView` na linha renomeada
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(meios): renomear o meio deixa a tela parada`
+
+#### F9: O nome longo fica dentro da tabela
+**What**: a observação 2 da rodada 2. Com a tabela num `overflow-x-auto` e sem a regra de quebra no
+botão (F4f), em 400 px a palavra de 60 letras vai a 472 px numa tabela de 384, e a página não rola.
+O teste da F4 só pega isso em 768 e 1.024 px.
+**Where**: `e2e/cadastros-colunas.spec.ts`
+**Depends on**: F8
+**Reuses**: o teste da F4 (`:2077`) e a contagem de caixas do texto da F1
+**Requirement**: CADCOL-09 (AC 7), Edge Case "Nome longo"
+**Done when**:
+- [ ] No teste da F4, em 400, 768 e 1.024 px, nas duas abas, cada caixa do texto do nome longo de uma
+  palavra só fica dentro da caixa da tabela (± 1 px)
+- [ ] O teste passa na HEAD e falha em 400 px com F4f, a tabela num `overflow-x-auto` sem
+  `overflow-wrap` no botão
+**Tests**: e2e
+**Gate**: e2e
+**Commit**: `test(cadastros): o nome longo fica dentro da tabela`
+
+#### F10: Os comentários e a citação que ficaram para trás
+**What**: o Fix 3 e a observação 5 da rodada 2.
+- Os comentários de "duas linhas de texto" passam a dizer a regra do AC 8 revisto: o nome sozinho em
+  cima e, embaixo, o resto, que quebra quando não cabe. Eles estão em `tabela-de-meios.tsx:17-24`,
+  `:148` e `:176-178`, e em `tabela-de-categorias.tsx:23-25`.
+- A citação `e2e/visao-tres-colunas.spec.ts:606`, na traceability do CADCOL-09, passa a apontar o
+  começo do teste.
+
+**Where**: `src/components/tabela-de-meios.tsx`, `src/components/tabela-de-categorias.tsx` (só
+comentários); `spec.md` (traceability)
+**Depends on**: F9
+**Reuses**: nenhuma
+**Requirement**: CADCOL-02, CADCOL-06, CADCOL-09
+**Done when**:
+- [ ] Nenhum comentário diz "duas linhas de texto" para a linha de baixo
+- [ ] A citação aponta a linha do `test(` de TRES-01 AC 10
+- [ ] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+**Tests**: none
+**Gate**: build
+**Commit**: `docs(cadastros): acertar os comentários e a citação que ficaram para trás`
 
 ---
 
