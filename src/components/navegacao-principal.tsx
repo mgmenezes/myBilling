@@ -2,6 +2,7 @@
 
 import {
   ArrowsClockwiseIcon,
+  CalculatorIcon,
   ChartPieSliceIcon,
   ListBulletsIcon,
   TagIcon,
@@ -23,11 +24,14 @@ import { criarCompetencia } from "@/domain";
  * Lateral a partir de 768px, barra inferior abaixo disso: no celular o polegar
  * alcança a base da tela, não o topo.
  *
- * **Na barra inferior, quase sem respiro lateral.** São quatro itens em 400
- * px, e "Lançamentos" não quebra. Com o respiro do computador, "Visão geral"
- * ia para duas linhas e a barra ficava mais alta só naquele item (COR-04, AC
- * 10). No celular o ícone fica em cima do rótulo, e o que separa um item do
- * outro é a largura de cada um, não o respiro.
+ * **Na barra inferior, sem respiro entre os itens e com a letra menor.** São
+ * cinco itens em 360 px, uns 68 px cada, e "Lançamentos" não quebra (SIM-03,
+ * AC 3). Em 13 px ele não cabia; em 11 px cabe, e o alvo continua sendo o
+ * item inteiro, com mais de 44 px de altura (AC 4). Com o respiro do
+ * computador, "Visão geral" ia para duas linhas e a barra ficava mais alta só
+ * naquele item (COR-04, AC 10). No celular o ícone fica em cima do rótulo, e
+ * o que separa um item do outro é a largura de cada um, não o respiro. No
+ * computador os 15 px de sempre.
  *
  * **A competência vem da rota, e não de prop.** A navegação mora no menu
  * lateral, que é do layout acima de `[competencia]` e não recebe o parâmetro.
@@ -68,6 +72,11 @@ const AREAS: ReadonlyArray<Area> = [
    * e o item continua o mesmo.
    */
   { slug: "cadastros", rotulo: "Cadastros", Icone: TagIcon, destino: "cadastros/categorias" },
+  /*
+   * "Dá pra comprar?": o simulador, quinto item por decisão do dono (SIM-03).
+   * O rótulo é o verbo, "Simular"; a pergunta é o título da tela.
+   */
+  { slug: "simular", rotulo: "Simular", Icone: CalculatorIcon },
 ];
 
 /**
@@ -99,7 +108,7 @@ export function NavegacaoPrincipal() {
   return (
     <nav aria-label="Áreas do myBilling" className="contents">
       <ul
-        className="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-line bg-surface p-2 md:static md:flex-col md:gap-1 md:border-0 md:bg-transparent md:p-0"
+        className="fixed inset-x-0 bottom-0 z-20 flex gap-0 border-t border-line bg-surface px-1 py-2 md:static md:flex-col md:gap-1 md:border-0 md:bg-transparent md:p-0"
         /* Espaço para a barra inferior não cobrir conteúdo no celular. */
       >
         {AREAS.map(({ slug, rotulo, Icone, destino: subcaminho = slug }) => {
@@ -111,7 +120,7 @@ export function NavegacaoPrincipal() {
               <Link
                 href={destino}
                 aria-current={ativa ? "page" : undefined}
-                className={`relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-pill px-1 py-2 text-[13px] transition-colors duration-200 md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:px-3 md:text-[15px] ${
+                className={`relative flex min-h-[52px] flex-col items-center justify-center gap-1 whitespace-nowrap rounded-pill px-0.5 py-2 text-[11px] transition-colors duration-200 md:min-h-11 md:flex-row md:justify-start md:gap-2.5 md:px-3 md:text-[15px] ${
                   ativa
                     ? "bg-surface-strong font-semibold text-ink"
                     : "font-normal text-ink-muted hover:text-ink"

@@ -528,7 +528,7 @@ test("renomear mantém a cor em uso, e o nome de outra categoria é recusado com
   await expect(aviso(page)).toHaveCount(0);
 });
 
-test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizontal, e cada opção de cor tem alvo de 44 × 44 (COR-04, AC 10)", async ({
+test("em 400 px, a tela e a navegação de cinco itens cabem sem rolagem horizontal, e cada opção de cor tem alvo de 44 × 44 (COR-04, AC 10)", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 400, height: 900 });
@@ -549,6 +549,7 @@ test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizo
     "Lançamentos",
     "Todo mês",
     "Cadastros",
+    "Simular",
   ]);
   const itens = await nav.getByRole("link").evaluateAll((links) =>
     links.map((link) => {
@@ -561,7 +562,7 @@ test("em 400 px, a tela e a navegação de quatro itens cabem sem rolagem horizo
     expect(item.right).toBeLessThanOrEqual(400);
     expect(item.transborda).toBe(false);
   }
-  /* Os quatro rótulos numa linha só: um que quebrasse deixaria o item dele
+  /* Os cinco rótulos numa linha só: um que quebrasse deixaria o item dele
      mais alto que os outros. */
   expect(new Set(itens.map((item) => item.altura)).size).toBe(1);
 

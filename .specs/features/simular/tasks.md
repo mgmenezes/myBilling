@@ -297,7 +297,7 @@ visível; nenhuma chamada de rede durante a digitação.
 
 ---
 
-### T7: "Simular" quinto item da navegação, barra inferior em cinco
+### T7: "Simular" quinto item da navegação, barra inferior em cinco ✅ Concluída
 
 **What**: Acrescentar `{ slug: "simular", rotulo: "Simular" }` como quinto item, ativo quando o
 caminho termina em `/simular`; no celular o texto passa a 11 px e o `gap` da barra a zero; em
@@ -312,17 +312,17 @@ caminho termina em `/simular`; no celular o texto passa a 11 px e o `gap` da bar
 - Skill: NONE
 
 **Done when**:
-- [ ] `navegacao-principal.test.tsx` prova as cinco áreas, na ordem, o destino `/2026-03/simular` e
+- [x] `navegacao-principal.test.tsx` prova as cinco áreas, na ordem, o destino `/2026-03/simular` e
       `aria-current` só em Simular quando o caminho termina em `/simular`
-- [ ] E2E em 360 e em 400 px (L-055): cada um dos cinco links com `scrollWidth ≤ clientWidth`, o rótulo
+- [x] E2E em 360 e em 400 px (L-055): cada um dos cinco links com `scrollWidth ≤ clientWidth`, o rótulo
       em uma linha (altura do texto ≤ uma linha), a mesma altura entre os links, ao menos 44 px, e
       `scrollWidth` da página ≤ `innerWidth`; em 1024 px o texto dos itens mede 15 px
-- [ ] Os testes existentes que diziam "quatro" passam a cinco
-- [ ] Gate: `pnpm test:unit && pnpm test:e2e` saem 0
+- [x] Os testes existentes que diziam "quatro" passam a cinco (`navegacao-principal.test.tsx`, `menu-lateral.test.tsx`, `e2e/categorias.spec.ts`)
+- [x] Gate: `pnpm test:unit && pnpm test:e2e` saem 0: 2.164 unitários (+2), 277 e2e (+3). Na primeira rodada um e2e de `trocar-categoria` caiu por timeout com a suíte unitária rodando em paralelo; sozinho e na rodada completa seguinte passou
 
 **Tests**: e2e
 **Gate**: full
-**Commit**: `feat(navegacao): Simular como quinto item com a barra inferior em cinco`
+**Commit**: `feat(navegacao): incluir Simular como quinto item com a barra inferior em cinco`
 
 ---
 

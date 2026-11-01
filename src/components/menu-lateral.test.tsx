@@ -43,7 +43,8 @@ describe("o menu lateral (TRES-01)", () => {
     const menu = montar();
 
     const areas = within(menu).getByRole("navigation", { name: "Áreas do myBilling" });
-    expect(within(areas).getAllByRole("link")).toHaveLength(4);
+    /* Cinco desde o simulador (SIM-03, AC 1). */
+    expect(within(areas).getAllByRole("link")).toHaveLength(5);
   });
 
   it("na home do ano, sem mês aberto, não tem as áreas, mas tem a marca e o pé (AC 4)", () => {

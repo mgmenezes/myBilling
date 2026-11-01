@@ -3,8 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { NavegacaoPrincipal } from "./navegacao-principal";
 
 /**
- * Testes derivados de ENTR-01 (AC 1), NAV-03 (AC 5), COR-04 (AC 1) e TRES-01
- * (ACs 3 e 4). A competência vem do segmento da rota, como no app: o menu
+ * Testes derivados de ENTR-01 (AC 1), NAV-03 (AC 5), COR-04 (AC 1), TRES-01
+ * (ACs 3 e 4) e SIM-03 (ACs 1 e 2). A competência vem do segmento da rota, como no app: o menu
  * mora num layout acima de `[competencia]` e não a recebe por prop.
  */
 
@@ -54,11 +54,19 @@ describe("NavegacaoPrincipal — as áreas e seus nomes (ENTR-01, AC 1)", () => 
     expect(screen.queryByRole("link", { name: /^Fixos$/ })).toBeNull();
   });
 
-  it("lista exatamente as quatro áreas implementadas, nesta ordem (COR-04, AC 1)", () => {
+  it("lista exatamente as cinco áreas implementadas, nesta ordem (COR-04, AC 1; SIM-03, AC 1)", () => {
     abrir("2026-03");
 
     const nomes = screen.getAllByRole("link").map((l) => l.textContent?.trim());
-    expect(nomes).toEqual(["Visão geral", "Lançamentos", "Todo mês", "Cadastros"]);
+    expect(nomes).toEqual(["Visão geral", "Lançamentos", "Todo mês", "Cadastros", "Simular"]);
+  });
+
+  it("Simular leva ao simulador do mês aberto (SIM-03, AC 1)", () => {
+    abrir("2026-07");
+
+    expect(screen.getByRole("link", { name: "Simular" }).getAttribute("href")).toBe(
+      "/2026-07/simular",
+    );
   });
 
   it("mantém a rota /fixos: renomear a área não muda a URL nem quebra link salvo", () => {
@@ -110,7 +118,7 @@ describe("NavegacaoPrincipal — qual área está ativa", () => {
 });
 
 describe("NavegacaoPrincipal — Cadastros ativo em toda a área (COR-04, AC 1)", () => {
-  const AREAS = ["Visão geral", "Lançamentos", "Todo mês", "Cadastros"];
+  const AREAS = ["Visão geral", "Lançamentos", "Todo mês", "Cadastros", "Simular"];
 
   function ativas(): ReadonlyArray<string> {
     return AREAS.filter(
@@ -132,7 +140,8 @@ describe("NavegacaoPrincipal — Cadastros ativo em toda a área (COR-04, AC 1)"
     ["/2026-03", "Visão geral"],
     ["/2026-03/lancamentos", "Lançamentos"],
     ["/2026-03/fixos", "Todo mês"],
-  ])("em %s, só %s fica ativo, como antes", (caminho, area) => {
+    ["/2026-03/simular", "Simular"],
+  ])("em %s, só %s fica ativo (SIM-03, AC 2)", (caminho, area) => {
     caminhoAtual = caminho;
     abrir("2026-03");
 

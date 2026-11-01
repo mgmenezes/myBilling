@@ -279,3 +279,78 @@ test("Lançar esta compra grava pelo cadastro e o Saldo previsto de abril vira o
   await page.goto(`/${MARCO}`);
   await expect(cardSaldoPrevisto(page)).toHaveText("R$ 366,66");
 });
+
+/**
+ * A barra inferior com cinco itens (SIM-03, ACs 3, 4 e 5). Medida em cada
+ * faixa em que a grade muda (L-055): 360 e 400 px no celular, 1024 no
+ * computador.
+ */
+for (const largura of [360, 400]) {
+  test(`em ${largura} px, os cinco itens da barra cabem numa linha cada, com 44 px de alvo e sem rolagem (SIM-03, ACs 3 e 4)`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: largura, height: 740 });
+    await page.goto(`/${MARCO}/simular`);
+    const nav = page.getByRole("navigation", { name: "Áreas do myBilling" });
+    await expect(nav.getByRole("link")).toHaveText([
+      "Visão geral",
+      "Lançamentos",
+      "Todo mês",
+      "Cadastros",
+      "Simular",
+    ]);
+    await expect(nav.getByRole("link", { name: "Simular" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+
+    const itens = await nav.getByRole("link").evaluateAll((links) =>
+      links.map((link) => {
+        const { left, right, height } = link.getBoundingClientRect();
+        const rotulo = [...link.childNodes].find((no) => no.nodeType === Node.TEXT_NODE);
+        const alcance = document.createRange();
+        alcance.selectNodeContents(rotulo as Node);
+        return {
+          left,
+          right,
+          altura: height,
+          transborda: link.scrollWidth > link.clientWidth,
+          linhasDoRotulo: alcance.getClientRects().length,
+        };
+      }),
+    );
+    for (const item of itens) {
+      expect(item.left).toBeGreaterThanOrEqual(0);
+      expect(item.right).toBeLessThanOrEqual(largura);
+      expect(item.transborda).toBe(false);
+      expect(item.linhasDoRotulo).toBe(1);
+      expect(item.altura).toBeGreaterThanOrEqual(44);
+    }
+    expect(new Set(itens.map((item) => item.altura)).size).toBe(1);
+
+    const transborda = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(transborda).toBe(false);
+  });
+}
+
+test("em 1024 px a navegação mantém os 15 px e a coluna lateral (SIM-03, AC 5)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 800 });
+  await page.goto(`/${MARCO}/simular`);
+  const nav = page.getByRole("navigation", { name: "Áreas do myBilling" });
+
+  const medidas = await nav.getByRole("link").evaluateAll((links) =>
+    links.map((link) => ({
+      fonte: getComputedStyle(link).fontSize,
+      topo: link.getBoundingClientRect().top,
+    })),
+  );
+  expect(medidas.map((m) => m.fonte)).toEqual(Array<string>(5).fill("15px"));
+  /* Coluna: cada item abaixo do anterior. */
+  for (let i = 1; i < medidas.length; i += 1) {
+    expect(medidas[i]?.topo ?? 0).toBeGreaterThan(medidas[i - 1]?.topo ?? 0);
+  }
+});
