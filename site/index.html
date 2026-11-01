@@ -6,7 +6,7 @@
     <title>myBilling</title>
     <meta
       name="description"
-      content="As contas da casa, para dois, sem o mês fechar errado. Cadastre a compra parcelada uma vez e as parcelas aparecem sozinhas nos meses certos. Lista de espera."
+      content="A planilha sabe o que você digitou. O myBilling sabe o que vem: as parcelas e as contas fixas dos próximos meses, e quanto vai sobrar em cada um. Para dois. Lista de espera."
     />
     <!--
       A constante única da URL do formulário (CAMP-04). Não edite à mão:
@@ -145,10 +145,10 @@
       <section class="hero" id="inicio" aria-labelledby="titulo-inicio">
         <div class="moldura">
           <div class="hero-texto">
-            <h1 id="titulo-inicio">As contas da casa, para dois, sem o mês fechar errado.</h1>
+            <h1 id="titulo-inicio">A planilha sabe o que você digitou. O myBilling sabe o que vem.</h1>
             <p class="suave">
-              Cadastre a compra parcelada uma vez. As parcelas aparecem sozinhas nos meses certos, e a
-              fatura nunca conta duas vezes.
+              Cadastre a compra parcelada e as contas fixas uma vez. Cada mês seguinte já nasce com elas,
+              e a Visão geral diz quanto vai sobrar em cada um. Para dois, sem o mês fechar errado.
             </p>
             <div class="hero-acoes">
               <button class="botao botao-primario botao-lista" type="button" disabled aria-disabled="true">Lista de espera em breve</button>
@@ -182,11 +182,23 @@
           <div class="secao-cabeca">
             <h2 id="titulo-onde-quebra">Onde as contas da casa quebram</h2>
             <p class="suave">
-              Cinco situações que todo casal reconhece. Em cada uma, o que a planilha e o caderno deixam
-              passar, e o que o myBilling não deixa.
+              Seis situações que todo casal reconhece. Em cada uma, o que a planilha e o caderno não
+              sabem, e o que o myBilling sabe.
             </p>
           </div>
           <div class="dores">
+            <article class="dor cartao">
+              <h3>Dá pra comprar?</h3>
+              <p class="dor-cena">
+                Você quer parcelar em dez vezes. Olha o saldo de hoje e decide. Mas as parcelas e as
+                contas fixas dos próximos meses já estão decididas, e o saldo de hoje não sabe disso.
+              </p>
+              <p class="dor-garantia">
+                <strong>No myBilling</strong> cada mês seguinte já nasce com o que foi decidido antes: as
+                parcelas, as contas fixas, o salário. A Visão geral diz quanto vai sobrar ou faltar em
+                cada um dos próximos meses.
+              </p>
+            </article>
             <article class="dor cartao">
               <h3>A parcela que você esqueceu</h3>
               <p class="dor-cena">
@@ -287,6 +299,12 @@
               <tbody>
                 <tr class="grupo">
                   <th scope="rowgroup" colspan="4">Onde o mês fecha errado</th>
+                </tr>
+                <tr data-vence="mybilling">
+                  <th scope="row">Quanto vai sobrar nos próximos meses</th>
+                  <td data-coluna="Caderno">Não sabe</td>
+                  <td data-coluna="Planilha">Só se você copiar tudo antes</td>
+                  <td data-coluna="myBilling">Está na tela, mês a mês</td>
                 </tr>
                 <tr data-vence="mybilling">
                   <th scope="row">Compra em dez vezes</th>
@@ -426,6 +444,34 @@
                 <cite>Serasa com Opinion Box, 2025</cite>
               </figcaption>
             </figure>
+          </div>
+        </div>
+      </section>
+      <section class="secao" id="a-seguir" aria-labelledby="titulo-a-seguir">
+        <div class="moldura">
+          <div class="secao-cabeca">
+            <h2 id="titulo-a-seguir">O que vem a seguir</h2>
+            <p class="suave">
+              Uma coisa que o app ainda não faz, dita com clareza. É o que estamos fazendo agora, e quem
+              está na lista de espera recebe primeiro.
+            </p>
+          </div>
+          <div class="caminhos">
+            <article class="cartao">
+              <h3>Dá pra comprar?</h3>
+              <p>
+                Você informa o valor e o número de parcelas. O app mostra quanto sobra em cada mês antes
+                de você passar o cartão, com as parcelas e as contas fixas que ele conhece. Se não cabe,
+                diz em quantas vezes caberia.
+              </p>
+            </article>
+            <article class="cartao">
+              <h3>Ainda não existe</h3>
+              <p>
+                Não tem data. O que o app faz hoje está nas seções acima, com dados de demonstração nas
+                imagens. O que vem a seguir é isto, e esta página muda quando estiver pronto.
+              </p>
+            </article>
           </div>
         </div>
       </section>

@@ -21,7 +21,7 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(AQUI, "index.html"), "utf8");
 const css = readFileSync(join(AQUI, "estilos.css"), "utf8");
 
-/** CAMP-02 AC 1: as sete seções, nesta ordem. */
+/** CAMP-02 AC 1, revisto por VEM-02 AC 7: as oito seções, nesta ordem. */
 const SECOES = [
   "inicio",
   "onde-quebra",
@@ -29,6 +29,7 @@ const SECOES = [
   "para-dois",
   "sua-planilha",
   "numeros",
+  "a-seguir",
   "rodape",
 ];
 
@@ -73,7 +74,7 @@ test("CAMP-02 AC 7: idioma, título, viewport e descrição", () => {
   assert.match(html, /<meta\s+name="description"\s+content="[^"]{20,}"/);
 });
 
-test("CAMP-02 AC 1: as sete seções existem e estão na ordem", () => {
+test("CAMP-02 AC 1 e VEM-02 AC 7: as oito seções existem e estão na ordem", () => {
   const posicoes = SECOES.map((id) => {
     const posicao = html.search(new RegExp(`<(section|footer)[^>]*\\sid="${id}"`));
     assert.notEqual(posicao, -1, `seção #${id} ausente`);
@@ -279,17 +280,23 @@ const PROMESSAS_PROIBIDAS = [
   /quem deve a quem|acerto de contas/i,
 ];
 
-test("CAMP-02 AC 2: cinco blocos de dor, cada um com a cena e a garantia", () => {
+test("CAMP-02 AC 2 e VEM-02 AC 2: seis blocos de dor, o primeiro sobre comprar, cada um com a cena e a garantia", () => {
   const secao = html.slice(html.indexOf('id="onde-quebra"'), html.indexOf('id="comparativo"'));
   const blocos = [
     ...secao.matchAll(/<article\b[^>]*\bclass="[^"]*\bdor\b[^"]*"[^>]*>([\s\S]*?)<\/article>/g),
   ];
-  assert.equal(blocos.length, 5);
-  const temas = ["parcela", "fatura", "ano", "luz", "duas pessoas"];
+  assert.equal(blocos.length, 6);
+  const temas = ["comprar", "parcela", "fatura", "ano", "luz", "duas pessoas"];
   const texto = textoVisivel(secao).toLowerCase();
   for (const tema of temas) {
     assert.ok(texto.includes(tema), `dor sem o tema "${tema}"`);
   }
+  // O primeiro bloco é a cena que abre: decidir pelo saldo de hoje, e o app
+  // saber o que vem (VEM-02 AC 2).
+  const primeiro = textoVisivel(blocos[0][1]).toLowerCase();
+  assert.match(primeiro, /dá pra comprar/);
+  assert.match(primeiro, /saldo de hoje/);
+  assert.match(primeiro, /quanto vai sobrar ou faltar/);
   for (const [, corpo] of blocos) {
     assert.match(corpo, /<h3\b/);
     assert.match(corpo, /<p\b[^>]*\bclass="[^"]*\bdor-cena\b/);
@@ -315,6 +322,50 @@ test("CAMP-02 AC 3: o comparativo tem linhas em que a planilha ou o caderno ganh
     assert.match(vence[1], /planilha|caderno/, `em ${tema} quem ganha é a planilha ou o caderno`);
     assert.doesNotMatch(vence[1], /mybilling/i, `em ${tema} o myBilling não pode vencer`);
   }
+});
+
+test("VEM-02 AC 1: o herói tem a frase do dono e a cena respondida com o que existe", () => {
+  const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/);
+  assert.ok(h1, "h1 ausente");
+  assert.equal(
+    textoVisivel(h1[1]).trim(),
+    "A planilha sabe o que você digitou. O myBilling sabe o que vem.",
+  );
+  const hero = html.slice(html.indexOf('id="inicio"'), html.indexOf('id="onde-quebra"'));
+  const texto = textoVisivel(hero).toLowerCase();
+  assert.match(texto, /quanto vai sobrar/);
+  assert.match(texto, /contas fixas/);
+});
+
+test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo myBilling, antes das linhas da planilha", () => {
+  const secao = html.slice(html.indexOf('id="comparativo"'), html.indexOf('id="para-dois"'));
+  const linha = secao.match(
+    /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
+  );
+  assert.ok(linha, "nenhuma linha de dados");
+  const linhas = [...secao.matchAll(
+    /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
+  )].map((m) => ({ vence: m[1], tema: textoVisivel(m[2]).trim() }));
+  const indice = linhas.findIndex((l) => l.tema === "Quanto vai sobrar nos próximos meses");
+  assert.notEqual(indice, -1, "falta a linha dos próximos meses");
+  assert.equal(linhas[indice].vence, "mybilling");
+  const primeiraDaPlanilha = linhas.findIndex((l) => /planilha|caderno/.test(l.vence));
+  assert.ok(indice < primeiraDaPlanilha, "a linha dos próximos meses vem antes das que a planilha ganha");
+});
+
+test("VEM-02 ACs 4 e 5: a seção 'O que vem a seguir' diz que o simulador não existe, sem 'já' nem 'disponível'", () => {
+  const secao = html.slice(html.indexOf('id="a-seguir"'), html.indexOf('id="rodape"'));
+  assert.match(secao, /<h2\b[^>]*>\s*O que vem a seguir\s*<\/h2>/);
+  const texto = textoVisivel(secao);
+  assert.match(texto, /Dá pra comprar\?/);
+  assert.match(texto, /ainda não existe/i);
+  assert.match(texto, /lista de espera/i);
+  assert.doesNotMatch(texto, /\bjá\b/i);
+  assert.doesNotMatch(texto, /dispon[íi]vel/i);
+  assert.doesNotMatch(texto, /em breve/i);
+  // "em breve" só dentro dos botões da lista (CAMP-04 AC 2), em página nenhuma outra parte.
+  const semBotoes = html.replace(/<button\b[^>]*\bbotao-lista\b[^>]*>[\s\S]*?<\/button>/g, "");
+  assert.doesNotMatch(textoVisivel(semBotoes), /em breve/i);
 });
 
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {

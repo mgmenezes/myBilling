@@ -459,7 +459,7 @@ a:hover {
   color: var(--ink-muted);
 }
 
-/* ---- Onde quebra: cinco blocos, dois em cima e três embaixo ---- */
+/* ---- Onde quebra: seis blocos, três por linha a partir de 768 px ---- */
 
 .dores {
   display: grid;
@@ -490,11 +490,7 @@ a:hover {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
-  .dor:nth-child(-n + 2) {
-    grid-column: span 3;
-  }
-
-  .dor:nth-child(n + 3) {
+  .dor {
     grid-column: span 2;
   }
 }
