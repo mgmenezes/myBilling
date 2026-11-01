@@ -162,7 +162,7 @@ saldo de `saldoPrevistoDaCompetencia`. Não materializa: a página o faz.
 
 ---
 
-### T3: `RespostaDaSimulacao`: linhas por mês e veredito
+### T3: `RespostaDaSimulacao`: linhas por mês e veredito ✅ Concluída
 
 **What**: Componente de apresentação que recebe o resultado de `simularCompra`, o `n` pedido, o
 menor `m` que cabe (ou `null`) e a competência aberta, e desenha uma linha por mês (mês, parcela,
@@ -180,16 +180,16 @@ sai de `horizonte-futuro.tsx` para um módulo puro reutilizado pelos dois, no me
 - Skill: NONE
 
 **Done when**:
-- [ ] `resposta-da-simulacao.test.tsx` prova, por `within` de cada linha, mês, parcela, antes e
+- [x] `resposta-da-simulacao.test.tsx` prova, por `within` de cada linha, mês, parcela, antes e
       depois com as palavras de "Próximos meses" e as classes `text-positivo`/`text-negativo`/sem cor
       no zero
-- [ ] Os cinco vereditos literais: "Cabe. Nenhum mês fica no vermelho."; "Cabe. Maio já estava no
+- [x] Os cinco vereditos literais: "Cabe. Nenhum mês fica no vermelho."; "Cabe. Maio já estava no
       vermelho antes desta compra."; "Em 3x não cabe: março e abril ficam no vermelho. Em 5x cabe.";
       singular "abril fica no vermelho"; "Não cabe em nenhum parcelamento até 120x."
-- [ ] Mês de ano diferente do de C sai como "janeiro de 2027"; lista com três meses usa vírgula e "e"
-- [ ] "Enxergo até Março de 2027." aparece se e só se `parcelasForaDoHorizonte > 0`
-- [ ] `horizonte-futuro.test.tsx` continua verde com `apresentarSaldo` importado do módulo novo
-- [ ] Gate: `pnpm test:unit` sai 0
+- [x] Mês de ano diferente do de C sai como "janeiro de 2027"; lista com três meses usa vírgula e "e"
+- [x] "Enxergo até Março de 2027." aparece se e só se `parcelasForaDoHorizonte > 0`
+- [x] `horizonte-futuro.test.tsx` continua verde com `apresentarSaldo` importado do módulo novo
+- [x] Gate: `pnpm test:unit` sai 0: 2.141 unitários (+11)
 
 **Tests**: unit
 **Gate**: quick

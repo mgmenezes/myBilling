@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useRef } from "react";
 import type { Cents } from "@/domain";
 import { formatarBRL } from "@/lib/formatar";
+import { apresentarSaldo } from "./apresentar-saldo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -58,27 +59,6 @@ interface MesFuturo {
   readonly rotulo: string;
   readonly comprometido: Cents;
   readonly saldo: Cents;
-}
-
-/**
- * O rótulo carrega o sentido e a cor só o repete (`docs/design.md`, "Semântica
- * de valor"). Por isso o valor sai sem sinal: "Vai faltar R$ 500,00", e não
- * "Vai faltar -R$ 500,00". O zero não é sobra nem falta, e fica sem cor. As
- * classes ficam escritas por extenso porque o Tailwind só gera o que lê.
- */
-function apresentarSaldo(saldo: Cents): {
-  readonly rotulo: string;
-  readonly valor: string;
-  readonly classe: string;
-} {
-  if (saldo < 0) {
-    return { rotulo: "Vai faltar", valor: formatarBRL(Math.abs(saldo)), classe: "text-negativo" };
-  }
-  return {
-    rotulo: "Vai sobrar",
-    valor: formatarBRL(saldo),
-    classe: saldo > 0 ? "text-positivo" : "text-ink",
-  };
 }
 
 export function HorizonteFuturo({ meses }: { readonly meses: ReadonlyArray<MesFuturo> }) {
