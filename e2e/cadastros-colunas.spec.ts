@@ -2162,6 +2162,17 @@ async function abrirCategoriaUm(page: Page): Promise<void> {
   await expect(tituloDoPainel(page)).toHaveText("Categoria Um");
 }
 
+async function abrirCartaoRoxo(page: Page): Promise<void> {
+  await abrirMeios(page, MEIOS);
+  await botaoDoMeio(page, "Cartão Roxo").click();
+  await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+}
+
+/*
+ * Um caso por cláusula do AC, e não por controle (L-067): o nome e os dias do
+ * meio passam pelo mesmo "Salvar alterações", mas só o nome muda a ordem da
+ * tabela e o título do painel.
+ */
 const GRAVACOES: ReadonlyArray<Gravacao> = [
   {
     caso: "a cor",
@@ -2193,11 +2204,7 @@ const GRAVACOES: ReadonlyArray<Gravacao> = [
   },
   {
     caso: "os dias do meio",
-    abrirItem: async (page) => {
-      await abrirMeios(page, MEIOS);
-      await botaoDoMeio(page, "Cartão Roxo").click();
-      await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
-    },
+    abrirItem: abrirCartaoRoxo,
     painel: painelDoMeio,
     controle: (page) =>
       formularioDoMeio(page, "Cartão Roxo").getByRole("button", { name: "Salvar alterações" }),
@@ -2209,6 +2216,22 @@ const GRAVACOES: ReadonlyArray<Gravacao> = [
     aviso: "Meio de pagamento salvo.",
     relida: async (page) => {
       await expect(celulaDoMeio(page, "Cartão Roxo", 2)).toHaveText("fecha dia 10");
+    },
+  },
+  {
+    caso: "o nome do meio",
+    abrirItem: abrirCartaoRoxo,
+    painel: painelDoMeio,
+    /* Pelo painel, e não pelo formulário: ao renomear, ele passa a "Editar Cartão Lilás". */
+    controle: (page) => painelDoMeio(page).getByRole("button", { name: "Salvar alterações" }),
+    preencher: async (page) => {
+      await formularioDoMeio(page, "Cartão Roxo")
+        .getByRole("textbox", { name: "Nome" })
+        .fill("Cartão Lilás");
+    },
+    aviso: "Meio de pagamento salvo.",
+    relida: async (page) => {
+      await expect(botaoDoMeio(page, "Cartão Lilás")).toBeAttached();
     },
   },
 ];

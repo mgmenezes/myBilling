@@ -1258,7 +1258,7 @@ mesmo caso já tem teste (`detalhe-da-categoria.test.tsx:411`).
 - [x] O teste passa na HEAD e falha com B8, a comparação `pedido.nome === meio.nome` feita sem caixa
 **Tests**: componentes
 **Gate**: quick
-**Commit**: `test(meios): mudar só a caixa do nome do meio grava`
+**Commit**: `test(meios): mudar só a caixa do nome do meio grava` (`e523713`)
 **Nota**:
 - **O teste** é um bloco novo do AC 8, entre o do AC 5 e o do AC 9 de
   `src/components/detalhe-do-meio.test.tsx` (`:262`), no molde de `detalhe-da-categoria.test.tsx:411`.
@@ -1279,15 +1279,35 @@ mesmo caso já tem teste (`detalhe-da-categoria.test.tsx:411`).
 **Reuses**: `GRAVACOES`, `painelDoMeio`, `botaoDoMeio`
 **Requirement**: CADCOL-07
 **Done when**:
-- [ ] `GRAVACOES` ganha um quarto caso, "o nome do meio": "Nome" muda para "Cartão Lilás", e o teste
+- [x] `GRAVACOES` ganha um quarto caso, "o nome do meio": "Nome" muda para "Cartão Lilás", e o teste
   espera `botaoDoMeio(page, "Cartão Lilás")` na página relida
-- [ ] O controle é procurado pelo painel, e não pelo formulário com o nome velho. O `aria-label` do
+- [x] O controle é procurado pelo painel, e não pelo formulário com o nome velho. O `aria-label` do
   formulário muda com o nome
-- [ ] Os três casos novos (400 × 700, 1.280 × 480 e 1.920 × 480) passam na HEAD e falham com F6e, o
+- [x] Os três casos novos (400 × 700, 1.280 × 480 e 1.920 × 480) passam na HEAD e falham com F6e, o
   `scrollIntoView` na linha renomeada
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(meios): renomear o meio deixa a tela parada`
+**Nota**:
+- **O caso** "o nome do meio" (`e2e/cadastros-colunas.spec.ts:2222`) entra no fim de `GRAVACOES`. Ele
+  preenche "Nome" pelo formulário "Editar Cartão Roxo" e procura "Salvar alterações" pelo painel,
+  porque depois de salvar o formulário passa a "Editar Cartão Lilás". O laço (`:2256`) e as
+  assertions (`:2279-2281`) são os da F6, sem mudança.
+- **Um ajudante a mais:** `abrirCartaoRoxo`, ao lado de `abrirCategoriaUm`, abre o meio nos dois casos
+  do meio. O caso dos dias abria pelo mesmo código, escrito no próprio caso, e o que ele faz não
+  mudou. Um comentário sobre `GRAVACOES` diz por que o nome do meio é um caso à parte (L-067).
+- **O mutante.** Na HEAD, os 12 casos passam. F6e foi escrito em `detalhe-do-meio.tsx:146`: com o
+  nome mudado, depois do aviso, um `requestAnimationFrame` espera o botão da linha com o nome novo e
+  chama `scrollIntoView()` nele. Os três casos novos falham em "rolagem da página" (`:2279`): 568 px
+  em 400 × 700, 473 em 1.280 × 480 e 318 em 1.920 × 480. São as diferenças da sonda P3 (545 → 1.113,
+  393 → 866 e 541 → 223). O modo `serial` para o arquivo na primeira falha, por isso o de 400 × 700
+  rodou com os outros casos e os de 1.280 e 1.920 px rodaram um de cada vez. O componente voltou
+  por `git checkout`.
+- **As citações remapeadas:** o caso novo empurrou o laço de `:2233` para `:2256` e o
+  `toBeInViewport` de `:2258` para `:2281`, citados no CADCOL-04 e no CADCOL-07. As linhas antes de
+  `GRAVACOES` (`:2077`, `:2098`, `:2117`) não mudaram.
+- **Gate e2e:** 2.088 unitários, `typecheck` e `lint` 0, e os 73 testes de `cadastros-colunas.spec.ts`
+  (70 e os 3 novos).
 
 #### F9: O nome longo fica dentro da tabela
 **What**: a observação 2 da rodada 2. Com a tabela num `overflow-x-auto` e sem a regra de quebra no
