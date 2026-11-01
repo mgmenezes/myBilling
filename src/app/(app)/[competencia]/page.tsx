@@ -261,6 +261,10 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
             meios={meios}
             categorias={opcoesDeCategoria}
             usuarios={usuarios.map((u) => ({ id: u.id, nome: u.nome }))}
+            horizonte={[
+              { competencia: resultado.value, saldo: visaoMensal.competenciaView.saldo },
+              ...visaoMensal.futuro.map(({ competencia, saldo }) => ({ competencia, saldo })),
+            ]}
           />
         </section>
 

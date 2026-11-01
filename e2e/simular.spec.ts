@@ -354,3 +354,68 @@ test("em 1024 px a navegação mantém os 15 px e a coluna lateral (SIM-03, AC 5
     expect(medidas[i]?.topo ?? 0).toBeGreaterThan(medidas[i - 1]?.topo ?? 0);
   }
 });
+
+/**
+ * A resposta dentro do cadastro de compra (SIM-05, AC 5): a Visão geral e
+ * Lançamentos entregam ao formulário o mesmo horizonte que o simulador lê. O
+ * bloco fica preso ao formulário "Nova compra" (L-018), e o "antes" de abril
+ * é a linha de abril em "Próximos meses" da mesma página (L-014).
+ *
+ * Estes testes rodam depois de "Lançar esta compra", que gravou Compra A, e
+ * por isso leem o saldo de abril da própria página em vez de fixá-lo.
+ */
+function centavosDe(texto: string): number {
+  return Number.parseInt(texto.replace(/\D/g, ""), 10);
+}
+
+function reais(centavos: number): string {
+  const inteiro = Math.floor(centavos / 100);
+  const resto = String(centavos % 100).padStart(2, "0");
+  return `R$ ${inteiro.toLocaleString("pt-BR")},${resto}`;
+}
+
+test("na Visão geral, a aba Parcelado responde abaixo da prévia e a aba Avulso não (SIM-05, AC 5)", async ({
+  page,
+}) => {
+  await page.goto(`/${MARCO}`);
+  const cadastro = page.getByRole("region", { name: "Novo lançamento" });
+  await cadastro.getByRole("tab", { name: "Parcelado" }).click();
+  const form = cadastro.getByRole("form", { name: "Nova compra" });
+  await form.getByLabel("Valor total (R$)").fill("200,00");
+  await form.getByLabel("Quantidade de parcelas").fill("3");
+
+  const bloco = form.getByRole("region", { name: "Resposta da simulação" });
+  await expect(
+    bloco.getByText("Cabe. Maio já estava no vermelho antes desta compra."),
+  ).toBeVisible();
+  await expect(bloco.getByRole("listitem")).toHaveCount(3);
+
+  const abrilNoBloco = bloco.getByRole("listitem").filter({ hasText: "Abril de 2026" });
+  const abrilEmProximos = page
+    .getByRole("region", { name: "Próximos meses" })
+    .getByRole("listitem")
+    .filter({ hasText: "Abril de 2026" });
+  const sobraDeAbril = (await valorDe(abrilEmProximos, "Vai sobrar").textContent()) ?? "";
+  expect(sobraDeAbril).toMatch(/^R\$ /);
+  await expect(valorDe(abrilNoBloco, "Antes")).toHaveText(`Vai sobrar ${sobraDeAbril}`);
+  await expect(valorDe(abrilNoBloco, "Depois")).toHaveText(
+    `Vai sobrar ${reais(centavosDe(sobraDeAbril) - 6667)}`,
+  );
+
+  await cadastro.getByRole("tab", { name: "Avulso" }).click();
+  await expect(page.getByRole("region", { name: "Resposta da simulação" })).toHaveCount(0);
+});
+
+test("em Lançamentos, o diálogo de cadastro também responde (SIM-05, AC 5)", async ({ page }) => {
+  await page.goto(`/${MARCO}/lancamentos`);
+  await page.getByRole("button", { name: "+ Novo lançamento" }).click();
+  const dialogo = page.getByRole("dialog");
+  await dialogo.getByRole("tab", { name: "Parcelado" }).click();
+  const form = dialogo.getByRole("form", { name: "Nova compra" });
+  await form.getByLabel("Valor total (R$)").fill("200,00");
+  await form.getByLabel("Quantidade de parcelas").fill("2");
+
+  const bloco = form.getByRole("region", { name: "Resposta da simulação" });
+  await expect(bloco.getByText("Cabe. Nenhum mês fica no vermelho.")).toBeVisible();
+  await expect(bloco.getByRole("listitem")).toHaveCount(2);
+});

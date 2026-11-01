@@ -279,7 +279,7 @@ bloco.
 | SIM-02 | P1: A tela "Dá pra comprar?" | Execute | Implementing: AC 4 em `obter-horizonte-de-saldos/handler.test.ts` (T2); ACs 3, 5, 6, 7, 8 e 9 em `resposta-da-simulacao.test.tsx` (T3); ACs 2, 3, 10 e 11 em `simulador.test.tsx` (T5); ACs 1, 3 a 9, 12 e 13 em `e2e/simular.spec.ts` (T6) |
 | SIM-03 | P1: "Simular" na navegação | Execute | Implementing: ACs 1 e 2 em `navegacao-principal.test.tsx`; ACs 3, 4 e 5 em `e2e/simular.spec.ts` (360, 400 e 1024 px) (T7) |
 | SIM-04 | P1: Lançar esta compra | Execute | Implementing: AC 2 (preenchimento) em `form-compra.test.tsx` (T4); ACs 1, 2, 3 e 7 em `simulador.test.tsx` (T5); ACs 4, 5 e 6 em `e2e/simular.spec.ts` (T6) |
-| SIM-05 | P2: A resposta dentro do cadastro de compra | Execute | Implementing: AC 5 (a leitura) em `obter-horizonte-de-saldos/handler.test.ts` (T2); ACs 1 a 4 em `form-compra.test.tsx` (T4) |
+| SIM-05 | P2: A resposta dentro do cadastro de compra | Execute | Implementing: AC 5 (a leitura) em `obter-horizonte-de-saldos/handler.test.ts` (T2); ACs 1 a 4 em `form-compra.test.tsx` (T4); AC 5 (as páginas) em `e2e/simular.spec.ts` (T8) |
 
 **Coverage:** 5 total, 5 mapped to tasks (T1 a T9), 0 unmapped
 

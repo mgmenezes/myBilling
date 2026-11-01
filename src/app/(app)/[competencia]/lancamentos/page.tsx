@@ -206,6 +206,10 @@ export default async function PaginaDeLancamentos({
             meios={meios}
             categorias={opcoesDeCategoria}
             usuarios={opcoesDeUsuario}
+            horizonte={[
+              { competencia: resultado.value, saldo: visao.competenciaView.saldo },
+              ...visao.futuro.map(({ competencia, saldo }) => ({ competencia, saldo })),
+            ]}
           />
         </DialogoDeCadastro>
       </div>

@@ -326,7 +326,7 @@ caminho termina em `/simular`; no celular o texto passa a 11 px e o `gap` da bar
 
 ---
 
-### T8: O horizonte chega ao cadastro da Visão geral e de Lançamentos
+### T8: O horizonte chega ao cadastro da Visão geral e de Lançamentos ✅ Concluída
 
 **What**: `CadastroDeLancamento` recebe `horizonte` e o repassa ao `FormCompra`; a Visão geral e a
 página de Lançamentos montam os 13 saldos a partir de `obterVisaoMensal` (`competenciaView.saldo`
@@ -342,14 +342,14 @@ com "Cabe. Nenhum mês fica no vermelho." e três linhas; o formulário de Avuls
 - Skill: NONE
 
 **Done when**:
-- [ ] E2E prova o bloco na Visão geral e em Lançamentos (diálogo), restrito ao formulário "Nova
+- [x] E2E prova o bloco na Visão geral e em Lançamentos (diálogo), restrito ao formulário "Nova
       compra" (L-018), e a ausência no formulário de Avulso
-- [ ] O "antes" de abril no bloco é igual à linha de abril em "Próximos meses" da mesma página (L-014)
-- [ ] Gate: `pnpm test:unit && pnpm test:integration && pnpm test:e2e` saem 0
+- [x] O "antes" de abril no bloco é igual à linha de abril em "Próximos meses" da mesma página (L-014)
+- [x] Gate: `pnpm test:unit && pnpm test:integration && pnpm test:e2e` saem 0: 2.164 unitários, 413 de integração, 279 e2e (+2)
 
 **Tests**: e2e
 **Gate**: full
-**Commit**: `feat(mes): resposta da simulação no cadastro da Visão geral e de Lançamentos`
+**Commit**: `feat(mes): mostrar a resposta da simulação no cadastro da Visão geral e de Lançamentos`
 
 ---
 

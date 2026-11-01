@@ -6,7 +6,7 @@ import { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
 import { FormCompra } from "@/components/form-compra";
 import { FormLancamentoAvulso } from "@/components/form-lancamento-avulso";
 import { SeletorDeFormulario } from "@/components/seletor-de-formulario";
-import type { Competencia, MeioPagamento } from "@/domain";
+import type { Competencia, MeioPagamento, SaldoDoMes } from "@/domain";
 
 type PropsDoAvulso = ComponentProps<typeof FormLancamentoAvulso>;
 
@@ -22,6 +22,10 @@ type PropsDoAvulso = ComponentProps<typeof FormLancamentoAvulso>;
  *
  * Mora na camada `app`, e não em `components`, porque importa as server
  * actions, como as páginas fazem.
+ *
+ * `horizonte` são os saldos de C a C + 12 que a página já leu por
+ * `obterVisaoMensal`: o saldo do mês e `futuro`. Com ele, a aba Parcelado
+ * mostra a resposta de "dá pra comprar?" abaixo da prévia (SIM-05, AC 5).
  */
 export function CadastroDeLancamento({
   competencia,
@@ -29,12 +33,14 @@ export function CadastroDeLancamento({
   meios,
   categorias,
   usuarios,
+  horizonte,
 }: {
   readonly competencia: Competencia;
   readonly dataPadrao: string;
   readonly meios: ReadonlyArray<MeioPagamento>;
   readonly categorias: PropsDoAvulso["categorias"];
   readonly usuarios: PropsDoAvulso["usuarios"];
+  readonly horizonte: ReadonlyArray<SaldoDoMes>;
 }) {
   return (
     <SeletorDeFormulario
@@ -74,6 +80,7 @@ export function CadastroDeLancamento({
               enviar={criarCompra}
               criarCategoria={criarCategoria}
               criarMeioDePagamento={criarMeioDePagamento}
+              horizonte={horizonte}
             />
           ),
         },
