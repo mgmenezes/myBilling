@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/horizonte-doze-meses/spec.md`
 **Design**: nenhum (fatia média; as decisões de desenho estão nas Assumptions da spec)
-**Status**: In Progress
+**Status**: Tasks concluídas, à espera do Verifier
 **Total**: 8 tasks em 3 fases, um lote só (execução inline, sem sub-agentes).
 **Ajuste na execução (2026-11-01)**: a T2 foi absorvida pela T1. `MovimentoRepositoryDrizzle`
 implementa a interface, então acrescentar o método à port sem o Drizzle deixa `pnpm typecheck`
@@ -279,7 +279,7 @@ ocorrência do fixo lá, sem ação nenhuma (L-014: a página passa a constante 
 
 ---
 
-### T8: Registrar a decisão
+### T8: Registrar a decisão ✅ Concluída
 
 **What**: AD-023 em `.specs/STATE.md` (horizonte de doze meses e constante separada de exibição),
 o handoff, a nota em `docs/roadmap.md`, e `.specs/HANDOFF.md`.
@@ -293,9 +293,10 @@ o handoff, a nota em `docs/roadmap.md`, e `.specs/HANDOFF.md`.
 - Skill: NONE
 
 **Done when**:
-- [ ] AD-023 com Decision, Reason, Trade-off, Scope, Date, Status
-- [ ] Traceability do `spec.md` com todos os IDs em `Implementing`, à espera do Verifier
-- [ ] Gate: `pnpm verify` sai 0
+- [x] AD-023 com Decision, Reason, Trade-off, Scope, Date, Status; handoff em `STATE.md`, nota em
+      `HANDOFF.md`, linha em `docs/roadmap.md`
+- [x] Traceability do `spec.md` com todos os IDs em `Implementing`, à espera do Verifier
+- [x] Gate: `pnpm verify` sai 0 (resultado no commit)
 
 **Tests**: none
 **Gate**: build

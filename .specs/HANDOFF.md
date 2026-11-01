@@ -4,6 +4,13 @@
 > Última atualização: 2026-10-28, branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`.
 
 > [!IMPORTANT]
+> **2026-11-01: o diferencial do produto foi decidido com o dono: "o app sabe o que vem".** Um
+> simulador chamado **"Simular"** (título "Dá pra comprar?") mostra, por mês, quanto vai sobrar antes
+> e depois de uma compra parcelada, diz em quantas vezes caberia quando não cabe, e lança a compra
+> com um clique. Plano aprovado em `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`,
+> em três fatias: `horizonte-doze-meses` (feita, branch `feat/horizonte-doze-meses`, AD-023),
+> `simular` e `landing-simulador`. O handoff curto está em `.specs/STATE.md`.
+>
 > **A edição de gasto fixo e entrada fixa está implementada no branch `feat/editar-fixos`**, à
 > espera do Verifier. Ela **só entra no `main` depois das três importações em produção**, por
 > decisão do dono: editar um fixo importado entre uma aba e a seguinte faria a importação seguinte

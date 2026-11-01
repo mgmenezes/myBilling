@@ -243,21 +243,49 @@
 - **Date**: 2026-10-30
 - **Status**: active
 
+### AD-023
+- **Decision**: O horizonte do app passa de 3 para **12 meses** à frente do mês aberto: é a janela
+  única da materialização de fixos e da projeção (`MESES_DE_PROJECAO`). A seção "Próximos meses" da
+  Visão geral mostra só as **3 primeiras** linhas, por uma constante própria de exibição
+  (`LINHAS_DE_PROXIMOS_MESES`). A janela é lida numa consulta (`listarEntre`), e o seed materializa
+  o mesmo horizonte.
+- **Reason**: O diferencial escolhido com o dono em 2026-11-01 é "o app sabe o que vem": um simulador
+  ("Simular", título "Dá pra comprar?") que mostra quanto vai sobrar em cada mês depois de uma
+  compra parcelada. Uma compra em 10x ou 12x precisa enxergar 12 meses, e um mês não materializado
+  responderia sem o salário e sem os fixos, otimista por construção. Projetar a partir dos planos de
+  recorrência somaria plano com razão, o que AD-003 proíbe; o caminho é materializar 12. Doze linhas
+  na Visão geral dobrariam a altura da página, então a exibição fica em 3. Doze consultas em laço
+  por abertura de página multiplicariam por quatro o custo de hoje (AD-008).
+- **Trade-off**: Abrir um mês materializa até 12 ocorrências por fixo em vez de 3, num lote só e
+  idempotente pela restrição única. O mesmo número existe em dois lugares com sentidos diferentes
+  (horizonte e linhas exibidas), e um teste prova que a materialização e a projeção usam a mesma
+  constante. A janela do simulador é sempre contada do mês aberto; uma compra cujas parcelas passam
+  do fim dela mostra até onde o app enxerga.
+- **Scope**: `MESES_DE_PROJECAO` em `obter-visao-mensal/handler.ts`, `materializarRecorrencias`,
+  `MovimentoRepository.listarEntre` (fake e Drizzle), `[competencia]/page.tsx`, `seed.ts`.
+- **Date**: 2026-11-01
+- **Status**: active
+
 ---
 
 ## Handoff
 
-- **Feature**: `editar-fixos`, **implementada, à espera do Verifier**. As 10 tasks estão commitadas no branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`: regra pura, repositórios, transação genérica, caso de uso, schema e action (T1–T6), o formulário do cadastro em modo de edição e o "Editar" em cada cartão de "Todo mês" (T7–T8), o e2e (T9) e este fechamento (T10). Spec, tasks e traceability em `.specs/features/editar-fixos/`.
-- **Phase / Task**: fim do Execute. O próximo passo é o Verifier independente, que escreve `validation.md`.
-- **Completed**: T1 `bee4dd7` a T9 `8e88a7c`, e o commit da T10. `pnpm verify` e `pnpm test:e2e` saem 0 na worktree: 1.243 unitários, 307 de integração e 62 e2e.
+- **Feature**: `horizonte-doze-meses`, **fatia 1 do diferencial "Simular"** (plano aprovado em
+  2026-11-01: `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`). Oito tasks concluídas
+  no branch `feat/horizonte-doze-meses`, worktree `.worktrees/horizonte-doze-meses`, a partir de
+  `ff395ba` do `main`. Spec, tasks e traceability em `.specs/features/horizonte-doze-meses/`.
+  **À espera do Verifier.**
+- **O que é**: o app passa a materializar e projetar 12 meses à frente (AD-023); "Próximos meses"
+  continua com 3 linhas; a janela é lida numa consulta (`listarEntre`); o seed cobre o horizonte.
+- **Completed**: T1 (absorve T2) `9efd6e9`, T3 `d3a0e6a`, T4 `76a07b1`, T5 `8dcd978`, T6 `b68cc86`,
+  T7 e T8 (commits após o gate de e2e). Gates: 2.095 unitários, 413 de integração, 267 e2e.
 - **In-progress**: nenhum.
-- **Ordem de entrada no ar (decisão do dono)**: a fatia só entra no `main` **depois das três importações em produção**. Editar um fixo importado entre uma aba e a seguinte faria a importação seguinte criar outro. Até lá o branch espera, sem merge.
-- **Next step**: (1) Verifier da fatia; (2) o dono confere que o deploy da importação saiu na Vercel e que a migration `0003` está no Neon; (3) limpeza e as três importações em produção, pelo dono, pelo roteiro `docs/importacao.md`; (4) só então o merge de `feat/editar-fixos` no `main` e o push; (5) a fatia seguinte, editar avulso, entrada avulsa e compra parcelada, a partir do rascunho em `.specs/features/editar-lancamentos/context.md`.
-- **Blockers**: nenhum de código. `git push`, merge no `main`, a migration `0003` e o script de limpeza no Neon esperam autorização explícita e separada.
-- **Deploy**: o deploy automático da Vercel pode não estar disparando nos pushes. O app da Vercel no GitHub tem um pedido de permissão pendente, e o dono está resolvendo. Depois de um push, confira na Vercel se o deploy saiu antes de testar em produção.
-- **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava; é dele, e não entra em commit.
-- **Branch**: `feat/editar-fixos` (worktree). Na última leitura local, `main` e `origin/main` estavam iguais, em `483a4e3`.
-- **Lição L-016**: o gate de cada task inclui `pnpm typecheck`, encadeado com `&&`. O Vitest transpila sem checar tipos.
-- **Neon**: o branch `production` é arquivado por inatividade no plano gratuito; a primeira consulta desarquiva sozinha. As migrations `0000`–`0002` estão aplicadas; a `0003_registro_de_importacao.sql` sobe com o push, pelo job `migrate` (que precisa do secret `NEON_DATABASE_URL_DIRETA`), ou pelo `pnpm db:sql` no SQL Editor. A edição de fixo não traz migration.
-- **Armadilha de ambiente**: o e2e usa `channel: "chrome"`, o Chrome da máquina. Se `browserType.launch` estourar o tempo, ou o Mac dormir no meio, suspeite do ambiente antes do teste.
+- **Next step**: (1) Verifier da fatia 1; (2) fatia 2, `simular`: domínio `simularCompra` e
+  `menorParcelamentoQueCabe`, rota `/[competencia]/simular`, item "Simular" na navegação com a barra
+  inferior de cinco itens, bloco de resposta dentro do `FormCompra`, "Lançar esta compra"; (3) fatia
+  3, `landing-simulador`, que depende do branch `feat/campanha-lista-de-espera` (ainda fora do
+  `main`); (4) merge e `git push` exigem autorização separada.
+- **Blockers**: nenhum.
+- **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava.
+- **Branch**: `feat/horizonte-doze-meses`.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.
