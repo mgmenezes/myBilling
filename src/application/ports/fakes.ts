@@ -292,6 +292,23 @@ export class FakeMovimentoRepository implements MovimentoRepository {
     );
   }
 
+  /** Mesmo filtro e mesma ordem do `BETWEEN` do Drizzle (HORIZ-03, AC 2). */
+  async listarEntre(inicio: Competencia, fim: Competencia): Promise<ReadonlyArray<Lancamento>> {
+    return [...this.estado.movimentos.values()]
+      .filter(
+        (m) =>
+          m.canceladoEm === null &&
+          compararCompetencias(m.competencia, inicio) >= 0 &&
+          compararCompetencias(m.competencia, fim) <= 0,
+      )
+      .sort(
+        (a, b) =>
+          compararCompetencias(a.competencia, b.competencia) ||
+          a.dataEvento.localeCompare(b.dataEvento) ||
+          a.id.localeCompare(b.id),
+      );
+  }
+
   async buscarPorId(id: string): Promise<Lancamento | null> {
     return this.estado.movimentos.get(id) ?? null;
   }

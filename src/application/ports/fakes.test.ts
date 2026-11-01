@@ -327,6 +327,85 @@ describe("FakeMovimentoRepository (T32)", () => {
   });
 });
 
+describe("FakeMovimentoRepository: listar entre duas competências (HORIZ-03)", () => {
+  async function avulso(
+    movimentos: ReturnType<typeof criarFakes>["movimentos"],
+    comp: string,
+    dataEvento: string,
+    descricao: string,
+  ) {
+    return movimentos.criarAvulso({
+      natureza: "DESPESA",
+      descricao,
+      competencia: competencia(comp),
+      dataEvento,
+      valor: 100 as Cents,
+      pagoEm: null,
+      categoriaId: null,
+      usuarioId: "pessoa-a",
+      meioPagamentoId: "conta",
+    });
+  }
+
+  it("inclui as duas pontas e deixa o cancelado de fora — HORIZ-03, ACs 1 e 2", async () => {
+    const { movimentos } = criarFakes();
+    await avulso(movimentos, "2026-06", "2026-06-05", "junho");
+    await avulso(movimentos, "2026-03", "2026-03-05", "março");
+    const deMaio = await avulso(movimentos, "2026-05", "2026-05-05", "maio");
+    await avulso(movimentos, "2026-04", "2026-04-05", "abril");
+    await avulso(movimentos, "2026-07", "2026-07-05", "julho");
+    await movimentos.cancelar(deMaio.id, "2026-05-06T12:00:00.000Z");
+
+    const entre = await movimentos.listarEntre(competencia("2026-03"), competencia("2026-06"));
+
+    expect(entre.map((l) => l.descricao)).toEqual(["março", "abril", "junho"]);
+  });
+
+  it("devolve a união de listarPorCompetencia, na ordem de competência, data e id — HORIZ-03, AC 2", async () => {
+    const { movimentos } = criarFakes();
+    await avulso(movimentos, "2026-04", "2026-04-20", "abril tarde");
+    await avulso(movimentos, "2026-04", "2026-04-02", "abril cedo, segundo id");
+    await avulso(movimentos, "2026-03", "2026-03-31", "março");
+    await avulso(movimentos, "2026-04", "2026-04-02", "abril cedo, terceiro id");
+
+    const entre = await movimentos.listarEntre(competencia("2026-03"), competencia("2026-04"));
+    const uniao = [
+      ...(await movimentos.listarPorCompetencia(competencia("2026-03"))),
+      ...(await movimentos.listarPorCompetencia(competencia("2026-04"))),
+    ];
+
+    expect(entre.map((l) => l.descricao)).toEqual([
+      "março",
+      "abril cedo, segundo id",
+      "abril cedo, terceiro id",
+      "abril tarde",
+    ]);
+    expect([...entre].sort((a, b) => a.id.localeCompare(b.id))).toEqual(
+      [...uniao].sort((a, b) => a.id.localeCompare(b.id)),
+    );
+  });
+
+  it("intervalo invertido devolve vazio — HORIZ-03, AC 3", async () => {
+    const { movimentos } = criarFakes();
+    await avulso(movimentos, "2026-04", "2026-04-05", "abril");
+
+    const entre = await movimentos.listarEntre(competencia("2026-06"), competencia("2026-03"));
+
+    expect(entre).toEqual([]);
+  });
+
+  it("com inicio igual a fim devolve o mesmo que listarPorCompetencia — Edge Case", async () => {
+    const { movimentos } = criarFakes();
+    await avulso(movimentos, "2026-03", "2026-03-05", "março");
+    await avulso(movimentos, "2026-04", "2026-04-05", "abril");
+
+    const entre = await movimentos.listarEntre(competencia("2026-03"), competencia("2026-03"));
+
+    expect(entre).toEqual(await movimentos.listarPorCompetencia(competencia("2026-03")));
+    expect(entre.map((l) => l.descricao)).toEqual(["março"]);
+  });
+});
+
 describe("FakeCadastroRepository (T32)", () => {
   it("esconde o meio arquivado da listagem mas resolve por id — CART-03, AC 6 e 7", async () => {
     const { cadastros, estado } = criarFakes();

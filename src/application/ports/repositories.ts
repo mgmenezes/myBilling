@@ -180,6 +180,16 @@ export interface MovimentoRepository {
   /** Apenas lançamentos daquela competência que não foram cancelados. */
   listarPorCompetencia(competencia: Competencia): Promise<ReadonlyArray<Lancamento>>;
   /**
+   * Os não cancelados com competência entre `inicio` e `fim`, **inclusive as
+   * duas pontas**, na ordem de competência, data do evento e id (HORIZ-03,
+   * ACs 1 e 2). `fim` anterior a `inicio` devolve vazio (AC 3).
+   *
+   * Existe para a janela da projeção ser lida numa consulta: doze meses em
+   * laço de `listarPorCompetencia` são doze idas ao banco por abertura de
+   * página, o custo que AD-008 manda evitar.
+   */
+  listarEntre(inicio: Competencia, fim: Competencia): Promise<ReadonlyArray<Lancamento>>;
+  /**
    * Grava um lançamento avulso: **um `INSERT`, sem transação** (AVUL-01, AC 1).
    *
    * Não há chave de idempotência, ao contrário da compra parcelada. Dois Pix de

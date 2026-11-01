@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, isNull, sql } from "drizzle-orm";
+import { and, asc, between, eq, gte, isNull, sql } from "drizzle-orm";
 import type {
   EntradaLancamentoAvulso,
   MovimentoRepository,
@@ -32,6 +32,23 @@ export class MovimentoRepositoryDrizzle implements MovimentoRepository {
         and(eq(movimento.competencia, deCompetencia(competencia)), isNull(movimento.canceladoEm)),
       )
       .orderBy(asc(movimento.dataEvento), asc(movimento.id));
+    return linhas.map(paraLancamento);
+  }
+
+  /** `BETWEEN` é inclusivo nas duas pontas e vazio quando invertido, que é o
+   * contrato da port (HORIZ-03, ACs 1 a 3). A ordem repete a de
+   * `listarPorCompetencia`, com a competência na frente. */
+  async listarEntre(inicio: Competencia, fim: Competencia): Promise<ReadonlyArray<Lancamento>> {
+    const linhas = await this.db
+      .select()
+      .from(movimento)
+      .where(
+        and(
+          between(movimento.competencia, deCompetencia(inicio), deCompetencia(fim)),
+          isNull(movimento.canceladoEm),
+        ),
+      )
+      .orderBy(asc(movimento.competencia), asc(movimento.dataEvento), asc(movimento.id));
     return linhas.map(paraLancamento);
   }
 

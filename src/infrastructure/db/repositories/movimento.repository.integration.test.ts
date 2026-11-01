@@ -102,6 +102,108 @@ async function inserirAvulso(campos: {
   return linha.id;
 }
 
+describe("MovimentoRepository: listar entre duas competências (HORIZ-03)", () => {
+  it("inclui as duas pontas e deixa o cancelado de fora — ACs 1 e 2", async () => {
+    await inserirAvulso({
+      descricao: "junho",
+      competencia: "2026-06-01",
+      valorCentavos: 100,
+      dataEvento: "2026-06-05",
+    });
+    await inserirAvulso({
+      descricao: "março",
+      competencia: "2026-03-01",
+      valorCentavos: 100,
+      dataEvento: "2026-03-05",
+    });
+    await inserirAvulso({
+      descricao: "maio cancelado",
+      competencia: "2026-05-01",
+      valorCentavos: 100,
+      dataEvento: "2026-05-05",
+      canceladoEm: new Date("2026-05-06T12:00:00.000Z"),
+    });
+    await inserirAvulso({
+      descricao: "abril",
+      competencia: "2026-04-01",
+      valorCentavos: 100,
+      dataEvento: "2026-04-05",
+    });
+    await inserirAvulso({
+      descricao: "julho",
+      competencia: "2026-07-01",
+      valorCentavos: 100,
+      dataEvento: "2026-07-05",
+    });
+
+    const entre = await repo.listarEntre(competencia("2026-03"), competencia("2026-06"));
+
+    expect(entre.map((l) => l.descricao)).toEqual(["março", "abril", "junho"]);
+    expect(entre.map((l) => l.competencia)).toEqual(["2026-03", "2026-04", "2026-06"]);
+  });
+
+  it("é a união de listarPorCompetencia, na ordem de competência, data e id — AC 2", async () => {
+    await inserirAvulso({
+      descricao: "abril tarde",
+      competencia: "2026-04-01",
+      valorCentavos: 100,
+      dataEvento: "2026-04-20",
+    });
+    await inserirAvulso({
+      descricao: "abril cedo A",
+      competencia: "2026-04-01",
+      valorCentavos: 100,
+      dataEvento: "2026-04-02",
+    });
+    await inserirAvulso({
+      descricao: "março",
+      competencia: "2026-03-01",
+      valorCentavos: 100,
+      dataEvento: "2026-03-31",
+    });
+    await inserirAvulso({
+      descricao: "abril cedo B",
+      competencia: "2026-04-01",
+      valorCentavos: 100,
+      dataEvento: "2026-04-02",
+    });
+
+    const entre = await repo.listarEntre(competencia("2026-03"), competencia("2026-04"));
+    const uniao = [
+      ...(await repo.listarPorCompetencia(competencia("2026-03"))),
+      ...(await repo.listarPorCompetencia(competencia("2026-04"))),
+    ];
+
+    expect(entre).toEqual(uniao);
+    expect(entre.map((l) => l.dataEvento)).toEqual([
+      "2026-03-31",
+      "2026-04-02",
+      "2026-04-02",
+      "2026-04-20",
+    ]);
+    const [, cedoA, cedoB] = entre;
+    expect(cedoA && cedoB && cedoA.id < cedoB.id).toBe(true);
+  });
+
+  it("intervalo invertido devolve vazio — AC 3", async () => {
+    await inserirAvulso({ descricao: "abril", competencia: "2026-04-01", valorCentavos: 100 });
+
+    const entre = await repo.listarEntre(competencia("2026-06"), competencia("2026-03"));
+
+    expect(entre).toEqual([]);
+  });
+
+  it("com inicio igual a fim devolve o mesmo que listarPorCompetencia — Edge Case", async () => {
+    await inserirAvulso({ descricao: "março", competencia: "2026-03-01", valorCentavos: 100 });
+    await inserirAvulso({ descricao: "abril", competencia: "2026-04-01", valorCentavos: 100 });
+
+    const entre = await repo.listarEntre(competencia("2026-03"), competencia("2026-03"));
+
+    expect(entre).toEqual(await repo.listarPorCompetencia(competencia("2026-03")));
+    expect(entre.map((l) => l.descricao)).toEqual(["março"]);
+  });
+});
+
 describe("MovimentoRepository: leitura por competência (T33, MOV-01)", () => {
   it("devolve lista vazia para um mês sem lançamentos", async () => {
     const lancamentos = await repo.listarPorCompetencia(competencia("2026-03"));
