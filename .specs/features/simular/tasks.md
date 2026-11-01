@@ -263,7 +263,7 @@ o botão "Lançar esta compra" abre abaixo o `FormCompra` preenchido, com a comp
 
 ---
 
-### T6: A página `/[competencia]/simular` e o e2e
+### T6: A página `/[competencia]/simular` e o e2e ✅ Concluída
 
 **What**: Página com sessão, `materializarRecorrencias` de C a C + 12, `obterHorizonteDeSaldos`,
 cadastros para o formulário, título "Dá pra comprar?", `AreaEstreita`, montando `Simulador` com as
@@ -284,12 +284,12 @@ visível; nenhuma chamada de rede durante a digitação.
 - Skill: NONE
 
 **Done when**:
-- [ ] `e2e/simular.spec.ts` cobre os cinco cenários acima, com consultas restritas à região da
+- [x] `e2e/simular.spec.ts` cobre os cinco cenários acima, com consultas restritas à região da
       resposta (L-018) e o "antes" igual ao card "Saldo previsto" de cada mês aberto (L-014)
-- [ ] Abrir `/2026-03/simular` numa base só com recorrências cria as ocorrências até 2027-03 (13
+- [x] Abrir `/2026-03/simular` numa base só com recorrências cria as ocorrências até 2027-03 (13
       competências no banco)
-- [ ] 400 × 800: `boundingBox` dos quatro campos e do veredito com `y + height ≤ 800`
-- [ ] Gate: `pnpm test:unit && pnpm test:integration && pnpm test:e2e` saem 0
+- [x] 400 × 800: `boundingBox` dos quatro campos e do veredito com `y + height ≤ 800`
+- [x] Gate: `pnpm test:unit && pnpm test:integration && pnpm test:e2e` saem 0: 2.162 unitários, 413 de integração, 274 e2e (267 + 7)
 
 **Tests**: e2e
 **Gate**: full
