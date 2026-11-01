@@ -10,13 +10,13 @@ Cada uma diz para qual estado da persona foi escrita. A primeira é a da página
 
 | Headline | Estado |
 | --- | --- |
-| As contas da casa, para dois, sem o mês fechar errado. | Todos |
+| A planilha sabe o que você digitou. O myBilling sabe o que vem. | Todos |
+| Antes de parcelar, veja quanto vai sobrar em cada um dos próximos meses. | Planilha |
+| O saldo de hoje não sabe das parcelas que vêm. | Todos |
 | Cadastre a compra parcelada uma vez. O resto dos meses é com o app. | Planilha |
-| A planilha deixa você esquecer a parcela. O myBilling não deixa. | Planilha |
 | O caderno sabe o que você anotou. Não sabe o que ainda vai cair. | Caderno |
 | Duas pessoas, um saldo, o mesmo número para as duas. | Nada |
 | A fatura do cartão nunca conta duas vezes. Por construção, não por cuidado. | Planilha |
-| Comece com três coisas: o salário, as contas fixas e o cartão. | Nada |
 | Feito por um casal que cansou de copiar parcela de aba em aba. | Todos |
 
 ## Textos curtos
@@ -25,21 +25,21 @@ Um por estado da persona. Cada um cabe em 280 caracteres e termina com a chamada
 
 ### Planilha
 
-> Toda compra parcelada precisa ser copiada em cada aba futura da planilha. A que você esquece some
-> do saldo. No myBilling você cadastra uma vez e as parcelas caem nos meses certos sozinhas, inclusive
-> na virada do ano. Entre na lista de espera: [link]
+> Você olha o saldo de hoje e decide se dá para parcelar. Mas as parcelas dos próximos meses já
+> estão decididas, e a planilha só sabe delas se você copiar tudo antes. No myBilling cada mês
+> seguinte já nasce com elas, e a tela diz quanto vai sobrar. Entre na lista de espera: [link]
 
 ### Caderno
 
-> O caderno guarda o que você anotou, mas não lembra em fevereiro da parcela de dezembro. O myBilling
-> lembra por você: todo mês já nasce com o que foi decidido antes, e cada linha diz de onde veio.
-> Entre na lista de espera: [link]
+> O caderno sabe o que você anotou. Não sabe que a parcela de dezembro ainda cai em fevereiro. No
+> myBilling todo mês já nasce com o que foi decidido antes, e a Visão geral diz quanto vai sobrar em
+> cada um dos próximos. Entre na lista de espera: [link]
 
 ### Nada
 
-> Duas pessoas gastando, um saldo só, e cada uma com uma versão do mês na cabeça. O myBilling tem um
-> caixa, um número, e cada lançamento diz quem gastou. Comece com salário, contas fixas e cartão.
-> Entre na lista de espera: [link]
+> Duas pessoas gastando, um saldo só, e a pergunta de sempre: dá pra comprar? O myBilling tem um
+> caixa, cada lançamento diz quem gastou, e cada mês seguinte já nasce com as contas fixas e as
+> parcelas. Entre na lista de espera: [link]
 
 ## Texto longo
 
@@ -86,6 +86,16 @@ E, talvez a parte mais importante: o app é para dois. Um caixa, um saldo, e cad
 quem gastou. Não para cobrar. Para saber. Os dois entram com a própria conta e veem o mesmo número,
 no mesmo instante. A conversa sobre dinheiro em casa ficou mais curta, porque deixou de começar por
 "de onde você tirou esse número".
+
+Com isso, o número do canto voltou a ser verdade, e ganhou irmãos: a Visão geral diz quanto vai
+sobrar ou faltar em cada um dos próximos meses, porque as parcelas e as contas fixas deles já estão
+lá. A pergunta "dá pra comprar?" deixou de ser respondida pelo saldo de hoje, que não sabe de nada
+do que vem.
+
+O que vem a seguir ainda não existe, e por isso não está na página como se existisse: um
+simulador. Você informa o valor e o número de parcelas, e o app mostra quanto sobra em cada mês
+antes de você passar o cartão. Se não cabe, diz em quantas vezes caberia. É o que estamos fazendo
+agora, e quem está na lista recebe primeiro.
 
 O app está no ar e é usado hoje por nós dois, com as nossas contas. Não tem preço, não tem cadastro
 aberto, não sincroniza com banco e não pretende substituir o aplicativo do seu cartão. Ele faz uma

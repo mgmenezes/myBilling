@@ -175,7 +175,7 @@ que ainda não existe"; as duas respostas estão na tela.
 | --- | --- | --- | --- |
 | VEM-01 | P1: O posicionamento conta a cena primeiro | Execute | Implementing: ACs 1 a 6 em `docs/marketing/posicionamento.md` ("A tese", primeira linha das seis cenas, três linhas novas em "nunca prometer", seção "O que vem a seguir"); conferido sem `!` nem travessão |
 | VEM-02 | P1: A landing abre pela cena e diz o que vem a seguir | Execute | Implementing: ACs 1 a 7 em `site/estrutura.test.mjs` ("VEM-02 AC 1", "CAMP-02 AC 2 e VEM-02 AC 2", "VEM-02 AC 3", "VEM-02 ACs 4 e 5", ordem com oito seções; allowlist e tom pelos testes existentes); `pnpm site:verificar` sem violação |
-| VEM-03 | P2: O kit de copy fala da mesma cena | Execute | Pending |
+| VEM-03 | P2: O kit de copy fala da mesma cena | Execute | Implementing: ACs 1 a 4 em `docs/marketing/kit-de-copy.md`: 8 headlines, a primeira igual ao h1, três sobre o que vem; curtos com 279, 249 e 231 caracteres; longo com 792 palavras e o parágrafo do que vem a seguir; sem `!` nem travessão |
 | VEM-04 | P2: Os gates continuam verdes e a spec antiga aponta para cá | Execute | Pending |
 
 **Coverage:** 4 total, 4 mapeados para os passos inline (T1 posicionamento, T2 landing e teste, T3 kit, T4 specs e handoff), 0 unmapped
