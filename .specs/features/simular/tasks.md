@@ -228,7 +228,7 @@ abaixo da prévia das parcelas com o plano da própria prévia e `menorParcelame
 
 ---
 
-### T5: `Simulador`: os campos, a resposta e "Lançar esta compra"
+### T5: `Simulador`: os campos, a resposta e "Lançar esta compra" ✅ Concluída
 
 **What**: Componente cliente com valor, modo, parcelas e mês da primeira parcela (as 13 competências,
 C por padrão); recalcula a cada tecla por `planoDaCompra` + `simularCompra` +
@@ -247,15 +247,15 @@ o botão "Lançar esta compra" abre abaixo o `FormCompra` preenchido, com a comp
 - Skill: NONE
 
 **Done when**:
-- [ ] `simulador.test.tsx` prova as 13 opções do mês, C selecionada; resposta sem `enviar` chamado;
+- [x] `simulador.test.tsx` prova as 13 opções do mês, C selecionada; resposta sem `enviar` chamado;
       "Informe o valor para ver a resposta." e zero linhas sem valor; parcelas 0 e 121 (colados em 1 e
       120, L-029) e R$ 0,01 em 2x com as mensagens literais de `erros.ts` junto do campo
-- [ ] Antes do clique não há formulário nem campos de descrição, categoria, meio e pessoa; depois do
+- [x] Antes do clique não há formulário nem campos de descrição, categoria, meio e pessoa; depois do
       clique o `FormCompra` nasce com modo, valor, parcelas e competência iguais aos simulados e a
       data padrão do mês escolhido (dia 1 quando não é o corrente, hoje quando é)
-- [ ] A chave de idempotência do formulário aberto existe antes de qualquer envio (`input hidden`)
-- [ ] Botão ausente quando não há resposta
-- [ ] Gate: `pnpm test:unit` sai 0
+- [x] A chave de idempotência do formulário aberto existe antes de qualquer envio (`input hidden`)
+- [x] Botão ausente quando não há resposta
+- [x] Gate: `pnpm test:unit` sai 0: 2.162 unitários (+14)
 
 **Tests**: unit
 **Gate**: quick

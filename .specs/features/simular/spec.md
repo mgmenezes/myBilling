@@ -276,9 +276,9 @@ bloco.
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | SIM-01 | P1: O domínio responde se a compra cabe | Execute | Implementing: ACs 1 a 10 e os edge cases em `src/domain/mes/simular-compra.test.ts` (T1) |
-| SIM-02 | P1: A tela "Dá pra comprar?" | Execute | Implementing: AC 4 em `obter-horizonte-de-saldos/handler.test.ts` (T2); ACs 3, 5, 6, 7, 8 e 9 em `resposta-da-simulacao.test.tsx` (T3) |
+| SIM-02 | P1: A tela "Dá pra comprar?" | Execute | Implementing: AC 4 em `obter-horizonte-de-saldos/handler.test.ts` (T2); ACs 3, 5, 6, 7, 8 e 9 em `resposta-da-simulacao.test.tsx` (T3); ACs 2, 3, 10 e 11 em `simulador.test.tsx` (T5) |
 | SIM-03 | P1: "Simular" na navegação | Specify | Pending |
-| SIM-04 | P1: Lançar esta compra | Execute | Implementing: AC 2 (preenchimento) em `form-compra.test.tsx` (T4) |
+| SIM-04 | P1: Lançar esta compra | Execute | Implementing: AC 2 (preenchimento) em `form-compra.test.tsx` (T4); ACs 1, 2, 3 e 7 em `simulador.test.tsx` (T5) |
 | SIM-05 | P2: A resposta dentro do cadastro de compra | Execute | Implementing: AC 5 (a leitura) em `obter-horizonte-de-saldos/handler.test.ts` (T2); ACs 1 a 4 em `form-compra.test.tsx` (T4) |
 
 **Coverage:** 5 total, 5 mapped to tasks (T1 a T9), 0 unmapped
