@@ -411,7 +411,7 @@ a:hover {
 
 .captura-legenda {
   font-size: 13px;
-  color: var(--ink-soft);
+  color: var(--ink-muted);
 }
 
 .hero .captura {
@@ -501,17 +501,17 @@ a:hover {
 
 /* ---- Comparativo ---- */
 
+/* Sem região rolável: abaixo de 768px a tabela vira cartões empilhados, e
+ * a coluna do myBilling deixa de ficar escondida à direita no celular. */
 .tabela-rolavel {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--line);
   border-radius: var(--r-xl);
   background: var(--surface);
+  overflow: hidden;
 }
 
 .comparativo {
   width: 100%;
-  min-width: 640px;
   border-collapse: collapse;
   font-size: 15px;
 }
@@ -552,7 +552,7 @@ a:hover {
   padding-top: 24px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--ink-soft);
+  color: var(--ink-muted);
   border-bottom: 1px solid var(--line);
 }
 
@@ -643,12 +643,68 @@ a:hover {
   margin-top: 8px;
   font-style: normal;
   font-size: 13px;
-  color: var(--ink-soft);
+  color: var(--ink-muted);
 }
 
 @media (min-width: 768px) {
   .numeros {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 40px;
+  }
+}
+
+/* ---- Comparativo no celular: cada linha é um cartão ---- */
+
+@media (max-width: 767px) {
+  .comparativo,
+  .comparativo tbody,
+  .comparativo tr,
+  .comparativo th,
+  .comparativo td {
+    display: block;
+  }
+
+  .comparativo thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .comparativo tbody th[scope="row"] {
+    width: auto;
+    padding: 16px 16px 4px;
+  }
+
+  .comparativo td {
+    padding: 4px 16px;
+  }
+
+  .comparativo tbody tr:not(.grupo) td:last-child {
+    padding-bottom: 16px;
+  }
+
+  .comparativo td::before {
+    content: attr(data-coluna);
+    display: inline-block;
+    min-width: 7ch;
+    margin-right: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+  }
+
+  .comparativo td:last-child::before {
+    color: var(--ink);
+  }
+
+  .comparativo tbody tr:not(.grupo):not(:last-child) th,
+  .comparativo tbody tr:not(.grupo):not(:last-child) td {
+    border-bottom: 0;
+  }
+
+  .comparativo tbody tr:not(.grupo):not(:last-child) td:last-child {
+    border-bottom: 1px solid var(--line);
   }
 }

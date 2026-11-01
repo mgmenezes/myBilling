@@ -11,6 +11,8 @@
     "test:unit": "vitest run --project domain --project componentes --coverage",
     "test:integration": "vitest run --project integration",
     "test:e2e": "playwright test",
+    "site:verificar": "node --test 'site/*.test.mjs' && node site/verificar-navegador.mjs",
+    "site:capturar": "node site/capturar.mjs",
     "verify": "pnpm typecheck && pnpm lint && pnpm test:unit && pnpm test:integration && pnpm build",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
@@ -33,6 +35,7 @@
     "zod": "^4.6.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@biomejs/biome": "2.5.13",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
