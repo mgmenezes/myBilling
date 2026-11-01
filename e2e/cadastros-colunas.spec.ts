@@ -418,6 +418,11 @@ test("abrindo Categorias de março antes de qualquer outra tela, as contagens v�
   await botaoDaLinha(page, "Categoria Um").click();
   const secao = painel(page).getByRole("region", { name: "Onde ela aparece" });
   await expect(secao.locator("dd")).toHaveText(["1", "2"]);
+  /* O rótulo do mês é montado pela página, e não pelo componente (L-054). */
+  await expect(secao.locator("dt")).toHaveText([
+    "Fixos em Março de 2026",
+    "Lançamentos em Março de 2026",
+  ]);
   await secao.getByRole("link", { name: "Ver em Lançamentos" }).click();
 
   await expect(page).toHaveURL(
@@ -1008,6 +1013,11 @@ test.describe("a aba Meios de pagamento", () => {
     await botaoDoMeio(page, "Conta Corrente").click();
     const secao = painelDoMeio(page).getByRole("region", { name: "Onde ele aparece" });
     await expect(secao.locator("dd")).toHaveText(["2", "2"]);
+    /* O rótulo do mês é montado pela página, e não pelo componente (L-054). */
+    await expect(secao.locator("dt")).toHaveText([
+      "Fixos em Março de 2026",
+      "Lançamentos em Março de 2026",
+    ]);
     await secao.getByRole("link", { name: "Ver em Lançamentos" }).click();
 
     await expect(page).toHaveURL(

@@ -12,7 +12,7 @@ import { type ItemDeMeio, rotuloDoTipo } from "./tabela-de-meios";
 
 /**
  * O meio aberto no painel: o nome, os dias do cartão e onde ele aparece
- * (CADCOL-07, ACs 1 a 6 e 9 a 13).
+ * (CADCOL-07, ACs 1 a 6 e 8 a 13).
  *
  * **O tipo não muda** (AC 4): os campos são os de `CamposDoMeio`, com o tipo
  * em texto e a frase que diz como trocar. No cartão, os dois dias vêm
@@ -23,7 +23,7 @@ import { type ItemDeMeio, rotuloDoTipo } from "./tabela-de-meios";
  * o nome vazio ou com mais de 40 caracteres e o dia fora de 1 a 31 não chegam
  * ao servidor, e cada mensagem fica junto do campo dela (AC 10). O nome e os
  * dias iguais aos gravados, depois da mesma normalização, não chamam o
- * servidor nem avisam (AC 9).
+ * servidor nem avisam (AC 9); o nome que muda só na caixa grava (AC 8).
  *
  * **Sem otimista.** O título e o subtítulo são os gravados; a resposta da
  * action já traz a lista nova, e com ela o nome e os dias novos na linha e no

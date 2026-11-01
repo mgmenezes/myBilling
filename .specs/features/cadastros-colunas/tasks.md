@@ -1437,12 +1437,36 @@ um comentário só.
 **Reuses**: os testes de `:399` e `:989`
 **Requirement**: CADCOL-04, CADCOL-07
 **Done when**:
-- [ ] Nas duas abas, `secao.locator("dt")` com "Fixos em Março de 2026" e "Lançamentos em Março de
+- [x] Nas duas abas, `secao.locator("dt")` com "Fixos em Março de 2026" e "Lançamentos em Março de
   2026" (CADCOL-04 AC 11, CADCOL-07 AC 13)
-- [ ] Os dois testes passam na HEAD e falham com S3 e S3b, um cada
+- [x] Os dois testes passam na HEAD e falham com S3 e S3b, um cada
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): o rótulo do mês lido na tela`
+**Nota**:
+- **As assertions.** Nos dois testes de composição, logo depois dos `dd`, `secao.locator("dt")` com
+  "Fixos em Março de 2026" e "Lançamentos em Março de 2026": em Categorias em
+  `e2e/cadastros-colunas.spec.ts:422`, no teste de `:399`, e em Meios em `:1017`, no teste de `:994`.
+  Um comentário de uma linha diz que o rótulo vem da página (L-054). Nenhum teste novo.
+- **O comentário.** O cabeçalho de `detalhe-do-meio.tsx` passa a "ACs 1 a 6 e 8 a 13", e o parágrafo
+  da regra no navegador ganha "o nome que muda só na caixa grava (AC 8)". As duas mudanças ficam nas
+  linhas que já existiam: o arquivo tem o mesmo número de linhas, e nenhum código mudou.
+- **Os mutantes.** Na HEAD, os dois testes passam.
+  - S3, `rotuloDaCompetencia={nomeDoMes(mes)}` em `meios-de-pagamento/page.tsx:74`: o de Meios falha
+    em `:1017`, com "Fixos em Março" e "Lançamentos em Março" no lugar de "Fixos em Março de 2026" e
+    "Lançamentos em Março de 2026". O de Categorias passa.
+  - S3b, o mesmo em `categorias/page.tsx:70`: o de Categorias falha em `:422`, com a mesma diferença.
+    O de Meios não rodou, porque o modo `serial` para o arquivo na primeira falha.
+  - As duas páginas voltaram por `git checkout`.
+- **Desvio: as citações remapeadas são todas as do arquivo.** As cinco linhas novas de cada teste
+  empurram 5 linhas tudo o que vinha depois de `:420`, e 10 tudo o que vinha depois de `:1010`.
+  São 67 citações nas onze linhas da traceability com e2e, do CADCOL-01 ao CADCOL-11, por exemplo
+  `:435` → `:440`, `:989` → `:994`, `:2113` → `:2123` e `:2300` → `:2310`. Um script leu o diff, trocou
+  cada citação pela linha nova e conferiu que nenhuma caía num trecho mudado. As Notas das tasks
+  anteriores citam as linhas do commit de cada uma, e ficam.
+- **Gate e2e:** `typecheck` e `lint` 0 (368 arquivos), e os 73 testes de `cadastros-colunas.spec.ts`,
+  em 1,8 min. O `pnpm test:unit` fica para o gate build da F13, por ordem do orquestrador: esta task
+  não muda nada que um unitário execute.
 
 #### F12: A tabela cabe no contêiner dela
 **What**: o Fix 2 da rodada 3 (G9). Hoje `medirRolagemLateral` mede três coisas: a página, o
