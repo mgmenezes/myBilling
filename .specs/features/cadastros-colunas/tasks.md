@@ -1442,7 +1442,7 @@ um comentário só.
 - [x] Os dois testes passam na HEAD e falham com S3 e S3b, um cada
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): o rótulo do mês lido na tela`
+**Commit**: `test(cadastros): o rótulo do mês lido na tela` (`48f04a2`)
 **Nota**:
 - **As assertions.** Nos dois testes de composição, logo depois dos `dd`, `secao.locator("dt")` com
   "Fixos em Março de 2026" e "Lançamentos em Março de 2026": em Categorias em
@@ -1476,12 +1476,44 @@ um comentário só.
 **Reuses**: `medirRolagemLateral`; a sonda B da rodada 3
 **Requirement**: CADCOL-09
 **Done when**:
-- [ ] Nas 66 medidas da F4, nenhum elemento da página com `overflow-x` diferente de `visible` tem
+- [x] Nas 66 medidas da F4, nenhum elemento da página com `overflow-x` diferente de `visible` tem
   `scrollWidth > clientWidth`. Os campos de texto ficam fora, porque rolam o próprio valor
-- [ ] O teste passa na HEAD e falha com N5 em 400 px, e com N4 também com ponteiro fino em 768 px
+- [x] O teste passa na HEAD e falha com N5 em 400 px, e com N4 também com ponteiro fino em 768 px
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): nenhuma região rola de lado`
+**Nota**:
+- **A medida.** `regioesQueRolamDeLado` (`e2e/cadastros-colunas.spec.ts:2082`), ao lado de
+  `textoForaDaTabela`, percorre todo elemento da página e devolve os que têm `overflow-x` diferente
+  de `visible` e `scrollWidth > clientWidth`, cada um com a tag, as classes e o quanto rola, como a
+  sonda B. `medirRolagemLateral` guarda a lista em cada medida, e os dois testes da F4 afirmam a
+  lista vazia nas 60 medidas (`:2173-2176`) e nas 6 com toque (`:2198-2201`), depois das assertions
+  que já existiam. Nenhum teste novo.
+- **Desvio: o texto só para o leitor de tela também fica fora.** Na primeira passada, na HEAD, a
+  medida achou, nas 60 do teste de ponteiro fino, os elementos `sr-only` e `md:sr-only` da página,
+  de 29 a 135 px. Cada um é uma caixa de 1 × 1 px com `overflow: hidden`, que corta o texto de
+  propósito e não tem nada à vista para rolar. A medida pula a caixa de até 1 × 1 px, e o comentário
+  dela diz por quê. Com isso, na HEAD, as 66 ficam vazias. O "Nome" com o nome longo, que a sonda B
+  achou, fica fora por ser campo de texto.
+- **Os mutantes.**
+  - N5, `{lista}` num `<div className="overflow-x-auto">` em `coluna-de-cadastro.tsx:153` e
+    `min-w-[28rem]` na tabela em `tabela-de-categorias.tsx:77`: o teste de ponteiro fino falha em
+    `:2176`, "uma região que rola de lado", com `DIV.overflow-x-auto +80` em Categorias, 400 px, nos
+    três estados, e a página, o painel e o nome em 0. O teste com toque não rodou, pelo modo
+    `serial`.
+  - N4, o mesmo invólucro e `lg:whitespace-nowrap` → `md:whitespace-nowrap` na cor, em
+    `tabela-de-categorias.tsx:178`. Com ponteiro fino, o teste falha em `:2176` com
+    `DIV.overflow-x-auto +34` em Categorias, 768 px, nos três estados, com a página e o painel em 0.
+    Rodado sozinho, o teste com toque falha na assertion da página (`:2197`): ela rola 2 px, e o
+    invólucro 42.
+  - Os dois componentes voltaram por `git checkout`.
+- **As citações remapeadas,** porque a medida entrou antes delas: no CADCOL-09, `:2123` → `:2155`,
+  `:2136-2139` → `:2168-2171`, `:2148` → `:2184` e `:2157-2160` → `:2193-2196`; no CADCOL-01,
+  `:2171` → `:2211`; no CADCOL-04 e no CADCOL-07, `:2310` → `:2350` e `:2335` → `:2375`; no
+  CADCOL-07, `:2276` → `:2316` e `:2333-2334` → `:2373-2374`. A redação do AC 7 não muda: o Where
+  desta task é só a traceability, e a escolha do dono, "Nunca rolar de lado", já cobre a região.
+- **Gate e2e:** `typecheck` e `lint` 0 (368 arquivos), e os 73 testes de `cadastros-colunas.spec.ts`,
+  em 1,8 min. O `pnpm test:unit` fica para o gate build da F13, como na F11.
 
 #### F13: A palavra longa quebra dentro do painel
 **What**: o Fix 3 da rodada 3 (G10). A cláusula "quebra no meio, no painel" do Edge Case só tem a

@@ -2034,6 +2034,8 @@ interface RolagemLateral {
   readonly painel: number;
   /** Quanto o texto do nome numa palavra só passa da tabela; 0 quando cabe nela. */
   readonly nomeForaDaTabela: number;
+  /** As regiões que rolam de lado por conta própria, com o quanto cada uma rola. */
+  readonly regioes: ReadonlyArray<string>;
 }
 
 /**
@@ -2069,11 +2071,40 @@ async function textoForaDaTabela(botao: Locator): Promise<number> {
 }
 
 /**
+ * Todo elemento da página com `overflow-x` diferente de `visible` e o conteúdo
+ * mais largo que a caixa, com o quanto ele rola: uma lista num invólucro que
+ * rola por conta própria esconde da página e do painel uma tabela mais larga
+ * que ele (G9 da rodada 3; L-068). Ficam fora:
+ * - os campos de texto, que rolam o próprio valor, como todo `input`;
+ * - o texto só para o leitor de tela (`sr-only`), numa caixa de 1 × 1 px que
+ *   corta o texto de propósito: não há nada à vista para rolar.
+ */
+async function regioesQueRolamDeLado(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const achadas: string[] = [];
+    for (const elemento of document.querySelectorAll("*")) {
+      if (
+        elemento instanceof HTMLInputElement ||
+        elemento instanceof HTMLTextAreaElement ||
+        (elemento.clientWidth <= 1 && elemento.clientHeight <= 1)
+      ) {
+        continue;
+      }
+      const excesso = elemento.scrollWidth - elemento.clientWidth;
+      if (getComputedStyle(elemento).overflowX !== "visible" && excesso > 0) {
+        achadas.push(`${elemento.tagName}.${[...elemento.classList].join(".")} +${excesso}`);
+      }
+    }
+    return achadas;
+  });
+}
+
+/**
  * Percorre, em cada aba, os três estados: nada aberto, o item de nome numa
  * palavra só aberto e o formulário de criação aberto pela ação. Em cada um,
  * mede em cada largura a rolagem lateral da página e a do painel, que a
- * partir de 1.536 px rola por conta própria, e quanto o texto do nome numa
- * palavra só passa da tabela.
+ * partir de 1.536 px rola por conta própria, quanto o texto do nome numa
+ * palavra só passa da tabela e as regiões que rolam de lado dentro da página.
  */
 async function medirRolagemLateral(
   page: Page,
@@ -2113,6 +2144,7 @@ async function medirRolagemLateral(
               ? 0
               : await painelDaAba.evaluate((aside) => aside.scrollWidth - aside.clientWidth),
           nomeForaDaTabela: await textoForaDaTabela(a.botao(page, longo)),
+          regioes: await regioesQueRolamDeLado(page),
         });
       }
     }
@@ -2138,6 +2170,10 @@ test("nas duas abas, de 400 a 1.920 px e colado em cada limiar, nada rola de lad
     "o nome numa palavra só fora da tabela",
   ).toEqual([]);
   expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
+  expect(
+    medidas.filter(({ regioes }) => regioes.length > 0),
+    "uma região que rola de lado",
+  ).toEqual([]);
 });
 
 /* No toque, em 768 px, a tabela leva o respiro do toque, mais largo que o do
@@ -2159,6 +2195,10 @@ test.describe("com ponteiro grosso, em 768 px", () => {
       "o nome numa palavra só fora da tabela",
     ).toEqual([]);
     expect(medidas.filter(({ pagina, painel }) => pagina > 0 || painel > 0)).toEqual([]);
+    expect(
+      medidas.filter(({ regioes }) => regioes.length > 0),
+      "uma região que rola de lado",
+    ).toEqual([]);
   });
 });
 
