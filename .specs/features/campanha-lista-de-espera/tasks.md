@@ -1,7 +1,7 @@
 # Campanha de lista de espera — Tasks
 
 **Spec**: `.specs/features/campanha-lista-de-espera/spec.md`
-**Status**: Em execução
+**Status**: Tasks concluídas, à espera do Verifier
 **Total**: 6 tasks em 3 fases
 
 > **Por que o texto vem antes da página, e a página antes das imagens.** O posicionamento é a fonte
@@ -272,10 +272,10 @@ T5 -> T6
 **Requirement**: CAMP-06, CAMP-07 (AC 3)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Seis a oito headlines, cada uma com o estado da persona (CAMP-06 AC 1)
-- [ ] Três textos curtos, `wc -m` ≤ 280 cada, terminando com a chamada (AC 2)
-- [ ] Texto longo com `wc -w` ≥ 500, primeira pessoa, sem valor nem nome real (AC 3)
-- [ ] Nenhuma palavra da lista "O que nunca prometer" (AC 4)
-- [ ] `HANDOFF.md` aponta para `.specs/features/campanha-lista-de-espera/` e `site/README.md` (CAMP-07 AC 3)
+- [x] Seis a oito headlines, cada uma com o estado da persona (CAMP-06 AC 1)
+- [x] Três textos curtos, `wc -m` ≤ 280 cada, terminando com a chamada (AC 2)
+- [x] Texto longo com `wc -w` ≥ 500, primeira pessoa, sem valor nem nome real (AC 3)
+- [x] Nenhuma palavra da lista "O que nunca prometer" (AC 4)
+- [x] `HANDOFF.md` aponta para `.specs/features/campanha-lista-de-espera/` e `site/README.md` (CAMP-07 AC 3)
 **Tests**: none
 **Gate**: build

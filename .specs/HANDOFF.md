@@ -145,6 +145,11 @@ virou especificação executável, com teste de concordância que confronta a fu
                                                  à espera do Verifier; só entra no main depois
                                                  das três importações em produção
 .specs/features/editar-lancamentos/context.md    rascunho da edição de avulso e compra
+.specs/features/campanha-lista-de-espera/        spec (CAMP-01..07) + 6 tasks: a landing da lista
+                                                 de espera, o posicionamento e o kit de copy
+site/                                            a landing estática (README.md explica como colar
+                                                 a URL do formulário, regenerar capturas e verificar)
+docs/marketing/                                  posicionamento.md e kit-de-copy.md
 docs/importacao.md                               roteiro de uso da importação: baixar a aba,
                                                  testar em localhost, limpar e importar no Neon
 docs/qa.md                                       roteiro de QA em modo produção; estágio 1 executado

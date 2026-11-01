@@ -293,8 +293,8 @@ pedindo o e-mail.
 | CAMP-03 | P1: A landing page tem a identidade do app e é acessível — ACs 1 a 8 | Execute | ACs 1 a 5 e 8 (T2) ✅ `site/estrutura.test.mjs`; AC 7 (T3) ✅ conferido a olho nas capturas de 1280 e 360; AC 6 (T5) ✅ `site/verificar-navegador.mjs`, seis combinações sem violação |
 | CAMP-04 | P1: O botão da lista de espera — ACs 1 a 4 | Execute | ACs 1 a 4 (T2) ✅ `site/estrutura.test.mjs`, `site/formulario.mjs` |
 | CAMP-05 | P2: Capturas do app com dados sintéticos — ACs 1 a 4 | Execute | ACs 1 e 3 (T4) ✅ `site/capturar.mjs`, troca por `data-tema` conferida no navegador; ACs 2, 3 e 4 (T4) ✅ `site/estrutura.test.mjs` |
-| CAMP-06 | P2: Kit de copy — ACs 1 a 4 | Tasks | T6 |
-| CAMP-07 | P3: O repositório continua verde — ACs 1 a 3 | Execute | ACs 1 e 2 (T5) ✅ `pnpm verify` e `pnpm site:verificar` saem 0; AC 3 (T6) |
+| CAMP-06 | P2: Kit de copy — ACs 1 a 4 | Execute | ACs 1 a 4 (T6) ✅ `docs/marketing/kit-de-copy.md`: 8 headlines, curtos com 249, 228 e 227 caracteres, longo com 667 palavras |
+| CAMP-07 | P3: O repositório continua verde — ACs 1 a 3 | Execute | ACs 1 e 2 (T5) ✅ `pnpm verify` e `pnpm site:verificar` saem 0; AC 3 (T6) ✅ `.specs/HANDOFF.md` |
 
 **Coverage:** 7 total, 7 mapeados para tasks.
 
