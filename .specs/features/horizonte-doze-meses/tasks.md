@@ -253,7 +253,7 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 
 ---
 
-### T7: Prova de composição no navegador
+### T7: Prova de composição no navegador ✅ Concluída
 
 **What**: Um e2e que cadastra um fixo sem fim em março, abre março e depois março + 12, e vê a
 ocorrência do fixo lá, sem ação nenhuma (L-014: a página passa a constante certa).
@@ -267,9 +267,11 @@ ocorrência do fixo lá, sem ação nenhuma (L-014: a página passa a constante 
 - Skill: NONE
 
 **Done when**:
-- [ ] O e2e abre a competência base + 12 e encontra a linha do fixo em Lançamentos
-- [ ] O e2e abre base + 13 e **não** encontra a linha (limite da janela, L-029)
-- [ ] Gate: `pnpm test:e2e` sai 0
+- [x] O e2e cadastra o fixo, abre março e prova **no banco** que as ocorrências vão de 2026-03 a
+      2027-03, 13 competências literais e nenhuma além (limite da janela, L-029); depois abre
+      2027-03 e encontra a linha em Lançamentos (`e2e/horizonte-doze-meses.spec.ts`). A prova ficou
+      no banco porque abrir o mês distante também materializa, e a linha lá não discriminaria
+- [x] Gate: `pnpm test:e2e` sai 0 (resultado abaixo, no commit)
 
 **Tests**: e2e
 **Gate**: full
