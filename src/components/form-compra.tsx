@@ -15,9 +15,10 @@ import {
   MAX_NOME_MEIO,
   TIPOS_DE_MEIO,
 } from "@/application/schemas/meio-pagamento.schema";
-import { parseBRL } from "@/domain";
+import { menorParcelamentoQueCabe, parseBRL, type SaldoDoMes, simularCompra } from "@/domain";
 import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { CadastroInline } from "./cadastro-inline";
+import { RespostaDaSimulacao } from "./resposta-da-simulacao";
 
 /**
  * Cadastro de compra: o formulário que resolve a dor central.
@@ -66,6 +67,24 @@ export interface FormCompraProps {
   /** Mesma razão: a criação de cadastro chega por prop, não por import. */
   readonly criarCategoria: typeof criarCategoriaAction;
   readonly criarMeioDePagamento: typeof criarMeioAction;
+  /**
+   * O que o simulador já sabia quando a pessoa clicou em "Lançar esta compra"
+   * (SIM-04, AC 2): o formulário nasce preenchido e pede só o resto.
+   */
+  readonly valoresIniciais?: ValoresIniciaisDaCompra;
+  /**
+   * Os saldos de C a C + 12. Quando presente, a resposta da simulação aparece
+   * abaixo da prévia das parcelas (SIM-05); sem ele, o formulário é o de
+   * sempre. Vem por prop porque quem lê o banco é a página.
+   */
+  readonly horizonte?: ReadonlyArray<SaldoDoMes>;
+}
+
+export interface ValoresIniciaisDaCompra {
+  readonly modo: "TOTAL" | "VALOR_PARCELA";
+  /** Como a pessoa digitou: `"1.000,00"`. */
+  readonly valor: string;
+  readonly qtdParcelas: number;
 }
 
 type Campos = Record<string, string>;
@@ -101,6 +120,8 @@ export function FormCompra({
   enviar,
   criarCategoria,
   criarMeioDePagamento,
+  valoresIniciais,
+  horizonte,
 }: FormCompraProps) {
   const router = useRouter();
   const id = useId();
@@ -111,9 +132,9 @@ export function FormCompra({
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
 
   const [descricao, setDescricao] = useState("");
-  const [modo, setModo] = useState<"TOTAL" | "VALOR_PARCELA">("TOTAL");
-  const [valor, setValor] = useState("");
-  const [qtdParcelas, setQtdParcelas] = useState("1");
+  const [modo, setModo] = useState<"TOTAL" | "VALOR_PARCELA">(valoresIniciais?.modo ?? "TOTAL");
+  const [valor, setValor] = useState(valoresIniciais?.valor ?? "");
+  const [qtdParcelas, setQtdParcelas] = useState(String(valoresIniciais?.qtdParcelas ?? 1));
   const [parcelaInicial, setParcelaInicial] = useState("1");
   const [dataEvento, setDataEvento] = useState(dataPadrao);
   const [categoriaId, setCategoriaId] = useState("");
@@ -158,6 +179,32 @@ export function FormCompra({
     });
     return montado.ok ? montado.value.plano : null;
   }, [valorEmCentavos, modo, qtdParcelas, parcelaInicial, competencia]);
+
+  /**
+   * A resposta de "dá pra comprar?" sobre a mesma prévia (SIM-05, AC 3): o
+   * plano que a simulação subtrai dos saldos é o que vai ser gravado. O menor
+   * parcelamento só é procurado quando a compra não cabe, porque é a única
+   * hora em que a frase o usa.
+   */
+  const resposta = useMemo(() => {
+    if (horizonte === undefined || previa === null) {
+      return null;
+    }
+    const simulacao = simularCompra(horizonte, previa);
+    if (!simulacao.ok) {
+      return null;
+    }
+    const primeira = previa.parcelas[0];
+    const menorQueCabe =
+      simulacao.value.cabe || primeira === undefined
+        ? null
+        : menorParcelamentoQueCabe(horizonte, {
+            valorTotal: previa.valorTotal,
+            competenciaPrimeiraParcela: primeira.competencia,
+            politicaResiduo: "PRIMEIRAS",
+          });
+    return { simulacao: simulacao.value, menorQueCabe };
+  }, [horizonte, previa]);
 
   /**
    * O payload da categoria, ou o erro de validação. O mesmo schema do
@@ -628,6 +675,17 @@ export function FormCompra({
           </ul>
         )}
       </section>
+
+      {resposta === null ? null : (
+        <div className="rounded-xl bg-canvas p-5">
+          <RespostaDaSimulacao
+            simulacao={resposta.simulacao}
+            qtdParcelas={inteiro(qtdParcelas)}
+            menorQueCabe={resposta.menorQueCabe}
+            competenciaAberta={competencia}
+          />
+        </div>
+      )}
 
       {erroGeral === "" ? null : (
         <p role="alert" className={`${ERRO_CLASSE} rounded-lg border border-negativo px-4 py-3`}>

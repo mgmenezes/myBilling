@@ -4,7 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { criarCategoria } from "@/app/actions/categorias";
 import type { criarCompra } from "@/app/actions/compras";
 import type { criarMeioDePagamento } from "@/app/actions/meios-de-pagamento";
-import { FormCompra } from "./form-compra";
+import type { Cents, Competencia, SaldoDoMes } from "@/domain";
+import { FormCompra, type FormCompraProps } from "./form-compra";
 
 /**
  * Testes derivados do Done-when de T50 e dos ACs de PARC-01, PARC-04, PARC-06
@@ -65,6 +66,41 @@ function montar(
   );
   return { ...utils, usuario: userEvent.setup() };
 }
+
+/** As props mínimas; os testes de SIM-04 e SIM-05 acrescentam as suas. */
+function montarCom(extra: Partial<FormCompraProps>) {
+  const utils = render(
+    <FormCompra
+      competencia="2026-03"
+      dataPadrao="2026-03-04"
+      meios={MEIOS}
+      categorias={CATEGORIAS}
+      usuarios={USUARIOS}
+      enviar={vi.fn()}
+      criarCategoria={criarCategoriaOk}
+      criarMeioDePagamento={criarMeioOk}
+      {...extra}
+    />,
+  );
+  return { ...utils, usuario: userEvent.setup() };
+}
+
+/** R$ 700,00 sobrando em cada um dos 13 meses, de março a março (AD-009). */
+const HORIZONTE: SaldoDoMes[] = [
+  "2026-03",
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+  "2026-10",
+  "2026-11",
+  "2026-12",
+  "2027-01",
+  "2027-02",
+  "2027-03",
+].map((competencia) => ({ competencia: competencia as Competencia, saldo: 70000 as Cents }));
 
 function linhasDaPrevia(): string[] {
   return within(screen.getByRole("region", { name: "Previsão das parcelas" }))
@@ -604,5 +640,114 @@ describe("criar meio de pagamento sem sair do formulário", () => {
       expect.stringContaining("Já existe um meio de pagamento com esse nome."),
     );
     expect((screen.getByLabelText(NOME) as HTMLInputElement).value).toBe("Cartão Roxo");
+  });
+});
+
+describe("a resposta da simulação dentro do cadastro (SIM-05, ACs 1 a 4)", () => {
+  async function digitarMilEmTres(usuario: ReturnType<typeof userEvent.setup>) {
+    await usuario.type(screen.getByLabelText("Valor total (R$)"), "1.000,00");
+    await usuario.clear(screen.getByLabelText("Quantidade de parcelas"));
+    await usuario.type(screen.getByLabelText("Quantidade de parcelas"), "3");
+  }
+
+  it("com horizonte, o bloco aparece logo abaixo da prévia, com o veredito e três linhas (AC 1)", async () => {
+    const { usuario } = montarCom({ horizonte: HORIZONTE });
+    await digitarMilEmTres(usuario);
+
+    const previa = screen.getByRole("region", { name: "Previsão das parcelas" });
+    const resposta = screen.getByRole("region", { name: "Resposta da simulação" });
+    expect(previa.nextElementSibling?.contains(resposta)).toBe(true);
+    expect(within(resposta).getByText("Cabe. Nenhum mês fica no vermelho.")).toBeTruthy();
+    expect(within(resposta).getAllByRole("listitem")).toHaveLength(3);
+    expect(
+      within(resposta)
+        .getAllByRole("definition")
+        .map((d) => d.textContent),
+    ).toEqual([
+      "Vai sobrar R$ 700,00",
+      "Vai sobrar R$ 366,66",
+      "Vai sobrar R$ 700,00",
+      "Vai sobrar R$ 366,67",
+      "Vai sobrar R$ 700,00",
+      "Vai sobrar R$ 366,67",
+    ]);
+  });
+
+  it("sem horizonte, o bloco não existe (AC 2)", async () => {
+    const { usuario } = montarCom({});
+    await digitarMilEmTres(usuario);
+
+    expect(screen.queryByRole("region", { name: "Resposta da simulação" })).toBeNull();
+  });
+
+  it("mudar a quantidade de parcelas recalcula o bloco com o plano da prévia (AC 3)", async () => {
+    const { usuario } = montarCom({ horizonte: HORIZONTE });
+    await digitarMilEmTres(usuario);
+    await usuario.clear(screen.getByLabelText("Quantidade de parcelas"));
+    await usuario.type(screen.getByLabelText("Quantidade de parcelas"), "2");
+
+    const resposta = screen.getByRole("region", { name: "Resposta da simulação" });
+    expect(within(resposta).getAllByRole("listitem")).toHaveLength(2);
+    expect(
+      within(resposta)
+        .getAllByRole("definition")
+        .map((d) => d.textContent),
+    ).toEqual([
+      "Vai sobrar R$ 700,00",
+      "Vai sobrar R$ 200,00",
+      "Vai sobrar R$ 700,00",
+      "Vai sobrar R$ 200,00",
+    ]);
+  });
+
+  it("quando não cabe, diz em quantas vezes caberia", async () => {
+    const { usuario } = montarCom({ horizonte: HORIZONTE });
+    await usuario.type(screen.getByLabelText("Valor total (R$)"), "3.000,00");
+    await usuario.clear(screen.getByLabelText("Quantidade de parcelas"));
+    await usuario.type(screen.getByLabelText("Quantidade de parcelas"), "3");
+
+    expect(
+      within(screen.getByRole("region", { name: "Resposta da simulação" })).getByText(
+        "Em 3x não cabe: março, abril e maio ficam no vermelho. Em 5x cabe.",
+      ),
+    ).toBeTruthy();
+  });
+
+  it('não há botão "Lançar esta compra" dentro do formulário (AC 4)', async () => {
+    const { usuario } = montarCom({ horizonte: HORIZONTE });
+    await digitarMilEmTres(usuario);
+
+    expect(
+      within(screen.getByRole("form", { name: "Nova compra" })).queryByRole("button", {
+        name: "Lançar esta compra",
+      }),
+    ).toBeNull();
+  });
+});
+
+describe("valores iniciais vindos do simulador (SIM-04, AC 2)", () => {
+  it("o formulário nasce com modo, valor e parcelas preenchidos e a prévia calculada", () => {
+    montarCom({ valoresIniciais: { modo: "TOTAL", valor: "1.000,00", qtdParcelas: 3 } });
+
+    expect((screen.getByLabelText("Valor total (R$)") as HTMLInputElement).value).toBe("1.000,00");
+    expect((screen.getByLabelText("Quantidade de parcelas") as HTMLInputElement).value).toBe("3");
+    expect((screen.getByRole("radio", { name: "Valor total" }) as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(linhasDaPrevia()).toEqual([
+      "1/3 Março de 2026R$ 333,34",
+      "2/3 Abril de 2026R$ 333,33",
+      "3/3 Maio de 2026R$ 333,33",
+      "Total da compraR$ 1.000,00",
+    ]);
+  });
+
+  it("no modo valor da parcela, o campo é o da parcela e a prévia multiplica", () => {
+    montarCom({ valoresIniciais: { modo: "VALOR_PARCELA", valor: "60,00", qtdParcelas: 2 } });
+
+    expect((screen.getByLabelText("Valor da parcela (R$)") as HTMLInputElement).value).toBe(
+      "60,00",
+    );
+    expect(linhasDaPrevia().at(-1)).toBe("Total da compraR$ 120,00");
   });
 });

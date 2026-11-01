@@ -197,7 +197,7 @@ sai de `horizonte-futuro.tsx` para um módulo puro reutilizado pelos dois, no me
 
 ---
 
-### T4: `FormCompra` com valores iniciais e com a resposta da simulação
+### T4: `FormCompra` com valores iniciais e com a resposta da simulação ✅ Concluída
 
 **What**: Duas props opcionais: `valoresIniciais` (`modo`, `valor` em texto, `qtdParcelas`) que
 preenchem o estado inicial, e `horizonte` que, quando presente, renderiza `RespostaDaSimulacao`
@@ -213,14 +213,14 @@ abaixo da prévia das parcelas com o plano da própria prévia e `menorParcelame
 - Skill: NONE
 
 **Done when**:
-- [ ] `form-compra.test.tsx` prova: com `horizonte`, o bloco aparece abaixo da prévia (vizinhança no
+- [x] `form-compra.test.tsx` prova: com `horizonte`, o bloco aparece abaixo da prévia (vizinhança no
       DOM, L-018) com "Cabe. Nenhum mês fica no vermelho." para R$ 1.000,00 em 3x sobre 700 por mês;
       sem `horizonte`, o bloco não existe
-- [ ] Mudar o número de parcelas recalcula o bloco (3 → 2 linhas)
-- [ ] Nenhum botão "Lançar esta compra" dentro do formulário
-- [ ] `valoresIniciais` preenche modo, valor e parcelas e a prévia nasce calculada
-- [ ] Os testes existentes do formulário continuam verdes sem mudança
-- [ ] Gate: `pnpm test:unit` sai 0
+- [x] Mudar o número de parcelas recalcula o bloco (3 → 2 linhas)
+- [x] Nenhum botão "Lançar esta compra" dentro do formulário
+- [x] `valoresIniciais` preenche modo, valor e parcelas e a prévia nasce calculada
+- [x] Os testes existentes do formulário continuam verdes sem mudança
+- [x] Gate: `pnpm test:unit` sai 0: 2.148 unitários (+7)
 
 **Tests**: unit
 **Gate**: quick
