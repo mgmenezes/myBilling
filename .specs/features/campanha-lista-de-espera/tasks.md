@@ -117,17 +117,17 @@ T5 -> T6
 **Requirement**: CAMP-02 (ACs 1, 6, 7), CAMP-03 (ACs 1 a 5, 7, 8), CAMP-04
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: `lang`, `title`, `viewport`, `description` presentes (CAMP-02 AC 7)
-- [ ] Teste: as sete seções existem na ordem (CAMP-02 AC 1)
-- [ ] Teste: um `<script>` só, inline, sem `src`; nenhum `<link>` externo fora de fonts.googleapis.com e fonts.gstatic.com (CAMP-03 AC 5)
-- [ ] Teste: `--primary` só aparece em regras de `.botao-primario`, `a` e tokens; `--inverso` usado por um seletor só (CAMP-03 AC 2)
-- [ ] Teste: nenhum `@media (prefers-color-scheme` com declaração de cor; todo token com `light-dark(` (CAMP-03 AC 1)
-- [ ] Teste: toda `font-family` termina em pilha de reserva (CAMP-03 AC 4)
-- [ ] Teste: nenhum `box-shadow` fora de `--sombra-1`; headline em `font-weight: 400` (CAMP-03 AC 8)
-- [ ] Teste: constante `URL_DO_FORMULARIO` única; com placeholder, todo botão da lista tem `aria-disabled="true"`, sem `href`, com texto "em breve"; com `https://`, todo botão tem `href` igual, `target="_blank"` e `rel="noopener"` (CAMP-04 ACs 1 a 4). O teste roda o HTML nos dois estados, substituindo a constante em memória
-- [ ] Teste: nenhum `R$` fora da allowlist `["1.000,00", "333,34", "333,33"]` (CAMP-02 AC 4, parte)
-- [ ] A frase "usado hoje por um casal" e "abrindo para mais casas" presentes (CAMP-02 AC 6)
-- [ ] `data-tema="sistema"` nunca aparece no HTML nem no script (CAMP-03 AC 3)
+- [x] Teste: `lang`, `title`, `viewport`, `description` presentes (CAMP-02 AC 7)
+- [x] Teste: as sete seções existem na ordem (CAMP-02 AC 1)
+- [x] Teste: um `<script>` só, inline, sem `src`; nenhum `<link>` externo fora de fonts.googleapis.com e fonts.gstatic.com (CAMP-03 AC 5)
+- [x] Teste: `--primary` só aparece em regras de `.botao-primario`, `a` e tokens; `--inverso` usado por um seletor só (CAMP-03 AC 2)
+- [x] Teste: nenhum `@media (prefers-color-scheme` com declaração de cor; todo token com `light-dark(` (CAMP-03 AC 1)
+- [x] Teste: toda `font-family` termina em pilha de reserva (CAMP-03 AC 4)
+- [x] Teste: nenhum `box-shadow` fora de `--sombra-1`; headline em `font-weight: 400` (CAMP-03 AC 8)
+- [x] Teste: constante `URL_DO_FORMULARIO` única; com placeholder, todo botão da lista tem `aria-disabled="true"`, sem `href`, com texto "em breve"; com `https://`, todo botão tem `href` igual, `target="_blank"` e `rel="noopener"` (CAMP-04 ACs 1 a 4). O teste roda o HTML nos dois estados, substituindo a constante em memória
+- [x] Teste: nenhum `R$` fora da allowlist `["1.000,00", "333,34", "333,33"]` (CAMP-02 AC 4, parte)
+- [x] A frase "usado hoje por um casal" e "abrindo para mais casas" presentes (CAMP-02 AC 6)
+- [x] `data-tema="sistema"` nunca aparece no HTML nem no script (CAMP-03 AC 3)
 **Tests**: estrutural (`node:test`)
 **Gate**: site
 

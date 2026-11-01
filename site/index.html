@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>myBilling</title>
+    <meta
+      name="description"
+      content="As contas da casa, para dois, sem o mês fechar errado. Cadastre a compra parcelada uma vez e as parcelas aparecem sozinhas nos meses certos. Lista de espera."
+    />
+    <!--
+      A constante única da URL do formulário (CAMP-04). Não edite à mão:
+      rode `node site/formulario.mjs <url>` e ele reescreve esta meta e todos
+      os botões `.botao-lista` de uma vez. Com o placeholder, o botão não é
+      link e diz "em breve". Ver site/README.md.
+    -->
+    <meta name="lista-de-espera" content="COLE_AQUI_A_URL_DO_GOOGLE_FORMS" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap"
+    />
+    <link rel="stylesheet" href="estilos.css" />
+    <script>
+      /*
+       * O único script da página: o tema (CAMP-03 ACs 3 e 5). Mesma chave de
+       * localStorage do app, para que a escolha feita lá valha aqui. Sem o
+       * atributo, `color-scheme: light dark` deixa o sistema decidir. Nunca
+       * se grava "sistema": a ausência do atributo é esse estado.
+       */
+      (() => {
+        const CHAVE = "mybilling:tema";
+        const raiz = document.documentElement;
+        const aplicar = (tema) => {
+          if (tema === "claro" || tema === "escuro") {
+            raiz.setAttribute("data-tema", tema);
+          } else {
+            raiz.removeAttribute("data-tema");
+          }
+        };
+        let inicial = "sistema";
+        try {
+          const guardado = localStorage.getItem(CHAVE);
+          if (guardado === "claro" || guardado === "escuro") {
+            inicial = guardado;
+          }
+        } catch {
+          // Sem armazenamento, vale o tema do sistema nesta aba.
+        }
+        aplicar(inicial);
+        document.addEventListener("DOMContentLoaded", () => {
+          for (const opcao of document.querySelectorAll('input[name="tema"]')) {
+            opcao.checked = opcao.value === inicial;
+            opcao.addEventListener("change", (evento) => {
+              const escolhido = evento.target.value;
+              aplicar(escolhido);
+              try {
+                if (escolhido === "sistema") {
+                  localStorage.removeItem(CHAVE);
+                } else {
+                  localStorage.setItem(CHAVE, escolhido);
+                }
+              } catch {
+                // Sem armazenamento, a escolha vale só nesta aba.
+              }
+            });
+          }
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- Glifos do Phosphor Icons, os mesmos do app (Wallet, Monitor, Sun, Moon). -->
+    <svg aria-hidden="true" width="0" height="0" style="position: absolute">
+      <symbol id="icone-carteira" viewBox="0 0 256 256">
+        <path
+          fill="currentColor"
+          d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm-36,80a12,12,0,1,1,12-12A12,12,0,0,1,180,144Z"
+        />
+      </symbol>
+      <symbol id="icone-monitor" viewBox="0 0 256 256">
+        <path
+          fill="currentColor"
+          d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Z"
+        />
+      </symbol>
+      <symbol id="icone-sol" viewBox="0 0 256 256">
+        <path
+          fill="currentColor"
+          d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"
+        />
+      </symbol>
+      <symbol id="icone-lua" viewBox="0 0 256 256">
+        <path
+          fill="currentColor"
+          d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"
+        />
+      </symbol>
+    </svg>
+
+    <header class="cabecalho">
+      <div class="moldura">
+        <a class="marca" href="#inicio">
+          <svg width="24" height="24" aria-hidden="true"><use href="#icone-carteira" /></svg>
+          myBilling
+        </a>
+        <div class="cabecalho-acoes">
+          <fieldset class="alternador-tema">
+            <legend class="visualmente-oculto">Tema da página</legend>
+            <label>
+              <input type="radio" name="tema" value="sistema" checked />
+              <span class="visualmente-oculto">Tema do sistema</span>
+              <svg width="17" height="17" aria-hidden="true"><use href="#icone-monitor" /></svg>
+            </label>
+            <label>
+              <input type="radio" name="tema" value="claro" />
+              <span class="visualmente-oculto">Tema claro</span>
+              <svg width="17" height="17" aria-hidden="true"><use href="#icone-sol" /></svg>
+            </label>
+            <label>
+              <input type="radio" name="tema" value="escuro" />
+              <span class="visualmente-oculto">Tema escuro</span>
+              <svg width="17" height="17" aria-hidden="true"><use href="#icone-lua" /></svg>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio" aria-labelledby="titulo-inicio">
+        <div class="moldura">
+          <div class="hero-texto">
+            <h1 id="titulo-inicio">As contas da casa, para dois, sem o mês fechar errado.</h1>
+            <p class="suave">
+              Cadastre a compra parcelada uma vez. As parcelas aparecem sozinhas nos meses certos, e a
+              fatura nunca conta duas vezes.
+            </p>
+            <div class="hero-acoes">
+              <button class="botao botao-primario botao-lista" type="button" disabled aria-disabled="true">Lista de espera em breve</button>
+              <a class="botao botao-secundario" href="#onde-quebra">Ver onde a planilha quebra</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao secao-suave" id="onde-quebra" aria-labelledby="titulo-onde-quebra">
+        <div class="moldura">
+          <div class="secao-cabeca">
+            <h2 id="titulo-onde-quebra">Onde as contas da casa quebram</h2>
+            <p class="suave">
+              Cinco situações que todo casal reconhece. Em cada uma, o que a planilha e o caderno deixam
+              passar, e o que o myBilling não deixa.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao" id="comparativo" aria-labelledby="titulo-comparativo">
+        <div class="moldura">
+          <div class="secao-cabeca">
+            <h2 id="titulo-comparativo">Caderno, planilha ou myBilling</h2>
+            <p class="suave">Uma comparação honesta, com as linhas em que a planilha ganha.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao inverso" id="para-dois" aria-labelledby="titulo-para-dois">
+        <div class="moldura">
+          <div class="secao-cabeca">
+            <h2 id="titulo-para-dois">Para dois</h2>
+            <p class="suave">Um caixa, um saldo, e cada lançamento diz quem gastou.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao" id="sua-planilha" aria-labelledby="titulo-sua-planilha">
+        <div class="moldura">
+          <div class="secao-cabeca">
+            <h2 id="titulo-sua-planilha">Traga a sua planilha ou comece do zero</h2>
+            <p class="suave">Os dois caminhos levam ao mesmo lugar: um mês que fecha.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao secao-suave" id="numeros" aria-labelledby="titulo-numeros">
+        <div class="moldura">
+          <div class="secao-cabeca">
+            <h2 id="titulo-numeros">O que os números dizem</h2>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="rodape" id="rodape">
+      <div class="moldura">
+        <h2>Quer ser avisado quando abrir?</h2>
+        <div class="hero-acoes">
+          <button class="botao botao-primario botao-lista" type="button" disabled aria-disabled="true">Lista de espera em breve</button>
+        </div>
+        <p class="rodape-nota">
+          O myBilling é usado hoje por um casal, para as próprias contas, e está abrindo para mais casas.
+          Não há preço definido e não há cadastro aberto: a lista de espera é o único passo por enquanto.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
