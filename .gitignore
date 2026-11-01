@@ -43,3 +43,6 @@ pnpm-debug.log*
 
 # saída do navegador do Playwright MCP
 .playwright-mcp/
+
+# Vercel CLI (vínculo local do projeto da landing em site/)
+.vercel/

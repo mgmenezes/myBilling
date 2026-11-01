@@ -66,6 +66,18 @@ textos usam `--ink-muted`.
 
 ## Deploy
 
-É um projeto separado na Vercel, com *Root Directory* `site/`, sem build (framework "Other", output
-na própria pasta). Criar o projeto é operação remota e é do dono, como `git push`. Depois do
-primeiro deploy, colar a URL do formulário e commitar: o deploy seguinte publica os botões ativos.
+É um projeto separado na Vercel, **`mybilling-landing`**, criado em 2026-11-01 pela CLI, sem build
+(framework "Other", a própria pasta é a saída). Ele não está ligado ao GitHub: a publicação sobe a
+pasta `site/` direto do disco, o que não depende de `git push`. A pasta está vinculada ao projeto
+por `site/.vercel/`, que fica fora do git.
+
+Publicar em produção, a partir da raiz do repositório:
+
+```bash
+cd site && npx vercel deploy --prod
+```
+
+Sem `--prod`, a CLI cria uma pré-visualização, que a Vercel protege com login por padrão; só a URL
+de produção é pública. Depois de colar a URL do formulário e commitar, publicar de novo: é o que
+põe os botões ativos no ar. Ligar o projeto ao repositório, para publicar a cada push, fica a
+critério do dono (Settings → Git, com *Root Directory* `site/`).
