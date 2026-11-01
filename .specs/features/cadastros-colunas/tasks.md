@@ -2,7 +2,11 @@
 
 **Spec**: `.specs/features/cadastros-colunas/spec.md`
 **Design**: `.specs/features/cadastros-colunas/design.md`
-**Status**: Rodada 1 de `validation.md`: FAIL em 2026-10-31, com 89 de 94 ACs provados, 40 de 46
+**Status**: Verified, PASS em 2026-10-31 na rodada 4 de `validation.md`, focada em G8 a G10. As
+três lacunas foram fechadas, e o sensor matou 10 de 10 mutantes. As rodadas 1 a 3 deram FAIL, e as
+correções F1 a F13 foram concluídas. O histórico vem abaixo.
+
+Rodada 1 de `validation.md`: FAIL em 2026-10-31, com 89 de 94 ACs provados, 40 de 46
 mutantes mortos e cinco lacunas (G1 a G5). O dono decidiu em 2026-10-31:
 - G1: "Aceitar a quebra": abaixo de 768 px, a linha de baixo quebra quando não cabe;
 - G4: "Nunca rolar de lado", em largura nenhuma;
@@ -19,7 +23,7 @@ para `92063b4`.
 A rodada 3, a última do limite, deu FAIL em 2026-10-31: 93 de 96 ACs provados e 33 de 37 mutantes
 mortos, com três lacunas de teste (G8 a G10). O código já faz o certo nas três (sondas A, B e C). O
 dono escolheu "Corrigir e checar só isso", como na rodada 5 de Lançamentos. As correções F11–F13
-fecharam G8 a G10, só com teste, um comentário e spec, e aguardam o Verifier focado nelas.
+fecharam G8 a G10, só com teste, um comentário e spec. O Verifier focado nelas deu PASS.
 
 Antes disso: o dono aprovou o plano em 2026-10-30, e T1 a T22 foram concluídas na branch
 `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`. A branch foi rebaseada sobre a
@@ -1529,7 +1533,7 @@ medida da rolagem do `aside`, e um corte com reticências não rola.
 - [x] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: e2e
 **Gate**: build
-**Commit**: `test(cadastros): a palavra longa quebra dentro do painel`
+**Commit**: `test(cadastros): a palavra longa quebra dentro do painel` (`49dea3f`)
 **Nota**:
 - **A medida.** `textoForaDaTabela` passa a `textoForaDe(alvo, conteiner)`
   (`e2e/cadastros-colunas.spec.ts:2054`), que mede o texto contra a tabela ou contra o `aside`. A
