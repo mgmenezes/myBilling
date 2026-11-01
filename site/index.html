@@ -43,6 +43,13 @@
           } else {
             raiz.removeAttribute("data-tema");
           }
+          // As capturas seguem a mesma escolha: com tema fixo, a source do
+          // escuro vale sempre ou nunca; sem escolha, volta à media query.
+          const media =
+            tema === "escuro" ? "all" : tema === "claro" ? "not all" : "(prefers-color-scheme: dark)";
+          for (const source of document.querySelectorAll("source[data-tema-escuro]")) {
+            source.setAttribute("media", media);
+          }
         };
         let inicial = "sistema";
         try {
@@ -55,6 +62,7 @@
         }
         aplicar(inicial);
         document.addEventListener("DOMContentLoaded", () => {
+          aplicar(inicial);
           for (const opcao of document.querySelectorAll('input[name="tema"]')) {
             opcao.checked = opcao.value === inicial;
             opcao.addEventListener("change", (evento) => {
@@ -147,6 +155,25 @@
               <a class="botao botao-secundario" href="#onde-quebra">Ver onde a planilha quebra</a>
             </div>
           </div>
+          <figure class="captura">
+            <picture>
+              <source
+                data-tema-escuro
+                media="(prefers-color-scheme: dark)"
+                srcset="imagens/visao-geral-escuro.png"
+              />
+              <img
+                src="imagens/visao-geral-claro.png"
+                width="1280"
+                height="800"
+                alt="Visão geral de um mês no myBilling: receitas, despesas, o que ainda não foi pago e o saldo previsto, com os gastos por categoria e o formulário de novo lançamento ao lado."
+                fetchpriority="high"
+              />
+            </picture>
+            <figcaption class="captura-legenda">
+              A Visão geral do mês. Dados de demonstração, gerados pelo app.
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -219,6 +246,25 @@
               </p>
             </article>
           </div>
+          <figure class="captura">
+            <picture>
+              <source
+                data-tema-escuro
+                media="(prefers-color-scheme: dark)"
+                srcset="imagens/lancamentos-escuro.png"
+              />
+              <img
+                src="imagens/lancamentos-claro.png"
+                width="1280"
+                height="800"
+                alt="A lista de lançamentos de um mês no myBilling, com busca, filtros por categoria, meio de pagamento, pessoa e situação, e o bloco de entradas com cada linha marcada como paga ou prevista."
+                loading="lazy"
+              />
+            </picture>
+            <figcaption class="captura-legenda">
+              Os lançamentos do mês, em blocos. Dados de demonstração, gerados pelo app.
+            </figcaption>
+          </figure>
         </div>
       </section>
 

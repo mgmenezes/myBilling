@@ -155,11 +155,11 @@ T5 -> T6
 **Requirement**: CAMP-05
 **Tools**: Playwright já instalado, Chrome da máquina
 **Done when**:
-- [ ] As imagens existem para cada tela nos dois temas e o script é determinístico no conteúdo (AC 1, AC 3)
-- [ ] Teste: todo `<img>` tem `alt` não vazio, `width` e `height`, e o arquivo de `src` existe (AC 2)
-- [ ] Teste: todo `<picture>` tem `<source media="(prefers-color-scheme: dark)">` (AC 3)
-- [ ] Teste: a frase "dados de demonstração" aparece perto das imagens (AC 4)
-- [ ] Conferência manual de cada imagem: nenhum texto fora do seed
+- [x] As imagens existem para cada tela nos dois temas e o script é determinístico no conteúdo (AC 1, AC 3)
+- [x] Teste: todo `<img>` tem `alt` não vazio, `width` e `height`, e o arquivo de `src` existe (AC 2)
+- [x] Teste: todo `<picture>` tem `<source media="(prefers-color-scheme: dark)">` (AC 3)
+- [x] Teste: a frase "dados de demonstração" aparece perto das imagens (AC 4)
+- [x] Conferência manual de cada imagem: nenhum texto fora do seed
 **Tests**: estrutural (`node:test`) + geração por script
 **Gate**: site
 

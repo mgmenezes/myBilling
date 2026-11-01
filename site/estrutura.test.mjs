@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -342,4 +342,44 @@ test("Tom: sem exclamação, sem travessão, sem emoji no texto visível", () =>
   assert.doesNotMatch(texto, /!/);
   assert.doesNotMatch(texto, /[—–]/);
   assert.doesNotMatch(texto, /\p{Extended_Pictographic}/u);
+});
+
+test("CAMP-05 AC 2: toda imagem tem alt, width, height e arquivo existente", () => {
+  const imagens = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
+  assert.ok(imagens.length >= 2, "as capturas do app estão na página");
+  for (const img of imagens) {
+    const alt = img.match(/\balt="([^"]*)"/);
+    assert.ok(alt && alt[1].trim().length >= 10, `alt curto ou ausente: ${img}`);
+    assert.match(img, /\bwidth="\d+"/);
+    assert.match(img, /\bheight="\d+"/);
+    const src = img.match(/\bsrc="([^"]+)"/);
+    assert.ok(src, `img sem src: ${img}`);
+    assert.ok(existsSync(join(AQUI, src[1])), `arquivo ausente: ${src[1]}`);
+  }
+});
+
+test("CAMP-05 AC 3: cada captura tem a versão do tema escuro em <picture>", () => {
+  const pictures = [...html.matchAll(/<picture\b[^>]*>([\s\S]*?)<\/picture>/g)];
+  assert.ok(pictures.length >= 2);
+  for (const [, corpo] of pictures) {
+    const source = corpo.match(
+      /<source\b[^>]*\bmedia="\(prefers-color-scheme: dark\)"[^>]*\bsrcset="([^"]+)"[^>]*>/,
+    );
+    assert.ok(source, "picture sem source para o tema escuro");
+    assert.ok(existsSync(join(AQUI, source[1])), `arquivo ausente: ${source[1]}`);
+  }
+  // Com `data-tema` escolhido à mão, o script troca a media query da source.
+  assert.match(html, /source\[data-tema-escuro\]/);
+});
+
+test("CAMP-05 AC 4: as imagens dizem que são dados de demonstração", () => {
+  const legendas = [
+    ...html.matchAll(
+      /<figcaption\b[^>]*\bclass="[^"]*\bcaptura-legenda\b[^"]*"[^>]*>([\s\S]*?)<\/figcaption>/g,
+    ),
+  ];
+  assert.ok(legendas.length >= 2);
+  for (const [, texto] of legendas) {
+    assert.match(textoVisivel(texto), /dados de demonstração/i);
+  }
 });

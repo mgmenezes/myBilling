@@ -394,6 +394,34 @@ a:hover {
   max-width: 30ch;
 }
 
+/* ---- Captura do app: moldura com hairline, como um cartão ---- */
+
+.captura {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.captura picture {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+}
+
+.captura-legenda {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.hero .captura {
+  margin-top: 16px;
+}
+
+.dores + .captura {
+  margin-top: 32px;
+}
+
 /* ---- Cartão ---- */
 
 .cartao {
