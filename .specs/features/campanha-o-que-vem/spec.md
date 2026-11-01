@@ -173,10 +173,10 @@ que ainda não existe"; as duas respostas estão na tela.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| VEM-01 | P1: O posicionamento conta a cena primeiro | Execute | Implementing: ACs 1 a 6 em `docs/marketing/posicionamento.md` ("A tese", primeira linha das seis cenas, três linhas novas em "nunca prometer", seção "O que vem a seguir"); conferido sem `!` nem travessão |
-| VEM-02 | P1: A landing abre pela cena e diz o que vem a seguir | Execute | Implementing: ACs 1 a 7 em `site/estrutura.test.mjs` ("VEM-02 AC 1", "CAMP-02 AC 2 e VEM-02 AC 2", "VEM-02 AC 3", "VEM-02 ACs 4 e 5", ordem com oito seções; allowlist e tom pelos testes existentes); `pnpm site:verificar` sem violação |
-| VEM-03 | P2: O kit de copy fala da mesma cena | Execute | Implementing: ACs 1 a 4 em `docs/marketing/kit-de-copy.md`: 8 headlines, a primeira igual ao h1, três sobre o que vem; curtos com 279, 249 e 231 caracteres; longo com 792 palavras e o parágrafo do que vem a seguir; sem `!` nem travessão |
-| VEM-04 | P2: Os gates continuam verdes e a spec antiga aponta para cá | Execute | Implementing: AC 1 em `site/estrutura.test.mjs` (os quatro testes novos e os dois revistos); AC 2 `pnpm site:verificar` e `pnpm verify` saem 0; AC 3 em `campanha-lista-de-espera/spec.md` (CAMP-01, CAMP-02, CAMP-06) e `.specs/HANDOFF.md` |
+| VEM-01 | P1: O posicionamento conta a cena primeiro | Execute | Verified: ACs 1 a 6 em `docs/marketing/posicionamento.md` ("A tese", primeira linha das seis cenas, três linhas novas em "nunca prometer", seção "O que vem a seguir"); conferido sem `!` nem travessão |
+| VEM-02 | P1: A landing abre pela cena e diz o que vem a seguir | Execute | Verified: ACs 1 a 7 em `site/estrutura.test.mjs` ("VEM-02 AC 1", "CAMP-02 AC 2 e VEM-02 AC 2", "VEM-02 AC 3", "VEM-02 ACs 4 e 5", ordem com oito seções; allowlist e tom pelos testes existentes); `pnpm site:verificar` sem violação |
+| VEM-03 | P2: O kit de copy fala da mesma cena | Execute | Verified: ACs 1 a 4 em `docs/marketing/kit-de-copy.md`: 8 headlines, a primeira igual ao h1, três sobre o que vem; curtos com 279, 249 e 231 caracteres; longo com 792 palavras e o parágrafo do que vem a seguir; sem `!` nem travessão |
+| VEM-04 | P2: Os gates continuam verdes e a spec antiga aponta para cá | Execute | Verified: AC 1 em `site/estrutura.test.mjs` (os quatro testes novos e os dois revistos); AC 2 `pnpm site:verificar` e `pnpm verify` saem 0; AC 3 em `campanha-lista-de-espera/spec.md` (CAMP-01, CAMP-02, CAMP-06) e `.specs/HANDOFF.md`. Verifier PASS em 2026-11-01 (`validation.md`): 20/20 ACs, 7 mutantes mortos |
 
 **Coverage:** 4 total, 4 mapeados para os passos inline (T1 posicionamento, T2 landing e teste, T3 kit, T4 specs e handoff), 0 unmapped
 
@@ -185,5 +185,5 @@ que ainda não existe"; as duas respostas estão na tela.
 ## Success Criteria
 
 - [ ] A landing abre pela cena "dá pra comprar?" e diz, sem prometer, o que vem a seguir
-- [ ] `pnpm site:verificar && pnpm verify` saem 0
-- [ ] Nenhum valor real, nenhuma promessa fora do que existe
+- [x] `pnpm site:verificar && pnpm verify` saem 0 (Verifier, 2026-11-01)
+- [x] Nenhum valor real, nenhuma promessa fora do que existe (Verifier, 2026-11-01)

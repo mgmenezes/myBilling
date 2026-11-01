@@ -335,6 +335,7 @@ test("VEM-02 AC 1: o herói tem a frase do dono e a cena respondida com o que ex
   const texto = textoVisivel(hero).toLowerCase();
   assert.match(texto, /quanto vai sobrar/);
   assert.match(texto, /contas fixas/);
+  assert.match(texto, /parcelad/);
 });
 
 test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo myBilling, antes das linhas da planilha", () => {
