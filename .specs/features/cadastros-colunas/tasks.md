@@ -1287,7 +1287,7 @@ mesmo caso já tem teste (`detalhe-da-categoria.test.tsx:411`).
   `scrollIntoView` na linha renomeada
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(meios): renomear o meio deixa a tela parada`
+**Commit**: `test(meios): renomear o meio deixa a tela parada` (`3816187`)
 **Nota**:
 - **O caso** "o nome do meio" (`e2e/cadastros-colunas.spec.ts:2222`) entra no fim de `GRAVACOES`. Ele
   preenche "Nome" pelo formulário "Editar Cartão Roxo" e procura "Salvar alterações" pelo painel,
@@ -1318,13 +1318,46 @@ O teste da F4 só pega isso em 768 e 1.024 px.
 **Reuses**: o teste da F4 (`:2077`) e a contagem de caixas do texto da F1
 **Requirement**: CADCOL-09 (AC 7), Edge Case "Nome longo"
 **Done when**:
-- [ ] No teste da F4, em 400, 768 e 1.024 px, nas duas abas, cada caixa do texto do nome longo de uma
+- [x] No teste da F4, em 400, 768 e 1.024 px, nas duas abas, cada caixa do texto do nome longo de uma
   palavra só fica dentro da caixa da tabela (± 1 px)
-- [ ] O teste passa na HEAD e falha em 400 px com F4f, a tabela num `overflow-x-auto` sem
+- [x] O teste passa na HEAD e falha em 400 px com F4f, a tabela num `overflow-x-auto` sem
   `overflow-wrap` no botão
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(cadastros): o nome longo fica dentro da tabela`
+**Nota**:
+- **A medida.** `textoForaDaTabela`, ao lado de `medirRolagemLateral`, percorre os nós de texto do
+  botão da linha e mede cada caixa, uma por linha de texto, contra a caixa da tabela. Ela devolve o
+  quanto o texto passa da tabela pelo lado que mais passa, e lança se o nome não tiver texto à vista.
+  `medirRolagemLateral` guarda essa medida em cada estado e largura, ao lado da rolagem da página e
+  da do painel.
+- **Desvio: a medida não reaproveita `caixasDoTexto`.** Aquele ajudante devolve só o topo e a base de
+  cada caixa. Para devolver também os lados, ele mudaria de tamanho em `:325`, e todas as citações do
+  arquivo dali em diante teriam de ser remapeadas.
+- **Desvio: mais do que as três larguras e só o teste de ponteiro fino.** A assertion nova
+  (`:2126-2129`) vale para as 60 medidas do teste de `:2113`: as dez larguras, entre elas 400, 768 e
+  1.024 px, nos três estados das duas abas. Vale também para as 6 do teste com toque em 768 px
+  (`:2147-2150`), que usa a mesma função. Na HEAD, as 66 ficam dentro da tabela. Os títulos dos dois
+  testes passam a dizer a cláusula nova e a citar os Edge Cases.
+- **A ordem das assertions.** A nova vem antes da que mede a rolagem. Com F4f, a da rolagem já caía em
+  768 e 1.024 px e esconderia o caso de 400 px, que é o que esta task fecha.
+- **O mutante.** F4f foi escrito como na seção 8 de `validation.md`: `{lista}` num `<div
+  className="overflow-x-auto">` em `coluna-de-cadastro.tsx:152`, e sem `[overflow-wrap:anywhere]` no
+  botão da linha em `tabela-de-categorias.tsx:167` e `tabela-de-meios.tsx:200`.
+  - O teste de ponteiro fino falha em `:2129`, "o nome numa palavra só fora da tabela". Em Categorias,
+    400 px, nos três estados, o nome passa 75,7 px da tabela, com a página e o painel em 0. A medida
+    da F4 sozinha não via esse caso.
+  - Em Meios, em 400 px, a palavra de 40 letras cabe na tabela mesmo sem a regra.
+  - O teste com toque falha na assertion da rolagem (`:2151`): a página rola 245 px em Categorias e
+    205 em Meios, nos três estados. Ali o invólucro cresce com a tabela, e o nome fica dentro dela (0).
+  - Os três componentes voltaram por `git checkout`.
+- **As citações remapeadas** em `spec.md`, porque a medida entrou antes delas:
+  - no CADCOL-09, `:2077` → `:2113` e `:2098` → `:2138`;
+  - no CADCOL-01, `:2117` → `:2161`;
+  - no CADCOL-04 e no CADCOL-07, `:2256` → `:2300`, `:2279-2280` → `:2323-2324` e `:2281` → `:2325`;
+  - no CADCOL-07, `:2222` → `:2266`.
+  As Notas da F4, da F6 e da F8 citam as linhas do commit de cada uma.
+- **Gate e2e:** 2.088 unitários, `typecheck` e `lint` 0, e os 73 testes de `cadastros-colunas.spec.ts`.
 
 #### F10: Os comentários e a citação que ficaram para trás
 **What**: o Fix 3 e a observação 5 da rodada 2.
