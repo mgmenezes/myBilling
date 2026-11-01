@@ -166,7 +166,7 @@ devolve zero).
 | HORIZ-01 | P1: O app enxerga doze meses à frente | Execute | Implementing: AC 1 em `materializar/handler.integration.test.ts` ("abrir um mês materializa doze meses à frente"); ACs 2 e 4 em `obter-visao-mensal/handler.test.ts` (12 meses literais a partir de março e de novembro); AC 3 em `materializar/handler.test.ts` ("o horizonte é um só"); a composição página → constante fica para a T7 |
 | HORIZ-02 | P1: "Próximos meses" continua com três linhas | Execute | Implementing: ACs 1 e 2 em `e2e/saldo-futuro.spec.ts` (3 itens, com `futuro` de 12; "Saldo previsto" de abril e maio); AC 3 na constante `LINHAS_DE_PROXIMOS_MESES` de `[competencia]/page.tsx` |
 | HORIZ-03 | P1: A janela é lida numa consulta | Execute | Implementing: ACs 1 a 3 provados no fake (`fakes.test.ts`, "listar entre duas competências") e no Postgres (`movimento.repository.integration.test.ts`, "listar entre duas competências"), com o Edge Case `inicio === fim`; AC 4 provado em `obter-visao-mensal/handler.test.ts` ("lê os meses seguintes com uma chamada a listarEntre") |
-| HORIZ-04 | P2: O seed deixa o banco como uma abertura de mês deixaria | Tasks | Pending |
+| HORIZ-04 | P2: O seed deixa o banco como uma abertura de mês deixaria | Execute | Implementing: AC 1 em `seed.integration.test.ts` ("materializa os fixos da base até a base + 12, e abrir a base não cria nada") |
 
 **Coverage:** 4 total, 4 mapped to tasks (T1 a T8), 0 unmapped
 

@@ -1,4 +1,7 @@
-import { materializarRecorrencias } from "@/application/recorrencias/materializar/handler";
+import {
+  MESES_DE_PROJECAO,
+  materializarRecorrencias,
+} from "@/application/recorrencias/materializar/handler";
 import {
   addMeses,
   type Cents,
@@ -436,14 +439,15 @@ export async function semear(
   }
 
   /*
-   * Uma chamada só cobre toda a janela do seed: `materializarRecorrencias`
+   * Uma chamada só cobre o horizonte do app: `materializarRecorrencias`
    * recebe a base e quantos meses cobrir, e a idempotência do índice único
-   * torna a repetição inofensiva.
+   * torna a repetição inofensiva. É a mesma janela que abrir um mês cobre
+   * (HORIZ-04), para o banco semeado ficar como o uso deixaria.
    */
   const ocorrenciasDeRecorrencia = await materializarRecorrencias(
     { recorrencias: repoRecorrencia, movimentos: repoMovimento },
     base,
-    MESES_DE_AVULSOS - 1,
+    MESES_DE_PROJECAO,
   );
 
   const meiosAvulsos = [contaCorrente, cartaoAzul, rotulo];

@@ -228,7 +228,7 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 
 ---
 
-### T6: O seed materializa o horizonte
+### T6: O seed materializa o horizonte ✅ Concluída
 
 **What**: O seed chama `materializarRecorrencias` com `MESES_DE_PROJECAO` em vez de
 `MESES_DE_AVULSOS − 1`.
@@ -242,9 +242,10 @@ BETWEEN` e `canceladoEm IS NULL`, ordenado por competência, data do evento e id
 - Skill: NONE
 
 **Done when**:
-- [ ] `seed.integration.test.ts` prova que, depois do seed, uma recorrência do seed tem ocorrência
-      em B + 12 e que materializar de novo a partir de B devolve zero
-- [ ] Gate: `pnpm test:unit && pnpm test:integration` saem 0
+- [x] `seed.integration.test.ts` prova que, depois do seed, as ocorrências de recorrência vão de B a
+      B + 12 (13 competências literais) e que materializar de novo a partir de B devolve zero
+      ("materializa os fixos da base até a base + 12"); vermelho antes da mudança no seed
+- [x] Gate: `pnpm test:unit && pnpm test:integration` saem 0: 2.095 e 413 (+1)
 
 **Tests**: integration
 **Gate**: full

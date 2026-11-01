@@ -2,8 +2,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { corAutomatica } from "@/domain";
+import {
+  MESES_DE_PROJECAO,
+  materializarRecorrencias,
+} from "@/application/recorrencias/materializar/handler";
+import { type Competencia, corAutomatica } from "@/domain";
 import { type BancoDeDados, criarCliente, criarPool } from "./client";
+import { MovimentoRepositoryDrizzle } from "./repositories/movimento.repository";
+import { RecorrenciaRepositoryDrizzle } from "./repositories/recorrencia.repository";
 import {
   COMPETENCIA_BASE_PADRAO,
   criarPrng,
@@ -257,6 +263,42 @@ describe("o seed é ancorado numa competência-base (DADO-02)", () => {
       "2030-10-01",
     ]);
     expect(rows).toHaveLength(MESES_DE_AVULSOS);
+  });
+
+  /* O seed deixa o banco como uma abertura de mês deixaria: os fixos já cobrem
+     o horizonte, e a primeira abertura não materializa nada (HORIZ-04, AC 1). */
+  it("materializa os fixos da base até a base + 12, e abrir a base não cria nada", async () => {
+    await semear(db, SEMENTE_PADRAO, "2030-05");
+
+    const { rows } = await pool.query<{ competencia: string }>(`
+      SELECT DISTINCT competencia::text AS competencia
+      FROM movimento WHERE origem = 'RECORRENCIA' ORDER BY competencia
+    `);
+    expect(rows.map((r) => r.competencia)).toEqual([
+      "2030-05-01",
+      "2030-06-01",
+      "2030-07-01",
+      "2030-08-01",
+      "2030-09-01",
+      "2030-10-01",
+      "2030-11-01",
+      "2030-12-01",
+      "2031-01-01",
+      "2031-02-01",
+      "2031-03-01",
+      "2031-04-01",
+      "2031-05-01",
+    ]);
+
+    const criadas = await materializarRecorrencias(
+      {
+        recorrencias: new RecorrenciaRepositoryDrizzle(db),
+        movimentos: new MovimentoRepositoryDrizzle(db),
+      },
+      "2030-05" as Competencia,
+      MESES_DE_PROJECAO,
+    );
+    expect(criadas).toBe(0);
   });
 
   it("mudar a base desloca a linha do tempo inteira sem mudar mais nada", async () => {
