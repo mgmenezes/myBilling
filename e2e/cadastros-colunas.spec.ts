@@ -2135,3 +2135,127 @@ for (const largura of [400, 1535, 1536]) {
     }
   });
 }
+
+/* ========================================================================
+ * A tela fica parada ao salvar (CADCOL-04, AC 16; CADCOL-07, AC 16), a
+ * escolha do dono em 2026-10-31, como em Todo mês. Antes de salvar, a página
+ * vai até o fim e volta até o controle: ela fica rolada, e uma rolagem até o
+ * alto muda a medida (L-066). Abaixo de 1.536 px o painel fica acima da
+ * tabela, e o controle começa fora da janela. Em 1.920 px o painel fica preso
+ * e rola por conta própria, e o que se mede ali é também a rolagem dele.
+ * ====================================================================== */
+
+interface Gravacao {
+  readonly caso: string;
+  readonly abrirItem: (page: Page) => Promise<void>;
+  readonly painel: (page: Page) => Locator;
+  readonly controle: (page: Page) => Locator;
+  readonly preencher: (page: Page) => Promise<void>;
+  readonly aviso: string;
+  /** Espera a página relida, com a linha já mudada. */
+  readonly relida: (page: Page) => Promise<void>;
+}
+
+async function abrirCategoriaUm(page: Page): Promise<void> {
+  await abrir(page, CATEGORIAS);
+  await botaoDaLinha(page, "Categoria Um").click();
+  await expect(tituloDoPainel(page)).toHaveText("Categoria Um");
+}
+
+const GRAVACOES: ReadonlyArray<Gravacao> = [
+  {
+    caso: "a cor",
+    abrirItem: abrirCategoriaUm,
+    painel,
+    controle: (page) =>
+      painel(page)
+        .getByRole("group", { name: "Cor de Categoria Um" })
+        .getByText("Verde", { exact: true }),
+    preencher: async () => {},
+    aviso: "Cor trocada.",
+    relida: async (page) => {
+      const verde = await corDoToken(page, "--cat-verde-fundo");
+      await expect.poll(() => fundo(pillDaLinha(page, "Categoria Um"))).toBe(verde);
+    },
+  },
+  {
+    caso: "o nome da categoria",
+    abrirItem: abrirCategoriaUm,
+    painel,
+    controle: (page) => painel(page).getByRole("button", { name: "Salvar" }),
+    preencher: async (page) => {
+      await painel(page).getByRole("textbox", { name: "Nome" }).fill("Categoria Dez");
+    },
+    aviso: "Categoria renomeada.",
+    relida: async (page) => {
+      await expect(botaoDaLinha(page, "Categoria Dez")).toBeAttached();
+    },
+  },
+  {
+    caso: "os dias do meio",
+    abrirItem: async (page) => {
+      await abrirMeios(page, MEIOS);
+      await botaoDoMeio(page, "Cartão Roxo").click();
+      await expect(tituloDoPainelDoMeio(page)).toHaveText("Cartão Roxo");
+    },
+    painel: painelDoMeio,
+    controle: (page) =>
+      formularioDoMeio(page, "Cartão Roxo").getByRole("button", { name: "Salvar alterações" }),
+    preencher: async (page) => {
+      const form = formularioDoMeio(page, "Cartão Roxo");
+      await form.getByRole("textbox", { name: "Dia de fechamento" }).fill("10");
+      await form.getByRole("textbox", { name: "Dia de vencimento" }).fill("17");
+    },
+    aviso: "Meio de pagamento salvo.",
+    relida: async (page) => {
+      await expect(celulaDoMeio(page, "Cartão Roxo", 2)).toHaveText("fecha dia 10");
+    },
+  },
+];
+
+/** A rolagem da página e a da coluna do painel, que só rola a partir de 1.536 px. */
+async function rolagens(
+  page: Page,
+  painelDaAba: Locator,
+): Promise<{ pagina: number; coluna: number }> {
+  return {
+    pagina: await page.evaluate(() => window.scrollY),
+    coluna: await painelDaAba.evaluate((aside) => aside.scrollTop),
+  };
+}
+
+for (const [largura, altura] of [
+  [400, 700],
+  [1280, 480],
+  [1920, 480],
+] as const) {
+  for (const g of GRAVACOES) {
+    test(`em ${largura} × ${altura}, salvar ${g.caso} deixa a página e a coluna do painel onde estavam, com o controle inteiro à vista (CADCOL-04, AC 16; CADCOL-07, AC 16)`, async ({
+      page,
+    }) => {
+      await semearCategoriasAMais();
+      await semearMeiosAMais();
+      await page.setViewportSize({ width: largura, height: altura });
+      await g.abrirItem(page);
+      await g.preencher(page);
+      const controle = g.controle(page);
+      await rolarAteOFim(page);
+      if (largura < 1536) {
+        await expect(controle).not.toBeInViewport();
+      }
+      await controle.evaluate((elemento) => elemento.scrollIntoView({ block: "center" }));
+      const antes = await rolagens(page, g.painel(page));
+      expect(antes.pagina, "a página rolada antes de salvar").toBeGreaterThan(0);
+
+      await controle.click();
+
+      await expect(aviso(page)).toHaveText(g.aviso);
+      await g.relida(page);
+      await doisQuadros(page);
+      const depois = await rolagens(page, g.painel(page));
+      expect(Math.abs(depois.pagina - antes.pagina), "rolagem da página").toBeLessThanOrEqual(1);
+      expect(Math.abs(depois.coluna - antes.coluna), "rolagem da coluna").toBeLessThanOrEqual(1);
+      await expect(controle).toBeInViewport({ ratio: 1 });
+    });
+  }
+}

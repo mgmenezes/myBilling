@@ -8,7 +8,7 @@ mutantes mortos e cinco lacunas (G1 a G5). O dono decidiu em 2026-10-31:
 - G4: "Nunca rolar de lado", em largura nenhuma;
 - E15: "Sim, como em Todo mês": a tela fica parada ao salvar.
 
-As correções F1–F6 estão em execução. Antes disso: plano aprovado pelo dono em 2026-10-30, e T1 a
+As correções F1–F6 estão concluídas; falta a rodada 2 do Verifier. Antes disso: plano aprovado pelo dono em 2026-10-30, e T1 a
 T22 concluídas na branch `feat/cadastros-colunas`, na worktree `.worktrees/cadastros-colunas`,
 rebaseada sobre a `main` em `e8b1540`, com Todo mês.
 **Total**: 28 tasks em 7 fases (T1–T22 e as correções F1–F6). As fases 1 a 6 deram três lotes
@@ -1138,7 +1138,7 @@ está provada (L-055).
 - [x] O teste falha com E14b (o cabeçalho em coluna só a partir de 1.536 px)
 **Tests**: e2e
 **Gate**: e2e
-**Commit**: `test(cadastros): a ação ao lado do título em todas as larguras`
+**Commit**: `test(cadastros): a ação ao lado do título em todas as larguras` (`19e972f`)
 **Nota**:
 - **O teste** é um laço de três larguras no fim do arquivo (`:2117`), que percorre as duas abas por
   `ABAS_MEDIDAS`. A faixa vertical é a sobreposição das duas caixas: a ação começa acima da base do
@@ -1169,8 +1169,8 @@ Criar não entra: o painel abre na criada e leva o foco ao título, por desenho 
 **Reuses**: `redeLenta`, se precisar; a espera pela página relida dos testes de `:573` e `:1001`
 **Requirement**: CADCOL-04, CADCOL-07
 **Done when**:
-- [ ] Os dois ACs e a premissa, com a escolha do dono; `validate_spec.py` passa
-- [ ] O teste roda em 400 × 700, 1.280 × 480 e 1.920 × 480, numa janela baixa o bastante para o
+- [x] Os dois ACs e a premissa, com a escolha do dono; `validate_spec.py` passa
+- [x] O teste roda em 400 × 700, 1.280 × 480 e 1.920 × 480, numa janela baixa o bastante para o
   controle começar fora dela. Em 1.920 px, a coluna presa rola sozinha, e o que se mede ali é o
   `scrollTop` dela. Os passos:
   1. rolar até o controle ("Salvar alterações" do meio, "Salvar" do nome e uma opção de cor);
@@ -1178,11 +1178,45 @@ Criar não entra: o painel abre na criada e leva o foco ao título, por desenho 
   3. esperar o aviso e a página relida, com a linha já mudada.
   Depois, o `scrollY` e o `scrollTop` da coluna ficam iguais aos de antes (± 1 px), e o controle
   fica `toBeInViewport({ ratio: 1 })`
-- [ ] Cada caso falha com E15 (`window.scrollTo(0, 0)` depois de salvar) no formulário dele
-- [ ] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
+- [x] Cada caso falha com E15 (`window.scrollTo(0, 0)` depois de salvar) no formulário dele
+- [x] Gate build: `pnpm verify` e o `pnpm test:e2e` inteiro passam, com as contagens registradas
 **Tests**: e2e
 **Gate**: build
 **Commit**: `test(cadastros): a tela fica parada ao salvar`
+**Nota**:
+- **Nenhum pulo hoje.** Com o código de `19e972f`, os nove casos passam: a rolagem da página e a da
+  coluna são as mesmas antes e depois de salvar. O código não muda. O padrão de Todo mês já está
+  nesta fatia: o `preventScroll` na guarda de foco (`coluna-de-cadastro.tsx:129`) e o
+  `router.replace` com `scroll: false` (`parametro-na-url.ts:48`).
+- **O teste** (`e2e/cadastros-colunas.spec.ts:2233`) percorre `GRAVACOES` nas três janelas: "Verde",
+  no grupo da cor; "Salvar", do nome; e "Salvar alterações", do meio, com os dias 10 e 17. Em cada
+  caso ele semeia linhas a mais, abre o item, preenche, leva a página até o fim e volta até o
+  controle. Então salva e espera o aviso, a página relida com a linha já mudada e dois quadros.
+- **Desvio: "começar fora" vale em sete dos nove casos.**
+  - Em 400 × 700 e 1.280 × 480, com a página no fim, os três controles começam acima da janela, e o
+    teste afirma isso.
+  - Em 1.920 × 480 o painel fica preso no alto, e rolar a página não o move. "Salvar alterações"
+    começa abaixo da janela (y 503), e a coluna rola 274 px até ele. "Verde" (y 261) e o "Salvar" do
+    nome (y 166) começam dentro, nos primeiros 480 px do painel, e nenhuma janela desse tamanho muda
+    isso.
+  - Nesses dois casos, o que discrimina é a página, levada até o fim (`scrollY` 440 e 388). O teste
+    afirma a página rolada antes de salvar nos nove casos (L-066).
+- **Centrar, e não `scrollIntoViewIfNeeded`.** Na primeira medida, a rolagem do Playwright deixou
+  "Verde" 0,14 px abaixo da borda da janela em 1.280 × 480, e o `toBeInViewport({ ratio: 1 })`
+  falhava sem pulo nenhum. O teste rola com `scrollIntoView({ block: "center" })`.
+- **Os mutantes.** Cada caso foi rodado sozinho com E15 no formulário dele: `window.scrollTo(0, 0)`
+  logo depois do aviso, em `escolherCor` e em `salvarNome` de `detalhe-da-categoria.tsx`, e em
+  `salvarAlteracoes` de `detalhe-do-meio.tsx`. Os nove falham em "rolagem da página", com o
+  `scrollY` inteiro de antes de salvar: com a cor, 296, 241 e 440 px; com o nome, 207, 152 e 388; com
+  o meio, 545, 393 e 541.
+- **Gate build, nesta worktree, em 2026-10-31:**
+  - `pnpm verify` saiu 0: `typecheck` e `lint` 0 (368 arquivos), 2.087 unitários em 132 arquivos,
+    branches de `src/domain` em 393/393, 406 de integração em 25 arquivos e o build;
+  - `pnpm test:e2e` inteiro saiu 0: 263 testes em 17 arquivos, 70 deles em
+    `cadastros-colunas.spec.ts`.
+  Antes da fase 7 eram 2.087 unitários, 406 de integração e 247 e2e; a fase acrescenta 16 e2e (2 na
+  F3, 2 na F4, 3 na F5 e 9 na F6). O `pnpm db:up` não rodou, como na T22: o contêiner já estava de
+  pé, e o gate usou o banco `mybilling_test_cad`.
 
 ---
 
