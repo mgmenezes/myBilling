@@ -91,9 +91,11 @@ test("JANO-04 AC 2: o horizonte começa no mês dado e segue onze meses, atraves
 });
 
 test("JANO-04 AC 2: o mês corrente sai do fuso de São Paulo, não do UTC", () => {
-  // 20h30 de 31/03 em São Paulo já é 1º de abril em UTC.
-  assert.equal(S.competenciaCorrente("2026-03-31T23:30:00.000Z"), "2026-03");
-  assert.equal(S.competenciaCorrente("2026-04-01T03:30:00.000Z"), "2026-04");
+  // 23h de 31/03 em São Paulo (UTC-3) já é 1º de abril, 02h, em UTC: só o fuso
+  // de São Paulo diz março.
+  assert.equal(S.competenciaCorrente("2026-04-01T02:00:00.000Z"), "2026-03");
+  // Três horas depois, 00h de 1º/04 em São Paulo, os dois fusos dizem abril.
+  assert.equal(S.competenciaCorrente("2026-04-01T03:00:00.000Z"), "2026-04");
 });
 
 test("JANO-03 AC 3: R$ 1.000,00 em 3x vira 333,34, 333,33 e 333,33", () => {
