@@ -591,7 +591,7 @@ test.describe("a coluna de filtros, em 1.920 px", () => {
   }) => {
     await abrir(page, `/${MARCO}/lancamentos`);
 
-    const menu = await caixa(page.getByRole("complementary", { name: "Menu do myBilling" }));
+    const menu = await caixa(page.getByRole("complementary", { name: "Menu do Jano" }));
     const coluna = await caixa(cartao(page).locator("xpath=.."));
     const lista = await caixa(page.getByRole("region", { name: "Entradas" }));
     expect(lista.width).toBeLessThanOrEqual(1100);

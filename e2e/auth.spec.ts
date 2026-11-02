@@ -69,6 +69,26 @@ test("não autenticado é redirecionado para /login (AUTH-01, AC 1)", async ({ p
   await expect(page.getByRole("button", { name: "Entrar com o Google" })).toBeVisible();
 });
 
+test("a aba do navegador diz Jano, com a descrição e o ícone de dois arcos (NOME-01, ACs 3 e 4)", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await expect(page).toHaveTitle("Jano");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    "As contas da casa, mês a mês.",
+  );
+  const icone = page.locator('link[rel="icon"][type="image/svg+xml"]');
+  await expect(icone).toHaveCount(1);
+  const resposta = await page.request.get((await icone.getAttribute("href")) ?? "");
+  expect(resposta.ok()).toBe(true);
+  const svg = await resposta.text();
+  expect(svg.match(/<path\b/g)).toHaveLength(2);
+  // O ícone antigo saiu: nenhum link aponta para favicon.ico. Pedir /favicon.ico
+  // não prova nada, porque o proxy manda toda rota sem sessão para o login.
+  await expect(page.locator('link[rel~="icon"][href*="favicon.ico"]')).toHaveCount(0);
+});
+
 /*
  * Antes deste teste a raiz redirecionava para a competência corrente, e o AC
  * dizia isso. A home substituiu o redirect (HOME-01, AC 1): o destino de

@@ -70,9 +70,9 @@ T3 -> T4
 **Reuses**: o desenho de dois arcos de `site/index.html` (`#icone-jano`)
 **Requirement**: NOME-01, NOME-03 (AC 4)
 **Done when**:
-- [ ] Teste de componente: link "Jano" para `/`, "Menu do Jano", "Áreas do Jano", e o símbolo (NOME-01 ACs 1 e 2)
-- [ ] e2e: título da aba "Jano" e `link[rel=icon]` apontando para o SVG (NOME-01 ACs 3 e 4)
-- [ ] e2e dos seis specs com os nomes novos
+- [x] Teste de componente: link "Jano" para `/`, "Menu do Jano", "Áreas do Jano", e o símbolo (NOME-01 ACs 1 e 2)
+- [x] e2e: título da aba "Jano" e `link[rel=icon]` apontando para o SVG (NOME-01 ACs 3 e 4)
+- [x] e2e dos seis specs com os nomes novos
 **Tests**: `src/components/menu-lateral.test.tsx`, `e2e/auth.spec.ts`, os e2e do menu
 **Gate**: unit + e2e
 
@@ -118,4 +118,6 @@ T3 -> T4
 
 ## Deviations
 
-Nenhuma até agora.
+- **Decisão do autor (T1):** o e2e do ícone confere que nenhum `link[rel=icon]` aponta para
+  `favicon.ico`, e não o status de `/favicon.ico`: o proxy manda toda rota sem sessão para o login, que
+  responde 200.

@@ -927,7 +927,7 @@ for (const largura of [1536, 1920]) {
     });
     expect(linhaFina).toEqual({ largura: "1px", tipo: "solid" });
 
-    const menu = await caixa(page.getByRole("complementary", { name: "Menu do myBilling" }));
+    const menu = await caixa(page.getByRole("complementary", { name: "Menu do Jano" }));
     for (const [nome, alvo] of [
       ["título", page.getByRole("heading", { level: 1 }).locator("xpath=..")],
       ["totais", page.locator("dl").filter({ hasText: "Saídas fixas em Março de 2026" })],

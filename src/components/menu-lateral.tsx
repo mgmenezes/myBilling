@@ -1,7 +1,7 @@
-import { WalletIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AlternadorDeTema } from "./alternador-de-tema";
+import { MarcaJano } from "./marca-jano";
 import { NavegacaoPrincipal } from "./navegacao-principal";
 
 /**
@@ -34,7 +34,7 @@ export function MenuLateral({
 }) {
   return (
     <aside
-      aria-label="Menu do myBilling"
+      aria-label="Menu do Jano"
       className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line px-4 py-3 md:sticky md:top-0 md:h-dvh md:w-60 md:shrink-0 md:flex-col md:flex-nowrap md:items-stretch md:justify-start md:gap-6 md:self-start md:overflow-y-auto md:border-r md:border-b-0 md:py-5"
     >
       {/* A marca leva para a home do ano, que é a porta de entrada do app. */}
@@ -42,8 +42,8 @@ export function MenuLateral({
         href="/"
         className="flex min-h-11 items-center gap-2 rounded-pill text-[17px] font-medium tracking-[-0.02em] transition-colors duration-200 hover:text-primary-texto md:px-3"
       >
-        <WalletIcon size={22} weight="fill" aria-hidden="true" className="text-primary-texto" />
-        myBilling
+        <MarcaJano tamanho={24} />
+        Jano
       </Link>
 
       <NavegacaoPrincipal />

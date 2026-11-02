@@ -31,8 +31,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "myBilling",
-  description: "Controle financeiro da casa",
+  title: "Jano",
+  description: "As contas da casa, mês a mês.",
 };
 
 /** Sem zoom travado: ampliar a página é acessibilidade, não bug. */

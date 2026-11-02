@@ -291,7 +291,7 @@ for (const largura of [360, 400]) {
   }) => {
     await page.setViewportSize({ width: largura, height: 740 });
     await page.goto(`/${MARCO}/simular`);
-    const nav = page.getByRole("navigation", { name: "Áreas do myBilling" });
+    const nav = page.getByRole("navigation", { name: "Áreas do Jano" });
     await expect(nav.getByRole("link")).toHaveText([
       "Visão geral",
       "Lançamentos",
@@ -340,7 +340,7 @@ test("em 1024 px a navegação mantém os 15 px e a coluna lateral (SIM-03, AC 5
 }) => {
   await page.setViewportSize({ width: 1024, height: 800 });
   await page.goto(`/${MARCO}/simular`);
-  const nav = page.getByRole("navigation", { name: "Áreas do myBilling" });
+  const nav = page.getByRole("navigation", { name: "Áreas do Jano" });
 
   const medidas = await nav.getByRole("link").evaluateAll((links) =>
     links.map((link) => ({

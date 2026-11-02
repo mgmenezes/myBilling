@@ -29,20 +29,30 @@ function montar(): HTMLElement {
       importar={<button type="button">Importar planilha</button>}
     />,
   );
-  return screen.getByRole("complementary", { name: "Menu do myBilling" });
+  return screen.getByRole("complementary", { name: "Menu do Jano" });
 }
 
 describe("o menu lateral (TRES-01)", () => {
   it("a marca leva para a home do ano (AC 1)", () => {
     const menu = montar();
 
-    expect(within(menu).getByRole("link", { name: "myBilling" }).getAttribute("href")).toBe("/");
+    expect(within(menu).getByRole("link", { name: "Jano" }).getAttribute("href")).toBe("/");
   });
 
-  it("com um mês aberto, tem as áreas do myBilling (AC 3)", () => {
+  it("a marca é o símbolo de dois arcos do Jano, sem nome acessível próprio (NOME-01, AC 1)", () => {
     const menu = montar();
 
-    const areas = within(menu).getByRole("navigation", { name: "Áreas do myBilling" });
+    const marca = within(menu).getByRole("link", { name: "Jano" });
+    const simbolo = marca.querySelector("svg[data-marca='jano']");
+    expect(simbolo).not.toBeNull();
+    expect(simbolo?.getAttribute("aria-hidden")).toBe("true");
+    expect(simbolo?.querySelectorAll("path")).toHaveLength(2);
+  });
+
+  it("com um mês aberto, tem as áreas do Jano (AC 3)", () => {
+    const menu = montar();
+
+    const areas = within(menu).getByRole("navigation", { name: "Áreas do Jano" });
     /* Cinco desde o simulador (SIM-03, AC 1). */
     expect(within(areas).getAllByRole("link")).toHaveLength(5);
   });
@@ -52,7 +62,7 @@ describe("o menu lateral (TRES-01)", () => {
     const menu = montar();
 
     expect(within(menu).queryByRole("navigation")).toBeNull();
-    expect(within(menu).getByRole("link", { name: "myBilling" })).toBeDefined();
+    expect(within(menu).getByRole("link", { name: "Jano" })).toBeDefined();
     expect(within(menu).getByText("Pessoa A")).toBeDefined();
   });
 

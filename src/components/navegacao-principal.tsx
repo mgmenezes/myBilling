@@ -107,7 +107,7 @@ export function NavegacaoPrincipal() {
   const competencia = resultado.value;
 
   return (
-    <nav aria-label="Áreas do myBilling" className="contents">
+    <nav aria-label="Áreas do Jano" className="contents">
       <ul
         className="fixed inset-x-0 bottom-0 z-20 flex gap-0 border-t border-line bg-surface px-1 py-2 md:static md:flex-col md:gap-1 md:border-0 md:bg-transparent md:p-0"
         /* Espaço para a barra inferior não cobrir conteúdo no celular. */

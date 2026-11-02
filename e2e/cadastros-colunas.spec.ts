@@ -222,7 +222,7 @@ async function abrir(page: Page, caminho: string): Promise<void> {
 
 function navegacao(page: Page, area: string): Locator {
   return page
-    .getByRole("navigation", { name: "Áreas do myBilling" })
+    .getByRole("navigation", { name: "Áreas do Jano" })
     .getByRole("link", { name: area, exact: true });
 }
 
@@ -1671,7 +1671,7 @@ function cabecalho(page: Page): Locator {
 }
 
 function menuDoApp(page: Page): Locator {
-  return page.getByRole("complementary", { name: "Menu do myBilling" });
+  return page.getByRole("complementary", { name: "Menu do Jano" });
 }
 
 async function rolarAteOFim(page: Page): Promise<void> {

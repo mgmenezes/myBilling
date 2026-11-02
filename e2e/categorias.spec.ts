@@ -200,7 +200,7 @@ async function inserirGasto(
 
 function navegacao(page: Page, area: string): Locator {
   return page
-    .getByRole("navigation", { name: "Áreas do myBilling" })
+    .getByRole("navigation", { name: "Áreas do Jano" })
     .getByRole("link", { name: area, exact: true });
 }
 
@@ -543,7 +543,7 @@ test("em 400 px, a tela e a navegação de cinco itens cabem sem rolagem horizon
 
   expect(await transbordoHorizontal(page)).toBe(0);
 
-  const nav = page.getByRole("navigation", { name: "Áreas do myBilling" });
+  const nav = page.getByRole("navigation", { name: "Áreas do Jano" });
   await expect(nav.getByRole("link")).toHaveText([
     "Visão geral",
     "Lançamentos",

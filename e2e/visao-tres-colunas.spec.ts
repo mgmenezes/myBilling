@@ -118,7 +118,7 @@ async function abrir(page: Page, caminho: string): Promise<void> {
 }
 
 function menu(page: Page): Locator {
-  return page.getByRole("complementary", { name: "Menu do myBilling" });
+  return page.getByRole("complementary", { name: "Menu do Jano" });
 }
 
 async function caixa(
@@ -172,9 +172,9 @@ test.describe("em 1.920 px", () => {
   }) => {
     await abrir(page, "/");
 
-    await expect(menu(page).getByRole("link", { name: "myBilling" })).toHaveAttribute("href", "/");
+    await expect(menu(page).getByRole("link", { name: "Jano" })).toHaveAttribute("href", "/");
     await expect(menu(page).getByText("Pessoa A", { exact: true })).toBeVisible();
-    await expect(menu(page).getByRole("navigation", { name: "Áreas do myBilling" })).toHaveCount(0);
+    await expect(menu(page).getByRole("navigation", { name: "Áreas do Jano" })).toHaveCount(0);
   });
 
   test("o pé do menu tem o nome, o tema e o importar, que abre o diálogo de importação em Lançamentos (TRES-01, ACs 5 e 6)", async ({
@@ -531,7 +531,7 @@ test("em 768 px o menu já é a coluna da borda, presa ao rolar, com as áreas d
   expect(coluna.x).toBe(0);
   expect(coluna.width).toBeLessThanOrEqual(260);
   const areas = await caixa(
-    menu(page).getByRole("navigation", { name: "Áreas do myBilling" }).getByRole("list"),
+    menu(page).getByRole("navigation", { name: "Áreas do Jano" }).getByRole("list"),
   );
   expect(areas.x + areas.width).toBeLessThanOrEqual(coluna.x + coluna.width);
 
@@ -552,7 +552,7 @@ test("em 767 px o menu é a barra do topo, da largura da janela, e as áreas fic
   expect(topo.y).toBe(0);
   expect(Math.abs(topo.width - 767)).toBeLessThanOrEqual(1);
   const areas = await caixa(
-    page.getByRole("navigation", { name: "Áreas do myBilling" }).getByRole("list"),
+    page.getByRole("navigation", { name: "Áreas do Jano" }).getByRole("list"),
   );
   expect(areas.y + areas.height).toBeGreaterThanOrEqual(899);
 });
@@ -589,13 +589,13 @@ test.describe("em 400 px", () => {
     await abrir(page, `/${MARCO}/lancamentos`);
 
     const areas = await caixa(
-      page.getByRole("navigation", { name: "Áreas do myBilling" }).getByRole("list"),
+      page.getByRole("navigation", { name: "Áreas do Jano" }).getByRole("list"),
     );
     expect(areas.y + areas.height).toBeGreaterThanOrEqual(799);
 
     const topo = await caixa(menu(page));
     expect(topo.y).toBe(0);
-    await expect(menu(page).getByRole("link", { name: "myBilling" })).toBeVisible();
+    await expect(menu(page).getByRole("link", { name: "Jano" })).toBeVisible();
     await expect(menu(page).getByRole("button", { name: "Importar planilha" })).toBeVisible();
     await expect(menu(page).getByRole("group", { name: "Tema da interface" })).toBeVisible();
     await expect(menu(page).getByText("Pessoa A", { exact: true })).toBeVisible();
