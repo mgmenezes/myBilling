@@ -650,6 +650,53 @@ a:hover {
   }
 }
 
+/* ---- Perguntas frequentes: details nativo, sem script ---- */
+
+.perguntas {
+  max-width: 760px;
+  border-top: 1px solid var(--line);
+}
+
+.perguntas details {
+  border-bottom: 1px solid var(--line);
+}
+
+.perguntas summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding-block: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+
+.perguntas summary::-webkit-details-marker {
+  display: none;
+}
+
+.perguntas summary::after {
+  content: "+";
+  flex: none;
+  font-family: var(--fonte-mono);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-muted);
+}
+
+.perguntas details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.perguntas details p {
+  padding-bottom: 20px;
+  font-size: 15px;
+  color: var(--ink-muted);
+  max-width: none;
+}
+
 /* ---- Números: cinco grandezas numa seção só, sem cartão ---- */
 
 .numeros {

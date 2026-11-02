@@ -170,11 +170,11 @@ T6 -> T7
 **Requirement**: DOR-04
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: `perguntas` entre `sua-planilha` e `a-seguir`, `<h2>` exato (AC 1)
-- [ ] Teste: ao menos seis `<details>` sem `open`, `<summary>` primeiro e terminando em "?", um `<p>` depois (AC 2)
-- [ ] Teste: os seis temas no texto da seção (AC 3)
-- [ ] Teste: nenhuma palavra proibida; a resposta da fatura começa com "Não." (AC 4)
-- [ ] Teste: um `<script>` só (AC 5)
+- [x] Teste: `perguntas` entre `sua-planilha` e `a-seguir`, `<h2>` exato (AC 1)
+- [x] Teste: ao menos seis `<details>` sem `open`, `<summary>` primeiro e terminando em "?", um `<p>` depois (AC 2)
+- [x] Teste: os seis temas no texto da seção (AC 3)
+- [x] Teste: nenhuma palavra proibida; a resposta da fatura começa com "Não." (AC 4)
+- [x] Teste: um `<script>` só (AC 5)
 **Tests**: `site/estrutura.test.mjs` (DOR-04 ACs 1 a 5)
 **Gate**: navegador
 

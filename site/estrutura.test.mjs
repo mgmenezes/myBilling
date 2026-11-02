@@ -29,6 +29,7 @@ const SECOES = [
   "comparativo",
   "para-dois",
   "sua-planilha",
+  "perguntas",
   "a-seguir",
   "rodape",
 ];
@@ -460,6 +461,33 @@ test("DOR-02 AC 7: o comparativo termina dizendo que a página é sobre o que ai
     comparativo.indexOf("</table>") < comparativo.indexOf('class="fecho"'),
     "o fecho vem depois da tabela",
   );
+});
+
+test("DOR-04 ACs 1 a 4: perguntas frequentes entre 'sua planilha' e 'a seguir', fechadas, com as objeções respondidas", () => {
+  assert.equal(SECOES.indexOf("perguntas"), SECOES.indexOf("sua-planilha") + 1);
+  assert.equal(SECOES.indexOf("a-seguir"), SECOES.indexOf("perguntas") + 1);
+  const faq = secao("perguntas");
+  assert.match(faq, /<h2\b[^>]*>\s*Perguntas frequentes\s*<\/h2>/);
+  const itens = [...faq.matchAll(/<details\b([^>]*)>([\s\S]*?)<\/details>/g)];
+  assert.ok(itens.length >= 6, `${itens.length} perguntas`);
+  const perguntas = [];
+  for (const [, atributos, corpo] of itens) {
+    assert.doesNotMatch(atributos, /\bopen\b/, "pergunta aberta por padrão");
+    const partes = corpo.match(/^\s*<summary\b[^>]*>([\s\S]*?)<\/summary>([\s\S]*)$/);
+    assert.ok(partes, "a pergunta vem primeiro");
+    const pergunta = textoVisivel(partes[1]).trim();
+    assert.match(pergunta, /\?$/, `pergunta sem interrogação: ${pergunta}`);
+    assert.match(partes[2], /<p\b/, `resposta sem parágrafo: ${pergunta}`);
+    perguntas.push({ pergunta, resposta: textoVisivel(partes[2]).trim() });
+  }
+  const texto = textoVisivel(faq).toLowerCase();
+  for (const tema of ["planilha", "banco", "outra pessoa", "celular", "custa", "dados"]) {
+    assert.ok(texto.includes(tema), `sem a pergunta sobre ${tema}`);
+  }
+  assert.doesNotMatch(texto, /sincroniz|gr[áa]tis|gratuito|de graça|app na loja/);
+  const fatura = perguntas.find((p) => /fatura/i.test(p.pergunta));
+  assert.ok(fatura, "pergunta sobre a fatura ausente");
+  assert.match(fatura.resposta, /^Não\./);
 });
 
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {
