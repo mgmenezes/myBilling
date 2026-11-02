@@ -47,6 +47,7 @@ function Saldo({ rotulo, saldo }: { readonly rotulo: string; readonly saldo: num
 
 export function RespostaDaSimulacao(props: RespostaDaSimulacaoProps) {
   const { simulacao } = props;
+  const enxergaAte = textoEnxergaAte(simulacao);
   return (
     <section aria-label="Resposta da simulação" className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
@@ -55,9 +56,7 @@ export function RespostaDaSimulacao(props: RespostaDaSimulacaoProps) {
         >
           {textoDoVeredito(props)}
         </p>
-        {textoEnxergaAte(simulacao) === null ? null : (
-          <p className="text-[14px] text-ink-muted">{textoEnxergaAte(simulacao)}</p>
-        )}
+        {enxergaAte === null ? null : <p className="text-[14px] text-ink-muted">{enxergaAte}</p>}
       </div>
       <ul className="flex flex-col">
         {simulacao.linhas.map((linha) => (
