@@ -90,10 +90,14 @@ textos usam `--ink-muted`.
 
 ## Deploy
 
-É um projeto separado na Vercel, **`mybilling-landing`**, criado em 2026-11-01 pela CLI, sem build
+É um projeto separado na Vercel, **`janofinancas-landing`** (criado como `mybilling-landing` em
+2026-11-01 pela CLI e renomeado pelo dono em 2026-11-02), sem build
 (framework "Other", a própria pasta é a saída). Ele não está ligado ao GitHub: a publicação sobe a
 pasta `site/` direto do disco, o que não depende de `git push`. A pasta está vinculada ao projeto
 por `site/.vercel/`, que fica fora do git.
+
+A URL pública de produção é https://mybilling-landing.vercel.app, que continuou valendo depois da
+troca de nome. O vínculo local usa o ID do projeto, então a troca não muda o comando.
 
 Publicar em produção, a partir da raiz do repositório:
 
