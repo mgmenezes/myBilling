@@ -374,25 +374,20 @@ function BlocoDeLancamentos({
                         não oferece: ela se encerra em Todo mês. */}
                       {parcela !== null ? (
                         <MenuDaLinha descricao={lancamento.descricao}>
-                          {(fechar) => (
-                            <ExcluirParcelas
-                              lancamentoId={lancamento.id}
-                              descricao={lancamento.descricao}
-                              exclusao={parcela.exclusao}
-                              excluir={excluirCompra}
-                              fechar={fechar}
-                            />
-                          )}
+                          <ExcluirParcelas
+                            lancamentoId={lancamento.id}
+                            descricao={lancamento.descricao}
+                            exclusao={parcela.exclusao}
+                            excluir={excluirCompra}
+                          />
                         </MenuDaLinha>
                       ) : lancamento.origem === "AVULSO" ? (
                         <MenuDaLinha descricao={lancamento.descricao}>
-                          {() => (
-                            <BotaoExcluir
-                              lancamentoId={lancamento.id}
-                              descricao={lancamento.descricao}
-                              excluir={excluir}
-                            />
-                          )}
+                          <BotaoExcluir
+                            lancamentoId={lancamento.id}
+                            descricao={lancamento.descricao}
+                            excluir={excluir}
+                          />
                         </MenuDaLinha>
                       ) : null}
                     </span>

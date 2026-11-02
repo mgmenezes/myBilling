@@ -4,7 +4,7 @@ import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento } from "@/app/actions/lancamentos";
 import { BotaoExcluir } from "./botao-excluir";
-import { MenuDaLinha } from "./menu-da-linha";
+import { MenuDaLinha, useFecharMenu } from "./menu-da-linha";
 
 /**
  * Testes derivados de DENS-02 (ACs 1, 3, 4 e 5). O que o menu acrescenta ao
@@ -26,7 +26,7 @@ function montar(excluir: typeof cancelarLancamento = excluirOk()) {
   render(
     <div>
       <MenuDaLinha descricao="Almoço">
-        {() => <BotaoExcluir lancamentoId="l-1" descricao="Almoço" excluir={excluir} />}
+        <BotaoExcluir lancamentoId="l-1" descricao="Almoço" excluir={excluir} />
       </MenuDaLinha>
       <button type="button">fora</button>
     </div>,
@@ -141,7 +141,8 @@ describe("o menu da linha (DENS-02)", () => {
  */
 describe("o conteúdo do menu vem de quem o monta (EXC-02, AC 9)", () => {
   /* Um conteúdo com estado próprio, para provar que reabrir o monta do zero. */
-  function Conteudo({ fechar }: { readonly fechar: () => void }) {
+  function Conteudo() {
+    const fechar = useFecharMenu();
     const [aviso, setAviso] = useState(false);
     return (
       <span>
@@ -158,12 +159,14 @@ describe("o conteúdo do menu vem de quem o monta (EXC-02, AC 9)", () => {
 
   function montarConteudo() {
     render(
-      <MenuDaLinha descricao="Compra A">{(fechar) => <Conteudo fechar={fechar} />}</MenuDaLinha>,
+      <MenuDaLinha descricao="Compra A">
+        <Conteudo />
+      </MenuDaLinha>,
     );
     return screen.getByRole("button", { name: "Mais ações para Compra A" });
   }
 
-  it('chamar `fechar` de dentro do conteúdo fecha o menu e põe o foco no "⋯"', async () => {
+  it('chamar o `fechar` de `useFecharMenu` de dentro do conteúdo fecha o menu e põe o foco no "⋯"', async () => {
     const menu = montarConteudo();
     await userEvent.click(menu);
 

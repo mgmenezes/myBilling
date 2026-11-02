@@ -5,6 +5,7 @@ import type { excluirCompraDestaParcela as excluirAction } from "@/app/actions/c
 import type { ExclusaoDaParcela } from "@/application/mes/obter-visao-mensal/handler";
 import { useAvisos } from "./avisos";
 import { BASE } from "./botao-excluir";
+import { useFecharMenu } from "./menu-da-linha";
 import { avisoDaExclusao, toastDaExclusao } from "./texto-da-exclusao";
 
 /**
@@ -13,7 +14,7 @@ import { avisoDaExclusao, toastDaExclusao } from "./texto-da-exclusao";
  *
  * "Excluir" mostra o aviso do que sai, sem excluir nada; "Excluir desta em
  * diante" grava; "Cancelar" fecha o menu pelo mesmo caminho do `Escape`
- * (`fechar`, do `MenuDaLinha`). Os números do aviso vêm da carga da página; o
+ * (`useFecharMenu`, do `MenuDaLinha`). Os números do aviso vêm da carga da página; o
  * toast usa o que o servidor de fato excluiu, que pode ser outro se uma outra
  * aba mexeu na compra no meio do caminho.
  *
@@ -31,18 +32,17 @@ export function ExcluirParcelas({
   descricao,
   exclusao,
   excluir,
-  fechar,
 }: {
   readonly lancamentoId: string;
   readonly descricao: string;
   readonly exclusao: ExclusaoDaParcela;
   readonly excluir: typeof excluirAction;
-  readonly fechar: () => void;
 }) {
   const [avisando, setAvisando] = useState(false);
   const [erro, setErro] = useState("");
   const [pendente, iniciar] = useTransition();
   const { avisar } = useAvisos();
+  const fechar = useFecharMenu();
   const principal = useRef<HTMLButtonElement>(null);
   const idDoAviso = useId();
 
@@ -66,7 +66,7 @@ export function ExcluirParcelas({
 
   return (
     <span
-      className={`flex flex-col items-start gap-2 ${avisando ? "w-64 max-w-[calc(100vw-2rem)] p-1" : ""}`}
+      className={`flex flex-col items-start gap-2 ${avisando ? "w-64 max-w-[calc(100vw-3rem)] p-1" : ""}`}
     >
       {avisando ? (
         <span id={idDoAviso} className="text-[13px] text-ink">

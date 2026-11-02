@@ -1,7 +1,37 @@
 "use client";
 
 import { DotsThreeIcon } from "@phosphor-icons/react";
-import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  createContext,
+  type ReactNode,
+  use,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+
+/** O respiro lateral da página no celular (UI-03): o painel não encosta na borda. */
+const RESPIRO_PX = 16;
+
+const ContextoDoMenu = createContext<(() => void) | null>(null);
+
+/**
+ * O `fechar` do menu aberto, para o conteúdo dele: fecha e devolve o foco ao
+ * "⋯", pelo mesmo caminho do `Escape` (EXC-02, AC 9).
+ *
+ * Contexto, e não função passada como filho: quem monta o menu é a tabela, que
+ * é Server Component, e função não atravessa a fronteira para o cliente.
+ */
+export function useFecharMenu(): () => void {
+  const fechar = use(ContextoDoMenu);
+  if (fechar === null) {
+    throw new Error("useFecharMenu precisa de um MenuDaLinha acima dele.");
+  }
+  return fechar;
+}
 
 /**
  * O menu "⋯" da linha de um lançamento (DENS-02; EXC-01).
@@ -9,9 +39,8 @@ import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from 
  * As ações saem da linha para a lista mostrar o que se lê: descrição, categoria,
  * data, situação e valor. O conteúdo é de quem monta o menu: o avulso passa o
  * `BotaoExcluir` de dois toques, a parcela passa o aviso de `ExcluirParcelas`.
- * O conteúdo recebe `fechar`, que fecha o menu e devolve o foco ao "⋯", pelo
- * mesmo caminho do `Escape` (EXC-02, AC 9). Fechado, o conteúdo sai da árvore:
- * reabrir o menu o monta do zero.
+ * O conteúdo fecha o menu com `useFecharMenu`. Fechado, o conteúdo sai da
+ * árvore: reabrir o menu o monta do zero.
  *
  * **O painel abre dentro da própria célula,** sem portal. A confirmação do
  * excluir se desarma quando o foco sai dela, e as consultas da tela e dos
@@ -29,11 +58,12 @@ export function MenuDaLinha({
   children,
 }: {
   readonly descricao: string;
-  readonly children: (fechar: () => void) => ReactNode;
+  readonly children: ReactNode;
 }) {
   const [aberto, setAberto] = useState(false);
   const raiz = useRef<HTMLSpanElement>(null);
   const gatilho = useRef<HTMLButtonElement>(null);
+  const painel = useRef<HTMLSpanElement>(null);
   const id = useId();
 
   const fechar = useCallback(() => {
@@ -76,6 +106,41 @@ export function MenuDaLinha({
     };
   }, [aberto, fechar]);
 
+  /*
+   * O painel abre alinhado à direita do "⋯". No cartão do celular o "⋯" fica
+   * perto da esquerda, e o aviso da exclusão da parcela (EXC-02) é mais largo
+   * que o espaço até a borda: sem ajuste, metade dele ficaria fora da tela.
+   * Aqui o painel é empurrado para dentro, a 16 px da borda, ao abrir e toda
+   * vez que muda de tamanho (o aviso cresce o painel depois do primeiro toque).
+   */
+  useLayoutEffect(() => {
+    const elemento = painel.current;
+    if (!aberto || elemento === null) {
+      return;
+    }
+    function caberNaTela(): void {
+      if (elemento === null) {
+        return;
+      }
+      elemento.style.translate = "";
+      const caixa = elemento.getBoundingClientRect();
+      const largura = document.documentElement.clientWidth;
+      const desvio =
+        caixa.left < RESPIRO_PX
+          ? RESPIRO_PX - caixa.left
+          : Math.min(0, largura - RESPIRO_PX - caixa.right);
+      elemento.style.translate = desvio === 0 ? "" : `${desvio}px`;
+    }
+    caberNaTela();
+    /* O jsdom dos testes de componente não tem `ResizeObserver`; o e2e mede de verdade. */
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+    const observador = new ResizeObserver(caberNaTela);
+    observador.observe(elemento);
+    return () => observador.disconnect();
+  }, [aberto]);
+
   return (
     <span ref={raiz} className="relative inline-flex">
       <button
@@ -92,9 +157,10 @@ export function MenuDaLinha({
       {aberto ? (
         <span
           id={id}
+          ref={painel}
           className="absolute top-full right-0 z-20 mt-1 flex rounded-lg border border-line bg-surface p-1 shadow-lift"
         >
-          {children(fechar)}
+          <ContextoDoMenu value={fechar}>{children}</ContextoDoMenu>
         </span>
       ) : null}
     </span>

@@ -5,6 +5,7 @@ import type { excluirCompraDestaParcela } from "@/app/actions/compras";
 import type { ExclusaoDaParcela } from "@/application/mes/obter-visao-mensal/handler";
 import { ProvedorDeAvisos } from "./avisos";
 import { ExcluirParcelas } from "./excluir-parcelas";
+import { MenuDaLinha } from "./menu-da-linha";
 
 /**
  * Testes derivados de EXC-02 (ACs 1, 7 a 10), EXC-04 (AC 4) e EXC-05 (ACs 5
@@ -47,19 +48,22 @@ function montar({
   readonly exclusao?: ExclusaoDaParcela;
   readonly acao?: ReturnType<typeof vi.fn>;
 } = {}) {
-  const fechar = vi.fn();
   render(
     <ProvedorDeAvisos>
-      <ExcluirParcelas
-        lancamentoId="lanc-2"
-        descricao="Compra A"
-        exclusao={exclusao}
-        excluir={acao as unknown as Acao}
-        fechar={fechar}
-      />
+      <MenuDaLinha descricao="Compra A">
+        <ExcluirParcelas
+          lancamentoId="lanc-2"
+          descricao="Compra A"
+          exclusao={exclusao}
+          excluir={acao as unknown as Acao}
+        />
+      </MenuDaLinha>
     </ProvedorDeAvisos>,
   );
-  return { acao, fechar };
+  /* Aberto sem dar foco a nada, como o toque no Safari (L-046). */
+  const menu = screen.getByRole("button", { name: "Mais ações para Compra A" });
+  fireEvent.click(menu);
+  return { acao, menu };
 }
 
 function botaoExcluir(): HTMLElement {
@@ -153,13 +157,14 @@ describe("confirmar (EXC-02, ACs 8 e 10)", () => {
 });
 
 describe("desistir (EXC-02, AC 9)", () => {
-  it('"Cancelar" chama `fechar` sem chamar a action', async () => {
-    const { acao, fechar } = montar();
+  it('"Cancelar" fecha o menu, com o foco no "⋯", sem chamar a action', async () => {
+    const { acao, menu } = montar();
     await userEvent.click(botaoExcluir());
 
     await userEvent.click(screen.getByRole("button", { name: "Cancelar" }));
 
-    expect(fechar).toHaveBeenCalledTimes(1);
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(menu);
     expect(acao).not.toHaveBeenCalled();
   });
 });

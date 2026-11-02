@@ -299,7 +299,9 @@ test('parcela de compra oferece "Excluir" só dentro do "⋯" (EXC-01, ACs 1 e 2
   /* O selo de pago continua lá, ao lado do "⋯". */
   await expect(linha.getByRole("button", { name: /Previsto/ })).toBeVisible();
   await linha.getByRole("button", { name: "Mais ações para Compra parcelada A" }).click();
-  await expect(linha.getByRole("button", { name: "Excluir, Compra parcelada A" })).toBeVisible();
+  await expect(
+    linha.getByRole("button", { name: /^Excluir ?, Compra parcelada A$/ }),
+  ).toBeVisible();
 });
 
 /**
