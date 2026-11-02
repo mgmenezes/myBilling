@@ -248,7 +248,7 @@ devolve só a tabela de concorrência ou nada.
 | --- | --- | --- | --- |
 | DOR-01 | P1: O teste recorta e lista as seções | Execute | Implemented: T2, `site/estrutura.test.mjs` (`secao()`, "DOR-01 AC 1", "DOR-01 AC 2", "DOR-01 AC 3", `JA_ISOLADO`); 28 testes verdes no HTML de antes (AC 4) |
 | DOR-02 | P1: A página abre pela dor | Tasks | Pending |
-| DOR-03 | P1: Cinco números numa seção só | Tasks | Pending |
+| DOR-03 | P1: Cinco números numa seção só | Execute | Implemented: T3, `site/index.html` `#numeros` (cinco figuras), `site/estilos.css` (grade 2 e 6 colunas), `site/estrutura.test.mjs` ("revisto por DOR-03 ACs 1 e 2", "DOR-03 AC 3", "DOR-03 ACs 4 e 5"); mutante com "10%" no rodapé morre |
 | DOR-04 | P2: Perguntas frequentes sem script | Tasks | Pending |
 | DOR-05 | P1: Para quem paga as contas da casa, sem a história de origem | Tasks | Pending |
 | DOR-06 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 4 em T1 (`docs/marketing/posicionamento.md` "Para quem", "Números de mercado", regra 8; `copy-landing-simulador.md` Seção 8; `kit-de-copy.md` com sete headlines); ACs 5 e 6 em T7 |

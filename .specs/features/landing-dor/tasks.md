@@ -134,12 +134,12 @@ T6 -> T7
 **Requirement**: DOR-03
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: 1 a 5 figuras, todas dentro de `secao("numeros")` (AC 1)
-- [ ] Teste: cada `<cite>` com fonte e ano (AC 2)
-- [ ] Teste: nenhum `%` nem "milhões" fora da seção (AC 3)
-- [ ] Teste: os cinco valores e as cinco fontes, na ordem (AC 4)
-- [ ] Teste: `numeros` entre `onde-quebra` e `comparativo` (AC 5)
-- [ ] Teste "CAMP-02 AC 5" renomeado para "revisto por DOR-03"
+- [x] Teste: 1 a 5 figuras, todas dentro de `secao("numeros")` (AC 1)
+- [x] Teste: cada `<cite>` com fonte e ano (AC 2)
+- [x] Teste: nenhum `%` nem "milhões" fora da seção (AC 3)
+- [x] Teste: os cinco valores e as cinco fontes, na ordem (AC 4)
+- [x] Teste: `numeros` entre `onde-quebra` e `comparativo` (AC 5)
+- [x] Teste "CAMP-02 AC 5" renomeado para "revisto por DOR-03"
 **Tests**: `site/estrutura.test.mjs` (DOR-03 ACs 1 a 5)
 **Gate**: navegador
 

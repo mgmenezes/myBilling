@@ -21,14 +21,14 @@ const AQUI = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(AQUI, "index.html"), "utf8");
 const css = readFileSync(join(AQUI, "estilos.css"), "utf8");
 
-/** CAMP-02 AC 1, revisto por VEM-02 AC 7: as oito seções, nesta ordem. */
+/** CAMP-02 AC 1, revisto por VEM-02 AC 7 e DOR-02 AC 1: as seções, nesta ordem. */
 const SECOES = [
   "inicio",
   "onde-quebra",
+  "numeros",
   "comparativo",
   "para-dois",
   "sua-planilha",
-  "numeros",
   "a-seguir",
   "rodape",
 ];
@@ -88,7 +88,7 @@ test("CAMP-02 AC 7: idioma, título, viewport e descrição", () => {
   assert.match(html, /<meta\s+name="description"\s+content="[^"]{20,}"/);
 });
 
-test("CAMP-02 AC 1 e VEM-02 AC 7: as oito seções existem e estão na ordem", () => {
+test("CAMP-02 AC 1, VEM-02 AC 7 e DOR-02 AC 1: as seções existem e estão na ordem", () => {
   const posicoes = SECOES.map((id) => {
     const posicao = html.search(new RegExp(`<(section|footer)[^>]*\\sid="${id}"`));
     assert.notEqual(posicao, -1, `seção #${id} ausente`);
@@ -422,17 +422,48 @@ test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {
   }
 });
 
-test("CAMP-02 AC 5: cada número de mercado com fonte e ano, no máximo três", () => {
-  const figuras = [
-    ...html.matchAll(/<figure\b[^>]*\bclass="[^"]*\bnumero\b[^"]*"[^>]*>([\s\S]*?)<\/figure>/g),
-  ];
-  assert.ok(figuras.length >= 1 && figuras.length <= 3, `${figuras.length} números`);
-  for (const [, corpo] of figuras) {
+const RE_FIGURA = /<figure\b[^>]*\bclass="[^"]*\bnumero\b[^"]*"[^>]*>([\s\S]*?)<\/figure>/g;
+
+test("CAMP-02 AC 5, revisto por DOR-03 ACs 1 e 2: de um a cinco números, todos em #numeros, cada um com fonte e ano no cite", () => {
+  const naPagina = [...html.matchAll(RE_FIGURA)];
+  const naSecao = [...secao("numeros").matchAll(RE_FIGURA)];
+  assert.ok(naPagina.length >= 1 && naPagina.length <= 5, `${naPagina.length} números`);
+  assert.equal(naSecao.length, naPagina.length, "todo número vive na seção #numeros");
+  for (const [, corpo] of naSecao) {
     const legenda = corpo.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/);
     assert.ok(legenda, "número sem figcaption");
-    assert.match(legenda[1], /<cite\b/);
-    assert.match(textoVisivel(legenda[1]), /\b(19|20)\d{2}\b/);
+    const cite = legenda[1].match(/<cite\b[^>]*>([\s\S]*?)<\/cite>/);
+    assert.ok(cite, "número sem cite");
+    assert.match(textoVisivel(cite[1]), /\b(19|20)\d{2}\b/, "cite sem ano");
+    assert.match(textoVisivel(cite[1]), /\p{L}{3,}/u, "cite sem fonte");
   }
+});
+
+test("DOR-03 AC 3: nenhuma porcentagem nem 'milhões' fora de #numeros", () => {
+  const fora = textoVisivel(html.replace(secao("numeros"), ""));
+  assert.doesNotMatch(fora, /\d+(?:,\d+)?\s?%/);
+  assert.doesNotMatch(fora, /milh(ão|ões)/i);
+});
+
+test("DOR-03 ACs 4 e 5: o título, os cinco valores e as cinco fontes na ordem, logo depois de 'onde quebra'", () => {
+  const numeros = secao("numeros");
+  assert.match(numeros, /<h2\b[^>]*>\s*Não é só na sua casa\s*<\/h2>/);
+  const valores = [...numeros.matchAll(/class="numero-valor mono">([^<]*)</g)].map((m) =>
+    m[1].trim(),
+  );
+  assert.deepEqual(valores, ["58%", "61%", "47%", "82%", "45%"]);
+  const fontes = [...numeros.matchAll(/<cite\b[^>]*>([\s\S]*?)<\/cite>/g)].map((m) =>
+    textoVisivel(m[1]).trim(),
+  );
+  assert.deepEqual(fontes, [
+    "CNDL e SPC Brasil, 2026",
+    "CNDL e SPC Brasil, 2026",
+    "CNDL e SPC Brasil, 2026",
+    "CNC, 2026",
+    "Serasa com Opinion Box, 2026",
+  ]);
+  assert.equal(SECOES.indexOf("numeros"), SECOES.indexOf("onde-quebra") + 1);
+  assert.equal(SECOES.indexOf("comparativo"), SECOES.indexOf("numeros") + 1);
 });
 
 test("Tom: sem exclamação, sem travessão, sem emoji no texto visível", () => {

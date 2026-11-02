@@ -609,7 +609,7 @@ a:hover {
   }
 }
 
-/* ---- Números: três grandezas, sem cartão ---- */
+/* ---- Números: cinco grandezas numa seção só, sem cartão ---- */
 
 .numeros {
   display: grid;
@@ -644,8 +644,23 @@ a:hover {
 
 @media (min-width: 768px) {
   .numeros {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 40px;
+  }
+}
+
+/* Três em cima, duas embaixo, a partir de 1.024 px. */
+@media (min-width: 1024px) {
+  .numeros {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .numero {
+    grid-column: span 2;
+  }
+
+  .numero:nth-last-child(-n + 2) {
+    grid-column: span 3;
   }
 }
 
