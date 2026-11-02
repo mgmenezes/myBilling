@@ -21,6 +21,11 @@ import { chromium } from "@playwright/test";
  * Determinístico no conteúdo: o seed tem semente fixa e se ancora no mês
  * corrente, então as capturas mudam só quando o mês vira. Movimento reduzido
  * e `document.fonts.ready` tiram o resto da variação.
+ *
+ * **Só a área de conteúdo, sem o menu lateral** (JANO-07): o menu mostra o
+ * nome interno do app, e a landing se chama Jano. A tela abre mais larga que o
+ * recorte e a foto começa onde o `<main>` começa, então a imagem continua com
+ * 1.280 x 800 de conteúdo, o mesmo enquadramento de antes, só que sem o menu.
  */
 
 const PORTA = 3200;
@@ -39,6 +44,8 @@ const TELAS = [
   { nome: "lancamentos", rota: (comp) => `/${comp}/lancamentos` },
 ];
 const TEMAS = ["claro", "escuro"];
+/** O conteúdo fotografado, em pixels CSS: o mesmo das capturas anteriores. */
+const RECORTE = { largura: 1280, altura: 800 };
 
 function competenciaCorrente() {
   const partes = new Intl.DateTimeFormat("en-CA", {
@@ -103,7 +110,8 @@ async function capturar() {
     const competencia = competenciaCorrente();
     for (const tema of TEMAS) {
       const contexto = await navegador.newContext({
-        viewport: { width: 1280, height: 800 },
+        // Larga o bastante para o conteúdo ter 1.280 px depois do menu.
+        viewport: { width: 1600, height: RECORTE.altura },
         deviceScaleFactor: 2,
         reducedMotion: "reduce",
         colorScheme: tema === "escuro" ? "dark" : "light",
@@ -126,7 +134,18 @@ async function capturar() {
         });
         await pagina.waitForTimeout(300);
         const arquivo = join(DESTINO, `${tela.nome}-${tema}.png`);
-        await pagina.screenshot({ path: arquivo, fullPage: false });
+        const caixa = await pagina.locator("main").boundingBox();
+        if (caixa === null) {
+          throw new Error(`a tela ${tela.nome} não tem <main>`);
+        }
+        const inicio = Math.round(caixa.x);
+        // A tela é redimensionada para o conteúdo ter exatamente a largura do recorte.
+        await pagina.setViewportSize({ width: inicio + RECORTE.largura, height: RECORTE.altura });
+        await pagina.waitForTimeout(300);
+        await pagina.screenshot({
+          path: arquivo,
+          clip: { x: inicio, y: 0, width: RECORTE.largura, height: RECORTE.altura },
+        });
         console.log(`gravado ${arquivo}`);
       }
       await contexto.close();

@@ -681,6 +681,36 @@ test("JANO-06 AC 4: a legenda do 58% não cita o 14%", () => {
   assert.doesNotMatch(textoVisivel(figura[1]), /14%/);
 });
 
+/** Largura e altura de um PNG, lidas do cabeçalho IHDR. */
+function dimensoesDoPng(caminho) {
+  const bytes = readFileSync(caminho);
+  assert.equal(bytes.toString("ascii", 12, 16), "IHDR", `não é PNG: ${caminho}`);
+  return { largura: bytes.readUInt32BE(16), altura: bytes.readUInt32BE(20) };
+}
+
+test("JANO-07 ACs 2 e 4: cada captura declara as dimensões do arquivo, na escala 2, e diz que são dados de demonstração", () => {
+  const capturas = [...html.matchAll(/<img\b[^>]*\bsrc="(imagens\/[^"]+\.png)"[^>]*>/g)];
+  assert.ok(capturas.length >= 2, "as duas capturas do app");
+  for (const [tag, src] of capturas) {
+    const largura = Number(tag.match(/\bwidth="(\d+)"/)?.[1]);
+    const altura = Number(tag.match(/\bheight="(\d+)"/)?.[1]);
+    const arquivo = dimensoesDoPng(join(AQUI, src));
+    assert.equal(arquivo.largura, largura * 2, `largura de ${src}`);
+    assert.equal(arquivo.altura, altura * 2, `altura de ${src}`);
+    const escuro = join(AQUI, src.replace("-claro.png", "-escuro.png"));
+    assert.deepEqual(
+      dimensoesDoPng(escuro),
+      arquivo,
+      `o tema escuro de ${src} tem as mesmas dimensões`,
+    );
+  }
+  for (const [, legenda] of html.matchAll(
+    /<figcaption\b[^>]*\bclass="[^"]*\bcaptura-legenda\b[^"]*"[^>]*>([\s\S]*?)<\/figcaption>/g,
+  )) {
+    assert.match(textoVisivel(legenda), /dados de demonstração/i);
+  }
+});
+
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {
   const texto = textoVisivel(html);
   for (const padrao of PROMESSAS_PROIBIDAS) {

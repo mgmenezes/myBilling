@@ -194,9 +194,9 @@ T7 -> T8
 **Requirement**: JANO-07 (ACs 1, 2, 4)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Quatro imagens novas, sem o menu (conferido abrindo cada uma) (AC 1)
-- [ ] Teste: `width`/`height` de cada `<img>` igual ao cabeçalho IHDR do PNG dividido pela escala 2 (AC 2)
-- [ ] Legendas com "dados de demonstração" (AC 4)
+- [x] Quatro imagens novas, sem o menu (conferido abrindo cada uma) (AC 1)
+- [x] Teste: `width`/`height` de cada `<img>` igual ao cabeçalho IHDR do PNG dividido pela escala 2 (AC 2)
+- [x] Legendas com "dados de demonstração" (AC 4)
 **Tests**: `site/estrutura.test.mjs`
 **Gate**: navegador
 
@@ -243,3 +243,7 @@ T7 -> T8
   que o JANO-08 AC 4 não listava; a lista foi corrigida na spec. O teste apagado de VEM-02 ACs 4 e 5
   tinha também a regra de "em breve" só nos botões (VEM-04 AC 1), que não depende da seção: ela
   ficou como teste próprio.
+- **Decisão do autor (T7):** as capturas usam um banco próprio, `mybilling_test_jano`, migrado e
+  semeado por `pnpm db:seed`, via `DATABASE_URL_CAPTURA`, para não disputar o `mybilling_test` com
+  os testes de integração. O React avisou de hydration mismatch durante a captura; é o aviso já
+  registrado no handoff da campanha, fora desta fatia.
