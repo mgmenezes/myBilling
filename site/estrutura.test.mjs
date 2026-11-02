@@ -415,6 +415,53 @@ test("VEM-02 ACs 4 e 5: a seção 'O que vem a seguir' diz que o simulador não 
   assert.doesNotMatch(textoVisivel(semBotoes), /em breve/i);
 });
 
+test("DOR-02 AC 3: o herói diz o que a lista pede, abaixo dos botões", () => {
+  const hero = secao("inicio");
+  const nota = hero.match(/<p\b[^>]*\bclass="[^"]*\bhero-nota\b[^"]*"[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(nota, "nota do herói ausente");
+  assert.equal(
+    textoVisivel(nota[1]).trim(),
+    "A lista pede o e-mail e uma pergunta: como você controla as contas hoje. Nada mais.",
+  );
+  assert.ok(hero.indexOf("hero-acoes") < hero.indexOf("hero-nota"), "a nota vem depois dos botões");
+});
+
+test("DOR-02 ACs 4 e 5, DOR-05 AC 5: a dor nas palavras da pessoa, a primeira cena em destaque, o subtítulo e a sexta cena", () => {
+  const dores = secao("onde-quebra");
+  const lead = dores.match(/<p\b[^>]*\bclass="[^"]*\blead\b[^"]*"[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(lead, "parágrafo de abertura ausente");
+  assert.match(textoVisivel(lead[1]), /A fatura chega maior do que você lembrava/);
+  assert.match(textoVisivel(lead[1]), /o saldo de hoje continua dizendo que dá/);
+  assert.match(
+    textoVisivel(dores),
+    /Seis situações que quem paga as contas reconhece/,
+    "subtítulo sem fechar o nicho",
+  );
+  const classes = [...dores.matchAll(/<article\b[^>]*\bclass="([^"]*\bdor\b[^"]*)"/g)].map(
+    (m) => m[1],
+  );
+  assert.equal(classes.length, 6);
+  assert.match(classes[0], /\bdor-destaque\b/, "a primeira cena é a que fica em destaque");
+  for (const c of classes.slice(1)) {
+    assert.doesNotMatch(c, /\bdor-destaque\b/, "só a primeira cena em destaque");
+  }
+  const cenas = [
+    ...dores.matchAll(/<p\b[^>]*\bclass="[^"]*\bdor-cena\b[^"]*"[^>]*>([\s\S]*?)<\/p>/g),
+  ].map((m) => textoVisivel(m[1]).trim());
+  assert.match(cenas[5], /^Quando são duas pessoas/);
+});
+
+test("DOR-02 AC 7: o comparativo termina dizendo que a página é sobre o que ainda vai sair", () => {
+  const comparativo = secao("comparativo");
+  const fecho = comparativo.match(/<p\b[^>]*\bclass="[^"]*\bfecho\b[^"]*"[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(fecho, "parágrafo de fecho ausente");
+  assert.match(textoVisivel(fecho[1]), /olha para a casa, com uma pessoa ou duas/);
+  assert.ok(
+    comparativo.indexOf("</table>") < comparativo.indexOf('class="fecho"'),
+    "o fecho vem depois da tabela",
+  );
+});
+
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {
   const texto = textoVisivel(html);
   for (const padrao of PROMESSAS_PROIBIDAS) {

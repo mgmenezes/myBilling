@@ -362,6 +362,14 @@ a:hover {
   font-size: 17px;
 }
 
+/* A dor nas palavras da pessoa, antes de qualquer garantia (DOR-02 AC 4). */
+.secao-cabeca .lead {
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+  line-height: 1.4;
+  color: var(--ink);
+  max-width: 52ch;
+}
+
 /* ---- Hero ---- */
 
 .hero {
@@ -485,6 +493,14 @@ a:hover {
   font-weight: 600;
 }
 
+/* A cena que abre, em destaque: a primeira pergunta em tipo maior (DOR-02 AC 5). */
+.dor-destaque .dor-cena {
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  line-height: 1.3;
+  color: var(--ink);
+  max-width: 40ch;
+}
+
 @media (min-width: 768px) {
   .dores {
     grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -493,9 +509,34 @@ a:hover {
   .dor {
     grid-column: span 2;
   }
+
+  /* O destaque ocupa a fileira; as cinco cenas seguintes ficam três e duas. */
+  .dor-destaque {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 32px;
+  }
+
+  .dor-destaque h3 {
+    grid-column: 1 / -1;
+  }
+
+  .dor-destaque .dor-garantia {
+    align-self: center;
+  }
+
+  .dor:nth-last-child(-n + 2) {
+    grid-column: span 3;
+  }
 }
 
 /* ---- Comparativo ---- */
+
+.fecho {
+  margin-top: 40px;
+  font-size: 17px;
+}
 
 /* Sem região rolável: abaixo de 768px a tabela vira cartões empilhados, e
  * a coluna do myBilling deixa de ficar escondida à direita no celular. */

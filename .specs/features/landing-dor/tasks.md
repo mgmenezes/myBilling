@@ -151,14 +151,14 @@ T6 -> T7
 **Requirement**: DOR-02; DOR-05 (AC 5)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: ordem das nove seções e nenhuma outra (AC 1)
-- [ ] Teste: `<h1>` exato (AC 2)
-- [ ] Teste: a nota do hero (AC 3)
-- [ ] Teste: o `lead` com as duas frases (AC 4)
-- [ ] Teste: seis cenas, só a primeira com `dor-destaque` (AC 5)
-- [ ] Verificador: largura e fonte do destaque em 768 px (AC 6)
-- [ ] Teste: tabela mantida e o parágrafo de fecho (AC 7)
-- [ ] Teste: subtítulo novo e a sexta cena (DOR-05 AC 5)
+- [x] Teste: ordem das nove seções e nenhuma outra (AC 1)
+- [x] Teste: `<h1>` exato (AC 2)
+- [x] Teste: a nota do hero (AC 3)
+- [x] Teste: o `lead` com as duas frases (AC 4)
+- [x] Teste: seis cenas, só a primeira com `dor-destaque` (AC 5)
+- [x] Verificador: largura e fonte do destaque em 768 px (AC 6)
+- [x] Teste: tabela mantida e o parágrafo de fecho (AC 7)
+- [x] Teste: subtítulo novo e a sexta cena (DOR-05 AC 5)
 **Tests**: `site/estrutura.test.mjs` (DOR-02 ACs 1 a 5 e 7; DOR-05 AC 5), `site/verificar-navegador.mjs` (DOR-02 AC 6)
 **Gate**: navegador
 

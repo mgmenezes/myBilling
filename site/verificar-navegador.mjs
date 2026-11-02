@@ -49,7 +49,25 @@ async function verificar() {
               );
             }
           }
+          // DOR-02 AC 6: a partir de 768 px, a cena em destaque ocupa a grade
+          // inteira e tem a fonte maior que a da segunda cena.
+          const dores = document.querySelector(".dores");
+          const cenas = document.querySelectorAll(".dores .dor");
+          const destaque =
+            dores && cenas.length >= 2
+              ? {
+                  larguraGrade: dores.getBoundingClientRect().width,
+                  larguraPrimeira: cenas[0].getBoundingClientRect().width,
+                  fontePrimeira: Number.parseFloat(
+                    getComputedStyle(cenas[0].querySelector(".dor-cena")).fontSize,
+                  ),
+                  fonteSegunda: Number.parseFloat(
+                    getComputedStyle(cenas[1].querySelector(".dor-cena")).fontSize,
+                  ),
+                }
+              : null;
           return {
+            destaque,
             scrollWidth: document.documentElement.scrollWidth,
             clientWidth: document.documentElement.clientWidth,
             bodyScroll: document.body.scrollWidth,
@@ -66,6 +84,23 @@ async function verificar() {
         }
         for (const cortado of medidas.cortados) {
           falhas.push(`${largura}px ${tema}: conteúdo cortado em ${cortado}`);
+        }
+        if (largura >= 768) {
+          const d = medidas.destaque;
+          if (!d) {
+            falhas.push(`${largura}px ${tema}: cena em destaque ausente`);
+          } else {
+            if (Math.abs(d.larguraPrimeira - d.larguraGrade) > 1) {
+              falhas.push(
+                `${largura}px ${tema}: a cena em destaque não ocupa a grade (${d.larguraPrimeira} de ${d.larguraGrade})`,
+              );
+            }
+            if (!(d.fontePrimeira > d.fonteSegunda)) {
+              falhas.push(
+                `${largura}px ${tema}: a fonte da cena em destaque (${d.fontePrimeira}) não é maior que a da segunda (${d.fonteSegunda})`,
+              );
+            }
+          }
         }
 
         const resultado = await new AxeBuilder({ page: pagina }).withTags(REGRAS_WCAG).analyze();
