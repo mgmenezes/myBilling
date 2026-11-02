@@ -266,7 +266,7 @@ atrás do código do app.
 3. `docs/marketing/kit-de-copy.md` SHALL ter de seis a oito headlines, a primeira igual ao `<h1>`, e
    nenhum texto SHALL dizer "myBilling" nem que o simulador "ainda não existe"
 4. The specs `campanha-lista-de-espera` (CAMP-03 AC 5), `campanha-o-que-vem` (VEM-02 ACs 1, 4, 5 e 7)
-   e `landing-dor` (DOR-02 AC 1) SHALL registrar que esta fatia as revisou; `.specs/STATE.md` SHALL ter
+   e `landing-dor` (DOR-02 AC 1 e DOR-04 AC 1) SHALL registrar que esta fatia as revisou; `.specs/STATE.md` SHALL ter
    AD-026 e o Handoff; `.specs/HANDOFF.md` SHALL apontar para cá; `site/README.md` SHALL explicar
    `pnpm site:construir`
 5. WHEN `pnpm verify` e `pnpm site:verificar` rodam THEN they SHALL sair com código 0
@@ -297,7 +297,7 @@ atrás do código do app.
 | JANO-03 | P1: A mesma conta e as mesmas frases do app | Execute | Implementing: ACs 2 e 8 em T2 (`src/components/texto-do-veredito.ts`, sem React; `resposta-da-simulacao.test.tsx` e `simulador.test.tsx` sem mudança, 2.164 unitários verdes); ACs 1, 3 a 5 e 7 em T3 (`site/simulador.test.mjs`: "JANO-03 AC 3", "JANO-04 AC 4 e JANO-03 ACs 1 e 2", "JANO-03 AC 4", "JANO-03 AC 5", "JANO-03 AC 7"); AC 6 em T4 ("JANO-03 AC 6" em `site/estrutura.test.mjs`) |
 | JANO-04 | P1: A casa inventada | Execute | Implemented: T3, `site/fonte/casa-inventada.ts` e `site/simulador.test.mjs` ("JANO-04 ACs 1 e 3", "JANO-04 AC 2" duas vezes, "JANO-04 AC 4") |
 | JANO-05 | P1: O pacote versionado e fresco | Execute | Implementing: ACs 1, 2 e 4 em T3 (`site/construir.mjs`, `pnpm site:construir`, "JANO-05 ACs 1 e 2", `biome.json` ignora `site/simulador.js`); mutantes "frase mudada sem reconstruir" e "resíduo nas últimas" morrem; AC 3 em T5 ("CAMP-03 AC 5, revisto por JANO-05 AC 3") |
-| JANO-06 | P2: A página não promete o que não existe | Tasks | Pending |
+| JANO-06 | P2: A página não promete o que não existe | Execute | Implemented: T6, `site/estrutura.test.mjs` ("JANO-06 ACs 1 e 2", "JANO-06 AC 3", "JANO-06 AC 4"); a regra de "em breve" sai do teste apagado e vira "VEM-04 AC 1" |
 | JANO-07 | P2: As capturas sem o nome antigo | Execute | Implementing: AC 3 em T4 ("JANO-07 AC 3"); ACs 1, 2 e 4 em T7 |
 | JANO-08 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 3 em T1 (`posicionamento.md` seções "Nome" e "O produto em uma frase", sem "O que vem a seguir", nota do 14%; `kit-de-copy.md` com 8 headlines, a primeira "Antes de parcelar, pergunte ao Jano.", 0 "myBilling", 0 "ainda não existe"); ACs 4 e 5 em T8 |
 

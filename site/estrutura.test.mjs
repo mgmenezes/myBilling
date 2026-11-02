@@ -30,7 +30,6 @@ const SECOES = [
   "para-dois",
   "sua-planilha",
   "perguntas",
-  "a-seguir",
   "rodape",
 ];
 
@@ -431,17 +430,7 @@ test("VEM-02 AC 3, revisto por JANO-01 AC 8: o comparativo tem a linha dos próx
   );
 });
 
-test("VEM-02 ACs 4 e 5: a seção 'O que vem a seguir' diz que o simulador não existe, sem 'já' nem 'disponível'", () => {
-  const aSeguir = secao("a-seguir");
-  assert.match(aSeguir, /<h2\b[^>]*>\s*O que vem a seguir\s*<\/h2>/);
-  const texto = textoVisivel(aSeguir);
-  assert.match(texto, /Dá pra comprar\?/);
-  assert.match(texto, /ainda não existe/i);
-  assert.match(texto, /lista de espera/i);
-  assert.doesNotMatch(texto, JA_ISOLADO);
-  assert.doesNotMatch(texto, /dispon[íi]vel/i);
-  assert.doesNotMatch(texto, /em breve/i);
-  // "em breve" só dentro dos botões da lista (CAMP-04 AC 2), em página nenhuma outra parte.
+test("VEM-04 AC 1: 'em breve' só dentro dos botões da lista, em página nenhuma outra parte", () => {
   const semBotoes = html.replace(/<button\b[^>]*\bbotao-lista\b[^>]*>[\s\S]*?<\/button>/g, "");
   assert.doesNotMatch(textoVisivel(semBotoes), /em breve/i);
 });
@@ -495,7 +484,7 @@ test("DOR-02 AC 7: o comparativo termina dizendo que a página é sobre o que ai
 
 test("DOR-04 ACs 1 a 4: perguntas frequentes entre 'sua planilha' e 'a seguir', fechadas, com as objeções respondidas", () => {
   assert.equal(SECOES.indexOf("perguntas"), SECOES.indexOf("sua-planilha") + 1);
-  assert.equal(SECOES.indexOf("a-seguir"), SECOES.indexOf("perguntas") + 1);
+  assert.equal(SECOES.indexOf("rodape"), SECOES.indexOf("perguntas") + 1);
   const faq = secao("perguntas");
   assert.match(faq, /<h2\b[^>]*>\s*Perguntas frequentes\s*<\/h2>/);
   const itens = [...faq.matchAll(/<details\b([^>]*)>([\s\S]*?)<\/details>/g)];
@@ -653,6 +642,43 @@ test("JANO-02 ACs 1, 5 e 6: o card tem os dois campos rotulados, a resposta anun
   );
   assert.ok(final, "chamada final ausente");
   assert.equal(textoVisivel(final[1]).trim(), "Entrar na lista de espera");
+});
+
+test("JANO-06 ACs 1 e 2: a página fala só do que existe, sem 'O que vem a seguir'", () => {
+  assert.deepEqual(SECOES, [
+    "inicio",
+    "onde-quebra",
+    "numeros",
+    "comparativo",
+    "para-dois",
+    "sua-planilha",
+    "perguntas",
+    "rodape",
+  ]);
+  assert.doesNotMatch(html, /\sid="a-seguir"/);
+  const texto = textoVisivel(html);
+  assert.doesNotMatch(texto, /ainda não existe/i);
+  assert.doesNotMatch(texto, /O que vem a seguir/i);
+});
+
+test("JANO-06 AC 3: as perguntas explicam como funciona o Dá pra comprar?", () => {
+  const faq = secao("perguntas");
+  const item = faq.match(
+    /<details\b[^>]*>\s*<summary\b[^>]*>\s*Como funciona o Dá pra comprar\?\s*<\/summary>([\s\S]*?)<\/details>/,
+  );
+  assert.ok(item, "pergunta sobre o simulador ausente");
+  const resposta = textoVisivel(item[1]);
+  assert.match(resposta, /informa o valor e em quantas vezes/);
+  assert.match(resposta, /quanto sobra em cada mês/);
+  assert.match(resposta, /em quantas vezes caberia/);
+});
+
+test("JANO-06 AC 4: a legenda do 58% não cita o 14%", () => {
+  const figura = secao("numeros").match(
+    /<figure\b[^>]*>\s*<p\b[^>]*>\s*58%\s*<\/p>([\s\S]*?)<\/figure>/,
+  );
+  assert.ok(figura, "número 58% ausente");
+  assert.doesNotMatch(textoVisivel(figura[1]), /14%/);
 });
 
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {

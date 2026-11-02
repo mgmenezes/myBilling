@@ -179,10 +179,10 @@ T7 -> T8
 **Requirement**: JANO-06
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: ordem de oito seções sem `a-seguir` (AC 1)
-- [ ] Teste: sem "ainda não existe" e sem "O que vem a seguir" no texto visível (AC 2)
-- [ ] Teste: a pergunta nova e as três ideias da resposta (AC 3)
-- [ ] Teste: a legenda do 58% sem "14%" (AC 4)
+- [x] Teste: ordem de oito seções sem `a-seguir` (AC 1)
+- [x] Teste: sem "ainda não existe" e sem "O que vem a seguir" no texto visível (AC 2)
+- [x] Teste: a pergunta nova e as três ideias da resposta (AC 3)
+- [x] Teste: a legenda do 58% sem "14%" (AC 4)
 **Tests**: `site/estrutura.test.mjs`
 **Gate**: site
 
@@ -204,7 +204,7 @@ T7 -> T8
 
 #### T8: Specs revistas, AD-026 e handoff
 **What**: anotações em CAMP-03 AC 5, VEM-02 ACs 1, 4, 5 e 7 e DOR-02 AC 1; AD-026 em `STATE.md` (nome público, pacote versionado, dois scripts) e o Handoff; `HANDOFF.md`; `site/README.md` com `pnpm site:construir`. Gate completo.
-**Where**: `.specs/features/campanha-lista-de-espera/spec.md`, `.specs/features/campanha-o-que-vem/spec.md`, `.specs/features/landing-dor/spec.md`, `.specs/STATE.md`, `.specs/HANDOFF.md`, `site/README.md`
+**Where**: `.specs/features/campanha-lista-de-espera/spec.md`, `.specs/features/campanha-o-que-vem/spec.md`, `.specs/features/landing-dor/spec.md` (DOR-02 AC 1 e DOR-04 AC 1), `.specs/STATE.md`, `.specs/HANDOFF.md`, `site/README.md`
 **Depends on**: T7
 **Reuses**: o formato dos ADs anteriores
 **Requirement**: JANO-08 (ACs 4 e 5)
@@ -239,3 +239,7 @@ T7 -> T8
 - **Observação para o dono (T5):** em 360 px o card do simulador fica a uma rolagem, depois da linha
   da história; o quadro "Celular" do canvas punha o simulador antes do botão. A spec não pede essa
   ordem, então ficou como está.
+- **SPEC_DEVIATION (T6):** tirar a seção revisa também DOR-04 AC 1 ("entre sua-planilha e a-seguir"),
+  que o JANO-08 AC 4 não listava; a lista foi corrigida na spec. O teste apagado de VEM-02 ACs 4 e 5
+  tinha também a regra de "em breve" só nos botões (VEM-04 AC 1), que não depende da seção: ela
+  ficou como teste próprio.
