@@ -257,7 +257,7 @@ test("as duas visões nunca aparecem juntas (MOV-03, UI-01 AC 4)", async ({ page
   await expect(page.getByRole("link", { name: /Saiu da conta/ })).toContainText("R$ 0,00");
 
   await page.getByText("Qual é a diferença").click();
-  await expect(page.getByText(/nunca soma nem subtrai um do outro/)).toBeVisible();
+  await expect(page.getByText(/O Jano nunca soma nem subtrai um do outro/)).toBeVisible();
 });
 
 test("em 400 pixels nada rola na horizontal, e a barra não foi escondida (UI-03, AC 9)", async ({

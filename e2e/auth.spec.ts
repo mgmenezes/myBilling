@@ -165,6 +165,11 @@ test("e-mail fora da allowlist recebe 403 e não cria usuário (AUTH-01, AC 2)",
 
   const resposta = await entrar(page, EMAIL_NEGADO);
   expect(resposta.status()).toBe(403);
+  // A página de acesso negado, para onde o Auth.js manda o e-mail recusado,
+  // diz o nome novo (NOME-03, AC 1).
+  const negada = await page.goto("/login?error=AccessDenied");
+  expect(negada?.status()).toBe(403);
+  await expect(page.getByText(/Esta conta não tem permissão para usar o Jano\./)).toBeVisible();
 
   expect(await contarUsuarios()).toBe(0);
   const { rows } = await pool.query("SELECT id FROM usuario WHERE email = $1", [EMAIL_NEGADO]);

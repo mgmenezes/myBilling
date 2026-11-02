@@ -164,8 +164,7 @@ export default async function PainelDoMes({ params, searchParams }: PageProps<"/
                   assumido neste mês, pago ou não.{" "}
                   <strong className="font-medium text-ink">Movimentações</strong> mede o que de fato
                   saiu ou entrou na conta. Os dois divergem de propósito: a fatura paga neste mês
-                  contém compras de meses anteriores. O myBilling nunca soma nem subtrai um do
-                  outro.
+                  contém compras de meses anteriores. O Jano nunca soma nem subtrai um do outro.
                 </p>
               </details>
             </div>

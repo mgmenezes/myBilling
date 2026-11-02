@@ -1,5 +1,5 @@
 /*
- * Identidade da landing do myBilling, copiada de `docs/design.md`, que é
+ * Identidade da landing do Jano, copiada de `docs/design.md`, que é
  * normativo: os mesmos tokens de `src/app/globals.css`, os mesmos raios, a
  * mesma divisão tipográfica. Quem mudar um valor aqui sem mudar lá está
  * criando uma segunda verdade, e a segunda está errada.
@@ -834,7 +834,7 @@ a:hover {
 }
 
 /* Sem região rolável: abaixo de 768px a tabela vira cartões empilhados, e
- * a coluna do myBilling deixa de ficar escondida à direita no celular. */
+ * a coluna do Jano deixa de ficar escondida à direita no celular. */
 .tabela-rolavel {
   border: 1px solid var(--line);
   border-radius: var(--r-xl);

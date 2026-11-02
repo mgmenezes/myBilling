@@ -1,5 +1,5 @@
 -- ============================================================================
--- myBilling — limpar o banco para recomeçar a importação da planilha (IMP-09)
+-- Jano — limpar o banco para recomeçar a importação da planilha (IMP-09)
 --
 -- APAGA tudo o que a importação cria:
 --   movimento            (todos os lançamentos: avulsos, parcelas e ocorrências

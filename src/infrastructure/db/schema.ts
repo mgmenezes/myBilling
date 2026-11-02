@@ -16,7 +16,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
- * Schema físico do myBilling. Doze tabelas.
+ * Schema físico do Jano. Doze tabelas.
  *
  * Três invariantes estruturais mandam neste arquivo:
  *

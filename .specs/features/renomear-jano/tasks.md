@@ -94,9 +94,9 @@ T3 -> T4
 **Reuses**: `pnpm site:construir`
 **Requirement**: NOME-03 (ACs 1 a 3)
 **Done when**:
-- [ ] Teste: nenhuma ocorrência de "myBilling" em `src/` e `site/` fora do pacote gerado (AC 2)
-- [ ] O pacote regenerado e fresco (AC 3)
-- [ ] e2e ou teste de componente das três frases (AC 1)
+- [x] Teste: nenhuma ocorrência de "myBilling" em `src/` e `site/` fora do pacote gerado (AC 2)
+- [x] O pacote regenerado e fresco (AC 3)
+- [x] e2e ou teste de componente das três frases (AC 1)
 **Tests**: `src/lib/nome-publico.test.ts`, `site/simulador.test.mjs`, e2e tocados
 **Gate**: unit + e2e
 
@@ -121,3 +121,10 @@ T3 -> T4
 - **Decisão do autor (T1):** o e2e do ícone confere que nenhum `link[rel=icon]` aponta para
   `favicon.ico`, e não o status de `/favicon.ico`: o proxy manda toda rota sem sessão para o login, que
   responde 200.
+- **Decisão do autor (T3):** a varredura exclui os testes que afirmam a ausência do nome (precisam
+  citá-lo); o AC 2 da spec ganhou essa precisão. A página de acesso negado é conferida em
+  `/login?error=AccessDenied`, a rota real que chama `forbidden()`, porque `entrar` só faz requisições.
+- **Observação (T3):** outra sessão rodava a integração no `mybilling_test` ao mesmo tempo e limpou
+  tabelas no meio dos e2e; os e2e desta fatia passaram a rodar com
+  `DATABASE_URL_TEST=.../mybilling_test_jano`. "marcar pago move o indicador do painel" (MOV-06)
+  falhou uma vez sob carga e passou 3 de 3 isolado; não tem relação com o nome.

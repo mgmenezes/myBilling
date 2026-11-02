@@ -14,8 +14,8 @@ export default function AcessoNegado() {
       <div className="w-full max-w-md rounded-xl border border-line bg-surface px-6 py-10 sm:px-10">
         <h1 className="text-[30px] leading-[1.1]">Acesso não autorizado</h1>
         <p className="mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted">
-          Esta conta não tem permissão para usar o myBilling. Se você acredita que deveria ter
-          acesso, peça para ser incluído na lista de pessoas autorizadas.
+          Esta conta não tem permissão para usar o Jano. Se você acredita que deveria ter acesso,
+          peça para ser incluído na lista de pessoas autorizadas.
         </p>
         <Link
           href="/login"

@@ -412,7 +412,7 @@ var SimuladorDaLanding = (() => {
     IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA: "Há totais que não batem. Confirme que entendeu a diferença antes de importar.",
     VALIDACAO: "Confira os campos destacados.",
     NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
-    ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",
+    ACESSO_NEGADO: "Este e-mail não tem acesso ao Jano.",
     ERRO_INESPERADO: "Não foi possível concluir a operação. Tente de novo."
   };
   function mensagemDoErro(code) {

@@ -46,7 +46,7 @@ const journal = JSON.parse(
 
 const partes: string[] = [
   `-- ============================================================================
--- myBilling — migrations para colar num console SQL (gerado por \`pnpm db:sql\`)
+-- Jano — migrations para colar num console SQL (gerado por \`pnpm db:sql\`)
 --
 -- NÃO EDITE e NÃO COMMITE este resultado: gere de novo quando precisar. Quem
 -- manda no schema é o \`drizzle-kit\`; isto é só um caminho alternativo de

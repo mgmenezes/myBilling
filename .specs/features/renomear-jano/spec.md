@@ -105,8 +105,8 @@ nomes técnicos como o banco `mybilling`.
 
 1. The página de acesso negado, a mensagem `ACESSO_NEGADO` e a frase do alternador da Visão geral
    SHALL dizer "Jano" onde diziam "myBilling"
-2. The código-fonte em `src/` e `site/` (fora o pacote gerado `site/simulador.js`) SHALL não conter
-   "myBilling" nessa grafia, nem em comentário
+2. The código-fonte em `src/` e `site/` (fora o pacote gerado `site/simulador.js` e os testes que
+   afirmam a ausência do nome) SHALL não conter "myBilling" nessa grafia, nem em comentário
 3. The pacote `site/simulador.js` SHALL ser regenerado e continuar fresco (JANO-05)
 4. The testes de componente e e2e que procuram o nome SHALL procurar "Jano"
 
@@ -149,7 +149,7 @@ nada depois.
 | --- | --- | --- | --- |
 | NOME-01 | P1: A marca do Jano no app | Execute | Implemented: T1 (`src/components/menu-lateral.test.tsx` "a marca leva para a home do ano", "a marca é o símbolo de dois arcos do Jano", "tem as áreas do Jano"; `e2e/auth.spec.ts` "a aba do navegador diz Jano"; 184 e2e dos specs tocados verdes) |
 | NOME-02 | P1: O herói do login | Execute | Implemented: T2, `e2e/auth.spec.ts` "o login abre pelo herói do Jano" (marca e símbolo, `<h1>` exato, subtítulo exato, botão, acesso restrito, nenhum "myBilling") |
-| NOME-03 | P1: Nenhum myBilling que se lê | Tasks | Pending |
+| NOME-03 | P1: Nenhum myBilling que se lê | Execute | Implemented: T3 (`src/lib/nome-publico.test.ts` nas duas asserções; `e2e/auth.spec.ts` acesso negado com 403 e "o Jano"; `e2e/compra-parcelada.spec.ts` "O Jano nunca soma nem subtrai"; pacote regenerado e fresco em `site/simulador.test.mjs`); AC 4 em T1 |
 | NOME-04 | P2: Documentos vivos e gates | Tasks | Pending |
 
 **Coverage:** 4 total, 4 mapeados para tasks (T1 a T4 em `tasks.md`), 0 unmapped
