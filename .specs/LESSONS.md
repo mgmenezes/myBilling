@@ -15,10 +15,10 @@ Corroborated across multiple features. Safe to apply as guidance.
 - last seen: 2026-10-25T05:06:38Z
 
 ### L-010 - AC com duas cláusulas precisa de uma assertion para cada uma; provar só uma deixa a outra livre para regredir.
-- signal: `surviving_mutant` · recurrence: 4 feature(s) · scope: `testes,acceptance-criteria` · harmful: 0
+- signal: `surviving_mutant` · recurrence: 4 feature(s) · scope: `testes,acceptance-criteria` · harmful: 1
 - features: importar-planilha, saldo-futuro, visao-tres-colunas, lancamentos-densos
 - evidence: mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria) (+3 more)
-- last seen: 2026-10-31T04:36:51Z
+- last seen: 2026-11-02T20:04:03Z
 
 ### L-014 - Garantia provada em cada elo separado, quem produz e quem consome, precisa de um teste que atravesse a composição; sem ele, o elo do meio a desfaz com a suíte verde.
 - signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,composicao` · harmful: 1
@@ -31,6 +31,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - features: importar-planilha, trocar-categoria, visao-tres-colunas
 - evidence: validation.md, Rodada F13–F15: P27 (passo-pendencias.tsx:207-248) e P29 (passo-pendencias.tsx:299-316) (componentes,testes) (+2 more)
 - last seen: 2026-10-30T22:13:51Z
+
+### L-027 - Código novo na union de erros do domínio leva a mensagem em src/lib/erros.ts na mesma task; o Record exaustivo de mensagens não compila sem ela.
+- signal: `spec_deviation` · recurrence: 2 feature(s) · scope: `tasks,erros` · harmful: 0
+- features: trocar-categoria, excluir-compra
+- evidence: SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros) (+1 more)
+- last seen: 2026-11-02T20:04:02Z
 
 ### L-029 - Limiar de um AC precisa de casos colados nele dos dois lados; provar o limiar e um valor distante deixa o off-by-one passar.
 - signal: `surviving_mutant` · recurrence: 3 feature(s) · scope: `testes,limites` · harmful: 0
@@ -184,12 +190,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,fixtures` · harmful: 0
 - features: trocar-categoria
 - evidence: S10 — src/components/seletor-de-categoria.test.tsx:23-27 (validation.md, rodada 1) (testes,fixtures)
-- last seen: 2026-10-29T16:16:13Z
-
-### L-027 - Código novo na union de erros do domínio leva a mensagem em src/lib/erros.ts na mesma task; o Record exaustivo de mensagens não compila sem ela.
-- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `tasks,erros` · harmful: 0
-- features: trocar-categoria
-- evidence: SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros)
 - last seen: 2026-10-29T16:16:13Z
 
 ### L-028 - AC que fixa o texto que a pessoa lê precisa de prova no layout do navegador; textContent e nome acessível não veem o espaço que o flex apara entre itens.
@@ -455,6 +455,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: landing-jano
 - evidence: m18 veredito fora do aria-label — site/fonte/simulador.ts:258 (e2e,acessibilidade)
 - last seen: 2026-11-02T17:22:05Z
+
+### L-078 - AC que nomeia dois tipos de linha com o mesmo comportamento, como gasto fixo e entrada fixa, precisa de fixture com uma linha de cada tipo e assertion em cada; semear o segundo tipo sem lê-lo deixa a regra dele mudar com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,fixtures` · harmful: 0
+- features: excluir-compra
+- evidence: M12; EXC-01 AC 3; src/components/tabela-lancamentos.tsx:384 (testes,fixtures)
+- last seen: 2026-11-02T20:04:02Z
+
+### L-079 - AC de texto com contagem precisa dizer o caso zero quando a operação pode terminar sem efeito, como a repetição idempotente; senão o código escolhe a frase.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,textos` · harmful: 0
+- features: excluir-compra
+- evidence: EXC-04 AC 4 (G1); toast com k = 0 (spec,textos)
+- last seen: 2026-11-02T20:04:02Z
+
+### L-080 - AC que lista vários gestos de fechar seguidos de um efeito de foco precisa dizer a quais gestos o foco se aplica; o clique fora leva o foco para onde se clicou.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec,foco` · harmful: 0
+- features: excluir-compra
+- evidence: EXC-02 AC 9 (G2); src/components/menu-da-linha.tsx:94-97 (spec,foco)
+- last seen: 2026-11-02T20:04:02Z
 
 ## Quarantined (failed when applied - ignore)
 

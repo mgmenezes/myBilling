@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 78,
+  "next_id": 81,
   "lessons": [
     {
       "id": "L-001",
@@ -129,7 +129,7 @@
         "lancamentos-densos"
       ],
       "recurrence": 4,
-      "harmful": 0,
+      "harmful": 1,
       "evidence": [
         "mutante M28 — src/domain/importacao/reconhecer-recorrencias.ts:71 (IMP-07 AC 12, cláusula 'por ordem de aparição') (testes,acceptance-criteria)",
         "validation.md rodada 1: U9 (src/components/horizonte-futuro.tsx:137, SALDO-03 AC 2, cláusula 'numa lista de descrição') (testes,acceptance-criteria)",
@@ -137,7 +137,7 @@
         "validation.md rodada 3: F3 (src/components/bloco-recolhivel.tsx:98), DENS-04 AC 1 'com o resumo'; sonda D (testes,acceptance-criteria)"
       ],
       "created": "2026-10-25T05:06:38Z",
-      "last_seen": "2026-10-31T04:36:51Z"
+      "last_seen": "2026-11-02T20:04:03Z"
     },
     {
       "id": "L-011",
@@ -442,17 +442,19 @@
       "text": "Código novo na union de erros do domínio leva a mensagem em src/lib/erros.ts na mesma task; o Record exaustivo de mensagens não compila sem ela.",
       "signal": "spec_deviation",
       "scope": "tasks,erros",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "trocar-categoria"
+        "trocar-categoria",
+        "excluir-compra"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros)"
+        "SPEC_DEVIATION em src/lib/erros.ts:74 (T1 em vez de T5) (tasks,erros)",
+        "SPEC_DEVIATION src/lib/erros.ts:113-115 (tasks,erros)"
       ],
       "created": "2026-10-29T16:16:13Z",
-      "last_seen": "2026-10-29T16:16:13Z"
+      "last_seen": "2026-11-02T20:04:02Z"
     },
     {
       "id": "L-028",
@@ -1367,6 +1369,60 @@
       ],
       "created": "2026-11-02T17:22:05Z",
       "last_seen": "2026-11-02T17:22:05Z"
+    },
+    {
+      "id": "L-078",
+      "key": "surviving_mutant::ac que nomeia dois tipos de linha com o mesmo comportamento como gasto fixo e entrada fixa precisa de fixture com uma linha de cada tipo e assertion em cada semear o segundo tipo sem le lo deixa a regra dele mudar com a suite verde",
+      "text": "AC que nomeia dois tipos de linha com o mesmo comportamento, como gasto fixo e entrada fixa, precisa de fixture com uma linha de cada tipo e assertion em cada; semear o segundo tipo sem lê-lo deixa a regra dele mudar com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "testes,fixtures",
+      "status": "candidate",
+      "features": [
+        "excluir-compra"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M12; EXC-01 AC 3; src/components/tabela-lancamentos.tsx:384 (testes,fixtures)"
+      ],
+      "created": "2026-11-02T20:04:02Z",
+      "last_seen": "2026-11-02T20:04:02Z"
+    },
+    {
+      "id": "L-079",
+      "key": "spec_precision_gap::ac de texto com contagem precisa dizer o caso zero quando a operacao pode terminar sem efeito como a repeticao idempotente senao o codigo escolhe a frase",
+      "text": "AC de texto com contagem precisa dizer o caso zero quando a operação pode terminar sem efeito, como a repetição idempotente; senão o código escolhe a frase.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,textos",
+      "status": "candidate",
+      "features": [
+        "excluir-compra"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "EXC-04 AC 4 (G1); toast com k = 0 (spec,textos)"
+      ],
+      "created": "2026-11-02T20:04:02Z",
+      "last_seen": "2026-11-02T20:04:02Z"
+    },
+    {
+      "id": "L-080",
+      "key": "spec_precision_gap::ac que lista varios gestos de fechar seguidos de um efeito de foco precisa dizer a quais gestos o foco se aplica o clique fora leva o foco para onde se clicou",
+      "text": "AC que lista vários gestos de fechar seguidos de um efeito de foco precisa dizer a quais gestos o foco se aplica; o clique fora leva o foco para onde se clicou.",
+      "signal": "spec_precision_gap",
+      "scope": "spec,foco",
+      "status": "candidate",
+      "features": [
+        "excluir-compra"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "EXC-02 AC 9 (G2); src/components/menu-da-linha.tsx:94-97 (spec,foco)"
+      ],
+      "created": "2026-11-02T20:04:02Z",
+      "last_seen": "2026-11-02T20:04:02Z"
     }
   ]
 }
