@@ -246,12 +246,12 @@ devolve só a tabela de concorrência ou nada.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DOR-01 | P1: O teste recorta e lista as seções | Execute | Implemented: T2, `site/estrutura.test.mjs` (`secao()`, "DOR-01 AC 1", "DOR-01 AC 2", "DOR-01 AC 3", `JA_ISOLADO`); 28 testes verdes no HTML de antes (AC 4) |
-| DOR-02 | P1: A página abre pela dor | Execute | Implemented: T4 (AC 1 pela lista `SECOES` e "DOR-01 AC 2", a seção `perguntas` entra em T5; AC 2 "VEM-02 AC 1"; ACs 3, 4, 5, 7 em "DOR-02 AC 3", "DOR-02 ACs 4 e 5", "DOR-02 AC 7" de `site/estrutura.test.mjs`; AC 6 em `site/verificar-navegador.mjs`, medida em 768 e 1.440 px); mutantes: sem `dor-destaque` e sem `grid-column` morrem |
-| DOR-03 | P1: Cinco números numa seção só | Execute | Implemented: T3, `site/index.html` `#numeros` (cinco figuras), `site/estilos.css` (grade 2 e 6 colunas), `site/estrutura.test.mjs` ("revisto por DOR-03 ACs 1 e 2", "DOR-03 AC 3", "DOR-03 ACs 4 e 5"); mutante com "10%" no rodapé morre |
-| DOR-04 | P2: Perguntas frequentes sem script | Execute | Implemented: T5, `site/index.html` `#perguntas` (nove `<details>`), `site/estilos.css` `.perguntas`, `site/estrutura.test.mjs` "DOR-04 ACs 1 a 4" (AC 5 pelo teste "CAMP-03 AC 5"); mutantes `<details open>` e "sincroniza" morrem |
-| DOR-05 | P1: Para quem paga as contas da casa, sem a história de origem | Execute | Implemented: T6 (ACs 1 a 4 em "CAMP-02 AC 6, revisto por DOR-05 AC 1" e "DOR-05 ACs 2 a 4" de `site/estrutura.test.mjs`; a inversão única pelo teste "CAMP-03 AC 2") e T4 (AC 5 em "DOR-02 ACs 4 e 5, DOR-05 AC 5"); mutantes "todo casal" e "Para dois" no hero morrem |
-| DOR-06 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 4 em T1 (`docs/marketing/posicionamento.md` "Para quem", "Números de mercado", regra 8; `copy-landing-simulador.md` Seção 8; `kit-de-copy.md` com sete headlines); AC 5 em T7 (`campanha-lista-de-espera/spec.md` CAMP-02 ACs 1, 5, 6; `campanha-o-que-vem/spec.md` VEM-02 AC 7; `STATE.md` AD-025 e Handoff; `HANDOFF.md`); AC 6: `pnpm verify && pnpm site:verificar` saíram 0 em 2026-11-01 (2.164 unitários, 413 de integração, build, 35 estruturais, navegador) |
+| DOR-01 | P1: O teste recorta e lista as seções | Execute | Verified (Verifier PASS em 2026-11-01, `validation.md`): T2, `site/estrutura.test.mjs` (`secao()`, "DOR-01 AC 1", "DOR-01 AC 2", "DOR-01 AC 3", `JA_ISOLADO`); 28 testes verdes no HTML de antes (AC 4) |
+| DOR-02 | P1: A página abre pela dor | Execute | Verified (Verifier PASS em 2026-11-01, `validation.md`): T4 (AC 1 pela lista `SECOES` e "DOR-01 AC 2", a seção `perguntas` entra em T5; AC 2 "VEM-02 AC 1"; ACs 3, 4, 5, 7 em "DOR-02 AC 3", "DOR-02 ACs 4 e 5", "DOR-02 AC 7" de `site/estrutura.test.mjs`; AC 6 em `site/verificar-navegador.mjs`, medida em 768 e 1.440 px); mutantes: sem `dor-destaque` e sem `grid-column` morrem |
+| DOR-03 | P1: Cinco números numa seção só | Execute | Verified (Verifier PASS em 2026-11-01, `validation.md`): T3, `site/index.html` `#numeros` (cinco figuras), `site/estilos.css` (grade 2 e 6 colunas), `site/estrutura.test.mjs` ("revisto por DOR-03 ACs 1 e 2", "DOR-03 AC 3", "DOR-03 ACs 4 e 5"); mutante com "10%" no rodapé morre |
+| DOR-04 | P2: Perguntas frequentes sem script | Execute | Verified (Verifier PASS em 2026-11-01, `validation.md`): T5, `site/index.html` `#perguntas` (nove `<details>`), `site/estilos.css` `.perguntas`, `site/estrutura.test.mjs` "DOR-04 ACs 1 a 4" (AC 5 pelo teste "CAMP-03 AC 5"); mutantes `<details open>` e "sincroniza" morrem |
+| DOR-05 | P1: Para quem paga as contas da casa, sem a história de origem | Execute | Verified (Verifier PASS em 2026-11-01, `validation.md`): T6 (ACs 1 a 4 em "CAMP-02 AC 6, revisto por DOR-05 AC 1" e "DOR-05 ACs 2 a 4" de `site/estrutura.test.mjs`; a inversão única pelo teste "CAMP-03 AC 2") e T4 (AC 5 em "DOR-02 ACs 4 e 5, DOR-05 AC 5"); mutantes "todo casal" e "Para dois" no hero morrem |
+| DOR-06 | P2: Documentos, decisão e gates | Execute | Verified (Verifier PASS em 2026-11-01, `validation.md`): ACs 1 a 4 em T1 (`docs/marketing/posicionamento.md` "Para quem", "Números de mercado", regra 8; `copy-landing-simulador.md` Seção 8; `kit-de-copy.md` com sete headlines); AC 5 em T7 (`campanha-lista-de-espera/spec.md` CAMP-02 ACs 1, 5, 6; `campanha-o-que-vem/spec.md` VEM-02 AC 7; `STATE.md` AD-025 e Handoff; `HANDOFF.md`); AC 6: `pnpm verify && pnpm site:verificar` saíram 0 em 2026-11-01 (2.164 unitários, 413 de integração, build, 35 estruturais, navegador) |
 
 **Coverage:** 6 total, 6 mapeados para tasks (T1 a T7 em `tasks.md`), 0 unmapped
 
@@ -259,7 +259,7 @@ devolve só a tabela de concorrência ou nada.
 
 ## Success Criteria
 
-- [ ] A página abre pela dor nas palavras da pessoa e os cinco números têm fonte e ano
-- [ ] Nenhuma frase fecha o nicho em casais; a história de origem não aparece
-- [ ] `pnpm site:verificar && pnpm verify` saem 0
-- [ ] Verifier PASS em `validation.md`
+- [x] A página abre pela dor nas palavras da pessoa e os cinco números têm fonte e ano (Verifier, 2026-11-01)
+- [x] Nenhuma frase fecha o nicho em casais; a história de origem não aparece (Verifier, 2026-11-01)
+- [x] `pnpm site:verificar && pnpm verify` saem 0 (2026-11-01)
+- [x] Verifier PASS em `validation.md` (2026-11-01: 32/32 ACs, 13/13 mutantes mortos)

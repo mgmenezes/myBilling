@@ -1,7 +1,7 @@
 # Landing pela dor — Tasks
 
 **Spec**: `.specs/features/landing-dor/spec.md`
-**Status**: Tasks concluídas, à espera do Verifier
+**Status**: Concluída e verificada (Verifier PASS em 2026-11-01, `validation.md`)
 **Total**: 7 tasks em 4 fases
 
 > **Por que os testes mudam antes da página.** O teste estrutural recorta cada seção do `id` de uma

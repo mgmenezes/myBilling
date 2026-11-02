@@ -346,11 +346,12 @@
   o nicho em casais e sem a história de origem; o teste estrutural recorta cada seção pelo próprio
   fechamento e lista toda seção.
 - **Completed**: spec `fc01ee7`, T1 `ac76328`, T2 `561febd`, T3 `e4b68e7`, T4 `aaf5526`, T5
-  `3cc45b6`, T6 `4e3875f`, T7 (este registro). Gates: 35 estruturais; verificador de navegador sem
+  `3cc45b6`, T6 `4e3875f`, T7 `5896c2e`, verificação (este registro). Gates: 35 estruturais; verificador de navegador sem
   rolagem nem violação de axe em 360, 768 e 1.440 px, claro e escuro; `pnpm verify` e
   `pnpm site:verificar` em T7.
-- **In-progress**: o Verifier independente da fatia (`validation.md`) roda depois da T7.
-- **Next step**: (1) Verifier PASS; (2) merge de `feat/landing-dor` na `main` e `git push`, com
+- **In-progress**: nenhum. Verifier PASS em 2026-11-01 (`validation.md`: 32/32 ACs, 13/13
+  mutantes mortos, `validate_state.py` 0).
+- **Next step**: (1) o dono lê a página e o posicionamento, que são a voz da marca dele; (2) merge de `feat/landing-dor` na `main` e `git push`, com
   autorização separada do dono; (3) publicar a landing (`cd site && npx vercel deploy --prod`),
   também com autorização; (4) fatia `landing-simulador`: bundle de `src/domain` em
   `site/simulador.js`, seção `simulador` depois do hero (declarada em `SECOES`), casa fictícia,
