@@ -1,6 +1,6 @@
 # QA antes de deployar
 
-> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> O produto se chama **Jano** desde 2026-11-02 (AD-028). Os nomes com `mybilling` neste documento
 > são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório.
 
 Roteiro para exercitar o app **em modo produção**, contra um banco limpo, antes de qualquer deploy.

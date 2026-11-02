@@ -102,14 +102,14 @@ T3 -> T4
 
 ### Phase 2 — Fechamento
 
-#### T4: Documentos vivos, AD-027 e gate completo
-**What**: README, AGENTS, docs e `site/README.md` com Jano e a nota dos identificadores técnicos; posicionamento ("Nome"); AD-027, Handoff, HANDOFF.
+#### T4: Documentos vivos, AD-028 e gate completo
+**What**: README, AGENTS, docs e `site/README.md` com Jano e a nota dos identificadores técnicos; posicionamento ("Nome"); AD-028, Handoff, HANDOFF.
 **Where**: `README.md`, `AGENTS.md`, `docs/design.md`, `docs/deploy.md`, `docs/qa.md`, `docs/importacao.md`, `docs/marketing/posicionamento.md`, `site/README.md`, `.specs/STATE.md`, `.specs/HANDOFF.md`
 **Depends on**: T3
 **Requirement**: NOME-04
 **Done when**:
 - [x] Documentos com Jano e a nota dos identificadores (ACs 1 e 2)
-- [x] AD-027, Handoff, HANDOFF (AC 3)
+- [x] AD-028, Handoff, HANDOFF (AC 3)
 - [x] `pnpm verify && pnpm site:verificar && pnpm test:e2e` saem 0 (AC 4)
 **Tests**: none
 **Gate**: build
@@ -139,3 +139,5 @@ T3 -> T4
   fica registrada para o dono. `pnpm verify` e `pnpm site:verificar` saíram 0. Enquanto isso, a `main`
   ganhou a fatia de exclusão de compra de outra sessão (`10ae97e..dd4fb58`); antes do merge, rebasear e
   rodar o gate de novo.
+- **Rebase (2026-11-02):** a `main` ganhou a exclusão de compra com o AD-027; no rebase, a decisão
+  desta fatia passou a AD-028, e as lições L-078 e L-079 desta fatia passaram a L-081 e L-082.

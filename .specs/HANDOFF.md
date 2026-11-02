@@ -4,7 +4,7 @@
 > Última atualização: 2026-10-28, branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`.
 
 > [!IMPORTANT]
-> **2026-11-02: o app também virou Jano** (fatia `renomear-jano`, AD-027, branch `feat/renomear-jano`,
+> **2026-11-02: o app também virou Jano** (fatia `renomear-jano`, AD-028, branch `feat/renomear-jano`,
 > worktree `.worktrees/renomear-jano`): login com o herói da landing, marca de dois arcos no menu e na
 > aba, nenhuma tela ou mensagem com "myBilling". Banco, contêiner, pacote, repositório e chave do tema
 > continuam `mybilling`. Spec em `.specs/features/renomear-jano/spec.md`.

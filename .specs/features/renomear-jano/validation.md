@@ -52,7 +52,7 @@ it in short.
 | NOME-03 | AC 4 | `src/components/menu-lateral.test.tsx:32,39,45,55,65`; `git grep myBilling -- e2e` only hits `e2e/auth.spec.ts:91` (`not.toContainText`) | ✅ PASS (round 1) |
 | NOME-04 | AC 1 | `docs/design.md:3-4` plus the six others (see Gap 2) | ✅ PASS (round 2) |
 | NOME-04 | AC 2 | `docs/marketing/posicionamento.md:18-21` | ✅ PASS (round 1) |
-| NOME-04 | AC 3 | `.specs/STATE.md:370` `### AD-027`; `.specs/HANDOFF.md:7-10` | ✅ PASS (round 1) |
+| NOME-04 | AC 3 | `.specs/STATE.md:395` `### AD-028` (AD-027 no momento da rodada; renumerada no rebase); `.specs/HANDOFF.md:7-10` | ✅ PASS (round 1) |
 | NOME-04 | AC 4 | round 1: `pnpm verify` 0, `pnpm site:verificar` 0, `pnpm test:e2e` 0 (282/282); round 2 gates below | ✅ PASS |
 
 **Status**: 16/16 ACs matched the spec outcome. 0 spec-precision gaps that block (one note below).

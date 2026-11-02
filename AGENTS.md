@@ -1,6 +1,6 @@
 # Jano — Guidelines do projeto
 
-> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> O produto se chama **Jano** desde 2026-11-02 (AD-028). Os nomes com `mybilling` neste documento
 > são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório.
 
 App de gestão financeira doméstica para duas pessoas. Substitui uma planilha do Google Sheets.

@@ -420,17 +420,21 @@
 
 ## Handoff
 
-- **Feature**: `renomear-jano` (AD-027). Branch `feat/renomear-jano`, worktree
-  `.worktrees/renomear-jano`, a partir de `f9734c1` (`main` em `7f101e8` mais o README da landing com
-  o nome novo do projeto na Vercel). Spec e tasks em `.specs/features/renomear-jano/`.
+- **Feature**: `renomear-jano` (AD-028). Branch `feat/renomear-jano`, worktree
+  `.worktrees/renomear-jano`, rebaseada em 2026-11-02 sobre a `main` em `dbaa672`. Spec e tasks em
+  `.specs/features/renomear-jano/`.
 - **O que é**: o app passa a se chamar Jano em tudo o que se lê, e o login abre pelo herói da landing.
   Os identificadores técnicos continuam `mybilling`.
-- **Completed**: spec `a1fd179`, T1 `cbb07c9`, T2 `cc2987e`, T3 `ee4d0c1`, T4 `0786619`; rodada 1 FAIL
-  `9c7621b`; F1 `8e39cbf`, F2 `ae7e11c`, F3 `d8d7344`; rodada 2 PASS (este registro).
-- **In-progress**: nenhum. Verifier PASS na rodada 2.
-- **Next step**: (1) rebasear sobre a `main`, que ganhou a exclusão de compra, e rodar o gate; (2) merge na `main` e `git push`, com autorização separada do
-  dono; (3) a Vercel do app republica sozinha a cada push na `main`; (4) o projeto do app na Vercel
-  está como `janofincancas`, com um "c" a mais, e o dono quer `janofinancas`.
+- **Completed**: spec, T1 a T4, rodada 1 FAIL, F1 a F3, rodada 2 PASS. No rebase, a decisão passou de
+  AD-027 a AD-028 e as lições desta fatia de L-078 e L-079 a L-081 e L-082, porque a `main` já usava
+  os números.
+- **Na `main`**: a fatia `excluir-compra` (AD-027) está concluída e verificada (PASS na rodada 2,
+  `dbaa672`), já no GitHub.
+- **In-progress**: nenhum.
+- **Next step**: (1) merge na `main` e `git push`, com autorização separada do dono; (2) a Vercel do
+  app republica sozinha a cada push na `main`; (3) o domínio do app mudou para
+  `janofinancas.vercel.app`: o cliente OAuth do Google precisa da origem e da URI de callback novas
+  (`docs/deploy.md`, passo 3).
 - **Blockers**: nenhum.
 - **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava.
 - **Branch**: `feat/renomear-jano`.
