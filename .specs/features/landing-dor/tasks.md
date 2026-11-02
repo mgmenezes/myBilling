@@ -117,10 +117,10 @@ T6 -> T7
 **Requirement**: DOR-01
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: `secao("inicio")` termina no `</section>` do hero, e `secao("x")` falha (AC 1)
-- [ ] Teste: `<section id="x">` injetada no HTML reprova (AC 2)
-- [ ] Teste: "já existe" em `a-seguir` reprova (AC 3)
-- [ ] `node --test site/` verde sem mudar `index.html` (AC 4)
+- [x] Teste: `secao("inicio")` termina no `</section>` do hero, e `secao("x")` falha (AC 1)
+- [x] Teste: `<section id="x">` injetada no HTML reprova (AC 2)
+- [x] Teste: "já existe" em `a-seguir` reprova (AC 3)
+- [x] `node --test site/` verde sem mudar `index.html` (AC 4)
 **Tests**: `site/estrutura.test.mjs` (DOR-01 ACs 1 a 4)
 **Gate**: site
 

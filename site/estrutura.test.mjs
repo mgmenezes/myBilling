@@ -33,6 +33,20 @@ const SECOES = [
   "rodape",
 ];
 
+/**
+ * DOR-01 AC 1: o texto de uma seção, do `<section` ou `<footer` que carrega o
+ * `id` até o fechamento correspondente. Recortar até o `id` da seção seguinte
+ * fazia uma seção nova vazar para a anterior.
+ */
+function secao(id) {
+  const m = html.match(new RegExp(`<(section|footer)\\b[^>]*\\sid="${id}"[\\s\\S]*?<\\/\\1>`));
+  assert.ok(m, `seção #${id} ausente`);
+  return m[0];
+}
+
+/** DOR-01 AC 3: "já" isolado, com fronteiras que enxergam letras acentuadas. */
+const JA_ISOLADO = /(?<!\p{L})já(?!\p{L})/iu;
+
 /** CAMP-02 AC 4, parte: os únicos valores em reais que podem aparecer. */
 const REAIS_PERMITIDOS = new Set(["1.000,00", "333,34", "333,33"]);
 
@@ -86,6 +100,32 @@ test("CAMP-02 AC 1 e VEM-02 AC 7: as oito seções existem e estão na ordem", (
       `#${SECOES[i]} deveria vir depois de #${SECOES[i - 1]}`,
     );
   }
+});
+
+test("DOR-01 AC 1: cada seção é recortada até o próprio fechamento, e uma seção ausente falha", () => {
+  const hero = secao("inicio");
+  assert.match(hero, /<\/section>\s*$/);
+  assert.doesNotMatch(hero, /id="onde-quebra"/);
+  assert.match(secao("rodape"), /<\/footer>\s*$/);
+  assert.throws(() => secao("nao-existe"), /ausente/);
+});
+
+test("DOR-01 AC 2: toda <section> da página tem id e está na lista de ordem", () => {
+  const tags = [...html.matchAll(/<section\b[^>]*>/g)].map((m) => m[0]);
+  const listadas = SECOES.filter((id) => id !== "rodape");
+  assert.equal(tags.length, listadas.length, "uma <section> por id listado");
+  for (const tag of tags) {
+    const id = tag.match(/\sid="([^"]+)"/);
+    assert.ok(id, `seção sem id: ${tag}`);
+    assert.ok(listadas.includes(id[1]), `seção fora da lista de ordem: #${id[1]}`);
+  }
+});
+
+test("DOR-01 AC 3: o padrão de 'já' pega a palavra acentuada e não pega 'jáx'", () => {
+  assert.match("o simulador já existe", JA_ISOLADO);
+  assert.match("Já existe", JA_ISOLADO);
+  assert.doesNotMatch("jáx", JA_ISOLADO);
+  assert.doesNotMatch("ainda não existe", JA_ISOLADO);
 });
 
 test("CAMP-02 AC 6: diz o que o produto é hoje, sem dizer que está disponível", () => {
@@ -281,13 +321,13 @@ const PROMESSAS_PROIBIDAS = [
 ];
 
 test("CAMP-02 AC 2 e VEM-02 AC 2: seis blocos de dor, o primeiro sobre comprar, cada um com a cena e a garantia", () => {
-  const secao = html.slice(html.indexOf('id="onde-quebra"'), html.indexOf('id="comparativo"'));
+  const dores = secao("onde-quebra");
   const blocos = [
-    ...secao.matchAll(/<article\b[^>]*\bclass="[^"]*\bdor\b[^"]*"[^>]*>([\s\S]*?)<\/article>/g),
+    ...dores.matchAll(/<article\b[^>]*\bclass="[^"]*\bdor\b[^"]*"[^>]*>([\s\S]*?)<\/article>/g),
   ];
   assert.equal(blocos.length, 6);
   const temas = ["comprar", "parcela", "fatura", "ano", "luz", "duas pessoas"];
-  const texto = textoVisivel(secao).toLowerCase();
+  const texto = textoVisivel(dores).toLowerCase();
   for (const tema of temas) {
     assert.ok(texto.includes(tema), `dor sem o tema "${tema}"`);
   }
@@ -305,17 +345,19 @@ test("CAMP-02 AC 2 e VEM-02 AC 2: seis blocos de dor, o primeiro sobre comprar, 
 });
 
 test("CAMP-02 AC 3: o comparativo tem linhas em que a planilha ou o caderno ganham", () => {
-  const secao = html.slice(html.indexOf('id="comparativo"'), html.indexOf('id="para-dois"'));
-  assert.match(secao, /<table\b/);
-  const cabecalhos = [...secao.matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
-    textoVisivel(m[1]).trim(),
+  const comparativo = secao("comparativo");
+  assert.match(comparativo, /<table\b/);
+  const cabecalhos = [...comparativo.matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map(
+    (m) => textoVisivel(m[1]).trim(),
   );
   assert.deepEqual(cabecalhos.slice(-3), ["Caderno", "Planilha", "myBilling"]);
-  const linhas = [...secao.matchAll(/<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>/g)].map((m) => m[1]);
+  const linhas = [...comparativo.matchAll(/<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>/g)].map(
+    (m) => m[1],
+  );
   assert.ok(linhas.length >= 5, "ao menos cinco linhas comparadas");
   // Uma linha por tema obrigatório, e em nenhuma delas o myBilling vence.
   for (const tema of ["flexibilidade", "custo", "dispositivo"]) {
-    const linha = secao.match(new RegExp(`<tr\\b[^>]*\\bdata-vantagem="${tema}"[^>]*>`));
+    const linha = comparativo.match(new RegExp(`<tr\\b[^>]*\\bdata-vantagem="${tema}"[^>]*>`));
     assert.ok(linha, `falta a linha em que a planilha ou o caderno ganham por ${tema}`);
     const vence = linha[0].match(/data-vence="([^"]*)"/);
     assert.ok(vence, `linha de ${tema} sem data-vence`);
@@ -331,21 +373,20 @@ test("VEM-02 AC 1: o herói tem a frase do dono e a cena respondida com o que ex
     textoVisivel(h1[1]).trim(),
     "A planilha sabe o que você digitou. O myBilling sabe o que vem.",
   );
-  const hero = html.slice(html.indexOf('id="inicio"'), html.indexOf('id="onde-quebra"'));
-  const texto = textoVisivel(hero).toLowerCase();
+  const texto = textoVisivel(secao("inicio")).toLowerCase();
   assert.match(texto, /quanto vai sobrar/);
   assert.match(texto, /contas fixas/);
   assert.match(texto, /parcelad/);
 });
 
 test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo myBilling, antes das linhas da planilha", () => {
-  const secao = html.slice(html.indexOf('id="comparativo"'), html.indexOf('id="para-dois"'));
-  const linha = secao.match(
+  const comparativo = secao("comparativo");
+  const linha = comparativo.match(
     /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
   );
   assert.ok(linha, "nenhuma linha de dados");
   const linhas = [
-    ...secao.matchAll(
+    ...comparativo.matchAll(
       /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
     ),
   ].map((m) => ({ vence: m[1], tema: textoVisivel(m[2]).trim() }));
@@ -360,13 +401,13 @@ test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo m
 });
 
 test("VEM-02 ACs 4 e 5: a seção 'O que vem a seguir' diz que o simulador não existe, sem 'já' nem 'disponível'", () => {
-  const secao = html.slice(html.indexOf('id="a-seguir"'), html.indexOf('id="rodape"'));
-  assert.match(secao, /<h2\b[^>]*>\s*O que vem a seguir\s*<\/h2>/);
-  const texto = textoVisivel(secao);
+  const aSeguir = secao("a-seguir");
+  assert.match(aSeguir, /<h2\b[^>]*>\s*O que vem a seguir\s*<\/h2>/);
+  const texto = textoVisivel(aSeguir);
   assert.match(texto, /Dá pra comprar\?/);
   assert.match(texto, /ainda não existe/i);
   assert.match(texto, /lista de espera/i);
-  assert.doesNotMatch(texto, /\bjá\b/i);
+  assert.doesNotMatch(texto, JA_ISOLADO);
   assert.doesNotMatch(texto, /dispon[íi]vel/i);
   assert.doesNotMatch(texto, /em breve/i);
   // "em breve" só dentro dos botões da lista (CAMP-04 AC 2), em página nenhuma outra parte.

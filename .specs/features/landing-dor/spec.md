@@ -246,7 +246,7 @@ devolve só a tabela de concorrência ou nada.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DOR-01 | P1: O teste recorta e lista as seções | Tasks | Pending |
+| DOR-01 | P1: O teste recorta e lista as seções | Execute | Implemented: T2, `site/estrutura.test.mjs` (`secao()`, "DOR-01 AC 1", "DOR-01 AC 2", "DOR-01 AC 3", `JA_ISOLADO`); 28 testes verdes no HTML de antes (AC 4) |
 | DOR-02 | P1: A página abre pela dor | Tasks | Pending |
 | DOR-03 | P1: Cinco números numa seção só | Tasks | Pending |
 | DOR-04 | P2: Perguntas frequentes sem script | Tasks | Pending |
