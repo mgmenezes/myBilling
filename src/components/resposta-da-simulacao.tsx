@@ -79,7 +79,7 @@ function Saldo({ rotulo, saldo }: { readonly rotulo: string; readonly saldo: num
   return (
     <div className="flex min-w-0 flex-col gap-0.5 text-right">
       <dt className="text-[13px] text-ink-muted">{rotulo}</dt>
-      <dd className="whitespace-nowrap text-[15px]">
+      <dd className="flex flex-col whitespace-nowrap text-[15px]">
         <span className="text-ink-muted">{apresentado.rotulo}</span>{" "}
         <span className={`tabular ${apresentado.classe}`}>{apresentado.valor}</span>
       </dd>

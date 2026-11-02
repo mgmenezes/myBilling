@@ -419,3 +419,41 @@ test("em Lançamentos, o diálogo de cadastro também responde (SIM-05, AC 5)", 
   await expect(bloco.getByText("Cabe. Nenhum mês fica no vermelho.")).toBeVisible();
   await expect(bloco.getByRole("listitem")).toHaveCount(2);
 });
+
+test("a resposta cabe na largura do formulário: nenhum Antes/Depois passa da borda, no diálogo em 400 px nem na coluna da Visão geral (SIM-05, AC 5)", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 400, height: 900 });
+  await page.goto(`/${MARCO}/lancamentos`);
+  await page.getByRole("button", { name: "+ Novo lançamento" }).click();
+  const dialogo = page.getByRole("dialog");
+  await dialogo.getByRole("tab", { name: "Parcelado" }).click();
+  const noDialogo = dialogo.getByRole("form", { name: "Nova compra" });
+  await noDialogo.getByLabel("Valor total (R$)").fill("200,00");
+  await noDialogo.getByLabel("Quantidade de parcelas").fill("2");
+  const blocoNoDialogo = noDialogo.getByRole("region", { name: "Resposta da simulação" });
+  await expect(blocoNoDialogo.getByRole("listitem")).toHaveCount(2);
+  expect(await transbordoDaResposta(blocoNoDialogo)).toBe(0);
+
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`/${MARCO}`);
+  const cadastro = page.getByRole("region", { name: "Novo lançamento" });
+  await cadastro.getByRole("tab", { name: "Parcelado" }).click();
+  const naVisaoGeral = cadastro.getByRole("form", { name: "Nova compra" });
+  await naVisaoGeral.getByLabel("Valor total (R$)").fill("200,00");
+  await naVisaoGeral.getByLabel("Quantidade de parcelas").fill("2");
+  const blocoNaVisaoGeral = naVisaoGeral.getByRole("region", { name: "Resposta da simulação" });
+  await expect(blocoNaVisaoGeral.getByRole("listitem")).toHaveCount(2);
+  expect(await transbordoDaResposta(blocoNaVisaoGeral)).toBe(0);
+});
+
+/** Quantos pixels o conteúdo mais largo da resposta passa da borda direita dela. Zero é o único valor aceito. */
+async function transbordoDaResposta(bloco: Locator): Promise<number> {
+  return bloco.evaluate((regiao) => {
+    const borda = regiao.getBoundingClientRect().right;
+    const direitas = [...regiao.querySelectorAll("dd")].map(
+      (dd) => dd.getBoundingClientRect().right,
+    );
+    return Math.max(0, Math.ceil(Math.max(...direitas) - borda));
+  });
+}
