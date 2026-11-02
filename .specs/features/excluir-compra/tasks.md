@@ -285,14 +285,14 @@ T12 → T13
 **Requirement**: EXC-02, EXC-04, EXC-05
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Antes do primeiro toque, só "Excluir"; tocar não chama a action e mostra o texto de T8 (EXC-02 AC 1)
-- [ ] O aviso tem "Excluir desta em diante" e "Cancelar", com foco em "Cancelar" (EXC-02 AC 7)
-- [ ] "Excluir desta em diante" chama a action uma vez com `{ lancamentoId }` (EXC-02 AC 8)
-- [ ] Durante a gravação o botão fica desabilitado (EXC-02 AC 10)
-- [ ] "Cancelar" chama `fechar` sem chamar a action (EXC-02 AC 9)
-- [ ] Sucesso chama `avisar` com o texto de `parcelasExcluidas` da resposta (EXC-04 AC 4)
-- [ ] Recusa mostra a mensagem em `role="alert"` e não chama `avisar` (EXC-05 AC 7)
-- [ ] `NADA`: aviso sem "Excluir desta em diante" (EXC-05 AC 5)
+- [x] Antes do primeiro toque, só "Excluir"; tocar não chama a action e mostra o texto de T8 (EXC-02 AC 1)
+- [x] O aviso tem "Excluir desta em diante" e "Cancelar", com foco em "Cancelar" (EXC-02 AC 7)
+- [x] "Excluir desta em diante" chama a action uma vez com `{ lancamentoId }` (EXC-02 AC 8)
+- [x] Durante a gravação o botão fica desabilitado (EXC-02 AC 10)
+- [x] "Cancelar" chama `fechar` sem chamar a action (EXC-02 AC 9)
+- [x] Sucesso chama `avisar` com o texto de `parcelasExcluidas` da resposta (EXC-04 AC 4)
+- [x] Recusa mostra a mensagem em `role="alert"` e não chama `avisar` (EXC-05 AC 7)
+- [x] `NADA`: aviso sem "Excluir desta em diante" (EXC-05 AC 5)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(compras): avisar o alcance antes de excluir a compra no menu da linha`
