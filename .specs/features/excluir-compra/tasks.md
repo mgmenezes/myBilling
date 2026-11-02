@@ -516,12 +516,12 @@ T12 → T13
 **Requirement**: EXC-01, EXC-02, EXC-03, EXC-04, EXC-05
 **Tools**: MCP `playwright` (só para depurar) · Skill NONE
 **Done when**:
-- [ ] Compra 4x de R$ 10,00 de dezembro a março: na 2/4, o aviso lido no menu tem o texto de EXC-02 Independent Test; "Cancelar" fecha sem excluir (EXC-02; L-054)
-- [ ] Com a 3/4 paga, excluir a partir da 2/4: toast "2 parcelas excluídas."; a linha sai de janeiro sem recarregar; março não tem a 4/4; fevereiro ainda tem a 3/4 paga (EXC-03, EXC-04 AC 1, 2, 4)
-- [ ] "Próximos meses" e "Saldo previsto" de janeiro e março sobem R$ 10,00; a 1/4 em dezembro mostra "1/4 · faltam 1" (EXC-04 AC 3, 5; L-014)
-- [ ] Fixo sem "⋯"; avulso ainda pede "Confirmar?" (EXC-01 AC 3, 4)
-- [ ] Alcance todo pago: o aviso de "Nada a excluir" sem botão de excluir (EXC-05 AC 5)
-- [ ] Em 400 px, "⋯" e "Excluir" da parcela com ao menos 44 × 44 (EXC-01 AC 5)
+- [x] Compra 4x de R$ 10,00 de dezembro a março: na 2/4, o aviso lido no menu tem o texto de EXC-02 Independent Test; "Cancelar" fecha sem excluir (EXC-02; L-054)
+- [x] Com a 3/4 paga, excluir a partir da 2/4: toast "2 parcelas excluídas."; a linha sai de janeiro sem recarregar; março não tem a 4/4; fevereiro ainda tem a 3/4 paga (EXC-03, EXC-04 AC 1, 2, 4)
+- [x] "Próximos meses" e "Saldo previsto" de janeiro e março sobem R$ 10,00; a 1/4 em dezembro mostra "1/4 · faltam 1" (EXC-04 AC 3, 5; L-014)
+- [x] Fixo sem "⋯"; avulso ainda pede "Confirmar?" (EXC-01 AC 3, 4)
+- [x] Alcance todo pago: o aviso de "Nada a excluir" sem botão de excluir (EXC-05 AC 5)
+- [x] Em 400 px, "⋯" e "Excluir" da parcela com ao menos 44 × 44 (EXC-01 AC 5)
 **Tests**: e2e
 **Gate**: e2e
 **Commit**: `test(compras): provar a exclusão de compra de ponta a ponta`

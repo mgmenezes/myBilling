@@ -230,11 +230,11 @@ desta em diante já foram pagas. Nada a excluir." e nenhum botão de excluir.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| EXC-01 | P1: "⋯" com "Excluir" na parcela | Execute | Implementing |
-| EXC-02 | P1: O aviso antes de excluir | Execute | Implementing |
-| EXC-03 | P1: O alcance da exclusão | Execute | Implementing |
-| EXC-04 | P1: Depois de excluir | Execute | Implementing |
-| EXC-05 | P1: Recusar sem gravar | Execute | Implementing |
+| EXC-01 | P1: "⋯" com "Excluir" na parcela | Execute | Implemented |
+| EXC-02 | P1: O aviso antes de excluir | Execute | Implemented |
+| EXC-03 | P1: O alcance da exclusão | Execute | Implemented |
+| EXC-04 | P1: Depois de excluir | Execute | Implemented |
+| EXC-05 | P1: Recusar sem gravar | Execute | Implemented |
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Implemented → Verified
 
