@@ -24,6 +24,7 @@ import {
   type CadastroRepository,
   type CompraPersistida,
   type CompraRepository,
+  type CompraVigenteComQtd,
   type EdicaoDeMeioRepository,
   type EntradaCriarRecorrencia,
   type EntradaLancamentoAvulso,
@@ -187,6 +188,80 @@ export class FakeCompraRepository implements CompraRepository {
       }
     }
     return totais;
+  }
+
+  /**
+   * Lê as parcelas do razão, e não da cópia que a compra guarda: o pagamento
+   * marcado depois da compra só vive no razão, como no banco.
+   */
+  async parcelasVigentes(
+    compraIds: ReadonlyArray<string>,
+  ): Promise<ReadonlyMap<string, CompraVigenteComQtd>> {
+    const vigentes = new Map<string, CompraVigenteComQtd>();
+    for (const id of compraIds) {
+      const compra = this.estado.compras.get(id);
+      if (!compra) {
+        continue;
+      }
+      const parcelas = this.parcelasNoRazao(id)
+        .filter((parcela) => parcela.canceladoEm === null)
+        .map((parcela) => ({
+          numero: parcela.numeroParcela ?? 0,
+          competencia: parcela.competencia,
+          valor: parcela.valor,
+          paga: parcela.pagoEm !== null,
+        }));
+      vigentes.set(id, {
+        qtdParcelas: compra.qtdParcelas,
+        valorAmortizadoAnterior: compra.valorAmortizadoAnterior,
+        parcelas,
+      });
+    }
+    return vigentes;
+  }
+
+  /**
+   * Mesmo `WHERE` e mesmo assert do Drizzle: só a parcela não paga e não
+   * cancelada da lista recebe `canceladoEm`, e amortizado + soma das não
+   * canceladas tem que dar o total. Se não der, lança antes de tocar no
+   * estado, que é o que o rollback faz no banco.
+   */
+  async excluirParcelas(
+    compraId: string,
+    numeros: ReadonlyArray<number>,
+    valorTotal: Cents,
+    canceladoEm: string,
+  ): Promise<void> {
+    const compra = this.estado.compras.get(compraId);
+    if (!compra) {
+      throw new Error(`compra inexistente: ${compraId}`);
+    }
+    const alvo = new Set(numeros);
+    const atualizadas = this.parcelasNoRazao(compraId).map((parcela) =>
+      parcela.numeroParcela !== null &&
+      alvo.has(parcela.numeroParcela) &&
+      parcela.pagoEm === null &&
+      parcela.canceladoEm === null
+        ? { ...parcela, canceladoEm }
+        : parcela,
+    );
+    const soma = somar(
+      somarParcelas(atualizadas.filter((parcela) => parcela.canceladoEm === null)),
+      compra.valorAmortizadoAnterior,
+    );
+    if (soma !== valorTotal) {
+      throw new ViolacaoDeConservacao(soma, valorTotal);
+    }
+    for (const parcela of atualizadas) {
+      this.estado.movimentos.set(parcela.id, parcela);
+    }
+    this.estado.compras.set(compraId, { ...compra, valorTotal, parcelas: atualizadas });
+  }
+
+  private parcelasNoRazao(compraId: string): Lancamento[] {
+    return [...this.estado.movimentos.values()]
+      .filter((movimento) => movimento.compraId === compraId)
+      .sort((a, b) => (a.numeroParcela ?? 0) - (b.numeroParcela ?? 0));
   }
 
   async salvarComParcelas(

@@ -2,13 +2,28 @@ import { and, asc, eq, inArray, isNull, type SQL, sql } from "drizzle-orm";
 import {
   type CompraPersistida,
   type CompraRepository,
+  type CompraVigenteComQtd,
   type EntradaSalvarCompra,
   ViolacaoDeConservacao,
 } from "@/application/ports/repositories";
-import { type Cents, type DomainError, err, ok, type ParcelaDaCompra, type Result } from "@/domain";
+import {
+  type Cents,
+  type DomainError,
+  err,
+  ok,
+  type ParcelaDaCompra,
+  type ParcelaVigente,
+  type Result,
+} from "@/domain";
 import type { Executor } from "../client";
 import { compraParcelada, movimento } from "../schema";
-import { deCompetencia, paraCents, paraCentsOuZero, paraLancamento } from "./mapeadores";
+import {
+  deCompetencia,
+  paraCents,
+  paraCentsOuZero,
+  paraCompetencia,
+  paraLancamento,
+} from "./mapeadores";
 
 /**
  * Escrita transacional da compra parcelada.
@@ -128,6 +143,107 @@ export class CompraRepositoryDrizzle implements CompraRepository {
     await this.db.transaction(async (tx) => {
       await tx.update(compraParcelada).set({ categoriaId }).where(eq(compraParcelada.id, compraId));
       await tx.update(movimento).set({ categoriaId }).where(eq(movimento.compraId, compraId));
+    });
+  }
+
+  /**
+   * Um `SELECT` só: a compra com `LEFT JOIN` nas parcelas, e o
+   * `cancelado_em IS NULL` na condição do join, não no `WHERE`, para a compra
+   * sem parcela vigente continuar no mapa com a lista vazia.
+   */
+  async parcelasVigentes(
+    compraIds: ReadonlyArray<string>,
+  ): Promise<ReadonlyMap<string, CompraVigenteComQtd>> {
+    if (compraIds.length === 0) {
+      return new Map();
+    }
+    const linhas = await this.db
+      .select({
+        id: compraParcelada.id,
+        qtdParcelas: compraParcelada.qtdParcelas,
+        amortizado: compraParcelada.valorAmortizadoAnteriorCentavos,
+        numero: movimento.numeroParcela,
+        competencia: movimento.competencia,
+        valor: movimento.valorCentavos,
+        pagoEm: movimento.pagoEm,
+      })
+      .from(compraParcelada)
+      .leftJoin(
+        movimento,
+        and(eq(movimento.compraId, compraParcelada.id), isNull(movimento.canceladoEm)),
+      )
+      .where(inArray(compraParcelada.id, [...compraIds]))
+      .orderBy(asc(movimento.numeroParcela));
+
+    const compras = new Map<string, CompraVigenteComQtd & { parcelas: ParcelaVigente[] }>();
+    for (const linha of linhas) {
+      let compra = compras.get(linha.id);
+      if (!compra) {
+        compra = {
+          qtdParcelas: linha.qtdParcelas,
+          valorAmortizadoAnterior: paraCentsOuZero(
+            linha.amortizado,
+            "compra_parcelada.valor_amortizado_anterior_centavos",
+          ),
+          parcelas: [],
+        };
+        compras.set(linha.id, compra);
+      }
+      // Sem parcela vigente, o `LEFT JOIN` devolve a compra com as colunas de `movimento` nulas.
+      if (linha.numero !== null && linha.competencia !== null && linha.valor !== null) {
+        compra.parcelas.push({
+          numero: linha.numero,
+          competencia: paraCompetencia(linha.competencia, "movimento.competencia"),
+          valor: paraCents(linha.valor, "movimento.valor_centavos"),
+          paga: linha.pagoEm !== null,
+        });
+      }
+    }
+    return compras;
+  }
+
+  /**
+   * O formato de `reprecificar`: as escritas e o assert na mesma transação. O
+   * `WHERE` do cancelamento deixa de fora a parcela paga e a já cancelada; se
+   * uma delas estava na lista, a soma relida não fecha com `valorTotal` e a
+   * transação volta atrás inteira (EXC-03 AC 3 e 6).
+   */
+  async excluirParcelas(
+    compraId: string,
+    numeros: ReadonlyArray<number>,
+    valorTotal: Cents,
+    canceladoEm: string,
+  ): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(movimento)
+        .set({ canceladoEm: new Date(canceladoEm) })
+        .where(
+          and(
+            eq(movimento.compraId, compraId),
+            inArray(movimento.numeroParcela, [...numeros]),
+            isNull(movimento.pagoEm),
+            isNull(movimento.canceladoEm),
+          ),
+        );
+
+      const [compra] = await tx
+        .update(compraParcelada)
+        .set({ valorTotalCentavos: valorTotal })
+        .where(eq(compraParcelada.id, compraId))
+        .returning({ amortizado: compraParcelada.valorAmortizadoAnteriorCentavos });
+      if (!compra) {
+        throw new Error(`compra_parcelada inexistente: ${compraId}`);
+      }
+
+      const [agregado] = await tx
+        .select({ soma: sql<string>`coalesce(sum(${movimento.valorCentavos}), 0)::text` })
+        .from(movimento)
+        .where(and(eq(movimento.compraId, compraId), isNull(movimento.canceladoEm)));
+      const soma = Number.parseInt(agregado?.soma ?? "0", 10) + compra.amortizado;
+      if (soma !== valorTotal) {
+        throw new ViolacaoDeConservacao(soma, valorTotal);
+      }
     });
   }
 

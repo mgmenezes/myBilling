@@ -728,3 +728,113 @@ describe("FakeCompraRepository: trocar a categoria (TRC-03 AC 3 e 5)", () => {
     }).toEqual(antes);
   });
 });
+
+describe("FakeCompraRepository: excluir desta parcela em diante (excluir-compra T3, EXC-03)", () => {
+  const AGORA = "2027-01-15T13:00:00.000Z";
+
+  /** Compra A: 4x de R$ 10,00, de dezembro a março. Compra B: igual, para ver que não muda. */
+  async function quatroDeDez() {
+    const fakes = criarFakes();
+    const plano = gerarParcelas({
+      modo: "VALOR_PARCELA",
+      valorEntrada: cents(1000),
+      qtdParcelas: 4,
+      competenciaCompra: competencia("2026-12"),
+      parcelaInicial: 1,
+      politicaResiduo: "PRIMEIRAS",
+    });
+    if (!plano.ok) {
+      throw new Error("fixture inválida");
+    }
+    const dados = { ...DADOS, qtdParcelas: 4, competenciaCompra: competencia("2026-12") };
+    await fakes.compras.salvarComParcelas({ idempotencyKey: "a", dados, plano: plano.value });
+    await fakes.compras.salvarComParcelas({ idempotencyKey: "b", dados, plano: plano.value });
+    const parcelasDe = (compraId: string) =>
+      [...fakes.estado.movimentos.values()].filter((m) => m.compraId === compraId);
+    return { fakes, parcelasDe };
+  }
+
+  it("parcelasVigentes devolve amortizado, quantidade do plano e só as não canceladas, com o pagamento do razão", async () => {
+    const { fakes } = await quatroDeDez();
+    await fakes.movimentos.marcarPagamento("compra-1#3", "2027-02-10");
+    await fakes.compras.excluirParcelas("compra-1", [4], cents(3000), AGORA);
+
+    const vigentes = await fakes.compras.parcelasVigentes(["compra-1", "fantasma"]);
+
+    expect(vigentes.size).toBe(1);
+    expect(vigentes.get("compra-1")).toEqual({
+      qtdParcelas: 4,
+      valorAmortizadoAnterior: 0,
+      parcelas: [
+        { numero: 1, competencia: "2026-12", valor: 1000, paga: false },
+        { numero: 2, competencia: "2027-01", valor: 1000, paga: false },
+        { numero: 3, competencia: "2027-02", valor: 1000, paga: true },
+      ],
+    });
+  });
+
+  it("cancela 2 e 4 com o instante dado, deixa 1 e 3 iguais e grava o total — AC 1, 2 e 4", async () => {
+    const { fakes, parcelasDe } = await quatroDeDez();
+    const antes = parcelasDe("compra-1");
+
+    await fakes.compras.excluirParcelas("compra-1", [2, 4], cents(2000), AGORA);
+
+    const depois = parcelasDe("compra-1");
+    expect(depois.map((p) => p.canceladoEm)).toEqual([null, AGORA, null, AGORA]);
+    expect(depois[0]).toEqual(antes[0]);
+    expect(depois[2]).toEqual(antes[2]);
+    expect(fakes.estado.compras.get("compra-1")?.valorTotal).toBe(2000);
+    expect(
+      (await fakes.compras.buscarPorId("compra-1"))?.parcelas.map((p) => p.numeroParcela),
+    ).toEqual([1, 3]);
+  });
+
+  it("parcela paga na lista não é cancelada, e o assert lança sem mudar nada — AC 3 e 6", async () => {
+    const { fakes, parcelasDe } = await quatroDeDez();
+    await fakes.movimentos.marcarPagamento("compra-1#3", "2027-02-10");
+    const antes = parcelasDe("compra-1");
+
+    const recusa = fakes.compras.excluirParcelas("compra-1", [2, 3, 4], cents(1000), AGORA);
+
+    await expect(recusa).rejects.toMatchObject({
+      code: "CONSERVACAO_VIOLADA",
+      soma: 2000,
+      valorTotal: 1000,
+    });
+    expect(parcelasDe("compra-1")).toEqual(antes);
+    expect(fakes.estado.compras.get("compra-1")?.valorTotal).toBe(4000);
+  });
+
+  it("total que não fecha lança e nenhuma parcela é cancelada — AC 6", async () => {
+    const { fakes, parcelasDe } = await quatroDeDez();
+    const antes = parcelasDe("compra-1");
+
+    const recusa = fakes.compras.excluirParcelas("compra-1", [2, 4], cents(1999), AGORA);
+
+    await expect(recusa).rejects.toMatchObject({ soma: 2000, valorTotal: 1999 });
+    expect(parcelasDe("compra-1")).toEqual(antes);
+  });
+
+  it("outra compra fica igual — AC 5", async () => {
+    const { fakes, parcelasDe } = await quatroDeDez();
+    const outra = structuredClone({
+      compra: fakes.estado.compras.get("compra-2"),
+      parcelas: parcelasDe("compra-2"),
+    });
+
+    await fakes.compras.excluirParcelas("compra-1", [2, 3, 4], cents(1000), AGORA);
+
+    expect({
+      compra: fakes.estado.compras.get("compra-2"),
+      parcelas: parcelasDe("compra-2"),
+    }).toEqual(outra);
+  });
+
+  it("id inexistente lança, como a compra que o UPDATE não achou", async () => {
+    const { fakes } = await quatroDeDez();
+
+    await expect(
+      fakes.compras.excluirParcelas("fantasma", [1], cents(1000), AGORA),
+    ).rejects.toThrow("compra inexistente");
+  });
+});

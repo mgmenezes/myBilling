@@ -1,9 +1,10 @@
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import type {
-  CompraRepository,
-  DadosCompra,
-  EntradaSalvarCompra,
+import {
+  type CompraRepository,
+  type DadosCompra,
+  type EntradaSalvarCompra,
+  ViolacaoDeConservacao,
 } from "@/application/ports/repositories";
 import {
   type Cents,
@@ -511,5 +512,258 @@ describe("trocarCategoria (TRC-03 AC 3 e 5)", () => {
       null,
       null,
     ]);
+  });
+});
+
+/**
+ * Excluir desta parcela em diante (excluir-compra T3). A compra A é 4x de
+ * R$ 10,00, de dezembro a março: valor redondo para a soma de cabeça.
+ */
+function planoQuatroDeDez(): PlanoParcelamento {
+  const resultado = gerarParcelas({
+    modo: "VALOR_PARCELA",
+    valorEntrada: cents(1000),
+    qtdParcelas: 4,
+    competenciaCompra: competencia("2026-12"),
+    parcelaInicial: 1,
+    politicaResiduo: "PRIMEIRAS",
+  });
+  if (!resultado.ok) {
+    throw new Error("fixture inválida");
+  }
+  return resultado.value;
+}
+
+async function salvarQuatroDeDez(chave: string, descricao: string): Promise<string> {
+  const resultado = await repo.salvarComParcelas(
+    entrada(chave, planoQuatroDeDez(), {
+      descricao,
+      modo: "VALOR_PARCELA",
+      qtdParcelas: 4,
+      competenciaCompra: competencia("2026-12"),
+      dataEvento: "2026-12-05",
+    }),
+  );
+  if (!resultado.ok) {
+    throw new Error(`fixture inválida: ${resultado.error.code}`);
+  }
+  return resultado.value.id;
+}
+
+async function marcarNoBanco(
+  compraId: string,
+  numero: number,
+  coluna: "pago_em" | "cancelado_em",
+): Promise<void> {
+  const valor = coluna === "pago_em" ? "2027-02-10" : "2026-12-20T12:00:00Z";
+  await pool.query(
+    `UPDATE movimento SET ${coluna} = $3 WHERE compra_id = $1 AND numero_parcela = $2`,
+    [compraId, numero, valor],
+  );
+}
+
+describe("parcelasVigentes (excluir-compra T3, EXC-02, EXC-04 AC 5)", () => {
+  it("devolve amortizado, quantidade do plano e só as parcelas não canceladas de cada compra", async () => {
+    const a = await salvarQuatroDeDez("chave-a", "Compra A");
+    await marcarNoBanco(a, 3, "pago_em");
+    await marcarNoBanco(a, 4, "cancelado_em");
+    const emAndamento = await repo.salvarComParcelas(
+      entrada("chave-8-de-10", planoOitoDeDez(), {
+        qtdParcelas: 10,
+        parcelaInicial: 8,
+        competenciaCompra: competencia("2025-08"),
+        modo: "VALOR_PARCELA",
+      }),
+    );
+    if (!emAndamento.ok) {
+      throw new Error("fixture inválida");
+    }
+    const b = emAndamento.value.id;
+
+    const vigentes = await repo.parcelasVigentes([a, b, "99999999-9999-4999-8999-999999999999"]);
+
+    expect(vigentes.size).toBe(2);
+    expect(vigentes.get(a)).toEqual({
+      qtdParcelas: 4,
+      valorAmortizadoAnterior: 0,
+      parcelas: [
+        { numero: 1, competencia: "2026-12", valor: 1000, paga: false },
+        { numero: 2, competencia: "2027-01", valor: 1000, paga: false },
+        { numero: 3, competencia: "2027-02", valor: 1000, paga: true },
+      ],
+    });
+    expect(vigentes.get(b)).toEqual({
+      qtdParcelas: 10,
+      valorAmortizadoAnterior: 42000,
+      parcelas: [
+        { numero: 8, competencia: "2026-03", valor: 6000, paga: false },
+        { numero: 9, competencia: "2026-04", valor: 6000, paga: false },
+        { numero: 10, competencia: "2026-05", valor: 6000, paga: false },
+      ],
+    });
+  });
+
+  it("compra com todas as parcelas canceladas entra com a lista vazia, e lista vazia devolve mapa vazio", async () => {
+    const a = await salvarQuatroDeDez("chave-a", "Compra A");
+    for (const numero of [1, 2, 3, 4]) {
+      await marcarNoBanco(a, numero, "cancelado_em");
+    }
+
+    const vigentes = await repo.parcelasVigentes([a]);
+
+    expect(vigentes.get(a)).toEqual({ qtdParcelas: 4, valorAmortizadoAnterior: 0, parcelas: [] });
+    expect((await repo.parcelasVigentes([])).size).toBe(0);
+  });
+});
+
+describe("excluirParcelas (excluir-compra T3, EXC-03)", () => {
+  const AGORA = "2027-01-15T13:00:00.000Z";
+  let a: string;
+
+  beforeEach(async () => {
+    a = await salvarQuatroDeDez("chave-a", "Compra A");
+  });
+
+  async function parcelas(compraId: string) {
+    const { rows } = await pool.query(
+      `SELECT numero_parcela AS numero, valor_centavos::text AS valor, competencia::text,
+              data_evento::text AS data, categoria_id AS categoria, pago_em::text AS pago,
+              cancelado_em AS cancelado
+         FROM movimento WHERE compra_id = $1 ORDER BY numero_parcela`,
+      [compraId],
+    );
+    return rows as Array<Record<string, unknown> & { cancelado: Date | null }>;
+  }
+
+  async function totalGravado(compraId: string): Promise<number> {
+    const { rows } = await pool.query<{ total: string }>(
+      "SELECT valor_total_centavos::text AS total FROM compra_parcelada WHERE id = $1",
+      [compraId],
+    );
+    return Number(rows[0]?.total);
+  }
+
+  it("cancela 2 e 4 com o instante dado, deixa 1 e 3 iguais e grava o total — AC 1, 2 e 4", async () => {
+    const antes = await parcelas(a);
+
+    await repo.excluirParcelas(a, [2, 4], cents(2000), AGORA);
+
+    const depois = await parcelas(a);
+    expect(depois.map((p) => p.cancelado?.toISOString() ?? null)).toEqual([
+      null,
+      AGORA,
+      null,
+      AGORA,
+    ]);
+    expect(depois[0]).toEqual(antes[0]);
+    expect(depois[2]).toEqual(antes[2]);
+    expect(await totalGravado(a)).toBe(2000);
+  });
+
+  it("parcela paga do alcance fica com o mesmo valor e o mesmo pago_em — AC 3", async () => {
+    await marcarNoBanco(a, 3, "pago_em");
+
+    await repo.excluirParcelas(a, [2, 4], cents(2000), AGORA);
+
+    const terceira = (await parcelas(a))[2];
+    expect(terceira).toMatchObject({
+      numero: 3,
+      valor: "1000",
+      pago: "2027-02-10",
+      cancelado: null,
+    });
+  });
+
+  it("parcela paga na lista não é cancelada, e o assert desfaz tudo — AC 3 e 6", async () => {
+    await marcarNoBanco(a, 3, "pago_em");
+    const antes = await parcelas(a);
+
+    const recusa = repo.excluirParcelas(a, [2, 3, 4], cents(1000), AGORA);
+
+    await expect(recusa).rejects.toBeInstanceOf(ViolacaoDeConservacao);
+    await expect(recusa).rejects.toMatchObject({ soma: 2000, valorTotal: 1000 });
+    expect(await parcelas(a)).toEqual(antes);
+    expect(await totalGravado(a)).toBe(4000);
+  });
+
+  it("total que não fecha lança ViolacaoDeConservacao e nenhuma parcela é cancelada — AC 6", async () => {
+    const antes = await parcelas(a);
+
+    const recusa = repo.excluirParcelas(a, [2, 4], cents(1999), AGORA);
+
+    await expect(recusa).rejects.toMatchObject({
+      code: "CONSERVACAO_VIOLADA",
+      soma: 2000,
+      valorTotal: 1999,
+    });
+    expect(await parcelas(a)).toEqual(antes);
+    expect(await totalGravado(a)).toBe(4000);
+  });
+
+  it("conta o amortizado anterior da compra em andamento no total — AC 4", async () => {
+    const emAndamento = await repo.salvarComParcelas(
+      entrada("chave-8-de-10", planoOitoDeDez(), {
+        qtdParcelas: 10,
+        parcelaInicial: 8,
+        competenciaCompra: competencia("2025-08"),
+        modo: "VALOR_PARCELA",
+      }),
+    );
+    if (!emAndamento.ok) {
+      throw new Error("fixture inválida");
+    }
+
+    await repo.excluirParcelas(emAndamento.value.id, [9, 10], cents(42000 + 6000), AGORA);
+
+    expect(await totalGravado(emAndamento.value.id)).toBe(48000);
+    expect((await parcelas(emAndamento.value.id)).map((p) => p.cancelado !== null)).toEqual([
+      false,
+      true,
+      true,
+    ]);
+  });
+
+  it("outra compra, um avulso e uma ocorrência de fixo da mesma competência ficam iguais — AC 5", async () => {
+    await salvarQuatroDeDez("chave-outra", "Compra B");
+    await pool.query(
+      `INSERT INTO movimento (natureza, origem, descricao, competencia, data_evento, valor_centavos,
+                              usuario_id, meio_pagamento_id)
+       VALUES ('DESPESA', 'AVULSO', 'Avulso A', '2027-01-01', '2027-01-05', 1000, $1, $2)`,
+      [base.usuarioId, base.cartaoId],
+    );
+    const { rows: recorrencia } = await pool.query<{ id: string }>(
+      `INSERT INTO recorrencia (descricao, natureza, usuario_id, meio_pagamento_id,
+                                competencia_inicio, dia_vencimento)
+       VALUES ('Fixo A', 'DESPESA', $1, $2, '2027-01-01', 10) RETURNING id`,
+      [base.usuarioId, base.contaId],
+    );
+    await pool.query(
+      `INSERT INTO movimento (natureza, origem, descricao, competencia, data_evento, valor_centavos,
+                              valor_previsto_centavos, usuario_id, meio_pagamento_id, recorrencia_id)
+       VALUES ('DESPESA', 'RECORRENCIA', 'Fixo A', '2027-01-01', '2027-01-10', 1000, 1000, $1, $2, $3)`,
+      [base.usuarioId, base.contaId, recorrencia[0]?.id],
+    );
+    const fora = async () => ({
+      compra: (await pool.query("SELECT * FROM compra_parcelada WHERE id <> $1", [a])).rows,
+      movimentos: (
+        await pool.query(
+          "SELECT * FROM movimento WHERE compra_id IS DISTINCT FROM $1 ORDER BY origem, id",
+          [a],
+        )
+      ).rows,
+    });
+    const antes = await fora();
+    expect(antes.movimentos.map((m) => m.origem)).toEqual([
+      "AVULSO",
+      "PARCELA",
+      "PARCELA",
+      "PARCELA",
+      "PARCELA",
+      "RECORRENCIA",
+    ]);
+
+    await repo.excluirParcelas(a, [2, 3, 4], cents(1000), AGORA);
+
+    expect(await fora()).toEqual(antes);
   });
 });

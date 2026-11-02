@@ -4,6 +4,7 @@ import type {
   Cents,
   CodigoErro,
   Competencia,
+  CompraVigente,
   DecisoesDaImportacao,
   DomainError,
   Lancamento,
@@ -93,6 +94,9 @@ export class ViolacaoDeConservacao extends Error {
   }
 }
 
+/** As parcelas não canceladas de uma compra, com a quantidade do plano (o "de 4"). */
+export type CompraVigenteComQtd = CompraVigente & { readonly qtdParcelas: number };
+
 export interface CompraRepository {
   /**
    * Grava o plano e as N parcelas em **uma única transação**, com assert de
@@ -138,6 +142,29 @@ export interface CompraRepository {
    * número, data nem pagamento de nenhuma.
    */
   trocarCategoria(compraId: string, categoriaId: string | null): Promise<void>;
+  /**
+   * Amortizado, quantidade do plano e as parcelas **não canceladas** de cada
+   * compra informada, em ordem de número, numa consulta. É o que a lista do mês
+   * usa para o "n/t", o "faltam" e o aviso de exclusão (EXC-02, EXC-04 AC 5).
+   * Id sem compra fica fora do mapa; compra sem parcela vigente entra com a
+   * lista vazia.
+   */
+  parcelasVigentes(
+    compraIds: ReadonlyArray<string>,
+  ): Promise<ReadonlyMap<string, CompraVigenteComQtd>>;
+  /**
+   * Cancela as parcelas de `numeros` que não estão pagas nem canceladas, grava
+   * `valorTotal` na compra e confere a conservação **no banco**, numa
+   * transação: amortizado + soma das não canceladas tem que dar `valorTotal`
+   * (EXC-03 ACs 1 a 4 e 6; AD-027). Parcela paga na lista não é cancelada, e o
+   * assert então falha: lança `ViolacaoDeConservacao` e nada fica gravado.
+   */
+  excluirParcelas(
+    compraId: string,
+    numeros: ReadonlyArray<number>,
+    valorTotal: Cents,
+    canceladoEm: string,
+  ): Promise<void>;
 }
 
 /** Uma ocorrência de recorrência pronta para virar linha de `movimento`. */

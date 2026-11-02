@@ -163,12 +163,12 @@ T12 → T13
 **Requirement**: EXC-03
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] `parcelasVigentes([a, b])`: um `Map` com amortizado, `qtdParcelas` e as parcelas não canceladas de cada compra (número, competência, valor, `paga`); id sem compra fica fora
-- [ ] `excluirParcelas(a, [2, 4], total, agora)`: 2 e 4 com `cancelado_em` = `agora`; 1 e 3 intactas; total gravado (EXC-03 AC 1, 2, 4)
-- [ ] Uma parcela paga na lista de números não é cancelada, e o assert falha com rollback: nada muda (EXC-03 AC 3, 6)
-- [ ] Total que não fecha → `ViolacaoDeConservacao` e nenhuma parcela cancelada (EXC-03 AC 6)
-- [ ] Outra compra, um avulso e uma ocorrência de fixo da mesma competência ficam iguais (EXC-03 AC 5)
-- [ ] O fake faz o mesmo, com teste próprio
+- [x] `parcelasVigentes([a, b])`: um `Map` com amortizado, `qtdParcelas` e as parcelas não canceladas de cada compra (número, competência, valor, `paga`); id sem compra fica fora
+- [x] `excluirParcelas(a, [2, 4], total, agora)`: 2 e 4 com `cancelado_em` = `agora`; 1 e 3 intactas; total gravado (EXC-03 AC 1, 2, 4)
+- [x] Uma parcela paga na lista de números não é cancelada, e o assert falha com rollback: nada muda (EXC-03 AC 3, 6)
+- [x] Total que não fecha → `ViolacaoDeConservacao` e nenhuma parcela cancelada (EXC-03 AC 6)
+- [x] Outra compra, um avulso e uma ocorrência de fixo da mesma competência ficam iguais (EXC-03 AC 5)
+- [x] O fake faz o mesmo, com teste próprio
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(compras): ler parcelas vigentes e cancelar parcelas numa transação`
