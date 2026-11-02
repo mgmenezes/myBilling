@@ -28,6 +28,14 @@ const REGRAS_WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 async function conferirSimulador(pagina, pedidos) {
   const falhas = [];
   const veredito = pagina.locator("#simulador-veredito");
+  // JANO-02 AC 5: o nome do gráfico repete o veredito que está na tela.
+  async function conferirNomeDoGrafico(momento) {
+    const texto = ((await veredito.textContent()) ?? "").trim();
+    const nome = (await pagina.locator("#simulador-grafico").getAttribute("aria-label")) ?? "";
+    if (texto === "" || !nome.endsWith(texto)) {
+      falhas.push(`${momento}: o nome do gráfico não repete o veredito ("${nome}")`);
+    }
+  }
   if (!(await pagina.locator("[data-simulador]").isVisible())) {
     falhas.push("o simulador não ligou: os campos continuam ocultos");
     return falhas;
@@ -39,6 +47,7 @@ async function conferirSimulador(pagina, pedidos) {
   if (!/^Em 10x não cabe: .+ e .+ ficam no vermelho\. Em 12x cabe\.$/.test(inicial)) {
     falhas.push(`veredito inicial inesperado: "${inicial}"`);
   }
+  await conferirNomeDoGrafico("ao carregar");
   const colunas = await pagina.locator("#simulador-grafico .coluna").count();
   if (colunas !== 12) {
     falhas.push(`o gráfico tem ${colunas} colunas, e não 12`);
@@ -68,6 +77,7 @@ async function conferirSimulador(pagina, pedidos) {
   if (depois !== "Cabe. Nenhum mês fica no vermelho.") {
     falhas.push(`em 12x o veredito foi "${depois}"`);
   }
+  await conferirNomeDoGrafico("em 12x");
   const vermelhasDepois = await pagina.locator("#simulador-grafico .coluna-vermelha").count();
   if (vermelhasDepois !== 0) {
     falhas.push(`${vermelhasDepois} meses no vermelho em 12x, e não 0`);
@@ -78,6 +88,7 @@ async function conferirSimulador(pagina, pedidos) {
   if (!/^Em 12x não cabe: .+ no vermelho\. Em \d+x cabe\.$/.test(comOutroValor)) {
     falhas.push(`com R$ 4.800,00 em 12x o veredito foi "${comOutroValor}"`);
   }
+  await conferirNomeDoGrafico("com R$ 4.800,00");
   const externos = pedidos.filter(
     (url) =>
       !url.startsWith("file:") &&

@@ -222,7 +222,7 @@ T7 -> T8
 - [x] **F1** (JANO-04 AC 2): o teste do fuso usa um instante que cai em março em São Paulo e em abril em UTC; o mutante `FUSO = "UTC"` morre.
 - [x] **F2** (JANO-02 AC 4): R$ 2.050,00 em 10x termina um mês em exatamente zero, que não é vermelho.
 - [x] **F3** (JANO-02 AC 3): o navegador também muda o campo do valor e confere o veredito.
-- [ ] **F4** (JANO-02 AC 5): o navegador lê o `aria-label` do gráfico depois de cada resposta.
+- [x] **F4** (JANO-02 AC 5): o navegador lê o `aria-label` do gráfico depois de cada resposta.
 
 ## Deviations
 
