@@ -72,6 +72,12 @@ async function conferirSimulador(pagina, pedidos) {
   if (vermelhasDepois !== 0) {
     falhas.push(`${vermelhasDepois} meses no vermelho em 12x, e não 0`);
   }
+  // JANO-02 AC 3: o campo do valor também recalcula.
+  await pagina.fill("#simulador-valor", "4.800,00");
+  const comOutroValor = ((await veredito.textContent()) ?? "").trim();
+  if (!/^Em 12x não cabe: .+ no vermelho\. Em \d+x cabe\.$/.test(comOutroValor)) {
+    falhas.push(`com R$ 4.800,00 em 12x o veredito foi "${comOutroValor}"`);
+  }
   const externos = pedidos.filter(
     (url) =>
       !url.startsWith("file:") &&
