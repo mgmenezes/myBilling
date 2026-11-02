@@ -120,7 +120,7 @@ T3 -> T4
 
 - [x] **F1** (NOME-03 AC 2): a varredura isenta só os dois testes que afirmam a ausência, pelo nome, e lê também `.js`, `.json` e `.csv`, o pacote incluído; os mutantes em `botao-pago.test.tsx` e no CSV de fixture morrem.
 - [x] **F2** (NOME-04 AC 1): `docs/design.md` ganha a nota dos identificadores técnicos.
-- [ ] **F3** (escopo): o README volta a dizer "para duas pessoas"; a mudança de público não era pedida.
+- [x] **F3** (escopo): o README volta a dizer "para duas pessoas"; a mudança de público não era pedida.
 
 ## Deviations
 
