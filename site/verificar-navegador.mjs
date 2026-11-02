@@ -19,6 +19,71 @@ const LARGURAS = [360, 768, 1440];
 const TEMAS = ["light", "dark"];
 const REGRAS_WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 
+/**
+ * JANO-02 ACs 2 a 4: o simulador liga ao carregar, responde R$ 2.400,00 em 10x
+ * com dois meses no vermelho, e troca para "Cabe." em 12x. Os meses dependem
+ * do mês corrente, então a frase é conferida pela forma, e a cor pela sonda do
+ * token. Devolve as falhas, em texto.
+ */
+async function conferirSimulador(pagina, pedidos) {
+  const falhas = [];
+  const veredito = pagina.locator("#simulador-veredito");
+  if (!(await pagina.locator("[data-simulador]").isVisible())) {
+    falhas.push("o simulador não ligou: os campos continuam ocultos");
+    return falhas;
+  }
+  if (await pagina.locator("[data-simulador-exemplo]").isVisible()) {
+    falhas.push("o exemplo sem JavaScript continua visível com o simulador ligado");
+  }
+  const inicial = ((await veredito.textContent()) ?? "").trim();
+  if (!/^Em 10x não cabe: .+ e .+ ficam no vermelho\. Em 12x cabe\.$/.test(inicial)) {
+    falhas.push(`veredito inicial inesperado: "${inicial}"`);
+  }
+  const colunas = await pagina.locator("#simulador-grafico .coluna").count();
+  if (colunas !== 12) {
+    falhas.push(`o gráfico tem ${colunas} colunas, e não 12`);
+  }
+  const vermelhas = await pagina.locator("#simulador-grafico .coluna-vermelha").count();
+  if (vermelhas !== 2) {
+    falhas.push(`${vermelhas} meses no vermelho em 10x, e não 2`);
+  }
+  const mes = await pagina.evaluate(() => {
+    const rotulo = document.querySelector("#simulador-grafico .coluna-vermelha .coluna-mes");
+    if (!rotulo) {
+      return null;
+    }
+    const sonda = document.createElement("span");
+    sonda.style.color = "var(--negativo)";
+    rotulo.parentElement.append(sonda);
+    const esperado = getComputedStyle(sonda).color;
+    sonda.remove();
+    const estilo = getComputedStyle(rotulo);
+    return { cor: estilo.color, esperado, peso: Number(estilo.fontWeight) };
+  });
+  if (!mes || mes.cor !== mes.esperado || mes.peso < 700) {
+    falhas.push(`o mês no vermelho sem a cor --negativo ou sem negrito: ${JSON.stringify(mes)}`);
+  }
+  await pagina.fill("#simulador-vezes", "12");
+  const depois = ((await veredito.textContent()) ?? "").trim();
+  if (depois !== "Cabe. Nenhum mês fica no vermelho.") {
+    falhas.push(`em 12x o veredito foi "${depois}"`);
+  }
+  const vermelhasDepois = await pagina.locator("#simulador-grafico .coluna-vermelha").count();
+  if (vermelhasDepois !== 0) {
+    falhas.push(`${vermelhasDepois} meses no vermelho em 12x, e não 0`);
+  }
+  const externos = pedidos.filter(
+    (url) =>
+      !url.startsWith("file:") &&
+      !/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(url) &&
+      !url.startsWith("data:"),
+  );
+  if (externos.length > 0) {
+    falhas.push(`chamadas de rede fora das fontes: ${externos.join(", ")}`);
+  }
+  return falhas;
+}
+
 async function verificar() {
   const navegador = await chromium.launch({ channel: "chrome" });
   const falhas = [];
@@ -31,6 +96,9 @@ async function verificar() {
           reducedMotion: "reduce",
         });
         const pagina = await contexto.newPage();
+        // JANO-02 AC 3: nada sai da página além das fontes.
+        const pedidos = [];
+        pagina.on("request", (pedido) => pedidos.push(pedido.url()));
         await pagina.goto(URL_PAGINA, { waitUntil: "load" });
         await pagina.evaluate(() => document.fonts.ready);
 
@@ -109,6 +177,10 @@ async function verificar() {
           falhas.push(
             `${largura}px ${tema}: axe ${violacao.id} (${violacao.impact}): ${violacao.help} em ${alvos}`,
           );
+        }
+
+        for (const falha of await conferirSimulador(pagina, pedidos)) {
+          falhas.push(`${largura}px ${tema}: ${falha}`);
         }
 
         console.log(

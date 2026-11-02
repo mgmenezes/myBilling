@@ -508,6 +508,184 @@ a:hover {
   max-width: none;
 }
 
+.simulador-corpo {
+  display: grid;
+  gap: 18px;
+}
+
+.simulador-corpo[hidden],
+.simulador-exemplo[hidden] {
+  display: none;
+}
+
+.simulador-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+}
+
+.campo {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.campo-rotulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+.campo-controle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.campo-controle:has(input:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.campo-prefixo {
+  font-family: var(--fonte-mono);
+  color: var(--ink-muted);
+}
+
+.campo-controle input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--fonte-mono);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.campo-controle input:focus {
+  outline: none;
+}
+
+.simulador-resposta {
+  display: grid;
+  gap: 4px;
+  min-height: 3.5em;
+}
+
+.simulador-veredito {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.3;
+  max-width: none;
+}
+
+.simulador-veredito[data-estado="cabe"] {
+  color: var(--positivo);
+}
+
+.simulador-veredito[data-estado="nao-cabe"] {
+  color: var(--negativo);
+}
+
+.simulador-veredito[data-estado="aviso"] {
+  color: var(--ink-muted);
+}
+
+.simulador-detalhe,
+.simulador-legenda {
+  font-size: 13px;
+  color: var(--ink-muted);
+  max-width: none;
+}
+
+.simulador-final {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  max-width: none;
+}
+
+/* Doze colunas, uma por mês: o antes por trás, o depois por cima, o que falta
+ * abaixo da linha. As alturas saem do pacote, proporcionais ao maior saldo. */
+.simulador-grafico {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.coluna {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.coluna-cima {
+  position: relative;
+  height: 120px;
+}
+
+.barra-antes {
+  position: absolute;
+  inset: auto 0 0;
+  background: var(--surface-strong);
+  border-radius: 6px 6px 0 0;
+}
+
+.barra-depois {
+  position: absolute;
+  inset: auto 3px 0;
+  background: var(--ink-muted);
+  border-radius: 4px 4px 0 0;
+}
+
+.coluna-linha {
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.coluna-baixo {
+  height: 30px;
+}
+
+.barra-falta {
+  margin: 0 3px;
+  background: var(--negativo);
+  border-radius: 0 0 4px 4px;
+}
+
+.coluna-mes {
+  font-size: 11px;
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+.coluna-vermelha .coluna-mes {
+  color: var(--negativo);
+  font-weight: 700;
+}
+
+@media (min-width: 480px) {
+  .simulador-grafico {
+    gap: 6px;
+  }
+
+  .coluna-mes {
+    font-size: 12px;
+  }
+}
+
 /* ---- Captura do app: moldura com hairline, como um cartão ---- */
 
 .captura {

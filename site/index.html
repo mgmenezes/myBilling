@@ -82,6 +82,8 @@
         });
       })();
     </script>
+    <!-- O simulador do herói (JANO-02): a conta do app empacotada por `pnpm site:construir`. -->
+    <script src="simulador.js" defer></script>
   </head>
   <body>
     <!-- O símbolo do Jano (duas faces de costas) e os glifos do Phosphor Icons do app (Monitor, Sun, Moon). -->
@@ -187,7 +189,54 @@
               </p>
               <p class="suave">Ligue o JavaScript para testar outra compra.</p>
             </div>
-            <div class="simulador-corpo" data-simulador hidden></div>
+            <div class="simulador-corpo" data-simulador hidden>
+              <div class="simulador-campos">
+                <label class="campo">
+                  <span class="campo-rotulo">Valor da compra</span>
+                  <span class="campo-controle">
+                    <span class="campo-prefixo" aria-hidden="true">R$</span>
+                    <input
+                      id="simulador-valor"
+                      name="valor"
+                      inputmode="decimal"
+                      autocomplete="off"
+                      value="2.400,00"
+                    />
+                  </span>
+                </label>
+                <label class="campo">
+                  <span class="campo-rotulo">Em quantas vezes</span>
+                  <span class="campo-controle">
+                    <input
+                      id="simulador-vezes"
+                      name="vezes"
+                      type="number"
+                      inputmode="numeric"
+                      min="1"
+                      max="120"
+                      value="10"
+                    />
+                  </span>
+                </label>
+              </div>
+              <div class="simulador-resposta" aria-live="polite">
+                <p class="simulador-veredito" id="simulador-veredito"></p>
+                <p class="simulador-detalhe" id="simulador-detalhe"></p>
+              </div>
+              <div
+                class="simulador-grafico"
+                id="simulador-grafico"
+                role="img"
+                aria-label="Quanto sobra em cada um dos próximos doze meses depois da compra."
+              ></div>
+              <p class="simulador-legenda">
+                Cinza claro: o que sobrava antes. Cinza escuro: o que sobra depois da compra. Vermelho: o
+                que vai faltar.
+              </p>
+              <p class="simulador-final">
+                Quer essa resposta com as suas contas? <a href="#rodape">Entrar na lista de espera</a>
+              </p>
+            </div>
           </article>
         </div>
       </section>

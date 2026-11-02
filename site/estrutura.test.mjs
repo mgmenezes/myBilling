@@ -162,10 +162,16 @@ test("DOR-05 ACs 2 a 4: para quem paga as contas da casa, sozinho ou a dois, e o
   assert.doesNotMatch(textoVisivel(lista[1]), /R\$/);
 });
 
-test("CAMP-03 AC 5: um script só, inline, e nenhum terceiro além das fontes", () => {
-  const scripts = [...html.matchAll(/<script\b[^>]*>/g)];
-  assert.equal(scripts.length, 1);
-  assert.doesNotMatch(scripts[0][0], /\ssrc=/);
+test("CAMP-03 AC 5, revisto por JANO-05 AC 3: dois scripts, o do tema inline e o simulador local, e nenhum terceiro além das fontes", () => {
+  const scripts = [...html.matchAll(/<script\b[^>]*>/g)].map((m) => m[0]);
+  assert.equal(scripts.length, 2, `scripts: ${scripts.join(" ")}`);
+  const inline = scripts.filter((tag) => !/\ssrc=/.test(tag));
+  const comSrc = scripts.filter((tag) => /\ssrc=/.test(tag));
+  assert.equal(inline.length, 1, "um script inline, o do tema");
+  assert.equal(comSrc.length, 1, "um script com src, o do simulador");
+  assert.match(comSrc[0], /\ssrc="simulador\.js"/);
+  assert.match(comSrc[0], /\sdefer[\s>]/);
+  assert.doesNotMatch(comSrc[0], /type="module"/);
   const externos = [...html.matchAll(/\b(?:href|src)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
   const urlDoFormulario = lerUrlDoFormulario(html);
   for (const url of externos) {
@@ -612,6 +618,41 @@ test("JANO-07 AC 3: a captura da Visão geral em 'sua planilha', a de Lançament
   assert.doesNotMatch(secao("inicio"), /<img\b/);
   assert.match(secao("sua-planilha"), /src="imagens\/visao-geral-claro\.png"/);
   assert.match(secao("onde-quebra"), /src="imagens\/lancamentos-claro\.png"/);
+});
+
+test("JANO-02 ACs 1, 5 e 6: o card tem os dois campos rotulados, a resposta anunciada, o gráfico com nome e a chamada final", () => {
+  const card = secao("inicio").match(/<article\b[^>]*\bid="simulador"[^>]*>([\s\S]*?)<\/article>/);
+  assert.ok(card, "o card do simulador fica no herói");
+  const corpo = card[1];
+  assert.match(corpo, /<h2\b[^>]*>\s*Dá pra comprar\?\s*<\/h2>/);
+  assert.match(textoVisivel(corpo), /casa inventada/);
+  const campo = (rotulo, id) =>
+    corpo.match(
+      new RegExp(
+        `<label\\b[^>]*>(?:(?!<\\/label>)[\\s\\S])*?${rotulo}(?:(?!<\\/label>)[\\s\\S])*?<input\\b[^>]*\\bid="${id}"[^>]*>`,
+      ),
+    );
+  const valor = campo("Valor da compra", "simulador-valor");
+  assert.ok(valor, "campo do valor sem rótulo");
+  assert.match(valor[0], /\bvalue="2\.400,00"/);
+  assert.match(valor[0], /\binputmode="decimal"/);
+  const vezes = campo("Em quantas vezes", "simulador-vezes");
+  assert.ok(vezes, "campo das vezes sem rótulo");
+  assert.match(vezes[0], /\bvalue="10"/);
+  assert.match(vezes[0], /\bmin="1"/);
+  assert.match(vezes[0], /\bmax="120"/);
+  const anunciada = corpo.match(/<div\b[^>]*\baria-live="polite"[^>]*>([\s\S]*?)<\/div>/);
+  assert.ok(anunciada, "resposta sem região anunciada");
+  assert.match(anunciada[1], /\bid="simulador-veredito"/);
+  assert.match(
+    corpo,
+    /<div\b[^>]*\bid="simulador-grafico"[^>]*\brole="img"[^>]*\baria-label="[^"]{20,}"/,
+  );
+  const final = corpo.match(
+    /Quer essa resposta com as suas contas\?[\s\S]*?<a\b[^>]*\bhref="#rodape"[^>]*>([\s\S]*?)<\/a>/,
+  );
+  assert.ok(final, "chamada final ausente");
+  assert.equal(textoVisivel(final[1]).trim(), "Entrar na lista de espera");
 });
 
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {

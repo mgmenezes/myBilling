@@ -164,10 +164,10 @@ T7 -> T8
 **Requirement**: JANO-02, JANO-05 (AC 3)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste estrutural: card, rótulos, "casa inventada", `aria-live`, link final (JANO-02 ACs 1, 5, 6)
-- [ ] Teste estrutural: exatamente os dois scripts, nenhum terceiro (JANO-05 AC 3)
-- [ ] Navegador: ao carregar, o veredito de 2.400 em 10x; ao trocar para 12, "Cabe."; meses vermelhos com `--negativo` e negrito (JANO-02 ACs 2 a 4)
-- [ ] Navegador: sem rolagem em 360 px com o card preenchido; axe sem violação
+- [x] Teste estrutural: card, rótulos, "casa inventada", `aria-live`, link final (JANO-02 ACs 1, 5, 6)
+- [x] Teste estrutural: exatamente os dois scripts, nenhum terceiro (JANO-05 AC 3)
+- [x] Navegador: ao carregar, o veredito de 2.400 em 10x; ao trocar para 12, "Cabe."; meses vermelhos com `--negativo` e negrito (JANO-02 ACs 2 a 4)
+- [x] Navegador: sem rolagem em 360 px com o card preenchido; axe sem violação
 **Tests**: `site/estrutura.test.mjs`, `site/verificar-navegador.mjs`
 **Gate**: navegador
 
@@ -236,3 +236,6 @@ T7 -> T8
   Os links do cabeçalho somem abaixo de 640 px para o cabeçalho caber em 360 px. A chave interna do
   tema, `mybilling:tema`, fica: é nome de armazenamento, não texto, e renomeá-la apagaria a escolha
   de tema de quem já visitou.
+- **Observação para o dono (T5):** em 360 px o card do simulador fica a uma rolagem, depois da linha
+  da história; o quadro "Celular" do canvas punha o simulador antes do botão. A spec não pede essa
+  ordem, então ficou como está.
