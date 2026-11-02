@@ -482,7 +482,7 @@ test("DOR-02 AC 7: o comparativo termina dizendo que a página é sobre o que ai
   );
 });
 
-test("DOR-04 ACs 1 a 4: perguntas frequentes entre 'sua planilha' e 'a seguir', fechadas, com as objeções respondidas", () => {
+test("DOR-04 ACs 1 a 4, revisto por JANO-06 AC 1: perguntas frequentes entre 'sua planilha' e o rodapé, fechadas, com as objeções respondidas", () => {
   assert.equal(SECOES.indexOf("perguntas"), SECOES.indexOf("sua-planilha") + 1);
   assert.equal(SECOES.indexOf("rodape"), SECOES.indexOf("perguntas") + 1);
   const faq = secao("perguntas");
