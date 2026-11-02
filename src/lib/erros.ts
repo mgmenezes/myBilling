@@ -107,6 +107,9 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   IMPORTACAO_PENDENCIA_ABERTA: "Ainda há meio de pagamento ou entrada sem decisão.",
   IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA:
     "Há totais que não batem. Confirme que entendeu a diferença antes de importar.",
+  // SPEC_DEVIATION: a mensagem entrou com o código, em T1, e não em T7.
+  // Reason: todo `CodigoErro` do domínio é exibível, e o código sem mensagem não compila.
+  NADA_A_EXCLUIR: "Todas as parcelas desta em diante já foram pagas. Nada a excluir.",
   VALIDACAO: "Confira os campos destacados.",
   NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
   ACESSO_NEGADO: "Este e-mail não tem acesso ao myBilling.",

@@ -124,15 +124,15 @@ T12 → T13
 **Requirement**: EXC-02, EXC-03, EXC-04
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Compra 4x de R$ 10,00, a partir da 2: `numeros` [2, 3, 4], `total` 3000, `primeira`/`ultima` a 2ª e a 4ª competência, `inteira` false, `valorTotalNovo` = amortizado + 1000 (EXC-03 AC 1, 2, 4)
-- [ ] A partir da 1: `inteira` true; a partir da 4: `numeros` [4] (Edge Cases)
-- [ ] Com a 3 paga, a partir da 2: `numeros` [2, 4], `pagasQueFicam` 1, `total` 2000; com a 3 e a 4 pagas, `pagasQueFicam` 2 (EXC-03 AC 3; L-029)
-- [ ] A partir da 2 com a 2 paga e a 3 não: `numeros` [3, 4] (Edge Cases)
-- [ ] Todas do alcance pagas → `NADA_A_EXCLUIR` com `pagasQueFicam` (EXC-05 AC 5)
-- [ ] `aPartirDe` fora das parcelas → `PARCELA_INICIAL_INVALIDA`
-- [ ] Parcelas de valores diferentes: `total` é a soma dos valores gravados (Edge Cases)
-- [ ] `restantesDepois`: 4x sem cancelada → 2 para a 2; só 1 e 2 vigentes → 0 para a 2 (EXC-04 AC 5)
-- [ ] 100% de branches em `src/domain`
+- [x] Compra 4x de R$ 10,00, a partir da 2: `numeros` [2, 3, 4], `total` 3000, `primeira`/`ultima` a 2ª e a 4ª competência, `inteira` false, `valorTotalNovo` = amortizado + 1000 (EXC-03 AC 1, 2, 4)
+- [x] A partir da 1: `inteira` true; a partir da 4: `numeros` [4] (Edge Cases)
+- [x] Com a 3 paga, a partir da 2: `numeros` [2, 4], `pagasQueFicam` 1, `total` 2000; com a 3 e a 4 pagas, `pagasQueFicam` 2 (EXC-03 AC 3; L-029)
+- [x] A partir da 2 com a 2 paga e a 3 não: `numeros` [3, 4] (Edge Cases)
+- [x] Todas do alcance pagas → `NADA_A_EXCLUIR` com `pagasQueFicam` (EXC-05 AC 5)
+- [x] `aPartirDe` fora das parcelas → `PARCELA_INICIAL_INVALIDA`
+- [x] Parcelas de valores diferentes: `total` é a soma dos valores gravados (Edge Cases)
+- [x] `restantesDepois`: 4x sem cancelada → 2 para a 2; só 1 e 2 vigentes → 0 para a 2 (EXC-04 AC 5)
+- [x] 100% de branches em `src/domain`
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(compras): decidir no domínio o que sai ao excluir desta parcela em diante`

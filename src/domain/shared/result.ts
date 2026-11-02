@@ -45,7 +45,8 @@ export type CodigoErro =
   | "CATEGORIA_EM_RECEITA"
   | "CICLO_NAO_CORRESPONDE_AO_TIPO"
   | "HORIZONTE_INVALIDO"
-  | "PRIMEIRA_PARCELA_FORA_DO_HORIZONTE";
+  | "PRIMEIRA_PARCELA_FORA_DO_HORIZONTE"
+  | "NADA_A_EXCLUIR";
 
 export type DomainError = {
   readonly code: CodigoErro;

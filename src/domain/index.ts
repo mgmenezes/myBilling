@@ -95,6 +95,16 @@ export type {
   LimiteCategoria,
 } from "./orcamento/avaliar-orcamento";
 export { avaliarOrcamento } from "./orcamento/avaliar-orcamento";
+export type {
+  CompraVigente,
+  ErroDaExclusao,
+  ParcelaVigente,
+  PlanoDeExclusao,
+} from "./parcelamento/excluir-desta-em-diante";
+export {
+  planejarExclusaoDestaEmDiante,
+  restantesDepois,
+} from "./parcelamento/excluir-desta-em-diante";
 export { gerarParcelas } from "./parcelamento/gerar-parcelas";
 export { MAX_PARCELAS, ratearParcelas } from "./parcelamento/ratear-parcelas";
 export type {
