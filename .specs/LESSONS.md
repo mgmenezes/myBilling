@@ -474,6 +474,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: EXC-02 AC 9 (G2); src/components/menu-da-linha.tsx:94-97 (spec,foco)
 - last seen: 2026-11-02T20:04:02Z
 
+### L-081 - Varredura que exime arquivos precisa listar as exceções pelo nome e cobrir toda extensão de texto do repositório; isentar uma classe inteira (todo *.test.*) ou ler só algumas extensões deixa o termo voltar em silêncio.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,varredura` · harmful: 0
+- features: renomear-jano
+- evidence: P1/P2 — src/lib/nome-publico.test.ts:20,37 (testes,varredura)
+- last seen: 2026-11-02T19:18:38Z
+
+### L-082 - AC de documentação que lista arquivos precisa ser conferido arquivo por arquivo; trocar só o título de um deles passa despercebido.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `docs,acceptance-criteria` · harmful: 0
+- features: renomear-jano
+- evidence: NOME-04 AC 1 — docs/design.md (docs,acceptance-criteria)
+- last seen: 2026-11-02T19:18:38Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

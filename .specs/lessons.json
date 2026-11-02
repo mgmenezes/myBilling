@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 81,
+  "next_id": 83,
   "lessons": [
     {
       "id": "L-001",
@@ -1423,6 +1423,42 @@
       ],
       "created": "2026-11-02T20:04:02Z",
       "last_seen": "2026-11-02T20:04:02Z"
+    },
+    {
+      "id": "L-081",
+      "key": "surviving_mutant::varredura que exime arquivos precisa listar as excecoes pelo nome e cobrir toda extensao de texto do repositorio isentar uma classe inteira todo test ou ler so algumas extensoes deixa o termo voltar em silencio",
+      "text": "Varredura que exime arquivos precisa listar as exceções pelo nome e cobrir toda extensão de texto do repositório; isentar uma classe inteira (todo *.test.*) ou ler só algumas extensões deixa o termo voltar em silêncio.",
+      "signal": "surviving_mutant",
+      "scope": "testes,varredura",
+      "status": "candidate",
+      "features": [
+        "renomear-jano"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "P1/P2 — src/lib/nome-publico.test.ts:20,37 (testes,varredura)"
+      ],
+      "created": "2026-11-02T19:18:38Z",
+      "last_seen": "2026-11-02T19:18:38Z"
+    },
+    {
+      "id": "L-082",
+      "key": "ac_gap::ac de documentacao que lista arquivos precisa ser conferido arquivo por arquivo trocar so o titulo de um deles passa despercebido",
+      "text": "AC de documentação que lista arquivos precisa ser conferido arquivo por arquivo; trocar só o título de um deles passa despercebido.",
+      "signal": "ac_gap",
+      "scope": "docs,acceptance-criteria",
+      "status": "candidate",
+      "features": [
+        "renomear-jano"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "NOME-04 AC 1 — docs/design.md (docs,acceptance-criteria)"
+      ],
+      "created": "2026-11-02T19:18:38Z",
+      "last_seen": "2026-11-02T19:18:38Z"
     }
   ]
 }
