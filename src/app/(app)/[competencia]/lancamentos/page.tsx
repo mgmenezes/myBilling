@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { excluirCompraDestaParcela } from "@/app/actions/compras";
 import { cancelarLancamento, trocarCategoria } from "@/app/actions/lancamentos";
 import { alternarPagamento, confirmarValorDaOcorrencia } from "@/app/actions/pagamentos";
 import {
@@ -253,6 +254,7 @@ export default async function PaginaDeLancamentos({
             alternarPagamento={alternarPagamento}
             confirmarValor={confirmarValorDaOcorrencia}
             excluir={cancelarLancamento}
+            excluirCompra={excluirCompraDestaParcela}
             trocarCategoria={trocarCategoria}
             recolhidos={recolhidos}
           />

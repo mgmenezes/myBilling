@@ -3,8 +3,10 @@ import userEvent from "@testing-library/user-event";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { excluirCompraDestaParcela } from "@/app/actions/compras";
 import type { cancelarLancamento, trocarCategoria } from "@/app/actions/lancamentos";
 import type {
+  ExclusaoDaParcela,
   IdentificacaoDeParcela,
   LancamentoDoMes,
 } from "@/application/mes/obter-visao-mensal/handler";
@@ -92,6 +94,11 @@ const excluirOk = vi.fn(async () => ({
   data: { id: "l-1", competencia: "2026-03", alterou: true },
 })) as unknown as typeof cancelarLancamento;
 
+const excluirCompraOk = vi.fn(async () => ({
+  ok: true as const,
+  data: { parcelasExcluidas: 2 },
+})) as unknown as typeof excluirCompraDestaParcela;
+
 function lancamento(campos: Partial<Lancamento> & { id: string }): Lancamento {
   return {
     natureza: "DESPESA",
@@ -128,14 +135,16 @@ function blocoPadrao(origem: Lancamento["origem"]): BlocoDoMes {
 
 function item(
   campos: Partial<Lancamento> & { id: string },
-  parcela: Omit<IdentificacaoDeParcela, "exclusao"> | null = null,
+  parcela:
+    | (Omit<IdentificacaoDeParcela, "exclusao"> & { readonly exclusao?: ExclusaoDaParcela })
+    | null = null,
   bloco?: BlocoDoMes,
 ): LancamentoDoMes {
   const l = lancamento(campos);
   return {
     lancamento: l,
-    // A tabela ainda não lê o aviso de exclusão (excluir-compra T4): o fixture não o escolhe.
-    parcela: parcela && { ...parcela, exclusao: { tipo: "NADA" } },
+    // Quem não fala do aviso de exclusão (EXC-02) não precisa escolhê-lo.
+    parcela: parcela && { ...parcela, exclusao: parcela.exclusao ?? { tipo: "NADA" } },
     bloco: bloco ?? blocoPadrao(l.origem),
   };
 }
@@ -149,6 +158,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -183,6 +193,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
@@ -201,6 +212,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -226,6 +238,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
       />,
@@ -243,6 +256,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -273,6 +287,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Lançamento avulso A" })]}
@@ -292,6 +307,7 @@ describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -327,6 +343,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -358,6 +375,7 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -400,6 +418,7 @@ describe("parcela na linha da descrição (LST-05, DENS-01)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={itens}
@@ -466,6 +485,7 @@ describe("valores e situação", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -498,6 +518,7 @@ describe("estado vazio (UI-02, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
       />,
@@ -523,6 +544,7 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -549,6 +571,7 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "2", origem: "AVULSO", categoriaId: "cat-1" })]}
@@ -569,6 +592,7 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "3", origem: "AVULSO", categoriaId: null })]}
@@ -586,6 +610,7 @@ describe("categoria na lista", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "4", origem: "AVULSO", categoriaId: "cat-sumida" })]}
@@ -610,6 +635,7 @@ describe("Receita na entrada e seletor no gasto (TRC-01, TRC-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={itens}
@@ -713,6 +739,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Almoço" })]}
@@ -724,7 +751,11 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
     expect(screen.getByRole("button", { name: "Excluir, Almoço" })).toBeDefined();
   });
 
-  it("não oferece na linha de parcela: removê-la quebraria a soma da compra", () => {
+  /*
+   * Antes de EXC-01 a parcela não tinha "⋯": removê-la quebrava a soma da
+   * compra. Agora ela sai desta em diante, com a soma conservada (AD-027).
+   */
+  it('oferece o "⋯" na linha de parcela, e aberto ele mostra "Excluir" (EXC-01, ACs 1 e 2)', async () => {
     render(
       <TabelaLancamentos
         competenciaCorrente={MARCO}
@@ -732,6 +763,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -750,7 +782,10 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
     );
 
     expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
-    expect(screen.queryByRole("button", { name: /^Mais ações/ })).toBeNull();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Mais ações para Compra parcelada A" }),
+    );
+    expect(screen.getByRole("button", { name: "Excluir, Compra parcelada A" })).toBeDefined();
   });
 
   it("não oferece na linha de gasto fixo: a ocorrência renasce na materialização", () => {
@@ -761,6 +796,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -781,6 +817,7 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[
@@ -791,6 +828,134 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
 
     await userEvent.click(screen.getByRole("button", { name: "Mais ações para Pix recebido" }));
     expect(screen.getByRole("button", { name: "Excluir, Pix recebido" })).toBeDefined();
+  });
+});
+
+/**
+ * Testes derivados de EXC-01 (ACs 1, 2 e 4) e EXC-02 (ACs 1, 8 e 9): o "⋯" da
+ * parcela monta o aviso com o que a visão do mês calculou, e chama a action
+ * que a página passou. Compra em 4x de R$ 10,00, de dezembro de 2026 a março
+ * de 2027, vista na 2/4.
+ */
+describe('o "⋯" da parcela exclui desta em diante (EXC-01, EXC-02)', () => {
+  const PLANO: ExclusaoDaParcela = {
+    tipo: "PLANO",
+    parcelas: 3,
+    primeira: "2027-01",
+    ultima: "2027-03",
+    totalCentavos: 3000,
+    pagasQueFicam: 0,
+    inteira: false,
+  };
+
+  function montar(excluirCompra: typeof excluirCompraDestaParcela = excluirCompraOk) {
+    render(
+      <TabelaLancamentos
+        competenciaCorrente={MARCO}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        excluirCompra={excluirCompra}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
+        lancamentos={[
+          item(
+            {
+              id: "parcela-2",
+              origem: "PARCELA",
+              descricao: "Compra A",
+              compraId: "c1",
+              numeroParcela: 2,
+            },
+            { numero: 2, total: 4, restantes: 2, exclusao: PLANO },
+          ),
+          item({ id: "avulso-1", origem: "AVULSO", descricao: "Almoço" }),
+        ]}
+      />,
+    );
+    return screen.getByRole("button", { name: "Mais ações para Compra A" });
+  }
+
+  const AVISO =
+    "Excluir Compra A desta parcela em diante? Saem 3 parcelas, de Janeiro de 2027 a Março de 2027, somando R$ 30,00. As anteriores ficam.";
+
+  it('"Excluir" mostra, dentro do menu aberto, o aviso que a visão do mês calculou (EXC-02, AC 1)', async () => {
+    const menu = montar();
+    await userEvent.click(menu);
+
+    await userEvent.click(screen.getByRole("button", { name: "Excluir, Compra A" }));
+
+    const painel = document.getElementById(menu.getAttribute("aria-controls") ?? "");
+    expect(painel).not.toBeNull();
+    expect(within(painel as HTMLElement).getByText(AVISO)).toBeDefined();
+  });
+
+  it('"Excluir desta em diante" chama a action que a página passou, com o id da parcela (EXC-02, AC 8)', async () => {
+    const excluirCompra = vi.fn(async () => ({
+      ok: true as const,
+      data: { parcelasExcluidas: 3 },
+    }));
+    const menu = montar(excluirCompra as unknown as typeof excluirCompraDestaParcela);
+    await userEvent.click(menu);
+    await userEvent.click(screen.getByRole("button", { name: "Excluir, Compra A" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Excluir desta em diante" }));
+
+    expect(excluirCompra).toHaveBeenCalledWith({ lancamentoId: "parcela-2" });
+    expect(excluirOk).not.toHaveBeenCalledWith("parcela-2");
+  });
+
+  it('"Cancelar" fecha o menu sem excluir, com o foco no "⋯" (EXC-02, AC 9)', async () => {
+    const excluirCompra = vi.fn();
+    const menu = montar(excluirCompra as unknown as typeof excluirCompraDestaParcela);
+    await userEvent.click(menu);
+    await userEvent.click(screen.getByRole("button", { name: "Excluir, Compra A" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText(AVISO)).toBeNull();
+    expect(document.activeElement).toBe(menu);
+    expect(excluirCompra).not.toHaveBeenCalled();
+  });
+
+  it('Escape fecha o aviso com o foco no "⋯", e reabrir mostra "Excluir" de novo, sem o aviso (EXC-02, AC 9)', async () => {
+    const menu = montar();
+    await userEvent.click(menu);
+    await userEvent.click(screen.getByRole("button", { name: "Excluir, Compra A" }));
+
+    await userEvent.keyboard("{Escape}");
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(menu);
+    await userEvent.click(menu);
+
+    expect(screen.getByRole("button", { name: "Excluir, Compra A" })).toBeDefined();
+    expect(screen.queryByText(AVISO)).toBeNull();
+  });
+
+  it("clicar fora fecha o aviso sem excluir (EXC-02, AC 9)", async () => {
+    const excluirCompra = vi.fn();
+    const menu = montar(excluirCompra as unknown as typeof excluirCompraDestaParcela);
+    await userEvent.click(menu);
+    await userEvent.click(screen.getByRole("button", { name: "Excluir, Compra A" }));
+
+    await userEvent.click(document.body);
+
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText(AVISO)).toBeNull();
+    expect(excluirCompra).not.toHaveBeenCalled();
+  });
+
+  it('o avulso continua em dois toques, "Excluir" e "Confirmar?", sem o aviso da parcela (EXC-01, AC 4)', async () => {
+    montar();
+    await userEvent.click(screen.getByRole("button", { name: "Mais ações para Almoço" }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Excluir, Almoço" }));
+
+    expect(screen.getByRole("button", { name: "Confirmar?, excluir Almoço" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: "Excluir desta em diante" })).toBeNull();
+    expect(screen.queryByText(/desta parcela em diante/)).toBeNull();
   });
 });
 
@@ -814,6 +979,7 @@ describe("a situação vencida aparece na linha (VENC-01, AC 6)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item(campos)]}
@@ -876,6 +1042,7 @@ describe("os dois controles da linha continuam separados (TOQUE-01)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         lancamentos={[item({ id: "1", origem: "AVULSO", descricao: "Almoço" })]}
@@ -910,6 +1077,7 @@ describe("o vazio do mês oferece a saída (VAZIO-01, ACs 1 e 4)", () => {
           alternarPagamento={alternarOk}
           confirmarValor={confirmarOk}
           excluir={excluirOk}
+          excluirCompra={excluirCompraOk}
           opcoesDeCategoria={OPCOES}
           trocarCategoria={trocarOk}
         />
@@ -997,6 +1165,7 @@ describe("blocos que recolhem, com resumo e cookie (LST-02)", () => {
         alternarPagamento={alternarOk}
         confirmarValor={confirmarOk}
         excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
         opcoesDeCategoria={OPCOES}
         trocarCategoria={trocarOk}
         recolhidos={opcoes.recolhidos}

@@ -230,7 +230,7 @@ desta em diante já foram pagas. Nada a excluir." e nenhum botão de excluir.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| EXC-01 | P1: "⋯" com "Excluir" na parcela | Tasks | In Tasks |
+| EXC-01 | P1: "⋯" com "Excluir" na parcela | Execute | Implementing |
 | EXC-02 | P1: O aviso antes de excluir | Execute | Implementing |
 | EXC-03 | P1: O alcance da exclusão | Execute | Implementing |
 | EXC-04 | P1: Depois de excluir | Execute | Implementing |

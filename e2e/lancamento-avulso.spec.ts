@@ -278,7 +278,11 @@ test("o primeiro toque em Excluir não exclui (AVUL-03, AC 7)", async ({ page })
   await expect(linha).toBeVisible();
 });
 
-test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 6)", async ({ page }) => {
+/* Antes de EXC-01 a parcela não tinha "⋯" (AVUL-03, AC 6). Agora tem, e o
+   "Excluir" dela mora dentro do menu, como o do avulso. */
+test('parcela de compra oferece "Excluir" só dentro do "⋯" (EXC-01, ACs 1 e 2)', async ({
+  page,
+}) => {
   await page.goto(`/${MARCO}/lancamentos`);
 
   const compra = await abrirCadastroParcelado(page);
@@ -292,10 +296,10 @@ test("parcela de compra não oferece o controle de excluir (AVUL-03, AC 6)", asy
   const linha = linhaNoBloco(page, "Cartão de Crédito", "Compra parcelada A");
   await expect(linha).toBeVisible();
   await expect(linha.getByRole("button", { name: /^Excluir/ })).toHaveCount(0);
-  /* Nem o menu "⋯", que só existe para o excluir (DENS-02, AC 2). */
-  await expect(linha.getByRole("button", { name: /^Mais ações/ })).toHaveCount(0);
-  /* O selo de pago continua lá: só a exclusão é que não se aplica. */
+  /* O selo de pago continua lá, ao lado do "⋯". */
   await expect(linha.getByRole("button", { name: /Previsto/ })).toBeVisible();
+  await linha.getByRole("button", { name: "Mais ações para Compra parcelada A" }).click();
+  await expect(linha.getByRole("button", { name: "Excluir, Compra parcelada A" })).toBeVisible();
 });
 
 /**

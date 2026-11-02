@@ -1,3 +1,4 @@
+import type { excluirCompraDestaParcela as excluirCompraAction } from "@/app/actions/compras";
 import type {
   cancelarLancamento as cancelarAction,
   trocarCategoria as trocarCategoriaAction,
@@ -22,6 +23,7 @@ import { BlocoRecolhivel } from "./bloco-recolhivel";
 import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
 import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
+import { ExcluirParcelas } from "./excluir-parcelas";
 import { MenuDaLinha } from "./menu-da-linha";
 import { SeletorDeCategoria, type SeletorDeCategoriaProps } from "./seletor-de-categoria";
 import { restoDaParcela } from "./texto-da-parcela";
@@ -131,6 +133,7 @@ export function TabelaLancamentos({
   alternarPagamento,
   confirmarValor,
   excluir,
+  excluirCompra,
   opcoesDeCategoria,
   trocarCategoria,
   recolhidos = [],
@@ -153,8 +156,10 @@ export function TabelaLancamentos({
   /** A action chega por prop: a tabela não conhece infraestrutura nenhuma. */
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
-  /** Só a linha avulsa a exibe; parcela e ocorrência não são canceláveis. */
+  /** O "Excluir" de dois toques do avulso. */
   readonly excluir: typeof cancelarAction;
+  /** O "Excluir" da parcela, desta em diante (EXC-01). A ocorrência de fixo não tem nenhum. */
+  readonly excluirCompra: typeof excluirCompraAction;
   readonly trocarCategoria: typeof trocarCategoriaAction;
   /** Os blocos que o cookie diz estarem recolhidos. Sem cookie, nenhum. */
   readonly recolhidos?: ReadonlyArray<ChaveDeBloco>;
@@ -186,6 +191,7 @@ export function TabelaLancamentos({
         alternarPagamento={alternarPagamento}
         confirmarValor={confirmarValor}
         excluir={excluir}
+        excluirCompra={excluirCompra}
         opcoesDeCategoria={opcoesDeCategoria}
         trocarCategoria={trocarCategoria}
         itens={entradas}
@@ -202,6 +208,7 @@ export function TabelaLancamentos({
           alternarPagamento={alternarPagamento}
           confirmarValor={confirmarValor}
           excluir={excluir}
+          excluirCompra={excluirCompra}
           opcoesDeCategoria={opcoesDeCategoria}
           trocarCategoria={trocarCategoria}
           itens={despesas.filter((item) => item.bloco === bloco.bloco)}
@@ -238,6 +245,7 @@ function BlocoDeLancamentos({
   alternarPagamento,
   confirmarValor,
   excluir,
+  excluirCompra,
   opcoesDeCategoria,
   trocarCategoria,
 }: {
@@ -252,6 +260,7 @@ function BlocoDeLancamentos({
   readonly alternarPagamento: typeof alternarPagamentoAction;
   readonly confirmarValor: typeof confirmarValorAction;
   readonly excluir: typeof cancelarAction;
+  readonly excluirCompra: typeof excluirCompraAction;
   readonly opcoesDeCategoria: SeletorDeCategoriaProps["categorias"];
   readonly trocarCategoria: typeof trocarCategoriaAction;
 }) {
@@ -359,9 +368,23 @@ function BlocoDeLancamentos({
                       {situacaoDe(item, competenciaCorrente) === "VENCIDO" ? (
                         <Chip tom="negativo">Vencido</Chip>
                       ) : null}
-                      {/* Parcela quebraria a soma da compra; ocorrência renasce
-                        na materialização seguinte. Nem uma nem outra oferece. */}
-                      {lancamento.origem === "AVULSO" ? (
+                      {/* O avulso exclui em dois toques; a parcela avisa o que
+                        sai dos meses seguintes antes (EXC-01, EXC-02). A
+                        ocorrência de fixo renasce na materialização seguinte e
+                        não oferece: ela se encerra em Todo mês. */}
+                      {parcela !== null ? (
+                        <MenuDaLinha descricao={lancamento.descricao}>
+                          {(fechar) => (
+                            <ExcluirParcelas
+                              lancamentoId={lancamento.id}
+                              descricao={lancamento.descricao}
+                              exclusao={parcela.exclusao}
+                              excluir={excluirCompra}
+                              fechar={fechar}
+                            />
+                          )}
+                        </MenuDaLinha>
+                      ) : lancamento.origem === "AVULSO" ? (
                         <MenuDaLinha descricao={lancamento.descricao}>
                           {() => (
                             <BotaoExcluir

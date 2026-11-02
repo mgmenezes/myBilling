@@ -377,17 +377,18 @@ for (const largura of [1024, 1280, 1440]) {
 test.describe("o menu da linha, em 1.920 px", () => {
   test.use({ viewport: { width: 1920, height: 1080 } });
 
-  test('só as linhas de avulso têm o "⋯", e nenhuma linha mostra "Excluir" fora dele (DENS-02, ACs 1, 2 e 6)', async ({
+  /* Desde EXC-01 a parcela também tem o "⋯"; só o fixo continua sem. */
+  test('avulso e parcela têm o "⋯", o fixo não, e nenhuma linha mostra "Excluir" fora dele (DENS-02, ACs 1, 2 e 6; EXC-01, ACs 1 e 3)', async ({
     page,
   }) => {
     await abrir(page, `/${MARCO}/lancamentos`);
 
-    for (const avulso of ["Entrada A", "Item A", "Item B"]) {
+    for (const comMenu of ["Entrada A", "Item A", "Item B", "Compra A"]) {
       await expect(
-        linha(page, avulso).getByRole("button", { name: `Mais ações para ${avulso}` }),
+        linha(page, comMenu).getByRole("button", { name: `Mais ações para ${comMenu}` }),
       ).toBeVisible();
     }
-    for (const outro of ["Fixo A", "Fixo B", "Compra A"]) {
+    for (const outro of ["Fixo A", "Fixo B"]) {
       await expect(linha(page, outro).getByRole("button", { name: /^Mais ações/ })).toHaveCount(0);
     }
     await expect(page.getByRole("button", { name: /^Excluir/ })).toHaveCount(0);
