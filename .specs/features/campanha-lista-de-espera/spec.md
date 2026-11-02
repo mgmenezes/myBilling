@@ -176,7 +176,9 @@ que o app construiu.
 4. IF a folha do Google Fonts não carregar THEN the page SHALL cair para a pilha de sistema e
    SHALL continuar legível, porque toda regra de fonte declara a pilha de reserva
 5. The page SHALL carregar no máximo um `<script>`, o do tema, inline, e SHALL não carregar nenhum
-   recurso de terceiros além da folha de fontes
+   recurso de terceiros além da folha de fontes (revisto por `landing-jano`, JANO-05 AC 3: dois
+   scripts, o do tema inline e `simulador.js` local com `defer`, gerado da conta do app; nenhum
+   terceiro)
 6. WHILE em 360, 768 e 1440 pixels, claro e escuro, the page SHALL não ter rolagem horizontal
    (`scrollWidth` igual a `clientWidth`) e SHALL não ter violação de axe-core nas regras WCAG 2.1 AA
 7. The page SHALL usar monoespaçada em toda grandeza numérica isolada (valor, percentual, parcela) e

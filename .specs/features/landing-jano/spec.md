@@ -299,7 +299,7 @@ atrás do código do app.
 | JANO-05 | P1: O pacote versionado e fresco | Execute | Implementing: ACs 1, 2 e 4 em T3 (`site/construir.mjs`, `pnpm site:construir`, "JANO-05 ACs 1 e 2", `biome.json` ignora `site/simulador.js`); mutantes "frase mudada sem reconstruir" e "resíduo nas últimas" morrem; AC 3 em T5 ("CAMP-03 AC 5, revisto por JANO-05 AC 3") |
 | JANO-06 | P2: A página não promete o que não existe | Execute | Implemented: T6, `site/estrutura.test.mjs` ("JANO-06 ACs 1 e 2", "JANO-06 AC 3", "JANO-06 AC 4"); a regra de "em breve" sai do teste apagado e vira "VEM-04 AC 1" |
 | JANO-07 | P2: As capturas sem o nome antigo | Execute | Implemented: AC 1 em T7 (`site/capturar.mjs` recorta a partir do `<main>`; quatro imagens regeneradas e conferidas); ACs 2 e 4 em "JANO-07 ACs 2 e 4"; AC 3 em "JANO-07 AC 3" (T4) |
-| JANO-08 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 3 em T1 (`posicionamento.md` seções "Nome" e "O produto em uma frase", sem "O que vem a seguir", nota do 14%; `kit-de-copy.md` com 8 headlines, a primeira "Antes de parcelar, pergunte ao Jano.", 0 "myBilling", 0 "ainda não existe"); ACs 4 e 5 em T8 |
+| JANO-08 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 3 em T1 (`posicionamento.md` seções "Nome" e "O produto em uma frase", sem "O que vem a seguir", nota do 14%; `kit-de-copy.md` com 8 headlines, a primeira "Antes de parcelar, pergunte ao Jano.", 0 "myBilling", 0 "ainda não existe"); AC 4 em T8 (CAMP-03 AC 5, VEM-02 ACs 1, 4, 5 e 7, DOR-02 AC 1 e DOR-04 AC 1 anotados; AD-026 e Handoff em `STATE.md`; `HANDOFF.md`; `site/README.md`); AC 5: `pnpm verify && pnpm site:verificar` saíram 0 em 2026-11-02 |
 
 **Coverage:** 8 total, 8 mapeados para tasks (T1 a T8 em `tasks.md`), 0 unmapped
 

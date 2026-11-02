@@ -4,6 +4,13 @@
 > Última atualização: 2026-10-28, branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`.
 
 > [!IMPORTANT]
+> **2026-11-02: a landing virou Jano** (fatia `landing-jano`, AD-026, branch `feat/landing-jano`,
+> worktree `.worktrees/landing-jano`): manchete "Antes de parcelar, pergunte ao Jano.", o simulador
+> "Dá pra comprar?" funcionando no herói com a conta do app empacotada em `site/simulador.js`
+> (`pnpm site:construir`), "O que vem a seguir" fora e capturas sem o menu lateral. Só a landing
+> mudou de nome: o app continua myBilling até domínio e INPI. Spec em
+> `.specs/features/landing-jano/spec.md`; handoff curto em `.specs/STATE.md`.
+>
 > **2026-11-01, à noite: a landing abriu pela dor** (fatia `landing-dor`, AD-025, branch
 > `feat/landing-dor`, que é `feat/campanha-lista-de-espera` rebaseado sobre a `main`, worktree
 > `.worktrees/landing-dor`): parágrafo de abertura nas palavras da pessoa, a cena "Dá pra comprar?"

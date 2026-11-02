@@ -100,6 +100,8 @@ que vem nos próximos meses, e saber o que ele ainda vai ganhar.
 
 1. The page SHALL ter no `<h1>` a frase escolhida pelo dono e, no parágrafo do herói, a cena
    respondida com o que existe (parcelas e contas fixas nos meses seguintes, e quanto vai sobrar)
+   (revisto por `landing-jano`, JANO-01 AC 3: o `<h1>` passa a "Antes de parcelar, pergunte ao
+   Jano.", escolha do dono em 2026-11-02)
 2. WHILE na seção "Onde as contas da casa quebram", the page SHALL ter seis blocos, o primeiro com o
    tema "dá pra comprar" (cena: decidir pelo saldo de hoje; garantia: o mês seguinte já nasce com o
    que foi decidido e a Visão geral diz quanto vai sobrar ou faltar), seguido dos cinco blocos
@@ -108,15 +110,18 @@ que vem nos próximos meses, e saber o que ele ainda vai ganhar.
    vence, antes das linhas em que a planilha ou o caderno ganham
 4. The page SHALL ter uma seção `id="a-seguir"`, entre os números de mercado e o rodapé, com o
    título "O que vem a seguir", que diz que o simulador "Dá pra comprar?" ainda não existe, o que ele
-   vai fazer, e que a lista de espera recebe primeiro
+   vai fazer, e que a lista de espera recebe primeiro (revisto por `landing-jano`, JANO-06: a seção
+   sai, porque o simulador passou a existir na página; decisão do dono em 2026-11-02)
 5. The page SHALL não conter "em breve" fora dos botões da lista, nem "já" ou "disponível" na seção
-   `a-seguir`, nem nenhuma promessa da lista "O que nunca prometer"
+   `a-seguir`, nem nenhuma promessa da lista "O que nunca prometer" (revisto por `landing-jano`,
+   JANO-06: sem a seção, vale só "em breve" fora dos botões e as promessas proibidas)
 6. The page SHALL manter os valores em reais dentro da allowlist e o tom sem exclamação, travessão
    e emoji
 7. The page SHALL continuar com uma ordem de seções provada pelo teste estrutural: inicio,
    onde-quebra, comparativo, para-dois, sua-planilha, numeros, a-seguir, rodape (revisto por
    `landing-dor`, DOR-02 AC 1: numeros vem depois de onde-quebra e perguntas entra antes de a-seguir;
-   o teste passa a exigir que toda `<section>` esteja na lista)
+   o teste passa a exigir que toda `<section>` esteja na lista; revisto de novo por `landing-jano`,
+   JANO-06 AC 1: a-seguir sai)
 
 **Independent Test**: abrir a página e responder "o que o app sabe que a planilha não sabe" e "o
 que ainda não existe"; as duas respostas estão na tela.

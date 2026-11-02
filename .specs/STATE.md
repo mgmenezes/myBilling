@@ -334,32 +334,56 @@
 
 ---
 
+### AD-026
+- **Decision**: A landing passa a se chamar **Jano** e abre por "Antes de parcelar, pergunte ao Jano.",
+  com o selo "Contas da casa, mês a mês" e o simulador "Dá pra comprar?" funcionando ao lado da
+  manchete. **Só a landing e os documentos de marketing** mudam de nome: o app, o repositório, a
+  chave de tema `mybilling:tema` e o projeto na Vercel continuam myBilling até o domínio e a busca no
+  INPI. O simulador da landing é um **pacote gerado** da conta do app: `site/simulador.js`, IIFE
+  feito por esbuild 0.28.2 (devDependency fixa) a partir de `site/fonte/simulador.ts`, que importa
+  `planoDaCompra`, `simularCompra`, `menorParcelamentoQueCabe` e as frases de
+  `src/components/texto-do-veredito.ts` (módulo puro tirado de `resposta-da-simulacao.tsx`). O pacote
+  vai versionado e um teste reconstrói em memória e reprova quando ele fica para trás. A página
+  carrega dois scripts: o do tema, inline, e `simulador.js`, local, com `defer`. A casa é inventada,
+  doze saldos redondos a partir do mês corrente em São Paulo. "O que vem a seguir" sai; as capturas
+  perdem o menu lateral.
+- **Rationale**: decisões do dono em 2026-11-02: falta de clareza "logo de cara" comparada a Junta,
+  Ahead, Fikko e Organizze; "gostei do modelo C e a headline"; "vamos de Jano" (Juno caiu por ser
+  fintech brasileira); "vamos na opção 1"; só a landing agora; simulador funcionando; capturas
+  recortadas; "O que vem a seguir" sai. Reescrever a conta na landing faria "a conta é a mesma do
+  app" mentir; versionar o pacote evita build na Vercel. Script de módulo é bloqueado pelo Chrome em
+  `file://`, por isso IIFE.
+- **Alternatives**: card com resultado fixo; renomear o app junto; Juno, Calenda, Lunário e os nomes
+  populares (`novo-nome` na memória); módulo ES; reescrever a conta no site; manter "O que vem a
+  seguir" falando da fatura.
+- **Scope**: `site/index.html`, `site/estilos.css`, `site/fonte/`, `site/construir.mjs`,
+  `site/simulador.js`, `site/simulador.test.mjs`, `site/estrutura.test.mjs`,
+  `site/verificar-navegador.mjs`, `site/capturar.mjs`, `site/imagens/`,
+  `src/components/texto-do-veredito.ts`, `src/components/resposta-da-simulacao.tsx`,
+  `src/components/simulador.tsx`, `docs/marketing/`, `package.json`, `biome.json`; revisa CAMP-03
+  AC 5, VEM-02 ACs 1, 4, 5 e 7, DOR-02 AC 1 e DOR-04 AC 1. Spec em `.specs/features/landing-jano/`.
+- **Date**: 2026-11-02
+- **Status**: active
+
+---
+
 ## Handoff
 
-- **Feature**: `landing-dor`, a landing pela dor (AD-025). Branch `feat/landing-dor`, worktree
-  `.worktrees/landing-dor`, criado de `feat/campanha-lista-de-espera` rebaseado sobre a `main`
-  (`99d74d4`); o branch da campanha não foi reescrito. Spec, tasks e traceability em
-  `.specs/features/landing-dor/`. Plano aprovado em `~/.claude/plans/sprightly-inventing-sunrise.md`;
-  canvas com os quadros Hoje, A, B e C em https://claude.ai/artifact/1DrgD3Nq2PGDTDHxhoyyZC.
-- **O que é**: a landing abre pela dor nas palavras da pessoa, com a cena "Dá pra comprar?" em
-  destaque, cinco números de 2026 numa seção só, perguntas frequentes sem script, público sem fechar
-  o nicho em casais e sem a história de origem; o teste estrutural recorta cada seção pelo próprio
-  fechamento e lista toda seção.
-- **Completed**: spec `fc01ee7`, T1 `ac76328`, T2 `561febd`, T3 `e4b68e7`, T4 `aaf5526`, T5
-  `3cc45b6`, T6 `4e3875f`, T7 `5896c2e`, verificação (este registro). Gates: 35 estruturais; verificador de navegador sem
-  rolagem nem violação de axe em 360, 768 e 1.440 px, claro e escuro; `pnpm verify` e
-  `pnpm site:verificar` em T7.
-- **In-progress**: nenhum. Verifier PASS em 2026-11-01 (`validation.md`: 32/32 ACs, 13/13
-  mutantes mortos, `validate_state.py` 0).
-- **Next step**: (1) o dono lê a página e o posicionamento, que são a voz da marca dele; (2) merge de `feat/landing-dor` na `main` e `git push`, com
-  autorização separada do dono; (3) publicar a landing (`cd site && npx vercel deploy --prod`),
-  também com autorização; (4) fatia `landing-simulador`: bundle de `src/domain` em
-  `site/simulador.js`, seção `simulador` depois do hero (declarada em `SECOES`), casa fictícia,
-  revisão de CAMP-03 AC 5, e "O que vem a seguir" reescrita; (5) decisões pendentes do dono, em
-  `docs/marketing/copy-landing-simulador.md`: estender "O que vem a seguir" à fatura, a promessa
-  "sem novidade, sem e-mail", dizer "doze meses" agora que o horizonte está na `main`, e o kit de
-  copy para o público mais largo.
+- **Feature**: `landing-jano` (AD-026). Branch `feat/landing-jano`, worktree `.worktrees/landing-jano`,
+  a partir da `main` em `f219110`. Spec, design, tasks e traceability em
+  `.specs/features/landing-jano/`. Canvas do protótipo:
+  https://claude.ai/artifact/WDUfpjEipw9geX6fuyG23j (quadro "Jano 1").
+- **O que é**: a landing se chama Jano, abre por "Antes de parcelar, pergunte ao Jano." e traz o
+  simulador funcionando no herói, com a conta e as frases do app empacotadas em `site/simulador.js`,
+  sobre uma casa inventada; "O que vem a seguir" saiu; as capturas não mostram o menu lateral.
+- **Completed**: spec `03de964`, T1 `bcdd768`, T2 `acea20d`, T3 `0f07e45`, T4 `6e641db`, T5 `2bef922`,
+  T6 `fe31db7`, T7 `03ebfe9`, T8 (este registro).
+- **In-progress**: o Verifier independente da fatia (`validation.md`) roda depois da T8.
+- **Next step**: (1) Verifier PASS; (2) o dono lê a página; (3) merge na `main`, `git push` e
+  publicação (`cd site && npx vercel deploy --prod`), cada um com autorização separada; (4) antes de
+  renomear o app: domínio (jano.app está à venda; usejano, meujano, janocasa e janodacasa livres em
+  2026-11-02) e busca no INPI nas classes 9, 36 e 42; (5) a marca de dois arcos é provisória.
 - **Blockers**: nenhum.
 - **Uncommitted files**: nenhum.
-- **Branch**: `feat/landing-dor`.
+- **Branch**: `feat/landing-jano`.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.

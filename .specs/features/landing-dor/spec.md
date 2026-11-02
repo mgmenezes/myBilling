@@ -106,7 +106,8 @@ depois do hero, para entender em uma rolagem onde o mês quebra e o que o myBill
 **Acceptance Criteria**
 
 1. The page SHALL ter as seções nesta ordem: inicio, onde-quebra, numeros, comparativo, para-dois,
-   sua-planilha, perguntas, a-seguir, rodape, e nenhuma outra
+   sua-planilha, perguntas, a-seguir, rodape, e nenhuma outra (revisto por `landing-jano`, JANO-06
+   AC 1: a-seguir sai; e JANO-01 AC 3: o `<h1>` passa a "Antes de parcelar, pergunte ao Jano.")
 2. The page SHALL manter no `<h1>` a frase "A planilha sabe o que você digitou. O myBilling sabe o
    que vem."
 3. The hero SHALL ter, abaixo dos botões, a frase "A lista pede o e-mail e uma pergunta: como você
@@ -162,7 +163,8 @@ pessoa, celular, custo, dados) antes de deixar o e-mail.
 **Acceptance Criteria**
 
 1. The page SHALL ter `section#perguntas` entre `sua-planilha` e `a-seguir`, com o `<h2>`
-   "Perguntas frequentes"
+   "Perguntas frequentes" (revisto por `landing-jano`, JANO-06 AC 1: entre `sua-planilha` e
+   `rodape`)
 2. The seção `perguntas` SHALL ter ao menos seis `<details>`, nenhum com o atributo `open`, cada um
    com um `<summary>` como primeiro filho cujo texto termina em "?", seguido de ao menos um `<p>`
 3. The texto da seção `perguntas` SHALL conter, entre outros, "planilha", "banco", "outra pessoa",

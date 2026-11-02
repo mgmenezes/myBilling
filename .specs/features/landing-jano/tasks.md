@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/landing-jano/spec.md`
 **Design**: `.specs/features/landing-jano/design.md`
-**Status**: Aprovadas pelo dono em 2026-11-02 ("sim, pode implementar"), em execução
+**Status**: Tasks concluídas, à espera do Verifier
 **Total**: 8 tasks em 4 fases
 
 > **Por que a frase e o pacote vêm antes da página.** A landing promete "a conta é a mesma do app".
@@ -210,8 +210,8 @@ T7 -> T8
 **Requirement**: JANO-08 (ACs 4 e 5)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Specs anotadas; AD-026 e Handoff; `HANDOFF.md`; README (AC 4)
-- [ ] `pnpm verify && pnpm site:verificar` saem 0 (AC 5)
+- [x] Specs anotadas; AD-026 e Handoff; `HANDOFF.md`; README (AC 4)
+- [x] `pnpm verify && pnpm site:verificar` saem 0 (AC 5)
 **Tests**: none
 **Gate**: build
 
