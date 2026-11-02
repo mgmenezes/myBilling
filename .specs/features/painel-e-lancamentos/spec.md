@@ -46,6 +46,9 @@ Explicitamente excluído desta fatia.
 | Rótulo do quarto indicador | "Saldo previsto" em Planejamento, "Saldo do período" em Movimentações | O termo "saldo disponível" seria falso: nenhum dado no sistema representa conta bancária | y |
 | Exclusão de lançamento | Só despesa avulsa e receita, com confirmação. Parcela de compra não é excluível nesta fatia | Excluir uma parcela isolada quebra a conservação da soma, que é invariante do domínio (I3). O caminho correto passa pela edição com escopo, que é fatia 3 | n |
 
+> **Mudou em `excluir-compra` (EXC-01 a EXC-05, AD-027):** a parcela agora tem "⋯" com "Excluir", que
+> tira a compra desta parcela em diante, menos as pagas, e conserva a soma da compra.
+
 **Open questions:** none. Todas resolvidas com o usuário ou registradas como assumption acima.
 
 ---
@@ -169,6 +172,9 @@ Explicitamente excluído desta fatia.
 3. WHEN a marcação é alterada THEN o sistema SHALL atualizar os quatro indicadores sem recarga manual da página
 4. WHEN uma despesa avulsa ou receita é excluída THEN o sistema SHALL pedir confirmação que nomeia o lançamento antes de remover
 5. IF o lançamento é parcela de uma compra parcelada THEN o sistema SHALL não oferecer exclusão, porque remover uma parcela isolada quebraria a conservação da soma da compra
+
+> **Mudou em `excluir-compra` (EXC-01 a EXC-05, AD-027):** o AC 5 deixou de valer: a parcela tem "⋯" com "Excluir", que
+> tira a compra desta parcela em diante, menos as pagas, e conserva a soma da compra.
 
 **Independent Test**: Marcar um lançamento pendente como pago e conferir que o indicador de pendente diminui e o de movimentações aumenta no mesmo valor.
 

@@ -41,6 +41,10 @@ e já é ignorado por toda soma. Falta a metade de cima.
 | Bloco por meio individual (um por cartão) | A cascata resolve "vai na fatura ou não". Um bloco por cartão só faz sentido com a fatia de Faturas, que dará a cada cartão um ciclo e um total próprios |
 | Chave de idempotência no avulso | Dois Pix de R$ 50 no mesmo dia são dois Pix. Deduplicar aqui impediria o caso legítimo para prevenir um clique duplo que a action já evita pelo estado do botão |
 
+> **Mudou em `excluir-compra` (EXC-01 a EXC-05, AD-027):** a parcela de compra passou a se excluir
+> pelo "⋯" da linha, desta parcela em diante, menos as pagas, com a soma da compra conservada. O
+> avulso continua com os dois toques daqui, e a ocorrência de recorrência continua sem exclusão.
+
 ---
 
 ## Assumptions & Open Questions
@@ -71,6 +75,10 @@ e já é ignorado por toda soma. Falta a metade de cima.
 | Recorrência encerrada na lista | Some do mês em que **já não vale**, e não para sempre | Pedido do usuário durante a execução, com refinamento. "Encerrada" é propriedade do ciclo de vida, e a lista é **por mês**: um fixo que valeu até agosto compôs agosto, e esconder ali seria mentir sobre aquele mês. A regra por competência atende o incômodo — ela desaparece de setembro em diante — sem apagar história. A spec de recorrências dizia que a encerrada "continua precisando aparecer"; isso era verdade sem a qualificação por mês, e passa a valer só nos meses em que ela vale | y |
 | Recorrência que ainda vai começar | **Continua** aparecendo | Assimétrico de propósito. Um fixo que começa em novembro, visto em setembro, é compromisso recém-assumido que a pessoa precisa ver confirmado; esconder pareceria falha na gravação. Um encerrado é história cujos meses se alcança navegando | n |
 | Idempotência do avulso | Nenhuma | Ver Out of Scope. Duplicata é caso legítimo neste domínio | n |
+
+> **Mudou em `excluir-compra` (EXC-01 a EXC-05, AD-027):** a parcela de compra passou a se excluir
+> pelo "⋯" da linha, desta parcela em diante, menos as pagas, com a soma da compra conservada. O
+> avulso continua com os dois toques daqui, e a ocorrência de recorrência continua sem exclusão.
 
 **Open questions:** none. As cinco decisões de produto foram resolvidas com o usuário e estão acima
 com `y`. As linhas com `n` são decisões de engenharia tomadas com a justificativa registrada,

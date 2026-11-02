@@ -394,24 +394,19 @@
 
 ## Handoff
 
-- **Feature**: `landing-jano` (AD-026). Branch `feat/landing-jano`, worktree `.worktrees/landing-jano`,
-  a partir da `main` em `f219110`. Spec, design, tasks e traceability em
-  `.specs/features/landing-jano/`. Canvas do protótipo:
-  https://claude.ai/artifact/WDUfpjEipw9geX6fuyG23j (quadro "Jano 1").
-- **O que é**: a landing se chama Jano, abre por "Antes de parcelar, pergunte ao Jano." e traz o
-  simulador funcionando no herói, com a conta e as frases do app empacotadas em `site/simulador.js`,
-  sobre uma casa inventada; "O que vem a seguir" saiu; as capturas não mostram o menu lateral.
-- **Completed**: spec `03de964`, T1 `bcdd768`, T2 `acea20d`, T3 `0f07e45`, T4 `6e641db`, T5 `2bef922`,
-  T6 `fe31db7`, T7 `03ebfe9`, T8 `d4ab37d`; rodada 1 FAIL `1b672b9`; F1 `a59b6b4`, F2 `bb99fb3`,
-  F3 `588add7`, F4 `0d8865d`; menores `318dd99`, `dad29f9`; rodada 2 PASS (este registro).
-- **In-progress**: nenhum. Verifier PASS na rodada 2 (40/40 ACs, 20 mutantes mortos no total,
-  `validate_state.py` 0).
-- **Next step**: (1) o dono lê a página; (2) decidir se no celular o simulador sobe para antes da
-  história; (3) merge na `main`, `git push` e
-  publicação (`cd site && npx vercel deploy --prod`), cada um com autorização separada; (4) antes de
-  renomear o app: domínio (jano.app está à venda; usejano, meujano, janocasa e janodacasa livres em
-  2026-11-02) e busca no INPI nas classes 9, 36 e 42; (5) a marca de dois arcos é provisória.
+- **Feature**: `excluir-compra` (AD-027), direto na `main`. Spec, design, tasks e traceability em
+  `.specs/features/excluir-compra/`.
+- **O que é**: toda parcela não cancelada tem "⋯" com "Excluir"; o aviso diz quantas parcelas saem,
+  de que meses e quanto somam; "Excluir desta em diante" cancela as não pagas de número maior ou
+  igual, e a compra fecha em amortizado + soma das que ficaram. O avulso segue em dois toques.
+- **Completed**: T1 `25c59f1`, T2 `5edfed0`, T3 `599b951`, T4 `54670db`, T5 `0bf9d61`, T6 `39c32e2`,
+  T7 `dd4fb58`, T8 `5bd24c1`, T9 `cfa21b6`, T10 `a76c8d7`, T11 `24a186e`, correção `b34ea54` (menu
+  montado pela tabela do servidor e painel dentro da tela em 400 px, achados pelo e2e), T12
+  `bf89d1a`, T13 (este registro). Todos os EXC em `Execute | Implemented`.
+- **In-progress**: nenhum.
+- **Next step**: (1) Verifier independente da fatia (`validation.md`, PASS/FAIL, sensor de
+  discriminação), que é quem marca `Verified`; (2) `git push` só com autorização separada.
 - **Blockers**: nenhum.
 - **Uncommitted files**: nenhum.
-- **Branch**: `feat/landing-jano`.
-- **Contexto completo de retomada**: `.specs/HANDOFF.md`.
+- **Branch**: `main`. A fatia `landing-jano` (AD-026) segue no próprio branch e worktree
+  (`feat/landing-jano`, `.worktrees/landing-jano`), com o retomar em `.specs/HANDOFF.md`.

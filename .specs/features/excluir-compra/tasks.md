@@ -534,9 +534,9 @@ T12 → T13
 **Requirement**: EXC-01
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Handoff aponta a fatia e o próximo passo
-- [ ] As duas specs antigas dizem onde a regra mudou
-- [ ] `pnpm verify` verde
+- [x] Handoff aponta a fatia e o próximo passo
+- [x] As duas specs antigas dizem onde a regra mudou
+- [x] `pnpm verify` verde
 **Tests**: none
 **Gate**: build
 **Commit**: `docs(compras): registrar a exclusão de compra nas specs antigas e no handoff`
