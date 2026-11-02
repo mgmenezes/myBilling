@@ -200,8 +200,8 @@ T12 → T13
 **Requirement**: EXC-05
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Aceita `{ lancamentoId: <uuid> }`
-- [ ] Recusa `lancamentoId` ausente, vazio, que não é uuid, e campo a mais (EXC-05 AC 2)
+- [x] Aceita `{ lancamentoId: <uuid> }`
+- [x] Recusa `lancamentoId` ausente, vazio, que não é uuid, e campo a mais (EXC-05 AC 2)
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(compras): validar o payload da exclusão de compra`
