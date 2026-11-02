@@ -1,5 +1,8 @@
 # Identidade visual do Jano
 
+> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes técnicos continuam `mybilling`:
+> banco, usuário e contêiner do Postgres, pacote, repositório e a chave do tema `mybilling:tema`.
+
 Derivada do sistema descrito em `DESIGN.md` (análise das superfícies da Coinbase), **sem usar a marca
 Coinbase**. O documento descreve uma linguagem visual; o logotipo, o nome e os tipos licenciados são
 ativos de marca deles e não entram aqui. O que foi adotado: canvas branco, azul único e escasso,
