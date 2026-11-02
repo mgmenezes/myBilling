@@ -232,12 +232,12 @@ T12 → T13
 **Requirement**: EXC-03, EXC-04, EXC-05
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Sem sessão → código da sessão antes de qualquer leitura (EXC-05 AC 1)
-- [ ] Payload inválido → `VALIDACAO` (EXC-05 AC 2)
-- [ ] Recusas do caso de uso → código e mensagem de `erros.ts`, com os textos do design (EXC-05 AC 3–5)
-- [ ] No Postgres: excluir a partir da 2/4 com a 3 paga deixa 1 e 3 somando e o total em amortizado + R$ 20,00 (EXC-03 AC 1–4)
-- [ ] Sucesso revalida `/[competencia]`, `/[competencia]/lancamentos`, `/[competencia]/simular` e `/`; recusa não revalida (EXC-04 AC 1–3)
-- [ ] Erro inesperado → `ERRO_INESPERADO` com referência, sem lançar (EXC-05 AC 6)
+- [x] Sem sessão → código da sessão antes de qualquer leitura (EXC-05 AC 1)
+- [x] Payload inválido → `VALIDACAO` (EXC-05 AC 2)
+- [x] Recusas do caso de uso → código e mensagem de `erros.ts`, com os textos do design (EXC-05 AC 3–5)
+- [x] No Postgres: excluir a partir da 2/4 com a 3 paga deixa 1 e 3 somando e o total em amortizado + R$ 20,00 (EXC-03 AC 1–4)
+- [x] Sucesso revalida `/[competencia]`, `/[competencia]/lancamentos`, `/[competencia]/simular` e `/`; recusa não revalida (EXC-04 AC 1–3)
+- [x] Erro inesperado → `ERRO_INESPERADO` com referência, sem lançar (EXC-05 AC 6)
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(compras): action para excluir uma compra desta parcela em diante`

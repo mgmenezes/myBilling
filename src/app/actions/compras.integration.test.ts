@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import type { Pool } from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Competencia } from "@/domain";
 import {
   type CadastroBase,
   limparDados,
@@ -34,8 +35,16 @@ vi.mock("@/infrastructure/auth/auth", async (original) => ({
   auth: async () => sessaoAtual,
 }));
 
-const { criarCompra } = await import("./compras");
+const { criarCompra, excluirCompraDestaParcela } = await import("./compras");
 const { criarPool } = await import("@/infrastructure/db/client");
+const { CompraRepositoryDrizzle } = await import(
+  "@/infrastructure/db/repositories/compra.repository"
+);
+const { MovimentoRepositoryDrizzle } = await import(
+  "@/infrastructure/db/repositories/movimento.repository"
+);
+const { criarRepositorios } = await import("@/infrastructure/container");
+const { obterVisaoMensal } = await import("@/application/mes/obter-visao-mensal/handler");
 
 const EMAIL_PERMITIDO = "pessoa-a@example.com";
 const EMAIL_NEGADO = "intruso@example.com";
@@ -257,5 +266,235 @@ describe("criarCompra: sucesso", () => {
     expect(segunda.data.compraId).toBe(primeira.data.compraId);
     expect(segunda.data.jaExistia).toBe(true);
     expect(await contarMovimentos()).toBe(3);
+  });
+});
+
+describe("excluirCompraDestaParcela (excluir-compra T7, EXC-03, EXC-04, EXC-05)", () => {
+  const INEXISTENTE = "99999999-9999-4999-8999-999999999999";
+  let compraId: string;
+
+  /** Compra A: 4x de R$ 10,00, de dezembro de 2026 a março de 2027 (AD-009). */
+  beforeEach(async () => {
+    const criada = await criarCompra(
+      entrada({
+        descricao: "Compra A",
+        modo: "VALOR_PARCELA",
+        valorCentavos: 1000,
+        qtdParcelas: 4,
+        competenciaInicial: "2026-12",
+        dataEvento: "2026-12-05",
+      }),
+    );
+    if (!criada.ok) {
+      throw new Error(`fixture inválida: ${criada.erro.code}`);
+    }
+    compraId = criada.data.compraId;
+    revalidatePath.mockClear();
+  });
+
+  async function parcela(numero: number): Promise<string> {
+    const { rows } = await pool.query<{ id: string }>(
+      "SELECT id FROM movimento WHERE compra_id = $1 AND numero_parcela = $2",
+      [compraId, numero],
+    );
+    return rows[0]?.id ?? "";
+  }
+
+  async function pagar(numero: number, pagoEm: string): Promise<void> {
+    await pool.query(
+      "UPDATE movimento SET pago_em = $3 WHERE compra_id = $1 AND numero_parcela = $2",
+      [compraId, numero, pagoEm],
+    );
+  }
+
+  async function fotografia() {
+    const compras = await pool.query("SELECT * FROM compra_parcelada ORDER BY id");
+    const movimentos = await pool.query("SELECT * FROM movimento ORDER BY id");
+    return { compras: compras.rows, movimentos: movimentos.rows };
+  }
+
+  function recusa(resultado: Awaited<ReturnType<typeof excluirCompraDestaParcela>>) {
+    if (resultado.ok) {
+      throw new Error("esperava recusa");
+    }
+    return resultado.erro;
+  }
+
+  it("`requireSession` é a primeira instrução da action (EXC-05 AC 1)", () => {
+    const fonte = readFileSync(new URL("./compras.ts", import.meta.url), "utf8");
+    const corpo = fonte.slice(fonte.indexOf("export async function excluirCompraDestaParcela"));
+    const primeiraInstrucao =
+      corpo
+        .slice(corpo.indexOf("{") + 1)
+        .trim()
+        .split("\n")[0] ?? "";
+
+    expect(primeiraInstrucao).toContain("requireSession()");
+  });
+
+  it("sem sessão recusa com o código da sessão antes de ler o lançamento (EXC-05 AC 1)", async () => {
+    sessaoAtual = null;
+    const lancamentoId = await parcela(2);
+    const antes = await fotografia();
+    const leitura = vi.spyOn(MovimentoRepositoryDrizzle.prototype, "buscarPorId");
+
+    try {
+      const resultado = await excluirCompraDestaParcela({ lancamentoId });
+
+      expect(recusa(resultado).code).toBe("NAO_AUTENTICADO");
+      expect(leitura).not.toHaveBeenCalled();
+      expect(await fotografia()).toEqual(antes);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    } finally {
+      leitura.mockRestore();
+    }
+  });
+
+  it.each([
+    ["lancamentoId ausente", () => ({})],
+    ["lancamentoId que não é uuid", () => ({ lancamentoId: "compra-1#2" })],
+    ["campo a mais", (id: string) => ({ lancamentoId: id, numeros: [2, 3, 4] })],
+  ])("payload com %s é VALIDACAO, sem ler o banco (EXC-05 AC 2)", async (_, payload) => {
+    const lancamentoId = await parcela(2);
+    const antes = await fotografia();
+    const leitura = vi.spyOn(MovimentoRepositoryDrizzle.prototype, "buscarPorId");
+
+    try {
+      const resultado = await excluirCompraDestaParcela(payload(lancamentoId));
+
+      expect(recusa(resultado).code).toBe("VALIDACAO");
+      expect(leitura).not.toHaveBeenCalled();
+      expect(await fotografia()).toEqual(antes);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    } finally {
+      leitura.mockRestore();
+    }
+  });
+
+  it("lançamento inexistente é LANCAMENTO_NAO_ENCONTRADO com a mensagem de erros.ts (EXC-05 AC 3)", async () => {
+    const antes = await fotografia();
+
+    const resultado = await excluirCompraDestaParcela({ lancamentoId: INEXISTENTE });
+
+    expect(recusa(resultado)).toEqual({
+      code: "LANCAMENTO_NAO_ENCONTRADO",
+      mensagem: "Esse lançamento não existe mais.",
+    });
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("avulso é LANCAMENTO_NAO_E_PARCELA com a mensagem de erros.ts, sem gravar (EXC-05 AC 4)", async () => {
+    const { rows } = await pool.query<{ id: string }>(
+      `INSERT INTO movimento (natureza, origem, descricao, competencia, data_evento, valor_centavos,
+                              usuario_id, meio_pagamento_id)
+       VALUES ('DESPESA', 'AVULSO', 'Avulso A', '2027-01-01', '2027-01-05', 1000, $1, $2)
+       RETURNING id`,
+      [base.usuarioId, base.contaId],
+    );
+    const antes = await fotografia();
+
+    const resultado = await excluirCompraDestaParcela({ lancamentoId: rows[0]?.id });
+
+    expect(recusa(resultado)).toEqual({
+      code: "LANCAMENTO_NAO_E_PARCELA",
+      mensagem: "Só parcela de compra se exclui por aqui.",
+    });
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("alcance todo pago é NADA_A_EXCLUIR com a mensagem de erros.ts, sem gravar (EXC-05 AC 5)", async () => {
+    await pagar(3, "2027-02-10");
+    await pagar(4, "2027-03-10");
+    const antes = await fotografia();
+
+    const resultado = await excluirCompraDestaParcela({ lancamentoId: await parcela(3) });
+
+    expect(recusa(resultado)).toEqual({
+      code: "NADA_A_EXCLUIR",
+      mensagem: "Todas as parcelas desta em diante já foram pagas. Nada a excluir.",
+    });
+    expect(await fotografia()).toEqual(antes);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("a partir da 2/4 com a 3 paga: 1 e 3 continuam somando e o total vira R$ 20,00 (EXC-03 AC 1 a 4)", async () => {
+    await pagar(3, "2027-02-10");
+
+    const resultado = await excluirCompraDestaParcela({ lancamentoId: await parcela(2) });
+
+    expect(resultado).toEqual({ ok: true, data: { parcelasExcluidas: 2 } });
+    const { rows } = await pool.query(
+      `SELECT numero_parcela AS numero, valor_centavos::text AS valor, pago_em::text AS pago,
+              cancelado_em IS NOT NULL AS cancelada
+         FROM movimento WHERE compra_id = $1 ORDER BY numero_parcela`,
+      [compraId],
+    );
+    expect(rows).toEqual([
+      { numero: 1, valor: "1000", pago: null, cancelada: false },
+      { numero: 2, valor: "1000", pago: null, cancelada: true },
+      { numero: 3, valor: "1000", pago: "2027-02-10", cancelada: false },
+      { numero: 4, valor: "1000", pago: null, cancelada: true },
+    ]);
+    const compra = await pool.query<{ total: string; amortizado: string }>(
+      `SELECT valor_total_centavos::text AS total,
+              valor_amortizado_anterior_centavos::text AS amortizado
+         FROM compra_parcelada WHERE id = $1`,
+      [compraId],
+    );
+    expect(Number(compra.rows[0]?.total)).toBe(Number(compra.rows[0]?.amortizado) + 2000);
+  });
+
+  it("depois de excluir, janeiro não tem a 2/4, março não tem a 4/4 e a 1/4 é a última (EXC-04 AC 2, 3 e 5)", async () => {
+    await excluirCompraDestaParcela({ lancamentoId: await parcela(2) });
+
+    const repositorios = criarRepositorios();
+    const dezembro = await obterVisaoMensal(repositorios, "2026-12" as Competencia);
+    const janeiro = await obterVisaoMensal(repositorios, "2027-01" as Competencia);
+    const marco = await obterVisaoMensal(repositorios, "2027-03" as Competencia);
+
+    expect(dezembro.lancamentos.map((item) => item.parcela?.restantes)).toEqual([0]);
+    expect(janeiro.lancamentos).toEqual([]);
+    expect(marco.lancamentos).toEqual([]);
+    expect(janeiro.competenciaView.totalGastos).toBe(0);
+    expect(dezembro.futuro.find((mes) => mes.competencia === "2027-03")?.comprometido).toBe(0);
+  });
+
+  it("sucesso revalida Visão geral, Lançamentos e Simular de toda competência, e a home (EXC-04 AC 1 a 3)", async () => {
+    await excluirCompraDestaParcela({ lancamentoId: await parcela(2) });
+
+    expect(revalidatePath.mock.calls.map(([rota]) => rota).sort()).toEqual([
+      "/",
+      "/[competencia]",
+      "/[competencia]/lancamentos",
+      "/[competencia]/simular",
+    ]);
+  });
+
+  it("falha na transação vira ERRO_INESPERADO com referência, sem lançar e sem gravar (EXC-05 AC 6; EXC-03 AC 6)", async () => {
+    const lancamentoId = await parcela(2);
+    const antes = await fotografia();
+    const falha = vi
+      .spyOn(CompraRepositoryDrizzle.prototype, "excluirParcelas")
+      .mockRejectedValueOnce(new Error("falha injetada no banco"));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const resultado = await excluirCompraDestaParcela({ lancamentoId });
+
+      expect(falha).toHaveBeenCalledOnce();
+      const erro = recusa(resultado);
+      expect(erro.code).toBe("ERRO_INESPERADO");
+      expect(erro.mensagem).toMatch(
+        /^Não foi possível concluir a operação\. Tente de novo\. Se continuar, informe o código [0-9a-f]{8}\.$/,
+      );
+      expect(erro.mensagem).not.toMatch(/falha injetada|at |\.ts:/);
+      expect(await fotografia()).toEqual(antes);
+      expect(revalidatePath).not.toHaveBeenCalled();
+    } finally {
+      falha.mockRestore();
+      log.mockRestore();
+    }
   });
 });

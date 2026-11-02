@@ -1,5 +1,6 @@
 import type { CodigoErroEdicaoDeMeio } from "@/application/cadastros/editar-meio-de-pagamento/handler";
 import type { CodigoErroAplicacao } from "@/application/compras/criar-compra-parcelada/handler";
+import type { CodigoErroExclusao } from "@/application/compras/excluir-desta-em-diante/handler";
 import type { CodigoErroImportacao } from "@/application/importacao/prever-importacao/handler";
 import type { CodigoErroCancelamento } from "@/application/mes/cancelar-lancamento/handler";
 import type { CodigoErroConfirmacao } from "@/application/mes/confirmar-valor/handler";
@@ -50,6 +51,7 @@ export type CodigoErroExibivel =
   | CodigoErroImportacao
   | CodigoErroCadastro
   | CodigoErroEdicaoDeMeio
+  | CodigoErroExclusao
   | CodigoErroDeBorda;
 
 /** Contrato uniforme de toda Server Action. Ela **nunca lança para o cliente**. */
@@ -81,6 +83,7 @@ const MENSAGENS: Record<CodigoErroExibivel, string> = {
   /* Sem "recarregue a página": a mensagem diz o que aconteceu, e a própria
      revalidação da action já traz a lista nova. */
   LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
+  LANCAMENTO_NAO_E_PARCELA: "Só parcela de compra se exclui por aqui.",
   PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
   RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
   CATEGORIA_NAO_ENCONTRADA: "Escolha uma categoria válida.",
