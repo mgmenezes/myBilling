@@ -367,6 +367,31 @@
 
 ---
 
+### AD-027
+- **Decision**: Uma compra parcelada se exclui **desta parcela em diante**, por cancelamento lógico
+  (`movimento.cancelado_em`) das parcelas **não pagas** de número maior ou igual ao escolhido; as
+  pagas e as anteriores ficam. A conservação passa a ser **amortizado anterior + soma das parcelas
+  não canceladas = `valor_total_centavos`**, e toda leitura e escrita de parcela em
+  `compra.repository.ts` (assert, `reprecificar`, `buscarUma`) ignora parcela cancelada. O aviso da
+  exclusão é calculado na carga da lista pela mesma função pura que o servidor usa para gravar
+  (`planejarExclusaoDestaEmDiante`), e o "faltam N" da parcela conta só as não canceladas.
+- **Rationale**: decisões do dono em 2026-11-02: excluir desta parcela em diante; parcela paga no
+  alcance fica; aviso calculado na página; parcela marcada como cancelada, como o avulso. A
+  conservação antiga somava parcela cancelada, o que faria a primeira reprecificação depois de uma
+  exclusão lançar `ViolacaoDeConservacao`.
+- **Alternatives**: excluir só a parcela (quebra a soma); excluir a compra inteira, inclusive meses
+  passados; apagar as linhas com `DELETE`; buscar o aviso no servidor ao tocar "Excluir".
+- **Scope**: `src/domain/parcelamento/excluir-desta-em-diante.ts`,
+  `src/infrastructure/db/repositories/compra.repository.ts`, `src/application/ports/`,
+  `src/application/compras/excluir-desta-em-diante/`, `src/application/mes/obter-visao-mensal/`,
+  `src/app/actions/compras.ts`, `src/components/` (menu da linha, tabela, aviso); revisa a regra
+  "Parcela de compra não é excluível" de `painel-e-lancamentos` e `lancamento-avulso`. Spec em
+  `.specs/features/excluir-compra/`.
+- **Date**: 2026-11-02
+- **Status**: active
+
+---
+
 ## Handoff
 
 - **Feature**: `landing-jano` (AD-026). Branch `feat/landing-jano`, worktree `.worktrees/landing-jano`,
