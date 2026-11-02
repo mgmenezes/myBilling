@@ -105,8 +105,9 @@ nomes técnicos como o banco `mybilling`.
 
 1. The página de acesso negado, a mensagem `ACESSO_NEGADO` e a frase do alternador da Visão geral
    SHALL dizer "Jano" onde diziam "myBilling"
-2. The código-fonte em `src/` e `site/` (fora o pacote gerado `site/simulador.js` e os testes que
-   afirmam a ausência do nome) SHALL não conter "myBilling" nessa grafia, nem em comentário
+2. Each arquivo de texto em `src/` e `site/` (código, estilo, SQL, HTML, SVG, JSON, CSV e o pacote
+   gerado), fora os dois testes que afirmam a ausência do nome, SHALL não conter "myBilling" nessa
+   grafia, nem em comentário
 3. The pacote `site/simulador.js` SHALL ser regenerado e continuar fresco (JANO-05)
 4. The testes de componente e e2e que procuram o nome SHALL procurar "Jano"
 
