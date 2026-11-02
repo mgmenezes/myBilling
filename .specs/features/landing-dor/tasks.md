@@ -1,7 +1,7 @@
 # Landing pela dor — Tasks
 
 **Spec**: `.specs/features/landing-dor/spec.md`
-**Status**: Aprovadas, em execução
+**Status**: Tasks concluídas, à espera do Verifier
 **Total**: 7 tasks em 4 fases
 
 > **Por que os testes mudam antes da página.** O teste estrutural recorta cada seção do `id` de uma
@@ -204,8 +204,8 @@ T6 -> T7
 **Requirement**: DOR-06 (ACs 5 e 6)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Specs antigas anotadas; AD-025 e Handoff em `STATE.md`; `HANDOFF.md` aponta para cá (AC 5)
-- [ ] `pnpm db:up && pnpm verify && pnpm site:verificar` saem 0 (AC 6)
+- [x] Specs antigas anotadas; AD-025 e Handoff em `STATE.md`; `HANDOFF.md` aponta para cá (AC 5)
+- [x] `pnpm db:up && pnpm verify && pnpm site:verificar` saem 0 (AC 6)
 **Tests**: none
 **Gate**: build
 

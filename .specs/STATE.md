@@ -303,28 +303,62 @@
 
 ---
 
+### AD-025
+- **Decision**: A landing abre pela dor, para quem paga as contas da casa, sozinho ou a dois.
+  "Onde as contas da casa quebram" ganha um parágrafo de abertura nas palavras da pessoa e a cena
+  "Dá pra comprar?" em destaque, ocupando a fileira a partir de 768 px. Os números de mercado passam
+  a **até cinco por peça, num bloco só** (`#numeros`, "Não é só na sua casa", logo depois das cenas),
+  com fonte e ano no `<cite>` e nenhuma porcentagem fora dele. As objeções vivem em "Perguntas
+  frequentes" (`<details>` nativo, sem script, antes de "O que vem a seguir"). A história "feito por
+  um casal para o próprio uso" sai da página e da regra 8 do tom, e nenhuma frase fecha o público em
+  casais: "Para dois" vira "Sozinho ou a dois", e o teste proíbe "casal" e "casais" no texto
+  visível. O teste estrutural recorta cada seção pelo próprio fechamento e exige que toda `<section>`
+  esteja na lista de ordem, para a fatia `landing-simulador` entrar depois do hero declarando o seu
+  lugar. A seção "O que vem a seguir" fica como está até o simulador entrar na página.
+- **Rationale**: decisões do dono em 2026-11-01: "esqueça o casal, seu papel aqui é fazer com que eu
+  consiga vender"; "remova dizeres que fecham o nicho de casais"; até cinco números numa seção só;
+  o quadro C do canvas (cenas aprofundadas), que continua válido quando o simulador entrar. Os três
+  números de 2025 estavam defasados; os cinco de 2026 foram conferidos na fonte (CNDL e SPC Brasil,
+  CNC, Serasa com Opinion Box) e ficam listados em `docs/marketing/posicionamento.md`, com a reserva.
+  O recorte antigo do teste (do `id` de uma seção ao `id` da seguinte) fazia uma seção nova vazar
+  para a anterior.
+- **Alternatives**: os quadros A (dados primeiro) e B (uma compra mês a mês) do canvas; manter três
+  números; manter o casal como prova; dizer que o simulador já existe no app (recusado pelo dono até
+  ele entrar na página).
+- **Scope**: `site/index.html`, `site/estilos.css`, `site/estrutura.test.mjs`,
+  `site/verificar-navegador.mjs`, `docs/marketing/posicionamento.md`,
+  `docs/marketing/copy-landing-simulador.md`, `docs/marketing/kit-de-copy.md`; revisa CAMP-02 ACs 1,
+  5 e 6 e VEM-02 AC 7. Spec em `.specs/features/landing-dor/`.
+- **Date**: 2026-11-01
+- **Status**: active
+
+---
+
 ## Handoff
 
-- **Feature**: `simular`, **fatia 2 do diferencial "Simular"** (plano aprovado em 2026-11-01:
-  `~/.claude/plans/estou-sentindo-que-ainda-ancient-cosmos.md`). Nove tasks no branch
-  `feat/simular`, worktree `.worktrees/simular`, a partir de `8bf0731` de `feat/horizonte-doze-meses`
-  (que ainda não está no `main`). Spec, tasks e traceability em `.specs/features/simular/`.
-- **O que é**: a tela "Dá pra comprar?" em `/[competencia]/simular` (AD-024): quatro campos, uma
-  linha por mês com o saldo antes e depois da compra, o veredito nas frases do dono, "Lançar esta
-  compra" abrindo o cadastro preenchido; "Simular" como quinto item da navegação com a barra
-  inferior em cinco; o mesmo bloco de resposta dentro do cadastro de compra na Visão geral e em
-  Lançamentos.
-- **Completed**: T1 `b161d04`, T2 `aa8a606`, T3 `521efbf`, T4 `3fe58f9`, T5 `d925021`, T6 `35b3a38`,
-  T7 `6abf995`, T8 `cfa2434`, T9 (este registro). Gates: 2.164 unitários (414/414 branches), 413 de
-  integração, 279 e2e.
-- **In-progress**: o Verifier independente da fatia (`validation.md`) roda depois da T9.
-- **Next step**: (1) Verifier PASS; (2) o dono autorizou em 2026-11-01 o merge de
-  `feat/horizonte-doze-meses` e `feat/simular` no `main` e o `git push` quando a fatia terminar;
-  (3) fatia 3, `landing-simulador`, que depende do branch `feat/campanha-lista-de-espera` (ainda
-  fora do `main`): bundle de `src/domain` em `site/simulador.js`, seção na landing, casa fictícia,
-  revisão de CAMP-03 AC 5, e a tabela "nunca prometer" de `posicionamento.md` deixa de listar o
-  simulador como inexistente.
+- **Feature**: `landing-dor`, a landing pela dor (AD-025). Branch `feat/landing-dor`, worktree
+  `.worktrees/landing-dor`, criado de `feat/campanha-lista-de-espera` rebaseado sobre a `main`
+  (`99d74d4`); o branch da campanha não foi reescrito. Spec, tasks e traceability em
+  `.specs/features/landing-dor/`. Plano aprovado em `~/.claude/plans/sprightly-inventing-sunrise.md`;
+  canvas com os quadros Hoje, A, B e C em https://claude.ai/artifact/1DrgD3Nq2PGDTDHxhoyyZC.
+- **O que é**: a landing abre pela dor nas palavras da pessoa, com a cena "Dá pra comprar?" em
+  destaque, cinco números de 2026 numa seção só, perguntas frequentes sem script, público sem fechar
+  o nicho em casais e sem a história de origem; o teste estrutural recorta cada seção pelo próprio
+  fechamento e lista toda seção.
+- **Completed**: spec `fc01ee7`, T1 `ac76328`, T2 `561febd`, T3 `e4b68e7`, T4 `aaf5526`, T5
+  `3cc45b6`, T6 `4e3875f`, T7 (este registro). Gates: 35 estruturais; verificador de navegador sem
+  rolagem nem violação de axe em 360, 768 e 1.440 px, claro e escuro; `pnpm verify` e
+  `pnpm site:verificar` em T7.
+- **In-progress**: o Verifier independente da fatia (`validation.md`) roda depois da T7.
+- **Next step**: (1) Verifier PASS; (2) merge de `feat/landing-dor` na `main` e `git push`, com
+  autorização separada do dono; (3) publicar a landing (`cd site && npx vercel deploy --prod`),
+  também com autorização; (4) fatia `landing-simulador`: bundle de `src/domain` em
+  `site/simulador.js`, seção `simulador` depois do hero (declarada em `SECOES`), casa fictícia,
+  revisão de CAMP-03 AC 5, e "O que vem a seguir" reescrita; (5) decisões pendentes do dono, em
+  `docs/marketing/copy-landing-simulador.md`: estender "O que vem a seguir" à fatura, a promessa
+  "sem novidade, sem e-mail", dizer "doze meses" agora que o horizonte está na `main`, e o kit de
+  copy para o público mais largo.
 - **Blockers**: nenhum.
-- **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava.
-- **Branch**: `feat/simular`.
+- **Uncommitted files**: nenhum.
+- **Branch**: `feat/landing-dor`.
 - **Contexto completo de retomada**: `.specs/HANDOFF.md`.

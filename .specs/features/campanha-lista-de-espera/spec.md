@@ -129,6 +129,9 @@ deixo meu e-mail.
 1. The page SHALL ter, nesta ordem: hero com a promessa e o botão da lista; "Onde as contas da casa
    quebram" com cinco blocos; comparativo em três colunas (caderno, planilha, myBilling); "Para
    dois"; "Traga a sua planilha ou comece do zero"; números de mercado; rodapé com o botão de novo
+   (revisto por `landing-dor`, DOR-02 AC 1: a ordem passa a inicio, onde-quebra, numeros,
+   comparativo, para-dois, sua-planilha, perguntas, a-seguir, rodape, e "Para dois" vira "Sozinho
+   ou a dois")
 2. WHILE na seção "Onde as contas da casa quebram", each bloco SHALL ter a cena em uma frase e a
    garantia do app em uma frase, para as cinco dores: parcela esquecida, fatura somada com a compra,
    mês que vira errado, conta fixa que muda de valor, duas pessoas e um número só
@@ -138,9 +141,11 @@ deixo meu e-mail.
 4. The page SHALL não conter nenhuma das promessas listadas em "O que nunca prometer" do
    posicionamento, nem a palavra "grátis", nem preço
 5. WHEN um número de mercado aparece THEN the page SHALL exibir a fonte e o ano no mesmo elemento,
-   e SHALL não exibir mais de três números de mercado
+   e SHALL não exibir mais de três números de mercado (revisto por `landing-dor`, DOR-03: até cinco,
+   todos na seção `numeros`, com fonte e ano no `<cite>`, e nenhuma porcentagem fora dela)
 6. The page SHALL declarar que o produto é usado hoje por um casal e está abrindo para mais casas,
-   sem afirmar que já está disponível
+   sem afirmar que já está disponível (revisto por `landing-dor`, DOR-05 AC 1: "em uso hoje" e
+   "abrindo para mais casas", sem a história de origem; decisão do dono em 2026-11-01)
 7. The page SHALL ter `lang="pt-BR"`, `<title>`, `<meta name="viewport">` e `<meta name="description">`
 
 **Independent Test**: abrir a página sem contexto e responder em voz alta "o que é, para quem é, o

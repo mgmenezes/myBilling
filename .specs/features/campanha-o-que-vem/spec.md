@@ -114,7 +114,9 @@ que vem nos próximos meses, e saber o que ele ainda vai ganhar.
 6. The page SHALL manter os valores em reais dentro da allowlist e o tom sem exclamação, travessão
    e emoji
 7. The page SHALL continuar com uma ordem de seções provada pelo teste estrutural: inicio,
-   onde-quebra, comparativo, para-dois, sua-planilha, numeros, a-seguir, rodape
+   onde-quebra, comparativo, para-dois, sua-planilha, numeros, a-seguir, rodape (revisto por
+   `landing-dor`, DOR-02 AC 1: numeros vem depois de onde-quebra e perguntas entra antes de a-seguir;
+   o teste passa a exigir que toda `<section>` esteja na lista)
 
 **Independent Test**: abrir a página e responder "o que o app sabe que a planilha não sabe" e "o
 que ainda não existe"; as duas respostas estão na tela.

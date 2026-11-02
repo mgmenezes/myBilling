@@ -51,11 +51,13 @@ olho antes de commitar: só "Pessoa A", "Cartão Azul", "Categoria Um" e afins p
 pnpm site:verificar
 ```
 
-Roda o teste estrutural (`site/estrutura.test.mjs`: seções na ordem, um script só, azul só em botão
-e link, inversão uma vez, constante do formulário, nenhum `R$` fora das fixtures, promessas
-proibidas, fonte e ano em cada número) e o teste de navegador (`site/verificar-navegador.mjs`:
-Playwright com o Chrome da máquina e axe-core, em 360, 768 e 1440 px, claro e escuro, sem rolagem
-horizontal e sem violação WCAG 2.1 AA).
+Roda o teste estrutural (`site/estrutura.test.mjs`: seções na ordem e toda `<section>` na lista, um
+script só, azul só em botão e link, inversão uma vez, constante do formulário, nenhum `R$` fora das
+fixtures, promessas proibidas, de um a cinco números numa seção só com fonte e ano e nenhuma
+porcentagem fora dela, perguntas frequentes fechadas, nenhuma frase que fecha o público em casais)
+e o teste de navegador (`site/verificar-navegador.mjs`: Playwright com o Chrome da máquina e
+axe-core, em 360, 768 e 1440 px, claro e escuro, sem rolagem horizontal, sem violação WCAG 2.1 AA, e
+a cena em destaque ocupando a grade a partir de 768 px).
 
 ## Contraste
 

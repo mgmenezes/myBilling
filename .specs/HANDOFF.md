@@ -4,6 +4,14 @@
 > Última atualização: 2026-10-28, branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`.
 
 > [!IMPORTANT]
+> **2026-11-01, à noite: a landing abriu pela dor** (fatia `landing-dor`, AD-025, branch
+> `feat/landing-dor`, que é `feat/campanha-lista-de-espera` rebaseado sobre a `main`, worktree
+> `.worktrees/landing-dor`): parágrafo de abertura nas palavras da pessoa, a cena "Dá pra comprar?"
+> em destaque, cinco números de 2026 numa seção só, perguntas frequentes sem script, público sem
+> fechar o nicho em casais ("Sozinho ou a dois") e sem a história de origem. Spec em
+> `.specs/features/landing-dor/spec.md`; handoff curto em `.specs/STATE.md`. A fatia
+> `landing-simulador` entra depois do hero declarando `simulador` na lista `SECOES` do teste.
+>
 > **2026-11-01: o diferencial do produto foi decidido com o dono: "o app sabe o que vem".** Um
 > simulador chamado **"Simular"** (título "Dá pra comprar?") mostra, por mês, quanto vai sobrar antes
 > e depois de uma compra parcelada, diz em quantas vezes caberia quando não cabe, e lança a compra
