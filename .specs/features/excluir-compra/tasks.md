@@ -252,12 +252,12 @@ T12 → T13
 **Requirement**: EXC-02, EXC-04, EXC-05
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] `k` 3: "Excluir Compra A desta parcela em diante? Saem 3 parcelas, de Janeiro de 2027 a Março de 2027, somando R$ 30,00. As anteriores ficam." (EXC-02 AC 2, 4)
-- [ ] `k` 2 e `k` 1 dos dois lados do singular; `k` 1 diz "Sai 1 parcela, em Janeiro de 2027, de R$ 10,00." (EXC-02 AC 2, 3; L-029)
-- [ ] `inteira`: começa com "Excluir a compra Compra A inteira?" e não tem "As anteriores ficam." (EXC-02 AC 5; L-010)
-- [ ] `p` 1 → "1 parcela já paga fica."; `p` 2 → "2 parcelas já pagas ficam."; `p` 0 → nenhuma das duas (EXC-02 AC 6)
-- [ ] `NADA` → "Todas as parcelas desta em diante já foram pagas. Nada a excluir." (EXC-05 AC 5)
-- [ ] Toast: "1 parcela excluída." e "2 parcelas excluídas." (EXC-04 AC 4)
+- [x] `k` 3: "Excluir Compra A desta parcela em diante? Saem 3 parcelas, de Janeiro de 2027 a Março de 2027, somando R$ 30,00. As anteriores ficam." (EXC-02 AC 2, 4)
+- [x] `k` 2 e `k` 1 dos dois lados do singular; `k` 1 diz "Sai 1 parcela, em Janeiro de 2027, de R$ 10,00." (EXC-02 AC 2, 3; L-029)
+- [x] `inteira`: começa com "Excluir a compra Compra A inteira?" e não tem "As anteriores ficam." (EXC-02 AC 5; L-010)
+- [x] `p` 1 → "1 parcela já paga fica."; `p` 2 → "2 parcelas já pagas ficam."; `p` 0 → nenhuma das duas (EXC-02 AC 6)
+- [x] `NADA` → "Todas as parcelas desta em diante já foram pagas. Nada a excluir." (EXC-05 AC 5)
+- [x] Toast: "1 parcela excluída." e "2 parcelas excluídas." (EXC-04 AC 4)
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `feat(compras): escrever o aviso e o toast da exclusão de compra`
