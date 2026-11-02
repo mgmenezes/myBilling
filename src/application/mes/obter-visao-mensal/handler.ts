@@ -1,6 +1,7 @@
 import type {
   CadastroRepository,
   CompraRepository,
+  CompraVigenteComQtd,
   MovimentoRepository,
 } from "@/application/ports/repositories";
 import {
@@ -8,10 +9,13 @@ import {
   type BlocoDoMes,
   blocoDoLancamento,
   type Competencia,
+  type CompraVigente,
   type ComprometimentoFuturo,
   type Lancamento,
+  planejarExclusaoDestaEmDiante,
   projetarProximosMeses,
   type ResumoDoMes,
+  restantesDepois,
   resumoMensal,
 } from "@/domain";
 
@@ -51,11 +55,37 @@ export interface DependenciasVisaoMensal {
   readonly cadastros: CadastroRepository;
 }
 
-/** `8/10` e quantas ainda faltam depois desta (PARC-08, AC 7). */
+/**
+ * O que sai se a pessoa excluir desta parcela em diante, calculado na carga da
+ * página pela mesma função que o servidor usa para gravar (EXC-02). `NADA`
+ * quando todo o alcance já foi pago (EXC-05 AC 5).
+ */
+export type ExclusaoDaParcela =
+  | { readonly tipo: "NADA" }
+  | {
+      readonly tipo: "PLANO";
+      /** Quantas saem: o `<k>` do aviso. */
+      readonly parcelas: number;
+      /** Competência `'YYYY-MM'` da primeira e da última que saem. */
+      readonly primeira: string;
+      readonly ultima: string;
+      /** Soma dos valores gravados das que saem. */
+      readonly totalCentavos: number;
+      /** Pagas de número ≥ a escolhida, que ficam: o `<p>` do aviso. */
+      readonly pagasQueFicam: number;
+      /** Nenhuma parcela vigente antes da escolhida: "Excluir a compra ... inteira?". */
+      readonly inteira: boolean;
+    };
+
+/**
+ * `8/10`, quantas parcelas não canceladas faltam depois desta (PARC-08, AC 7;
+ * EXC-04 AC 5) e o aviso de exclusão dela.
+ */
 export interface IdentificacaoDeParcela {
   readonly numero: number;
   readonly total: number;
   readonly restantes: number;
+  readonly exclusao: ExclusaoDaParcela;
 }
 
 export interface LancamentoDoMes {
@@ -106,7 +136,7 @@ export async function obterVisaoMensal(
   const compraIds = [
     ...new Set(doMes.map((l) => l.compraId).filter((id): id is string => id !== null)),
   ];
-  const totais = await deps.compras.totaisDeParcelas(compraIds);
+  const vigentes = await deps.compras.parcelasVigentes(compraIds);
 
   return {
     competencia,
@@ -115,7 +145,7 @@ export async function obterVisaoMensal(
     futuro,
     lancamentos: doMes.map((lancamento) => ({
       lancamento,
-      parcela: identificarParcela(lancamento, totais),
+      parcela: identificarParcela(lancamento, vigentes),
       bloco: blocoDoLancamento(lancamento, cartoes),
     })),
   };
@@ -123,18 +153,40 @@ export async function obterVisaoMensal(
 
 function identificarParcela(
   lancamento: Lancamento,
-  totais: ReadonlyMap<string, number>,
+  vigentes: ReadonlyMap<string, CompraVigenteComQtd>,
 ): IdentificacaoDeParcela | null {
   if (lancamento.compraId === null || lancamento.numeroParcela === null) {
     return null;
   }
-  const total = totais.get(lancamento.compraId);
-  if (total === undefined) {
+  const compra = vigentes.get(lancamento.compraId);
+  if (compra === undefined) {
     return null;
   }
   return {
     numero: lancamento.numeroParcela,
-    total,
-    restantes: total - lancamento.numeroParcela,
+    total: compra.qtdParcelas,
+    restantes: restantesDepois(compra.parcelas, lancamento.numeroParcela),
+    exclusao: exclusaoDaParcela(compra, lancamento.numeroParcela),
+  };
+}
+
+/**
+ * A recusa do domínio vira `NADA`. `PARCELA_INICIAL_INVALIDA` não chega aqui:
+ * a parcela veio da lista de não canceladas do mês, e a mesma leitura a traz
+ * entre as vigentes.
+ */
+function exclusaoDaParcela(compra: CompraVigente, numero: number): ExclusaoDaParcela {
+  const plano = planejarExclusaoDestaEmDiante(compra, numero);
+  if (!plano.ok) {
+    return { tipo: "NADA" };
+  }
+  return {
+    tipo: "PLANO",
+    parcelas: plano.value.numeros.length,
+    primeira: plano.value.primeira,
+    ultima: plano.value.ultima,
+    totalCentavos: plano.value.total,
+    pagasQueFicam: plano.value.pagasQueFicam,
+    inteira: plano.value.inteira,
   };
 }

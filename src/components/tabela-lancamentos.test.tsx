@@ -4,7 +4,10 @@ import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento, trocarCategoria } from "@/app/actions/lancamentos";
-import type { LancamentoDoMes } from "@/application/mes/obter-visao-mensal/handler";
+import type {
+  IdentificacaoDeParcela,
+  LancamentoDoMes,
+} from "@/application/mes/obter-visao-mensal/handler";
 import type { BlocoDoMes, Cents, Competencia, Lancamento } from "@/domain";
 import { type ChaveDeBloco, lerBlocosRecolhidos } from "@/lib/blocos-recolhidos";
 import { ProvedorDeAvisos } from "./avisos";
@@ -125,11 +128,16 @@ function blocoPadrao(origem: Lancamento["origem"]): BlocoDoMes {
 
 function item(
   campos: Partial<Lancamento> & { id: string },
-  parcela: LancamentoDoMes["parcela"] = null,
+  parcela: Omit<IdentificacaoDeParcela, "exclusao"> | null = null,
   bloco?: BlocoDoMes,
 ): LancamentoDoMes {
   const l = lancamento(campos);
-  return { lancamento: l, parcela, bloco: bloco ?? blocoPadrao(l.origem) };
+  return {
+    lancamento: l,
+    // A tabela ainda não lê o aviso de exclusão (excluir-compra T4): o fixture não o escolhe.
+    parcela: parcela && { ...parcela, exclusao: { tipo: "NADA" } },
+    bloco: bloco ?? blocoPadrao(l.origem),
+  };
 }
 
 describe("os quatro blocos do mês (UI-01 AC 5, ENTR-02)", () => {

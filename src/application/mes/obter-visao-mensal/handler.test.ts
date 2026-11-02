@@ -298,7 +298,7 @@ describe("segmentação pelos blocos da cascata (UI-01 AC 5, BLOCO-01)", () => {
 });
 
 describe("identificação da parcela (PARC-08, AC 7)", () => {
-  it("devolve 8 de 10 com duas parcelas restantes", async () => {
+  it("devolve 8 de 10 com duas parcelas restantes e o aviso de exclusão dela (EXC-02)", async () => {
     const entrada: EntradaCompraValidada = {
       idempotencyKey: "6f1c1b3e-3a2d-4c5b-8e7f-9a0b1c2d3e4f",
       descricao: "Compra parcelada B",
@@ -318,7 +318,20 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
     const visao = await obterVisaoMensal(fakes, MARCO);
 
     expect(visao.lancamentos).toHaveLength(1);
-    expect(visao.lancamentos[0]?.parcela).toEqual({ numero: 8, total: 10, restantes: 2 });
+    expect(visao.lancamentos[0]?.parcela).toEqual({
+      numero: 8,
+      total: 10,
+      restantes: 2,
+      exclusao: {
+        tipo: "PLANO",
+        parcelas: 3,
+        primeira: "2026-03",
+        ultima: "2026-05",
+        totalCentavos: 18000,
+        pagasQueFicam: 0,
+        inteira: true,
+      },
+    });
   });
 
   it("não identifica parcela em lançamento avulso", async () => {
@@ -327,6 +340,97 @@ describe("identificação da parcela (PARC-08, AC 7)", () => {
     const visao = await obterVisaoMensal(fakes, MARCO);
 
     expect(visao.lancamentos[0]?.parcela).toBeNull();
+  });
+});
+
+describe("o aviso de exclusão e o 'faltam' de cada parcela (excluir-compra T4)", () => {
+  const JANEIRO = "2027-01" as Competencia;
+  const AGORA = "2027-01-15T13:00:00.000Z";
+
+  /** Compra A: 4x de R$ 10,00, de dezembro de 2026 a março de 2027 (`compra-1`). */
+  async function quatroDeDez(): Promise<void> {
+    await criarCompraParcelada(fakes, {
+      idempotencyKey: "0b7c4e2a-1d3f-4a5b-8c6d-7e8f9a0b1c2d",
+      descricao: "Compra A",
+      modo: "VALOR_PARCELA",
+      valorCentavos: 1000,
+      qtdParcelas: 4,
+      parcelaInicial: 1,
+      competenciaInicial: "2026-12",
+      politicaResiduo: "PRIMEIRAS",
+      categoriaId: null,
+      usuarioId: USUARIO,
+      meioPagamentoId: CARTAO,
+      dataEvento: "2026-12-05",
+    });
+  }
+
+  it("a 2/4 sem nada cancelado: faltam 2 e saem 3 parcelas, de janeiro a março, somando R$ 30,00 (EXC-02 AC 2 e 4)", async () => {
+    await quatroDeDez();
+
+    const visao = await obterVisaoMensal(fakes, JANEIRO);
+
+    expect(visao.lancamentos[0]?.parcela).toEqual({
+      numero: 2,
+      total: 4,
+      restantes: 2,
+      exclusao: {
+        tipo: "PLANO",
+        parcelas: 3,
+        primeira: "2027-01",
+        ultima: "2027-03",
+        totalCentavos: 3000,
+        pagasQueFicam: 0,
+        inteira: false,
+      },
+    });
+  });
+
+  it("com a 3/4 e a 4/4 canceladas, a 2/4 é a última que ficou: faltam 0 (EXC-04 AC 5)", async () => {
+    await quatroDeDez();
+    await fakes.compras.excluirParcelas("compra-1", [3, 4], 2000 as Cents, AGORA);
+
+    const visao = await obterVisaoMensal(fakes, JANEIRO);
+
+    expect(visao.lancamentos[0]?.parcela?.restantes).toBe(0);
+    expect(visao.lancamentos[0]?.parcela?.exclusao).toEqual({
+      tipo: "PLANO",
+      parcelas: 1,
+      primeira: "2027-01",
+      ultima: "2027-01",
+      totalCentavos: 1000,
+      pagasQueFicam: 0,
+      inteira: false,
+    });
+  });
+
+  it("com o alcance todo pago, o aviso é NADA (EXC-05 AC 5)", async () => {
+    await quatroDeDez();
+    await fakes.movimentos.marcarPagamento("compra-1#3", "2027-02-10");
+    await fakes.movimentos.marcarPagamento("compra-1#4", "2027-03-10");
+
+    const visao = await obterVisaoMensal(fakes, "2027-02" as Competencia);
+
+    expect(visao.lancamentos[0]?.parcela).toEqual({
+      numero: 3,
+      total: 4,
+      restantes: 1,
+      exclusao: { tipo: "NADA" },
+    });
+  });
+
+  it("avulso e ocorrência de fixo continuam sem identificação de parcela", async () => {
+    semear(
+      lancamento({ id: "avulso" }),
+      lancamento({ id: "fixo", origem: "RECORRENCIA", recorrenciaId: "rec-1" }),
+    );
+
+    const visao = await obterVisaoMensal(fakes, MARCO);
+
+    expect(visao.lancamentos.map((item) => [item.lancamento.id, item.parcela])).toEqual([
+      ["avulso", null],
+      ["fixo", null],
+    ]);
   });
 });
 

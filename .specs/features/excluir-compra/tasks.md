@@ -183,11 +183,11 @@ T12 → T13
 **Requirement**: EXC-02, EXC-04
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Parcela 2/4 sem nada cancelado: `restantes` 2 e `exclusao` `PLANO` com 3 parcelas, a soma, os meses e `inteira` false
-- [ ] Com 3/4 e 4/4 canceladas: a 2/4 tem `restantes` 0 (EXC-04 AC 5)
-- [ ] Com o alcance todo pago: `exclusao` `{ tipo: "NADA" }` (EXC-05 AC 5)
-- [ ] Avulso e ocorrência de fixo continuam com `parcela: null`
-- [ ] Testes existentes de `obter-visao-mensal` continuam verdes
+- [x] Parcela 2/4 sem nada cancelado: `restantes` 2 e `exclusao` `PLANO` com 3 parcelas, a soma, os meses e `inteira` false
+- [x] Com 3/4 e 4/4 canceladas: a 2/4 tem `restantes` 0 (EXC-04 AC 5)
+- [x] Com o alcance todo pago: `exclusao` `{ tipo: "NADA" }` (EXC-05 AC 5)
+- [x] Avulso e ocorrência de fixo continuam com `parcela: null`
+- [x] Testes existentes de `obter-visao-mensal` continuam verdes
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(compras): levar o aviso de exclusão e o "faltam" certo para a lista do mês`
