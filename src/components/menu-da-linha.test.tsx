@@ -1,7 +1,9 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { cancelarLancamento } from "@/app/actions/lancamentos";
+import { BotaoExcluir } from "./botao-excluir";
 import { MenuDaLinha } from "./menu-da-linha";
 
 /**
@@ -23,7 +25,9 @@ function excluirOk() {
 function montar(excluir: typeof cancelarLancamento = excluirOk()) {
   render(
     <div>
-      <MenuDaLinha lancamentoId="l-1" descricao="Almoço" excluir={excluir} />
+      <MenuDaLinha descricao="Almoço">
+        {() => <BotaoExcluir lancamentoId="l-1" descricao="Almoço" excluir={excluir} />}
+      </MenuDaLinha>
       <button type="button">fora</button>
     </div>,
   );
@@ -128,5 +132,58 @@ describe("o menu da linha (DENS-02)", () => {
     await userEvent.click(gatilho());
 
     expect(gatilho().getAttribute("aria-expanded")).toBe("false");
+  });
+});
+
+/**
+ * Testes derivados de EXC-02 (AC 9) e do Done-when de T9: o conteúdo é de
+ * quem monta o menu e pode fechá-lo pelo mesmo caminho do `Escape`.
+ */
+describe("o conteúdo do menu vem de quem o monta (EXC-02, AC 9)", () => {
+  /* Um conteúdo com estado próprio, para provar que reabrir o monta do zero. */
+  function Conteudo({ fechar }: { readonly fechar: () => void }) {
+    const [aviso, setAviso] = useState(false);
+    return (
+      <span>
+        {aviso ? <span>aviso aberto</span> : null}
+        <button type="button" onClick={() => setAviso(true)}>
+          Mostrar aviso
+        </button>
+        <button type="button" onClick={fechar}>
+          Cancelar
+        </button>
+      </span>
+    );
+  }
+
+  function montarConteudo() {
+    render(
+      <MenuDaLinha descricao="Compra A">{(fechar) => <Conteudo fechar={fechar} />}</MenuDaLinha>,
+    );
+    return screen.getByRole("button", { name: "Mais ações para Compra A" });
+  }
+
+  it('chamar `fechar` de dentro do conteúdo fecha o menu e põe o foco no "⋯"', async () => {
+    const menu = montarConteudo();
+    await userEvent.click(menu);
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByRole("button", { name: "Cancelar" })).toBeNull();
+    expect(document.activeElement).toBe(menu);
+  });
+
+  it("reabrir o menu monta o conteúdo do zero, sem o estado de antes", async () => {
+    const menu = montarConteudo();
+    await userEvent.click(menu);
+    await userEvent.click(screen.getByRole("button", { name: "Mostrar aviso" }));
+    expect(screen.getByText("aviso aberto")).toBeDefined();
+    await userEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    await userEvent.click(menu);
+
+    expect(screen.getByRole("button", { name: "Mostrar aviso" })).toBeDefined();
+    expect(screen.queryByText("aviso aberto")).toBeNull();
   });
 });

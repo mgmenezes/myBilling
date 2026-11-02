@@ -270,9 +270,9 @@ T12 → T13
 **Requirement**: EXC-01, EXC-02
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Os testes existentes de `menu-da-linha.test.tsx` e de `botao-excluir.test.tsx` continuam verdes sem mudar assertion (EXC-01 AC 4)
-- [ ] Chamar `fechar` de dentro do conteúdo fecha o menu e põe o foco no "⋯" (EXC-02 AC 9)
-- [ ] Reabrir o menu monta o conteúdo do zero
+- [x] Os testes existentes de `menu-da-linha.test.tsx` e de `botao-excluir.test.tsx` continuam verdes sem mudar assertion (EXC-01 AC 4)
+- [x] Chamar `fechar` de dentro do conteúdo fecha o menu e põe o foco no "⋯" (EXC-02 AC 9)
+- [x] Reabrir o menu monta o conteúdo do zero
 **Tests**: componentes
 **Gate**: quick
 **Commit**: `refactor(lancamentos): deixar o menu da linha receber o conteúdo de quem o monta`

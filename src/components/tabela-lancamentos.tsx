@@ -20,6 +20,7 @@ import type { ChaveDeBloco } from "@/lib/blocos-recolhidos";
 import { formatarBRL, formatarData } from "@/lib/formatar";
 import { BlocoRecolhivel } from "./bloco-recolhivel";
 import { BotaoAbrirCadastro } from "./botao-abrir-cadastro";
+import { BotaoExcluir } from "./botao-excluir";
 import { BotaoPago } from "./botao-pago";
 import { MenuDaLinha } from "./menu-da-linha";
 import { SeletorDeCategoria, type SeletorDeCategoriaProps } from "./seletor-de-categoria";
@@ -361,11 +362,15 @@ function BlocoDeLancamentos({
                       {/* Parcela quebraria a soma da compra; ocorrência renasce
                         na materialização seguinte. Nem uma nem outra oferece. */}
                       {lancamento.origem === "AVULSO" ? (
-                        <MenuDaLinha
-                          lancamentoId={lancamento.id}
-                          descricao={lancamento.descricao}
-                          excluir={excluir}
-                        />
+                        <MenuDaLinha descricao={lancamento.descricao}>
+                          {() => (
+                            <BotaoExcluir
+                              lancamentoId={lancamento.id}
+                              descricao={lancamento.descricao}
+                              excluir={excluir}
+                            />
+                          )}
+                        </MenuDaLinha>
                       ) : null}
                     </span>
                   </td>

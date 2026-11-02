@@ -1,16 +1,17 @@
 "use client";
 
 import { DotsThreeIcon } from "@phosphor-icons/react";
-import { useEffect, useId, useRef, useState } from "react";
-import type { cancelarLancamento as cancelarAction } from "@/app/actions/lancamentos";
-import { BotaoExcluir } from "./botao-excluir";
+import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 
 /**
- * O menu "⋯" da linha de um lançamento avulso (DENS-02).
+ * O menu "⋯" da linha de um lançamento (DENS-02; EXC-01).
  *
  * As ações saem da linha para a lista mostrar o que se lê: descrição, categoria,
- * data, situação e valor. Hoje a única ação do menu é "Excluir", com a mesma
- * confirmação em dois toques de antes.
+ * data, situação e valor. O conteúdo é de quem monta o menu: o avulso passa o
+ * `BotaoExcluir` de dois toques, a parcela passa o aviso de `ExcluirParcelas`.
+ * O conteúdo recebe `fechar`, que fecha o menu e devolve o foco ao "⋯", pelo
+ * mesmo caminho do `Escape` (EXC-02, AC 9). Fechado, o conteúdo sai da árvore:
+ * reabrir o menu o monta do zero.
  *
  * **O painel abre dentro da própria célula,** sem portal. A confirmação do
  * excluir se desarma quando o foco sai dela, e as consultas da tela e dos
@@ -24,18 +25,21 @@ import { BotaoExcluir } from "./botao-excluir";
  * 44 px no toque (TOQUE-01); 32 px com ponteiro fino, como o selo.
  */
 export function MenuDaLinha({
-  lancamentoId,
   descricao,
-  excluir,
+  children,
 }: {
-  readonly lancamentoId: string;
   readonly descricao: string;
-  readonly excluir: typeof cancelarAction;
+  readonly children: (fechar: () => void) => ReactNode;
 }) {
   const [aberto, setAberto] = useState(false);
   const raiz = useRef<HTMLSpanElement>(null);
   const gatilho = useRef<HTMLButtonElement>(null);
   const id = useId();
+
+  const fechar = useCallback(() => {
+    setAberto(false);
+    gatilho.current?.focus();
+  }, []);
 
   /*
    * Os ouvintes só existem com o menu aberto. `Escape` fecha e devolve o foco
@@ -49,8 +53,7 @@ export function MenuDaLinha({
     }
     function aoTeclar(evento: KeyboardEvent): void {
       if (evento.key === "Escape") {
-        setAberto(false);
-        gatilho.current?.focus();
+        fechar();
       }
     }
     function aoPerderFoco(evento: FocusEvent): void {
@@ -71,7 +74,7 @@ export function MenuDaLinha({
       conjunto.removeEventListener("focusout", aoPerderFoco);
       document.removeEventListener("pointerdown", aoTocarFora);
     };
-  }, [aberto]);
+  }, [aberto, fechar]);
 
   return (
     <span ref={raiz} className="relative inline-flex">
@@ -91,7 +94,7 @@ export function MenuDaLinha({
           id={id}
           className="absolute top-full right-0 z-20 mt-1 flex rounded-lg border border-line bg-surface p-1 shadow-lift"
         >
-          <BotaoExcluir lancamentoId={lancamentoId} descricao={descricao} excluir={excluir} />
+          {children(fechar)}
         </span>
       ) : null}
     </span>
