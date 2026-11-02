@@ -99,11 +99,11 @@ T6 -> T7
 **Requirement**: DOR-06 (ACs 1 a 4)
 **Tools**: nenhuma
 **Done when**:
-- [ ] "Para quem" sem fechar o nicho; três estados mantidos (AC 1)
-- [ ] Regra "até cinco" e a tabela com os cinco mais a reserva (AC 2)
-- [ ] Regra 8 do tom sem o casal (AC 3)
-- [ ] Copy no repositório com a Seção 8 nova; kit com sete headlines (AC 4)
-- [ ] `grep -c "R\$" docs/marketing/*.md` só com fixtures da spec do MVP
+- [x] "Para quem" sem fechar o nicho; três estados mantidos (AC 1)
+- [x] Regra "até cinco" e a tabela com os cinco mais a reserva (AC 2)
+- [x] Regra 8 do tom sem o casal (AC 3)
+- [x] Copy no repositório com a Seção 8 nova; kit com sete headlines (AC 4)
+- [x] `grep -c "R\$" docs/marketing/*.md` só com fixtures da spec do MVP
 **Tests**: none
 **Gate**: docs
 

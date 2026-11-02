@@ -17,7 +17,6 @@ Cada uma diz para qual estado da persona foi escrita. A primeira é a da página
 | O caderno sabe o que você anotou. Não sabe o que ainda vai cair. | Caderno |
 | Duas pessoas, um saldo, o mesmo número para as duas. | Nada |
 | A fatura do cartão nunca conta duas vezes. Por construção, não por cuidado. | Planilha |
-| Feito por um casal que cansou de copiar parcela de aba em aba. | Todos |
 
 ## Textos curtos
 

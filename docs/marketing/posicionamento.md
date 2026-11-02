@@ -22,9 +22,11 @@ pode aparecer como apoio. Deixou de ser a manchete em 2026-11-01 (seção "A tes
 
 ## Para quem
 
-Casais que dividem as contas da casa. Casal aqui é qualquer dupla com caixa em comum: cônjuges,
-namorados morando juntos, irmãos dividindo apartamento. O produto não pergunta a relação; pergunta
-quem gastou.
+Quem paga as contas da casa, sozinho ou a dois. O produto tem lugar para duas pessoas com um caixa
+em comum (cônjuges, namorados morando juntos, irmãos dividindo apartamento) e funciona com uma só.
+Ele não pergunta a relação; quando são dois, pergunta quem gastou. Nenhuma peça fecha o público em
+casais (decisão do dono em 2026-11-01): a palavra "casal" não entra na landing, e "para dois" vira
+"sozinho ou a dois".
 
 A pessoa chega em um de três estados, e a peça precisa saber com qual está falando.
 
@@ -123,16 +125,30 @@ simulador **"Dá pra comprar?"** como a próxima coisa que a lista de espera vai
 
 ## Números de mercado
 
-Use no máximo três por peça, sempre com fonte e ano na mesma frase. São matérias que repercutem
-pesquisas, não os relatórios originais: antes de uma peça paga, conferir o relatório.
+Até cinco por peça, num bloco só, sempre com fonte e ano na mesma frase; o resto da peça fica sem
+número. São matérias que repercutem pesquisas, não os relatórios originais: antes de uma peça paga,
+conferir o relatório. Conferidos na fonte em 2026-11-01.
 
-| Número | Fonte e ano | Para que serve |
-| --- | --- | --- |
-| 45% dos casais apontam o dinheiro como o centro dos conflitos da relação | Serasa, 2026 (via Band, 12/06/2026) | Abrir a conversa sobre "para dois" |
-| Entre quem compra parcelado, 52% não controlam as parcelas; dos que controlam, 22% usam caderno, 15% planilha e 11% aplicativo | CNDL e SPC Brasil com Offerwise, janeiro de 2025 (via Monitor Mercantil, 26/03/2025) | Mostrar que a planilha não é a maioria e que o caderno existe |
-| 58% dos casais dizem ter alguma organização financeira em conjunto | Serasa com Opinion Box, 1.120 entrevistados (via Fast Company Brasil, 12/06/2025) | Dizer que quatro em dez não têm nada, sem culpar |
+Os cinco da landing, na ordem da dor à ponte:
 
-Descartado: o levantamento SPC/CNDL de 2017 (39% brigam por dinheiro). Tem quase dez anos.
+| Número | Frase | Fonte, ano | Coleta e publicação | Onde conferir |
+| --- | --- | --- | --- | --- |
+| 58% e 14% | de quem usa cartão de crédito não controla o que gasta nele; 14% só sabem quanto devem quando a fatura fecha | CNDL e SPC Brasil, 2026 | Coleta de 2 a 9 de janeiro de 2026, 600 casos nas 27 capitais, Offerwise; publicada em 23/04/2026 | cndl.org.br/varejosa/58-dos-consumidores-nao-controlam-gastos-com-cartao-de-credito-aponta-cndl-spc-brasil/ |
+| 61% | fizeram uma compra não planejada no mês anterior; 60 milhões carregam parcelas, quatro em média | CNDL e SPC Brasil, 2026 | Mesma coleta; publicada em 10/07/2026 | cndl.org.br/varejosa/60-milhoes-de-consumidores-possuem-compras-parceladas-aponta-cndl-spc-brasil/ |
+| 47% | de quem compra parcelado não controla os gastos antes de comprar; quem acompanha usa papel (20%), planilha (14%) ou aplicativo (10%) | CNDL e SPC Brasil, 2026 | Mesma matéria | Mesma matéria |
+| 82% | das famílias brasileiras têm dívida; em 85% delas, a dívida é no cartão de crédito | CNC, 2026 | Peic de julho de 2026; Agência Brasil, 06/08/2026 | agenciabrasil.ebc.com.br/economia/noticia/2026-08/cnc-endividamento-das-familias-sobe-para-82-mas-inadimplencia-cai |
+| 45% | de quem vive a dois apontam o dinheiro entre as principais causas de briga | Serasa com Opinion Box, 2026 | Coleta de 19 a 27 de maio de 2026, 1.257 pessoas; Band, 06/2026 | band.com.br/economia/dinheiro-e-motivo-de-briga-para-45-dos-casais-aponta-serasa |
+
+Reserva, para outras peças:
+
+| Número | Frase | Fonte, ano | Onde conferir |
+| --- | --- | --- | --- |
+| 37% | dos consumidores das capitais tinham compra parcelada em aberto em dezembro de 2025 | CNDL e SPC Brasil, 2026 | matéria de 10/07/2026 acima |
+| 49% | já esconderam um problema financeiro do parceiro | Serasa com Opinion Box, 2025 | cnnbrasil.com.br/economia/financas/mais-de-50-dizem-que-financas-sao-principal-motivo-de-brigas-entre-casais/ (1.120 pessoas, 09/06/2025) |
+| 58% | de quem vive a dois planejam o dinheiro juntos; 33% apontam a falta de planejamento como motivo de briga | Serasa com Opinion Box, 2025 | mesma matéria |
+
+Descartados: o 53% de 2025 (a edição de 2026 da mesma pesquisa diz 45%); o 52% de 2025 que estava na
+landing (a edição de 2026 diz 47%, com o recorte por ferramenta); o levantamento SPC/CNDL de 2017.
 
 ## Concorrência, em uma linha cada
 
@@ -142,7 +158,7 @@ Descartado: o levantamento SPC/CNDL de 2017 (39% brigam por dinheiro). Tem quase
   vários lugares, e cada digitação é uma chance de erro.
 - **Caderno**: imediato e sem tela. Não sabe o futuro.
 
-Onde ninguém está: **para dois, com aritmética que não deixa errar.**
+Onde ninguém está: **sabe o que vem, para uma pessoa ou duas, com aritmética que não deixa errar.**
 
 ## Tom de voz
 
@@ -156,7 +172,8 @@ Regras que dá para conferir, não adjetivos.
 5. Cena antes de garantia: primeiro a situação que a pessoa reconhece, depois o que o app faz.
 6. Número sempre com fonte e ano na mesma frase.
 7. Admitir o que a planilha faz melhor quando o assunto for comparação.
-8. Dizer o que o produto é hoje: feito por um casal para o próprio uso, abrindo para mais casas.
+8. Dizer o que o produto é hoje: em uso, com contas de verdade, abrindo para mais casas. A história
+   de quem o fez não é prova e não entra na peça (decisão do dono em 2026-11-01).
 9. Nunca a segunda pessoa do plural artificial ("vocês dois podem..."). Falar com uma pessoa, que
    vai mostrar para a outra.
 10. Botão diz o que acontece: "Entrar na lista de espera". Nunca "Saiba mais", "Começar agora".

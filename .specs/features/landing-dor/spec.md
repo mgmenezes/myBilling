@@ -251,7 +251,7 @@ devolve só a tabela de concorrência ou nada.
 | DOR-03 | P1: Cinco números numa seção só | Tasks | Pending |
 | DOR-04 | P2: Perguntas frequentes sem script | Tasks | Pending |
 | DOR-05 | P1: Para quem paga as contas da casa, sem a história de origem | Tasks | Pending |
-| DOR-06 | P2: Documentos, decisão e gates | Tasks | Pending |
+| DOR-06 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 4 em T1 (`docs/marketing/posicionamento.md` "Para quem", "Números de mercado", regra 8; `copy-landing-simulador.md` Seção 8; `kit-de-copy.md` com sete headlines); ACs 5 e 6 em T7 |
 
 **Coverage:** 6 total, 6 mapeados para tasks (T1 a T7 em `tasks.md`), 0 unmapped
 
