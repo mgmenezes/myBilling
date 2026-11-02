@@ -1,7 +1,7 @@
 # O app se chama Jano — Tasks
 
 **Spec**: `.specs/features/renomear-jano/spec.md`
-**Status**: Tasks concluídas, à espera do Verifier
+**Status**: Concluída e verificada (FAIL na rodada 1, F1 a F3; PASS na rodada 2, 2026-11-02)
 **Total**: 4 tasks em 2 fases
 
 ---

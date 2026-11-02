@@ -148,10 +148,10 @@ nada depois.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| NOME-01 | P1: A marca do Jano no app | Execute | Implemented: T1 (`src/components/menu-lateral.test.tsx` "a marca leva para a home do ano", "a marca é o símbolo de dois arcos do Jano", "tem as áreas do Jano"; `e2e/auth.spec.ts` "a aba do navegador diz Jano"; 184 e2e dos specs tocados verdes) |
-| NOME-02 | P1: O herói do login | Execute | Implemented: T2, `e2e/auth.spec.ts` "o login abre pelo herói do Jano" (marca e símbolo, `<h1>` exato, subtítulo exato, botão, acesso restrito, nenhum "myBilling") |
-| NOME-03 | P1: Nenhum myBilling que se lê | Execute | Implemented: T3 (`src/lib/nome-publico.test.ts` nas duas asserções; `e2e/auth.spec.ts` acesso negado com 403 e "o Jano"; `e2e/compra-parcelada.spec.ts` "O Jano nunca soma nem subtrai"; pacote regenerado e fresco em `site/simulador.test.mjs`); AC 4 em T1 |
-| NOME-04 | P2: Documentos vivos e gates | Execute | Implemented: T4 (README, AGENTS, docs/design, deploy, qa, importacao, site/README e posicionamento com Jano e a nota dos identificadores; AD-027 e Handoff; HANDOFF); AC 4: `pnpm verify` e `pnpm site:verificar` 0, `pnpm test:e2e` 281/282 com o MOV-06 instável sob carga, 5/5 isolado |
+| NOME-01 | P1: A marca do Jano no app | Execute | Verified (Verifier PASS na rodada 2, 2026-11-02): T1 (`src/components/menu-lateral.test.tsx` "a marca leva para a home do ano", "a marca é o símbolo de dois arcos do Jano", "tem as áreas do Jano"; `e2e/auth.spec.ts` "a aba do navegador diz Jano"; 184 e2e dos specs tocados verdes) |
+| NOME-02 | P1: O herói do login | Execute | Verified (Verifier PASS na rodada 2, 2026-11-02): T2, `e2e/auth.spec.ts` "o login abre pelo herói do Jano" (marca e símbolo, `<h1>` exato, subtítulo exato, botão, acesso restrito, nenhum "myBilling") |
+| NOME-03 | P1: Nenhum myBilling que se lê | Execute | Verified (Verifier PASS na rodada 2, 2026-11-02): T3 (`src/lib/nome-publico.test.ts` nas duas asserções; `e2e/auth.spec.ts` acesso negado com 403 e "o Jano"; `e2e/compra-parcelada.spec.ts` "O Jano nunca soma nem subtrai"; pacote regenerado e fresco em `site/simulador.test.mjs`); AC 4 em T1 |
+| NOME-04 | P2: Documentos vivos e gates | Execute | Verified (Verifier PASS na rodada 2, 2026-11-02): T4 (README, AGENTS, docs/design, deploy, qa, importacao, site/README e posicionamento com Jano e a nota dos identificadores; AD-027 e Handoff; HANDOFF); AC 4: `pnpm verify` e `pnpm site:verificar` 0, `pnpm test:e2e` 281/282 com o MOV-06 instável sob carga, 5/5 isolado |
 
 **Coverage:** 4 total, 4 mapeados para tasks (T1 a T4 em `tasks.md`), 0 unmapped
 
@@ -159,6 +159,6 @@ nada depois.
 
 ## Success Criteria
 
-- [ ] Nenhuma tela do app diz myBilling
-- [ ] O login abre pela manchete do Jano
-- [ ] `pnpm verify && pnpm site:verificar && pnpm test:e2e` saem 0; Verifier PASS
+- [x] Nenhuma tela do app diz myBilling
+- [x] O login abre pela manchete do Jano
+- [x] `pnpm verify && pnpm site:verificar && pnpm test:e2e` saem 0; Verifier PASS

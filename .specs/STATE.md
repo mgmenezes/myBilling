@@ -425,9 +425,10 @@
   o nome novo do projeto na Vercel). Spec e tasks em `.specs/features/renomear-jano/`.
 - **O que é**: o app passa a se chamar Jano em tudo o que se lê, e o login abre pelo herói da landing.
   Os identificadores técnicos continuam `mybilling`.
-- **Completed**: spec `a1fd179`, T1 `cbb07c9`, T2 `cc2987e`, T3 `ee4d0c1`, T4 (este registro).
-- **In-progress**: o Verifier independente roda depois da T4.
-- **Next step**: (1) Verifier PASS; (2) merge na `main` e `git push`, com autorização separada do
+- **Completed**: spec `a1fd179`, T1 `cbb07c9`, T2 `cc2987e`, T3 `ee4d0c1`, T4 `0786619`; rodada 1 FAIL
+  `9c7621b`; F1 `8e39cbf`, F2 `ae7e11c`, F3 `d8d7344`; rodada 2 PASS (este registro).
+- **In-progress**: nenhum. Verifier PASS na rodada 2.
+- **Next step**: (1) rebasear sobre a `main`, que ganhou a exclusão de compra, e rodar o gate; (2) merge na `main` e `git push`, com autorização separada do
   dono; (3) a Vercel do app republica sozinha a cada push na `main`; (4) o projeto do app na Vercel
   está como `janofincancas`, com um "c" a mais, e o dono quer `janofinancas`.
 - **Blockers**: nenhum.
