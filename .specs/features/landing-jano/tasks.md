@@ -121,28 +121,28 @@ T7 -> T8
 
 #### T3: O pacote da landing com a conta do app
 **What**: `esbuild` como devDependency (a versão já presente no store); `site/construir.mjs` com `OPCOES` exportadas e o script `site:construir`; `site/fonte/casa-inventada.ts`; `site/fonte/simulador.ts` com `horizonteDaCasa`, `responder` e `iniciar`; `site/simulador.js` gerado; Biome ignora o gerado; `site/simulador.test.mjs` com frescor, comportamento e regras da casa.
-**Where**: `package.json`, `pnpm-lock.yaml`, `biome.json`, `site/construir.mjs`, `site/fonte/casa-inventada.ts`, `site/fonte/simulador.ts`, `site/simulador.js`, `site/simulador.test.mjs`
+**Where**: `package.json`, `pnpm-lock.yaml`, `biome.json`, `site/construir.mjs`, `site/fonte/casa-inventada.ts`, `site/fonte/simulador.ts`, `site/simulador.js`, `site/simulador.test.mjs`, `src/components/texto-do-veredito.ts` e `src/components/simulador.tsx` (a constante `TEXTO_SEM_VALOR` passa a ser compartilhada)
 **Depends on**: T2
 **Reuses**: `simularCompra`, `menorParcelamentoQueCabe`, `parseBRL`, `dataParaCompetencia`, `addMeses`, `planoDaCompra` ou `gerarParcelas`, `mensagemDoErro`, `apresentarSaldo`, `formatar*`, `textoDoVeredito`
 **Requirement**: JANO-03 (ACs 1, 3, 4, 5, 7), JANO-04, JANO-05 (ACs 1, 2, 4)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: R$ 1.000,00 em 3x dá 333,34, 333,33 e 333,33 (JANO-03 AC 3)
-- [ ] Teste: valor vazio e "abc" dão `SEM_VALOR` com a frase do app (AC 4)
-- [ ] Teste: 0 e 121 vezes dão a mensagem de `QTD_PARCELAS_INVALIDA` (AC 5)
-- [ ] Teste: 14 vezes dão "Enxergo até <Mês de ano>." com o último mês do horizonte (AC 7)
-- [ ] Teste: o veredito de `responder` é igual a `textoDoVeredito` chamado com a mesma simulação (AC 1 e 2)
-- [ ] Teste: doze saldos, múltiplos de 500 centavos, entre 0 e 200000; horizonte de dezembro atravessa o ano (JANO-04 ACs 1 a 3)
-- [ ] Teste: R$ 2.400,00 em 10x não cabe, dois meses derrubados, menor que cabe 12 (JANO-04 AC 4)
-- [ ] Teste: o arquivo versionado é igual ao que `OPCOES` gera agora, e começa com o banner (JANO-05 ACs 1 e 2)
-- [ ] `biome check .` não lê `site/simulador.js` (JANO-05 AC 4)
+- [x] Teste: R$ 1.000,00 em 3x dá 333,34, 333,33 e 333,33 (JANO-03 AC 3)
+- [x] Teste: valor vazio e "abc" dão `SEM_VALOR` com a frase do app (AC 4)
+- [x] Teste: 0 e 121 vezes dão a mensagem de `QTD_PARCELAS_INVALIDA` (AC 5)
+- [x] Teste: 14 vezes dão "Enxergo até <Mês de ano>." com o último mês do horizonte (AC 7)
+- [x] Teste: o veredito de `responder` é igual a `textoDoVeredito` chamado com a mesma simulação (AC 1 e 2)
+- [x] Teste: doze saldos, múltiplos de 500 centavos, entre 0 e 200000; horizonte de dezembro atravessa o ano (JANO-04 ACs 1 a 3)
+- [x] Teste: R$ 2.400,00 em 10x não cabe, dois meses derrubados, menor que cabe 12 (JANO-04 AC 4)
+- [x] Teste: o arquivo versionado é igual ao que `OPCOES` gera agora, e começa com o banner (JANO-05 ACs 1 e 2)
+- [x] `biome check .` não lê `site/simulador.js` (JANO-05 AC 4)
 **Tests**: `site/simulador.test.mjs`
 **Gate**: site
 
 ### Phase 2 — A página
 
 #### T4: O herói do Jano
-**What**: título, descrição, favicon e marca do Jano; selo, `<h1>`, subtítulo, ações ("Testar o simulador" para `#simulador`), confiança e história; links do cabeçalho; coluna "Jano" e `data-vence="jano"` no comparativo; `alt` sem "myBilling"; a captura da Visão geral sai do herói e vai para `sua-planilha`; o card `#simulador` entra vazio, com o `<noscript>` do exemplo. Testes de VEM-02 AC 1, CAMP-02 AC 3 e VEM-02 AC 3 passam para o texto novo.
+**What**: título, descrição, favicon e marca do Jano; selo, `<h1>`, subtítulo, ações ("Testar o simulador" para `#simulador`), confiança e história; links do cabeçalho; coluna "Jano" e `data-vence="jano"` no comparativo; `alt` sem "myBilling"; a captura da Visão geral sai do herói e vai para `sua-planilha`; o card `#simulador` entra vazio, com o exemplo visível por padrão. Testes de VEM-02 AC 1, CAMP-02 AC 3 e VEM-02 AC 3 passam para o texto novo.
 **Where**: `site/index.html`, `site/estilos.css`, `site/estrutura.test.mjs`
 **Depends on**: T3
 **Reuses**: `.hero`, `.cartao`, `.captura`, `.botao`, `secao()`
@@ -150,14 +150,14 @@ T7 -> T8
 **Tools**: nenhuma
 **Done when**:
 - [ ] Testes de JANO-01 ACs 1 a 8
-- [ ] Teste do `<noscript>` com o exemplo e a frase de JavaScript (JANO-03 AC 6)
+- [ ] Teste do exemplo visível, com a frase de JavaScript, e dos campos com `hidden` (JANO-03 AC 6)
 - [ ] Teste: a captura da Visão geral em `sua-planilha` (JANO-07 AC 3)
 - [ ] Navegador sem rolagem e sem violação nas seis combinações
 **Tests**: `site/estrutura.test.mjs`
 **Gate**: navegador
 
 #### T5: O simulador no herói
-**What**: campos, veredito, detalhe e gráfico dentro de `[data-simulador]`; `<script type="module" src="simulador.js">`; CSS do card e do gráfico; teste estrutural com dois scripts (revisa CAMP-03 AC 5); verificador de navegador digita e confere o veredito.
+**What**: campos, veredito, detalhe e gráfico dentro de `[data-simulador]`; `<script src="simulador.js" defer>`; CSS do card e do gráfico; teste estrutural com dois scripts (revisa CAMP-03 AC 5); verificador de navegador digita e confere o veredito.
 **Where**: `site/index.html`, `site/estilos.css`, `site/estrutura.test.mjs`, `site/verificar-navegador.mjs`
 **Depends on**: T4
 **Reuses**: `iniciar` do pacote; tokens `--negativo`, `--surface-strong`, `--ink-muted`
@@ -219,4 +219,15 @@ T7 -> T8
 
 ## Deviations
 
-Nenhuma até agora. Toda saída do spec é registrada aqui como `SPEC_DEVIATION` antes do commit.
+- **SPEC_DEVIATION (T3, antes de implementar):** o pacote sai como script clássico (`format: "iife"`,
+  `globalName`), carregado com `<script src="simulador.js" defer>`, e não como módulo. Motivo: o Chrome
+  bloqueia script de módulo em `file://`, que é como `verificar-navegador.mjs` e o README abrem a
+  página. JANO-05 AC 3 ajustado na spec.
+- **SPEC_DEVIATION (T3, antes de implementar):** o exemplo sem JavaScript é um bloco visível por
+  padrão que o pacote esconde, e não um `<noscript>`. Motivo: cobre também o pacote que falha ao
+  carregar. JANO-03 AC 6 ajustado na spec. O teste do pacote roda o IIFE em `node:vm`.
+- **Observação (T3):** uma rodada do `pnpm test:unit` falhou 8 testes em 7 arquivos e contou 135
+  arquivos em vez de 136; as duas rodadas seguintes, sem mudança de código, deram 136 arquivos e
+  2.164 testes verdes. Tratado como falha passageira do ambiente; fica registrado para o Verifier.
+- **Decisão do autor (T3):** "Informe o valor para ver a resposta." passa a ser a constante
+  `TEXTO_SEM_VALOR` em `texto-do-veredito.ts`, usada pelo app e pela landing, em vez de duas cópias.

@@ -16,7 +16,7 @@ em TypeScript que importa a conta do app (`src/domain`) e a frase do app (um mó
 | Casa inventada | `site/fonte/casa-inventada.ts` (novo) | `SALDOS_DA_CASA`: doze saldos em centavos, com cabeçalho "valores inventados" (AD-009) |
 | Entrada do pacote | `site/fonte/simulador.ts` (novo) | `horizonteDaCasa(competencia)`, `responder({ valor, vezes, horizonte })` puros; `iniciar(document)` liga o DOM só quando há `document` |
 | Construção | `site/construir.mjs` (novo) e `pnpm site:construir` | `esbuild.build` com opções exportadas (`OPCOES`), saída `site/simulador.js` com banner "Gerado por pnpm site:construir. Não edite." |
-| Pacote | `site/simulador.js` (gerado, versionado) | ESM, sem dependência externa; a Vercel publica como está |
+| Pacote | `site/simulador.js` (gerado, versionado) | IIFE com `globalName: "SimuladorDaLanding"`, sem dependência externa; a Vercel publica como está; funciona em `file://` |
 | Testes do pacote | `site/simulador.test.mjs` (novo) | Frescor (reconstrói em memória com `OPCOES` e compara), comportamento (`responder`) e regras da casa |
 
 ### A entrada `site/fonte/simulador.ts`
@@ -46,12 +46,13 @@ em TypeScript que importa a conta do app (`src/domain`) e a frase do app (um mó
 
 - Herói em grade de duas colunas (`auto-fit, minmax(min(100%, 440px), 1fr)`): à esquerda selo,
   `<h1>`, subtítulo, ações, confiança e história; à direita o card `#simulador`.
-- Dentro do card: `<div data-simulador hidden>` com os dois campos e a resposta; `<noscript>` com o
-  exemplo de R$ 1.000,00 em 3x. Sem JavaScript, o `hidden` fica e o `<noscript>` aparece.
+- Dentro do card: `<div data-simulador hidden>` com os dois campos e a resposta, e
+  `<div data-simulador-exemplo>` com o exemplo de R$ 1.000,00 em 3x, visível por padrão. O pacote
+  tira o `hidden` de um e põe no outro; sem JavaScript, ou com o pacote falhando, fica o exemplo.
 - Gráfico: doze colunas em `repeat(12, minmax(0, 1fr))`; barra fantasma (`--surface-strong`) com o
   antes, barra cheia (`--ink-muted`) com o depois, barra abaixo da linha (`--negativo`) com o que
   falta. Altura proporcional ao maior saldo da casa; o que falta tem altura mínima visível.
-- `<script type="module" src="simulador.js"></script>` no fim do `<body>`.
+- `<script src="simulador.js" defer></script>` no `<head>`, depois do script do tema.
 - Marca: dois arcos de costas com um ponto cada, em SVG inline com `currentColor`; o favicon passa
   a ser o mesmo desenho em `data:` (como hoje), sem o azul.
 
@@ -64,7 +65,8 @@ em TypeScript que importa a conta do app (`src/domain`) e a frase do app (um mó
 | Estrutura | `site/estrutura.test.mjs` | JANO-01, JANO-02 ACs 1, 5 e 6, JANO-03 AC 6, JANO-05 AC 3, JANO-06, JANO-07 ACs 2 a 4 |
 | Navegador | `site/verificar-navegador.mjs` | JANO-02 ACs 2 a 4 (digitar e ver o veredito trocar), axe e rolagem com o card preenchido |
 
-O `node:test` importa `site/simulador.js` direto: o pacote não roda `iniciar` sem `document`.
+O `node:test` roda `site/simulador.js` em `node:vm` e lê `SimuladorDaLanding`: o pacote não roda
+`iniciar` sem `document`.
 
 ## Riscos
 

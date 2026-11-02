@@ -13,7 +13,8 @@
       "!.agents",
       "!.claude",
       "!drizzle",
-      "!.specs/lessons.json"
+      "!.specs/lessons.json",
+      "!site/simulador.js"
     ]
   },
   "css": {

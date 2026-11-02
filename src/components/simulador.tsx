@@ -18,6 +18,7 @@ import { mensagemDoErro } from "@/lib/erros";
 import { formatarCompetencia } from "@/lib/formatar";
 import { FormCompra, type OpcaoDeCadastro } from "./form-compra";
 import { RespostaDaSimulacao } from "./resposta-da-simulacao";
+import { TEXTO_SEM_VALOR } from "./texto-do-veredito";
 import { Botao } from "./ui";
 
 /**
@@ -58,8 +59,6 @@ const CONTROLE_CLASSE =
   "transition-colors duration-200 hover:border-line-strong " +
   "aria-[invalid=true]:border-negativo aria-[invalid=true]:border-2";
 const ERRO_CLASSE = "flex items-center gap-1.5 text-[14px] font-medium text-negativo";
-
-const SEM_VALOR = "Informe o valor para ver a resposta.";
 
 function inteiro(texto: string): number {
   const valor = Number.parseInt(texto, 10);
@@ -256,7 +255,9 @@ export function Simulador({
         </p>
       ) : (
         <p className="text-[15px] text-ink-muted">
-          {resultado.tipo === "SEM_VALOR" ? SEM_VALOR : "Corrija o campo para ver a resposta."}
+          {resultado.tipo === "SEM_VALOR"
+            ? TEXTO_SEM_VALOR
+            : "Corrija o campo para ver a resposta."}
         </p>
       )}
 

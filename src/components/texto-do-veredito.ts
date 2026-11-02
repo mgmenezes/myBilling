@@ -15,6 +15,9 @@ import { formatarCompetencia, nomeDoMes } from "@/lib/formatar";
  * o pacote `site/simulador.js` importa daqui, e uma frase só não diverge.
  */
 
+/** Sem valor válido não há veredito: a resposta pede o valor (SIM-02). */
+export const TEXTO_SEM_VALOR = "Informe o valor para ver a resposta.";
+
 export interface EntradaDoVeredito {
   readonly simulacao: Simulacao;
   /** O número de parcelas pedido: o `n` do "Em 10x não cabe". */

@@ -55,8 +55,8 @@ inventada.
 | Estado inicial | R$ 2.400,00 em 10x, que deixa dois meses no vermelho e cabe em 12x | A página abre mostrando o que o produto faz | n (decisão do autor) |
 | Mesma conta e mesma frase | A landing carrega um pacote gerado de `src/domain` e do módulo puro do veredito; nenhuma conta reescrita à mão | "A conta é a mesma do app" precisa ser verdade verificável | n (decisão do autor) |
 | Pacote versionado | `site/simulador.js` entra no git, gerado por `pnpm site:construir`, com teste de frescor | O projeto da Vercel publica `site/` sem build | n (decisão do autor) |
-| Segundo script | A página passa a carregar dois `<script>`: o do tema, inline, e `simulador.js`, local, como módulo | Revisa CAMP-03 AC 5; nenhum terceiro | n (decisão do autor) |
-| Sem JavaScript | O card mostra o exemplo pronto de R$ 1.000,00 em 3x (333,34, 333,33 e 333,33) e diz que o simulador precisa de JavaScript | Valores da fixture do MVP, já na allowlist | n (decisão do autor) |
+| Segundo script | A página passa a carregar dois `<script>`: o do tema, inline, e `simulador.js`, local, clássico com `defer` (formato IIFE) | Revisa CAMP-03 AC 5; nenhum terceiro. Script de módulo é bloqueado pelo Chrome em `file://`, que é como o verificador e o README abrem a página | n (decisão do autor) |
+| Sem JavaScript | O card mostra o exemplo pronto de R$ 1.000,00 em 3x (333,34, 333,33 e 333,33), visível por padrão, e o pacote o esconde ao iniciar | Valores da fixture do MVP, já na allowlist; cobre também o pacote que não carrega, o que um `<noscript>` não cobre | n (decisão do autor) |
 | Captura da Visão geral | Sai do herói e vai para "Traga a sua planilha ou comece do zero" | O herói passa a ter o simulador; CAMP-05 continua com duas capturas | n (decisão do autor) |
 | Coluna do comparativo | "myBilling" vira "Jano", inclusive em `data-vence` | Coerência da página; atributo invisível, mas lido pelo teste | n (decisão do autor) |
 | Pergunta nova no FAQ | "Como funciona o Dá pra comprar?", da copy (Seção 10) | O simulador agora existe | n (decisão do autor) |
@@ -156,8 +156,9 @@ meses que ficam no vermelho, sem cadastro.
    resposta." e nenhum veredito
 5. IF as vezes estão fora de 1 a 120 THEN the card SHALL mostrar a mensagem de `QTD_PARCELAS_INVALIDA`
    de `src/lib/erros.ts` e nenhum veredito
-6. IF o JavaScript está desligado THEN the card SHALL mostrar o exemplo pronto de R$ 1.000,00 em 3x
-   e a frase "Ligue o JavaScript para testar outra compra.", e os campos SHALL ficar ocultos
+6. IF o JavaScript está desligado ou o pacote não carrega THEN the card SHALL mostrar o exemplo pronto
+   de R$ 1.000,00 em 3x e a frase "Ligue o JavaScript para testar outra compra.", e os campos SHALL
+   ficar ocultos
 7. WHEN a compra tem parcelas além do horizonte THEN the card SHALL mostrar a frase "Enxergo até
    <Mês de ano>." do app
 8. The app SHALL continuar mostrando o mesmo veredito de antes: os testes de `resposta-da-simulacao`
@@ -202,7 +203,7 @@ atrás do código do app.
 2. IF `site/simulador.js` difere do que `pnpm site:construir` geraria agora THEN the teste SHALL
    falhar dizendo para rodar o comando
 3. The page SHALL carregar exatamente dois `<script>`: o do tema, inline, sem `src`, e
-   `<script type="module" src="simulador.js">`, e SHALL não carregar nenhum recurso de terceiros além
+   `<script src="simulador.js" defer>`, local, e SHALL não carregar nenhum recurso de terceiros além
    das fontes
 4. The Biome SHALL ignorar `site/simulador.js`
 
@@ -293,9 +294,9 @@ atrás do código do app.
 | --- | --- | --- | --- |
 | JANO-01 | P1: O herói diz o que é | Tasks | Pending |
 | JANO-02 | P1: O simulador funciona no herói | Tasks | Pending |
-| JANO-03 | P1: A mesma conta e as mesmas frases do app | Execute | Implementing: ACs 2 e 8 em T2 (`src/components/texto-do-veredito.ts`, sem React; `resposta-da-simulacao.test.tsx` e `simulador.test.tsx` sem mudança, 2.164 unitários verdes); ACs 1, 3 a 5 e 7 em T3; AC 6 em T4 |
-| JANO-04 | P1: A casa inventada | Tasks | Pending |
-| JANO-05 | P1: O pacote versionado e fresco | Tasks | Pending |
+| JANO-03 | P1: A mesma conta e as mesmas frases do app | Execute | Implementing: ACs 2 e 8 em T2 (`src/components/texto-do-veredito.ts`, sem React; `resposta-da-simulacao.test.tsx` e `simulador.test.tsx` sem mudança, 2.164 unitários verdes); ACs 1, 3 a 5 e 7 em T3 (`site/simulador.test.mjs`: "JANO-03 AC 3", "JANO-04 AC 4 e JANO-03 ACs 1 e 2", "JANO-03 AC 4", "JANO-03 AC 5", "JANO-03 AC 7"); AC 6 em T4 |
+| JANO-04 | P1: A casa inventada | Execute | Implemented: T3, `site/fonte/casa-inventada.ts` e `site/simulador.test.mjs` ("JANO-04 ACs 1 e 3", "JANO-04 AC 2" duas vezes, "JANO-04 AC 4") |
+| JANO-05 | P1: O pacote versionado e fresco | Execute | Implementing: ACs 1, 2 e 4 em T3 (`site/construir.mjs`, `pnpm site:construir`, "JANO-05 ACs 1 e 2", `biome.json` ignora `site/simulador.js`); mutantes "frase mudada sem reconstruir" e "resíduo nas últimas" morrem; AC 3 em T5 |
 | JANO-06 | P2: A página não promete o que não existe | Tasks | Pending |
 | JANO-07 | P2: As capturas sem o nome antigo | Tasks | Pending |
 | JANO-08 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 3 em T1 (`posicionamento.md` seções "Nome" e "O produto em uma frase", sem "O que vem a seguir", nota do 14%; `kit-de-copy.md` com 8 headlines, a primeira "Antes de parcelar, pergunte ao Jano.", 0 "myBilling", 0 "ainda não existe"); ACs 4 e 5 em T8 |
