@@ -127,6 +127,18 @@ test("JANO-03 ACs 1 e 2: R$ 2.400,00 em 12x cabe, com a frase do app", () => {
   assert.equal(resposta.colunas.filter((coluna) => coluna.vermelho).length, 0);
 });
 
+test("JANO-02 AC 4: o mês que termina em exatamente zero não fica no vermelho", () => {
+  // R$ 2.050,00 em 10x são parcelas de R$ 205,00; o sexto mês da casa sobra R$ 205,00.
+  const resposta = S.responder({ valor: "2.050,00", vezes: "10", horizonte: HORIZONTE });
+  assert.equal(resposta.tipo, "RESPOSTA");
+  const sexto = resposta.colunas[5];
+  assert.equal(sexto.depois, 0);
+  assert.equal(sexto.vermelho, false);
+  assert.equal(resposta.colunas.filter((coluna) => coluna.vermelho).length, 0);
+  assert.equal(resposta.cabe, true);
+  assert.equal(resposta.veredito, "Cabe. Nenhum mês fica no vermelho.");
+});
+
 test("JANO-02 AC 4: uma coluna por mês do horizonte, com o nome curto, o antes e o depois", () => {
   const resposta = S.responder({ valor: "2.400,00", vezes: "10", horizonte: HORIZONTE });
   assert.equal(resposta.colunas.length, 12);
