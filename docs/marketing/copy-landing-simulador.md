@@ -1,5 +1,10 @@
 # Copy da landing para o lançamento do simulador
 
+> **Atualização de 2026-11-02:** o nome público passou a ser **Jano**, a manchete é "Antes de
+> parcelar, pergunte ao Jano." e o simulador entrou na landing (fatia `landing-jano`). A página
+> publicada manda; este documento guarda o raciocínio da copy e as hipóteses de teste, e onde ele
+> diz "myBilling" leia "Jano".
+
 Copy completa da landing do myBilling para o momento em que o simulador "Dá pra comprar?" existir
 (fatia `landing-simulador` do plano aprovado em 2026-11-01). Segue `posicionamento.md`; onde este
 documento pede uma mudança no posicionamento ou numa spec, a mudança está marcada e é decisão do

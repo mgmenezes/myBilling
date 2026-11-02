@@ -97,9 +97,9 @@ T7 -> T8
 **Requirement**: JANO-08 (ACs 1 a 3)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Seção "Nome" e o simulador fora de "O que nunca prometer" (AC 1)
-- [ ] Sem "O que vem a seguir"; nota do 14% (AC 2)
-- [ ] Kit com 6 a 8 headlines, a primeira igual ao `<h1>`; `grep -c myBilling` e `grep -c "ainda não existe"` dão 0 no kit (AC 3)
+- [x] Seção "Nome" e o simulador fora de "O que nunca prometer" (AC 1)
+- [x] Sem "O que vem a seguir"; nota do 14% (AC 2)
+- [x] Kit com 6 a 8 headlines, a primeira igual ao `<h1>`; `grep -c myBilling` e `grep -c "ainda não existe"` dão 0 no kit (AC 3)
 **Tests**: none
 **Gate**: docs
 

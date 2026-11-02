@@ -298,7 +298,7 @@ atrás do código do app.
 | JANO-05 | P1: O pacote versionado e fresco | Tasks | Pending |
 | JANO-06 | P2: A página não promete o que não existe | Tasks | Pending |
 | JANO-07 | P2: As capturas sem o nome antigo | Tasks | Pending |
-| JANO-08 | P2: Documentos, decisão e gates | Tasks | Pending |
+| JANO-08 | P2: Documentos, decisão e gates | Execute | Implementing: ACs 1 a 3 em T1 (`posicionamento.md` seções "Nome" e "O produto em uma frase", sem "O que vem a seguir", nota do 14%; `kit-de-copy.md` com 8 headlines, a primeira "Antes de parcelar, pergunte ao Jano.", 0 "myBilling", 0 "ainda não existe"); ACs 4 e 5 em T8 |
 
 **Coverage:** 8 total, 8 mapeados para tasks (T1 a T8 em `tasks.md`), 0 unmapped
 

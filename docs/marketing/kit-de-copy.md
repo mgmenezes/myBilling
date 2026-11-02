@@ -10,7 +10,8 @@ Cada uma diz para qual estado da persona foi escrita. A primeira é a da página
 
 | Headline | Estado |
 | --- | --- |
-| A planilha sabe o que você digitou. O myBilling sabe o que vem. | Todos |
+| Antes de parcelar, pergunte ao Jano. | Todos |
+| A planilha sabe o que você digitou. O Jano sabe o que vem. | Todos |
 | Antes de parcelar, veja quanto vai sobrar em cada um dos próximos meses. | Planilha |
 | O saldo de hoje não sabe das parcelas que vêm. | Todos |
 | Cadastre a compra parcelada uma vez. O resto dos meses é com o app. | Planilha |
@@ -25,18 +26,18 @@ Um por estado da persona. Cada um cabe em 280 caracteres e termina com a chamada
 ### Planilha
 
 > Você olha o saldo de hoje e decide se dá para parcelar. Mas as parcelas dos próximos meses já
-> estão decididas, e a planilha só sabe delas se você copiar tudo antes. No myBilling cada mês
+> estão decididas, e a planilha só sabe delas se você copiar tudo antes. No Jano cada mês
 > seguinte já nasce com elas, e a tela diz quanto vai sobrar. Entre na lista de espera: [link]
 
 ### Caderno
 
 > O caderno sabe o que você anotou. Não sabe que a parcela de dezembro ainda cai em fevereiro. No
-> myBilling todo mês já nasce com o que foi decidido antes, e a Visão geral diz quanto vai sobrar em
+> Jano todo mês já nasce com o que foi decidido antes, e a Visão geral diz quanto vai sobrar em
 > cada um dos próximos. Entre na lista de espera: [link]
 
 ### Nada
 
-> Duas pessoas gastando, um saldo só, e a pergunta de sempre: dá pra comprar? O myBilling tem um
+> Duas pessoas gastando, um saldo só, e a pergunta de sempre: dá pra comprar? O Jano tem um
 > caixa, cada lançamento diz quem gastou, e cada mês seguinte já nasce com as contas fixas e as
 > parcelas. Entre na lista de espera: [link]
 
@@ -91,10 +92,10 @@ sobrar ou faltar em cada um dos próximos meses, porque as parcelas e as contas 
 lá. A pergunta "dá pra comprar?" deixou de ser respondida pelo saldo de hoje, que não sabe de nada
 do que vem.
 
-O que vem a seguir ainda não existe, e por isso não está na página como se existisse: um
-simulador. Você informa o valor e o número de parcelas, e o app mostra quanto sobra em cada mês
-antes de você passar o cartão. Se não cabe, diz em quantas vezes caberia. É o que estamos fazendo
-agora, e quem está na lista recebe primeiro.
+E agora ele responde a pergunta direto: o simulador. Você informa o valor e o número de parcelas, e o
+app mostra quanto sobra em cada mês antes de você passar o cartão. Se não cabe, diz em quantas vezes
+caberia. Dá para testar na página do Jano, sem cadastro, numa casa inventada com a mesma conta do
+app.
 
 O app está no ar e é usado hoje por nós dois, com as nossas contas. Não tem preço, não tem cadastro
 aberto, não sincroniza com banco e não pretende substituir o aplicativo do seu cartão. Ele faz uma

@@ -1,24 +1,45 @@
-# Posicionamento do myBilling
+# Posicionamento do Jano
 
 Documento de referência para toda peça de divulgação: página, post, e-mail, conversa. Quem
 escrever qualquer texto sobre o produto parte daqui, e não do que lembra do app. Quando este
 documento e uma peça discordarem, a peça está errada.
 
-Fonte das garantias: `.specs/STATE.md` (decisões AD-001 a AD-022) e as specs em `.specs/features/`.
+Fonte das garantias: `.specs/STATE.md` (decisões AD-001 a AD-026) e as specs em `.specs/features/`.
 Fonte do que **não** existe: `docs/roadmap.md`. Spec desta fatia:
 `.specs/features/campanha-lista-de-espera/spec.md` (CAMP-01).
 
+## Nome
+
+**O nome público é Jano desde 2026-11-02** (decisão do dono, fatia `landing-jano`). Jano era o deus
+romano de duas faces: uma olhava para o que passou, a outra para o que vem. Era o deus das portas da
+casa, e janeiro leva o nome dele. A história é a tese: a planilha olha para o que você digitou; o
+Jano olha também para o que vem.
+
+Por dentro, o app, o repositório e o projeto na Vercel continuam se chamando myBilling até o domínio
+estar registrado e a busca no INPI (classes 9, 36 e 42) não mostrar conflito. Toda peça pública diz
+Jano; nenhuma diz myBilling.
+
 ## O produto em uma frase
 
-**A planilha sabe o que você digitou. O myBilling sabe o que vem.**
+**Antes de parcelar, pergunte ao Jano.**
 
-É um app web em que duas pessoas que dividem as despesas cadastram cada coisa uma vez só, e o app
-faz o resto: espalha as parcelas pelos meses, repete as contas fixas, diz quanto vai sobrar em cada
+A frase de contraste, "A planilha sabe o que você digitou. O Jano sabe o que vem.", continua
+verdadeira e vira apoio: ela funciona depois que a pessoa já sabe o que é o produto, como na seção do
+comparativo.
+
+É um app web em que quem paga as contas da casa, sozinho ou a dois, cadastra cada coisa uma vez só, e
+o app faz o resto: espalha as parcelas pelos meses, repete as contas fixas, diz quanto vai sobrar em cada
 um dos próximos meses, separa o que já saiu do que ainda vai sair, e não deixa somar a mesma coisa
 duas vezes.
 
 A frase anterior, "As contas da casa, para dois, sem o mês fechar errado", continua verdadeira e
 pode aparecer como apoio. Deixou de ser a manchete em 2026-11-01 (seção "A tese").
+
+**O simulador existe.** Desde 2026-11-01 o app tem "Dá pra comprar?" (AD-024): a pessoa informa o
+valor e o número de parcelas, e o app mostra quanto sobra em cada mês antes de ela passar o cartão;
+se não cabe, diz em quantas vezes caberia. Desde a fatia `landing-jano` ele também roda na landing,
+com a mesma conta do app, sobre uma casa inventada. Peças podem dizer "simule" e "veja antes de
+passar o cartão".
 
 ## Para quem
 
@@ -42,13 +63,13 @@ A pessoa chega em um de três estados, e a peça precisa saber com qual está fa
 
 A planilha sabe o que você digitou. O caderno sabe o que você anotou. O aplicativo do banco sabe o
 saldo de hoje. Nenhum deles sabe quanto vai sobrar em abril, porque nenhum deles tem as parcelas e as
-contas fixas de abril. O myBilling tem: cada mês seguinte já nasce com o que foi decidido antes, e a
+contas fixas de abril. O Jano tem: cada mês seguinte já nasce com o que foi decidido antes, e a
 Visão geral diz quanto vai sobrar ou faltar nos próximos meses.
 
 A cena que vende é a pessoa decidindo se dá para comprar. Hoje ela decide pelo saldo de hoje, e o
 saldo de hoje não sabe das parcelas que vêm. É essa pergunta que toda peça abre.
 
-**A garantia antiga vira apoio.** "A planilha e o caderno deixam você errar; o myBilling não deixa"
+**A garantia antiga vira apoio.** "A planilha e o caderno deixam você errar; o Jano não deixa"
 continua verdadeira: a parcela nunca é esquecida, a fatura nunca conta duas vezes, o ano nunca vira
 errado. Ela é o motivo pelo qual a resposta sobre o futuro é confiável. Mas ninguém vê um erro que
 não aconteceu, então ela não abre a peça; ela sustenta a peça.
@@ -101,7 +122,6 @@ qualquer um deles é mentir. Dizer que o app **não** faz ("não sincroniza com 
 | "Disponível agora", "crie sua conta" | O acesso é por lista de e-mails. A página convida para a lista de espera, e só. |
 | Comparação mês a mês, gráficos de evolução | Roadmap. |
 | Acerto de contas entre as duas pessoas ("quem deve a quem") | Fora do MVP, por decisão. |
-| O simulador "Dá pra comprar?" como coisa que existe ("simule", "veja antes de passar o cartão", "o app responde") | Está sendo construído (fatia `simular`). Só pode aparecer como "o que vem a seguir", nas palavras da seção abaixo. |
 | "Em qual fatura cai cada parcela" | Depende da fatia de Faturas, que vem depois do simulador. |
 | Quantos meses à frente o app enxerga, em número ("três meses", "doze meses") | O número muda com o horizonte (AD-023) e a peça ficaria velha. Dizer "os próximos meses". |
 
@@ -109,19 +129,6 @@ Também proibido, em qualquer peça: qualquer valor em reais, nome, descrição 
 venha do uso real da família (AD-009). Capturas vêm do seed (`pnpm db:seed`), que usa "Pessoa A",
 "Cartão Roxo", "Compra parcelada A". Valores em texto só os de fixture da spec do MVP: R$ 1.000,00
 em 3x virando R$ 333,34, R$ 333,33 e R$ 333,33.
-
-## O que vem a seguir
-
-Exceção explícita à regra acima, decidida pelo dono em 2026-11-01: a landing e os posts podem citar o
-simulador **"Dá pra comprar?"** como a próxima coisa que a lista de espera vai receber. Só assim:
-
-- Dizer que **ainda não existe** e que **é o que estamos fazendo**. Nunca "já", "disponível",
-  "simule agora".
-- Dizer o que ele vai fazer em até duas frases: a pessoa informa o valor e o número de parcelas, e o
-  app mostra quanto sobra em cada mês antes de ela passar o cartão; se não cabe, diz em quantas vezes
-  caberia.
-- Dizer que quem está na lista de espera recebe primeiro.
-- Nenhuma data e nenhum prazo. "Em breve" fica só no botão da lista, que é outro assunto.
 
 ## Números de mercado
 
@@ -133,11 +140,15 @@ Os cinco da landing, na ordem da dor à ponte:
 
 | Número | Frase | Fonte, ano | Coleta e publicação | Onde conferir |
 | --- | --- | --- | --- | --- |
-| 58% e 14% | de quem usa cartão de crédito não controla o que gasta nele; 14% só sabem quanto devem quando a fatura fecha | CNDL e SPC Brasil, 2026 | Coleta de 2 a 9 de janeiro de 2026, 600 casos nas 27 capitais, Offerwise; publicada em 23/04/2026 | cndl.org.br/varejosa/58-dos-consumidores-nao-controlam-gastos-com-cartao-de-credito-aponta-cndl-spc-brasil/ |
+| 58% | de quem usa cartão de crédito não controla o que gasta nele | CNDL e SPC Brasil, 2026 | Coleta de 2 a 9 de janeiro de 2026, 600 casos nas 27 capitais, Offerwise; publicada em 23/04/2026 | cndl.org.br/varejosa/58-dos-consumidores-nao-controlam-gastos-com-cartao-de-credito-aponta-cndl-spc-brasil/ |
 | 61% | fizeram uma compra não planejada no mês anterior; 60 milhões carregam parcelas, quatro em média | CNDL e SPC Brasil, 2026 | Mesma coleta; publicada em 10/07/2026 | cndl.org.br/varejosa/60-milhoes-de-consumidores-possuem-compras-parceladas-aponta-cndl-spc-brasil/ |
 | 47% | de quem compra parcelado não controla os gastos antes de comprar; quem acompanha usa papel (20%), planilha (14%) ou aplicativo (10%) | CNDL e SPC Brasil, 2026 | Mesma matéria | Mesma matéria |
 | 82% | das famílias brasileiras têm dívida; em 85% delas, a dívida é no cartão de crédito | CNC, 2026 | Peic de julho de 2026; Agência Brasil, 06/08/2026 | agenciabrasil.ebc.com.br/economia/noticia/2026-08/cnc-endividamento-das-familias-sobe-para-82-mas-inadimplencia-cai |
 | 45% | de quem vive a dois apontam o dinheiro entre as principais causas de briga | Serasa com Opinion Box, 2026 | Coleta de 19 a 27 de maio de 2026, 1.257 pessoas; Band, 06/2026 | band.com.br/economia/dinheiro-e-motivo-de-briga-para-45-dos-casais-aponta-serasa |
+
+O 14% da mesma matéria ("esperam a fatura fechar para conhecer o montante devido") não entra em
+peça sozinho: o texto da CNDL não deixa claro se a base são todos os usuários de cartão ou só os 58%
+que não controlam (conferido em 2026-11-02).
 
 Reserva, para outras peças:
 
