@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/landing-jano/spec.md`
 **Design**: `.specs/features/landing-jano/design.md`
-**Status**: Tasks concluídas, à espera do Verifier
+**Status**: Concluída e verificada (Verifier FAIL na rodada 1 por quatro lacunas de teste, F1 a F4; PASS na rodada 2, 2026-11-02)
 **Total**: 8 tasks em 4 fases
 
 > **Por que a frase e o pacote vêm antes da página.** A landing promete "a conta é a mesma do app".

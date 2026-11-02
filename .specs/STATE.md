@@ -377,9 +377,12 @@
   simulador funcionando no herói, com a conta e as frases do app empacotadas em `site/simulador.js`,
   sobre uma casa inventada; "O que vem a seguir" saiu; as capturas não mostram o menu lateral.
 - **Completed**: spec `03de964`, T1 `bcdd768`, T2 `acea20d`, T3 `0f07e45`, T4 `6e641db`, T5 `2bef922`,
-  T6 `fe31db7`, T7 `03ebfe9`, T8 (este registro).
-- **In-progress**: o Verifier independente da fatia (`validation.md`) roda depois da T8.
-- **Next step**: (1) Verifier PASS; (2) o dono lê a página; (3) merge na `main`, `git push` e
+  T6 `fe31db7`, T7 `03ebfe9`, T8 `d4ab37d`; rodada 1 FAIL `1b672b9`; F1 `a59b6b4`, F2 `bb99fb3`,
+  F3 `588add7`, F4 `0d8865d`; menores `318dd99`, `dad29f9`; rodada 2 PASS (este registro).
+- **In-progress**: nenhum. Verifier PASS na rodada 2 (40/40 ACs, 20 mutantes mortos no total,
+  `validate_state.py` 0).
+- **Next step**: (1) o dono lê a página; (2) decidir se no celular o simulador sobe para antes da
+  história; (3) merge na `main`, `git push` e
   publicação (`cd site && npx vercel deploy --prod`), cada um com autorização separada; (4) antes de
   renomear o app: domínio (jano.app está à venda; usejano, meujano, janocasa e janodacasa livres em
   2026-11-02) e busca no INPI nas classes 9, 36 e 42; (5) a marca de dois arcos é provisória.
