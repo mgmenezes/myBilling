@@ -129,10 +129,37 @@ test("DOR-01 AC 3: o padrão de 'já' pega a palavra acentuada e não pega 'jáx
   assert.doesNotMatch("ainda não existe", JA_ISOLADO);
 });
 
-test("CAMP-02 AC 6: diz o que o produto é hoje, sem dizer que está disponível", () => {
-  assert.match(html, /usado hoje por um casal/);
-  assert.match(html, /abrindo para mais casas/);
-  assert.doesNotMatch(html, /crie sua conta|dispon[ií]vel agora|cadastre-se/i);
+test("CAMP-02 AC 6, revisto por DOR-05 AC 1: diz o que o produto é hoje, sem a história de origem nem 'disponível'", () => {
+  const rodape = textoVisivel(secao("rodape"));
+  assert.match(rodape, /em uso hoje/);
+  assert.match(rodape, /abrindo para mais casas/);
+  const texto = textoVisivel(html);
+  assert.doesNotMatch(texto, /por um casal|de um casal|nasceu de/i);
+  assert.doesNotMatch(texto, /crie sua conta|dispon[ií]vel agora|cadastre-se/i);
+});
+
+test("DOR-05 ACs 2 a 4: para quem paga as contas da casa, sozinho ou a dois, e o que a lista inclui", () => {
+  assert.doesNotMatch(textoVisivel(html), /(?<!\p{L})casa(l|is)(?!\p{L})/iu);
+  assert.doesNotMatch(textoVisivel(secao("inicio")), /Para dois/);
+  const paraDois = secao("para-dois");
+  assert.match(paraDois, /<h2\b[^>]*>\s*Sozinho ou a dois\s*<\/h2>/);
+  const definicoes = [...paraDois.matchAll(/<dt\b[^>]*>([\s\S]*?)<\/dt>/g)].map((m) =>
+    textoVisivel(m[1]).trim(),
+  );
+  assert.deepEqual(definicoes, ["Um caixa", "Quem gastou", "Um número"]);
+  assert.match(paraDois, /<section\b[^>]*\bclass="[^"]*\binverso\b/, "a inversão fica nesta seção");
+  const lista = secao("rodape").match(
+    /<ul\b[^>]*\bclass="[^"]*\bincluido\b[^"]*"[^>]*>([\s\S]*?)<\/ul>/,
+  );
+  assert.ok(lista, "lista do que está incluído ausente");
+  const itens = [...lista[1].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) =>
+    textoVisivel(m[1]).trim(),
+  );
+  assert.equal(itens.length, 3);
+  assert.match(itens[0], /antes de quem não está na lista/);
+  assert.match(itens[1], /preço antes/);
+  assert.match(itens[2], /uma pergunta/i);
+  assert.doesNotMatch(textoVisivel(lista[1]), /R\$/);
 });
 
 test("CAMP-03 AC 5: um script só, inline, e nenhum terceiro além das fontes", () => {

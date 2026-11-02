@@ -186,11 +186,11 @@ T6 -> T7
 **Requirement**: DOR-05 (ACs 1 a 4)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Teste: "em uso hoje", "abrindo para mais casas", sem "por um casal", "de um casal", "nasceu de" (AC 1)
-- [ ] Teste: sem "casal"/"casais"; hero sem "Para dois" (AC 2)
-- [ ] Teste: `<h2>` "Sozinho ou a dois", três `<dt>`, `inverso` uma vez (AC 3)
-- [ ] Teste: `ul.incluido` com três itens e sem `R$` (AC 4)
-- [ ] Teste "CAMP-02 AC 6" renomeado para "revisto por DOR-05"
+- [x] Teste: "em uso hoje", "abrindo para mais casas", sem "por um casal", "de um casal", "nasceu de" (AC 1)
+- [x] Teste: sem "casal"/"casais"; hero sem "Para dois" (AC 2)
+- [x] Teste: `<h2>` "Sozinho ou a dois", três `<dt>`, `inverso` uma vez (AC 3)
+- [x] Teste: `ul.incluido` com três itens e sem `R$` (AC 4)
+- [x] Teste "CAMP-02 AC 6" renomeado para "revisto por DOR-05"
 **Tests**: `site/estrutura.test.mjs` (DOR-05 ACs 1 a 4)
 **Gate**: site
 

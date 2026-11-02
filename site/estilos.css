@@ -467,6 +467,17 @@ a:hover {
   color: var(--ink-muted);
 }
 
+/* O que entrar na lista dá, em três itens (DOR-05 AC 4). */
+.incluido {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--ink-muted);
+  max-width: 62ch;
+}
+
 /* ---- Onde quebra: seis blocos, três por linha a partir de 768 px ---- */
 
 .dores {
