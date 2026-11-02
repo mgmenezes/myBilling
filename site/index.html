@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>myBilling</title>
+    <title>Jano · As contas da casa, mês a mês</title>
     <meta
       name="description"
-      content="A planilha sabe o que você digitou. O myBilling sabe o que vem: as parcelas e as contas fixas dos próximos meses, e quanto vai sobrar em cada um. Sozinho ou a dois. Lista de espera."
+      content="Antes de parcelar, pergunte ao Jano. Um app para as contas da casa, sozinho ou a dois, que mostra quanto vai sobrar em cada um dos próximos meses. Lista de espera."
     />
     <!--
       A constante única da URL do formulário (CAMP-04). Não edite à mão:
@@ -18,7 +18,7 @@
     <meta name="color-scheme" content="light dark" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%230052ff' d='M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm-36,80a12,12,0,1,1,12-12A12,12,0,0,1,180,144Z'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%230a0b0d' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M14 5a11 11 0 0 0 0 22'/%3E%3Cpath d='M18 5a11 11 0 0 1 0 22'/%3E%3Ccircle cx='7.5' cy='13' r='1.6' fill='%230a0b0d' stroke='none'/%3E%3Ccircle cx='24.5' cy='13' r='1.6' fill='%230a0b0d' stroke='none'/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -84,13 +84,15 @@
     </script>
   </head>
   <body>
-    <!-- Glifos do Phosphor Icons, os mesmos do app (Wallet, Monitor, Sun, Moon). -->
+    <!-- O símbolo do Jano (duas faces de costas) e os glifos do Phosphor Icons do app (Monitor, Sun, Moon). -->
     <svg aria-hidden="true" width="0" height="0" style="position: absolute">
-      <symbol id="icone-carteira" viewBox="0 0 256 256">
-        <path
-          fill="currentColor"
-          d="M216,64H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,56V184a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V80A16,16,0,0,0,216,64Zm-36,80a12,12,0,1,1,12-12A12,12,0,0,1,180,144Z"
-        />
+      <symbol id="icone-jano" viewBox="0 0 32 32">
+        <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+          <path d="M14 5a11 11 0 0 0 0 22" />
+          <path d="M18 5a11 11 0 0 1 0 22" />
+        </g>
+        <circle cx="7.5" cy="13" r="1.6" fill="currentColor" />
+        <circle cx="24.5" cy="13" r="1.6" fill="currentColor" />
       </symbol>
       <symbol id="icone-monitor" viewBox="0 0 256 256">
         <path
@@ -115,10 +117,14 @@
     <header class="cabecalho">
       <div class="moldura">
         <a class="marca" href="#inicio">
-          <svg width="24" height="24" aria-hidden="true"><use href="#icone-carteira" /></svg>
-          myBilling
+          <svg width="26" height="26" aria-hidden="true"><use href="#icone-jano" /></svg>
+          Jano
         </a>
         <div class="cabecalho-acoes">
+          <nav class="cabecalho-nav" aria-label="Seções">
+            <a href="#onde-quebra">Como funciona</a>
+            <a href="#perguntas">Perguntas</a>
+          </nav>
           <fieldset class="alternador-tema">
             <legend class="visualmente-oculto">Tema da página</legend>
             <label>
@@ -145,38 +151,44 @@
       <section class="hero" id="inicio" aria-labelledby="titulo-inicio">
         <div class="moldura">
           <div class="hero-texto">
-            <h1 id="titulo-inicio">A planilha sabe o que você digitou. O myBilling sabe o que vem.</h1>
-            <p class="suave">
-              Cadastre a compra parcelada e as contas fixas uma vez. Cada mês seguinte já nasce com elas,
-              e a Visão geral diz quanto vai sobrar em cada um. Sem o mês fechar errado.
+            <span class="selo">Contas da casa, mês a mês</span>
+            <h1 id="titulo-inicio">Antes de parcelar, pergunte ao Jano.</h1>
+            <p class="hero-subtitulo suave">
+              O Jano é um app para as contas da casa, sozinho ou a dois. Você lança o salário, as contas
+              fixas e as compras parceladas uma vez, e ele mostra quanto vai sobrar em cada um dos
+              próximos meses.
             </p>
             <div class="hero-acoes">
               <button class="botao botao-primario botao-lista" type="button" disabled aria-disabled="true">Lista de espera em breve</button>
-              <a class="botao botao-secundario" href="#onde-quebra">Ver onde a planilha quebra</a>
+              <a class="botao botao-secundario" href="#simulador">Testar o simulador</a>
             </div>
             <p class="hero-nota suave">
               A lista pede o e-mail e uma pergunta: como você controla as contas hoje. Nada mais.
             </p>
+            <ul class="confianca">
+              <li>Pede só o e-mail</li>
+              <li>Não pede acesso ao seu banco</li>
+              <li>Página sem rastreador</li>
+            </ul>
+            <p class="hero-historia suave">
+              Jano era o deus romano de duas faces: uma olhava para o que passou, a outra para o que vem.
+              Era o deus das portas da casa, e janeiro leva o nome dele.
+            </p>
           </div>
-          <figure class="captura">
-            <picture>
-              <source
-                data-tema-escuro
-                media="(prefers-color-scheme: dark)"
-                srcset="imagens/visao-geral-escuro.png"
-              />
-              <img
-                src="imagens/visao-geral-claro.png"
-                width="1280"
-                height="800"
-                alt="Visão geral de um mês no myBilling: receitas, despesas, o que ainda não foi pago e o saldo previsto, com os gastos por categoria e o formulário de novo lançamento ao lado."
-                fetchpriority="high"
-              />
-            </picture>
-            <figcaption class="captura-legenda">
-              A Visão geral do mês. Dados de demonstração, gerados pelo app.
-            </figcaption>
-          </figure>
+          <article class="cartao simulador" id="simulador" aria-labelledby="titulo-simulador">
+            <div class="simulador-cabeca">
+              <h2 id="titulo-simulador">Dá pra comprar?</h2>
+              <span class="simulador-marca">casa inventada</span>
+            </div>
+            <div class="simulador-exemplo" data-simulador-exemplo>
+              <p>
+                Uma compra de <span class="mono">R$ 1.000,00</span> em três vezes vira
+                <span class="mono">333,34, 333,33 e 333,33</span>, e cabe nos três meses da casa inventada.
+              </p>
+              <p class="suave">Ligue o JavaScript para testar outra compra.</p>
+            </div>
+            <div class="simulador-corpo" data-simulador hidden></div>
+          </article>
         </div>
       </section>
 
@@ -190,7 +202,7 @@
             </p>
             <p class="suave">
               Seis situações que quem paga as contas reconhece. Em cada uma, o que a planilha e o caderno
-              não sabem, e o que o myBilling sabe.
+              não sabem, e o que o Jano sabe.
             </p>
           </div>
           <div class="dores">
@@ -201,7 +213,7 @@
                 contas fixas dos próximos meses já estão decididas, e o saldo de hoje não sabe disso.
               </p>
               <p class="dor-garantia">
-                <strong>No myBilling</strong> cada mês seguinte já nasce com o que foi decidido antes: as
+                <strong>No Jano</strong> cada mês seguinte já nasce com o que foi decidido antes: as
                 parcelas, as contas fixas, o salário. A Visão geral diz quanto vai sobrar ou faltar em
                 cada um dos próximos meses.
               </p>
@@ -213,7 +225,7 @@
                 que você esquece some do saldo, e o saldo é o número que decide se dá para gastar.
               </p>
               <p class="dor-garantia">
-                <strong>No myBilling</strong> a compra é cadastrada uma vez. As parcelas vão para os meses
+                <strong>No Jano</strong> a compra é cadastrada uma vez. As parcelas vão para os meses
                 certos sozinhas. Uma compra de <span class="mono">R$ 1.000,00</span> em três vezes vira
                 <span class="mono">333,34</span>, <span class="mono">333,33</span> e
                 <span class="mono">333,33</span>, como na fatura.
@@ -226,7 +238,7 @@
                 mês está dobrado e ninguém percebeu.
               </p>
               <p class="dor-garantia">
-                <strong>No myBilling</strong> compra no cartão e pagamento da fatura vivem em lugares
+                <strong>No Jano</strong> compra no cartão e pagamento da fatura vivem em lugares
                 separados que não se somam. A dupla contagem não é improvável. É impossível.
               </p>
             </article>
@@ -237,7 +249,7 @@
                 janeiro é outra aba, outro ano, e a parcela cai no lugar errado.
               </p>
               <p class="dor-garantia">
-                <strong>No myBilling</strong> o mês é contado em inteiros, sem data que vira errado. Dezembro
+                <strong>No Jano</strong> o mês é contado em inteiros, sem data que vira errado. Dezembro
                 para janeiro é só mais um mês.
               </p>
             </article>
@@ -248,7 +260,7 @@
                 chega não tem onde corrigir sem apagar o que estava.
               </p>
               <p class="dor-garantia">
-                <strong>No myBilling</strong> a conta fixa é cadastrada uma vez com um valor previsto. Quando a
+                <strong>No Jano</strong> a conta fixa é cadastrada uma vez com um valor previsto. Quando a
                 conta chega, você confirma o valor real, e a previsão continua visível ao lado. Reajustou?
                 Vale a partir de um mês, sem reescrever o passado.
               </p>
@@ -260,7 +272,7 @@
                 conversa vira briga antes de virar conta.
               </p>
               <p class="dor-garantia">
-                <strong>No myBilling</strong> há um caixa, um saldo, e cada lançamento diz quem gastou. As duas
+                <strong>No Jano</strong> há um caixa, um saldo, e cada lançamento diz quem gastou. As duas
                 pessoas entram com a própria conta Google e veem o mesmo número.
               </p>
             </article>
@@ -276,7 +288,7 @@
                 src="imagens/lancamentos-claro.png"
                 width="1280"
                 height="800"
-                alt="A lista de lançamentos de um mês no myBilling, com busca, filtros por categoria, meio de pagamento, pessoa e situação, e o bloco de entradas com cada linha marcada como paga ou prevista."
+                alt="A lista de lançamentos de um mês no app, com busca, filtros por categoria, meio de pagamento, pessoa e situação, e o bloco de entradas com cada linha marcada como paga ou prevista."
                 loading="lazy"
               />
             </picture>
@@ -338,7 +350,7 @@
       <section class="secao secao-suave" id="comparativo" aria-labelledby="titulo-comparativo">
         <div class="moldura">
           <div class="secao-cabeca">
-            <h2 id="titulo-comparativo">Caderno, planilha ou myBilling</h2>
+            <h2 id="titulo-comparativo">Caderno, planilha ou Jano</h2>
             <p class="suave">Uma comparação honesta, com as linhas em que a planilha ganha.</p>
           </div>
           <div class="tabela-rolavel">
@@ -348,48 +360,48 @@
                   <th scope="col"><span class="visualmente-oculto">Situação</span></th>
                   <th scope="col">Caderno</th>
                   <th scope="col">Planilha</th>
-                  <th scope="col">myBilling</th>
+                  <th scope="col">Jano</th>
                 </tr>
               </thead>
               <tbody>
                 <tr class="grupo">
                   <th scope="rowgroup" colspan="4">Onde o mês fecha errado</th>
                 </tr>
-                <tr data-vence="mybilling">
+                <tr data-vence="jano">
                   <th scope="row">Quanto vai sobrar nos próximos meses</th>
                   <td data-coluna="Caderno">Não sabe</td>
                   <td data-coluna="Planilha">Só se você copiar tudo antes</td>
-                  <td data-coluna="myBilling">Está na tela, mês a mês</td>
+                  <td data-coluna="Jano">Está na tela, mês a mês</td>
                 </tr>
-                <tr data-vence="mybilling">
+                <tr data-vence="jano">
                   <th scope="row">Compra em dez vezes</th>
                   <td data-coluna="Caderno">Você anota nove vezes</td>
                   <td data-coluna="Planilha">Você copia em nove abas</td>
-                  <td data-coluna="myBilling">Cadastra uma vez</td>
+                  <td data-coluna="Jano">Cadastra uma vez</td>
                 </tr>
-                <tr data-vence="mybilling">
+                <tr data-vence="jano">
                   <th scope="row">Compra no cartão e pagamento da fatura</th>
                   <td data-coluna="Caderno">Depende de você lembrar</td>
                   <td data-coluna="Planilha">Depende de você lembrar</td>
-                  <td data-coluna="myBilling">Não se somam, por construção</td>
+                  <td data-coluna="Jano">Não se somam, por construção</td>
                 </tr>
-                <tr data-vence="mybilling">
+                <tr data-vence="jano">
                   <th scope="row">Dezembro para janeiro</th>
                   <td data-coluna="Caderno">Caderno novo</td>
                   <td data-coluna="Planilha">Aba nova, ano novo, erro novo</td>
-                  <td data-coluna="myBilling">Só mais um mês</td>
+                  <td data-coluna="Jano">Só mais um mês</td>
                 </tr>
-                <tr data-vence="mybilling">
+                <tr data-vence="jano">
                   <th scope="row">Conta fixa que muda de valor</th>
                   <td data-coluna="Caderno">Rabisca por cima</td>
                   <td data-coluna="Planilha">Apaga a previsão</td>
-                  <td data-coluna="myBilling">Confirma o real, guarda a previsão</td>
+                  <td data-coluna="Jano">Confirma o real, guarda a previsão</td>
                 </tr>
-                <tr data-vence="mybilling">
+                <tr data-vence="jano">
                   <th scope="row">Duas pessoas, um saldo</th>
                   <td data-coluna="Caderno">Um caderno só, uma letra só</td>
                   <td data-coluna="Planilha">Funciona, se os dois abrirem</td>
-                  <td data-coluna="myBilling">Cada lançamento diz quem gastou</td>
+                  <td data-coluna="Jano">Cada lançamento diz quem gastou</td>
                 </tr>
                 <tr class="grupo">
                   <th scope="rowgroup" colspan="4">Onde o caderno e a planilha ganham</th>
@@ -398,26 +410,26 @@
                   <th scope="row">Anotar qualquer coisa, do jeito que quiser</th>
                   <td data-coluna="Caderno">Total</td>
                   <td data-coluna="Planilha">Total</td>
-                  <td data-coluna="myBilling">Só o que o app conhece</td>
+                  <td data-coluna="Jano">Só o que o app conhece</td>
                 </tr>
                 <tr data-vence="planilha caderno" data-vantagem="custo">
                   <th scope="row">Custo</th>
                   <td data-coluna="Caderno">Um caderno</td>
                   <td data-coluna="Planilha">Nenhum</td>
-                  <td data-coluna="myBilling">Ainda não definido</td>
+                  <td data-coluna="Jano">Ainda não definido</td>
                 </tr>
                 <tr data-vence="planilha" data-vantagem="dispositivo">
                   <th scope="row">Abre em qualquer lugar, sem internet</th>
                   <td data-coluna="Caderno">Se estiver na bolsa</td>
                   <td data-coluna="Planilha">Sim</td>
-                  <td data-coluna="myBilling">Precisa de navegador e internet</td>
+                  <td data-coluna="Jano">Precisa de navegador e internet</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <p class="fecho">
             Os aplicativos de finanças, como o Mobills e o Organizze, olham para uma pessoa e mostram o que o
-            banco já sabe: o que saiu. O myBilling olha para a casa, com uma pessoa ou duas, e mostra o que
+            banco já sabe: o que saiu. O Jano olha para a casa, com uma pessoa ou duas, e mostra o que
             ainda vai sair. São perguntas diferentes, e esta página é sobre a segunda.
           </p>
         </div>
@@ -428,7 +440,7 @@
           <div class="secao-cabeca">
             <h2 id="titulo-para-dois">Sozinho ou a dois</h2>
             <p class="suave">
-              Os aplicativos de finanças olham para uma pessoa. Muita casa tem duas. O myBilling funciona
+              Os aplicativos de finanças olham para uma pessoa. Muita casa tem duas. O Jano funciona
               para uma, e foi feito para duas desde a primeira linha.
             </p>
           </div>
@@ -472,6 +484,25 @@
               </p>
             </article>
           </div>
+          <figure class="captura">
+            <picture>
+              <source
+                data-tema-escuro
+                media="(prefers-color-scheme: dark)"
+                srcset="imagens/visao-geral-escuro.png"
+              />
+              <img
+                src="imagens/visao-geral-claro.png"
+                width="1280"
+                height="800"
+                alt="Visão geral de um mês no app: receitas, despesas, o que ainda não foi pago e o saldo previsto, com os gastos por categoria e o formulário de novo lançamento ao lado."
+                loading="lazy"
+              />
+            </picture>
+            <figcaption class="captura-legenda">
+              A Visão geral do mês. Dados de demonstração, gerados pelo app.
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -487,11 +518,11 @@
               <p>
                 Ela funciona, não custa nada e abre em qualquer lugar. O que ela não faz é saber o
                 que vem: a parcela de dezembro só aparece em fevereiro se você copiar. A sua
-                planilha entra no myBilling aba por aba, e o histórico fica.
+                planilha entra no Jano aba por aba, e o histórico fica.
               </p>
             </details>
             <details>
-              <summary>O que é o myBilling?</summary>
+              <summary>O que é o Jano?</summary>
               <p>
                 Um app web para quem controla as contas da casa, sozinho ou a dois. Você cadastra
                 cada coisa uma vez, e o app espalha as parcelas pelos meses, repete as contas fixas
@@ -592,7 +623,7 @@
           <button class="botao botao-primario botao-lista" type="button" disabled aria-disabled="true">Lista de espera em breve</button>
         </div>
         <p class="rodape-nota">
-          O myBilling está em uso hoje, com contas de verdade, e está abrindo para mais casas. Não há
+          O Jano está em uso hoje, com contas de verdade, e está abrindo para mais casas. Não há
           preço definido e não há cadastro aberto: a lista de espera é o único passo por enquanto.
         </p>
       </div>

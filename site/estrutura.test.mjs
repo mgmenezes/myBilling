@@ -372,42 +372,39 @@ test("CAMP-02 AC 2 e VEM-02 AC 2: seis blocos de dor, o primeiro sobre comprar, 
   }
 });
 
-test("CAMP-02 AC 3: o comparativo tem linhas em que a planilha ou o caderno ganham", () => {
+test("CAMP-02 AC 3, revisto por JANO-01 AC 8: o comparativo tem linhas em que a planilha ou o caderno ganham", () => {
   const comparativo = secao("comparativo");
   assert.match(comparativo, /<table\b/);
   const cabecalhos = [...comparativo.matchAll(/<th\b[^>]*scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map(
     (m) => textoVisivel(m[1]).trim(),
   );
-  assert.deepEqual(cabecalhos.slice(-3), ["Caderno", "Planilha", "myBilling"]);
+  assert.deepEqual(cabecalhos.slice(-3), ["Caderno", "Planilha", "Jano"]);
   const linhas = [...comparativo.matchAll(/<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>/g)].map(
     (m) => m[1],
   );
   assert.ok(linhas.length >= 5, "ao menos cinco linhas comparadas");
-  // Uma linha por tema obrigatório, e em nenhuma delas o myBilling vence.
+  // Uma linha por tema obrigatório, e em nenhuma delas o Jano vence.
   for (const tema of ["flexibilidade", "custo", "dispositivo"]) {
     const linha = comparativo.match(new RegExp(`<tr\\b[^>]*\\bdata-vantagem="${tema}"[^>]*>`));
     assert.ok(linha, `falta a linha em que a planilha ou o caderno ganham por ${tema}`);
     const vence = linha[0].match(/data-vence="([^"]*)"/);
     assert.ok(vence, `linha de ${tema} sem data-vence`);
     assert.match(vence[1], /planilha|caderno/, `em ${tema} quem ganha é a planilha ou o caderno`);
-    assert.doesNotMatch(vence[1], /mybilling/i, `em ${tema} o myBilling não pode vencer`);
+    assert.doesNotMatch(vence[1], /jano/i, `em ${tema} o Jano não pode vencer`);
   }
 });
 
-test("VEM-02 AC 1: o herói tem a frase do dono e a cena respondida com o que existe", () => {
+test("VEM-02 AC 1, revisto por JANO-01 AC 3: o herói tem a manchete do Jano e a cena respondida com o que existe", () => {
   const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/);
   assert.ok(h1, "h1 ausente");
-  assert.equal(
-    textoVisivel(h1[1]).trim(),
-    "A planilha sabe o que você digitou. O myBilling sabe o que vem.",
-  );
+  assert.equal(textoVisivel(h1[1]).trim(), "Antes de parcelar, pergunte ao Jano.");
   const texto = textoVisivel(secao("inicio")).toLowerCase();
   assert.match(texto, /quanto vai sobrar/);
   assert.match(texto, /contas fixas/);
   assert.match(texto, /parcelad/);
 });
 
-test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo myBilling, antes das linhas da planilha", () => {
+test("VEM-02 AC 3, revisto por JANO-01 AC 8: o comparativo tem a linha dos próximos meses, vencida pelo Jano, antes das linhas da planilha", () => {
   const comparativo = secao("comparativo");
   const linha = comparativo.match(
     /<tr\b[^>]*\bdata-vence="([^"]*)"[^>]*>\s*<th\b[^>]*scope="row"[^>]*>([\s\S]*?)<\/th>/g,
@@ -420,7 +417,7 @@ test("VEM-02 AC 3: o comparativo tem a linha dos próximos meses, vencida pelo m
   ].map((m) => ({ vence: m[1], tema: textoVisivel(m[2]).trim() }));
   const indice = linhas.findIndex((l) => l.tema === "Quanto vai sobrar nos próximos meses");
   assert.notEqual(indice, -1, "falta a linha dos próximos meses");
-  assert.equal(linhas[indice].vence, "mybilling");
+  assert.equal(linhas[indice].vence, "jano");
   const primeiraDaPlanilha = linhas.findIndex((l) => /planilha|caderno/.test(l.vence));
   assert.ok(
     indice < primeiraDaPlanilha,
@@ -515,6 +512,106 @@ test("DOR-04 ACs 1 a 4: perguntas frequentes entre 'sua planilha' e 'a seguir', 
   const fatura = perguntas.find((p) => /fatura/i.test(p.pergunta));
   assert.ok(fatura, "pergunta sobre a fatura ausente");
   assert.match(fatura.resposta, /^Não\./);
+});
+
+test("JANO-01 AC 1: o título e a descrição são do Jano", () => {
+  const titulo = html.match(/<title>([^<]*)<\/title>/);
+  assert.ok(titulo, "title ausente");
+  assert.equal(titulo[1], "Jano · As contas da casa, mês a mês");
+  const descricao = html.match(/<meta\s+name="description"\s+content="([^"]*)"/);
+  assert.ok(descricao, "description ausente");
+  assert.ok(
+    descricao[1].startsWith("Antes de parcelar, pergunte ao Jano."),
+    `descrição: ${descricao[1]}`,
+  );
+});
+
+test("JANO-01 AC 2: o cabeçalho tem a marca Jano com o símbolo e os links para as seções", () => {
+  const cabecalho = html.match(/<header\b[\s\S]*?<\/header>/);
+  assert.ok(cabecalho, "cabeçalho ausente");
+  const marca = cabecalho[0].match(/<a\b[^>]*\bclass="marca"[^>]*>([\s\S]*?)<\/a>/);
+  assert.ok(marca, "marca ausente");
+  assert.equal(textoVisivel(marca[1]).trim(), "Jano");
+  assert.match(marca[1], /<use href="#icone-jano"/);
+  assert.match(html, /<symbol id="icone-jano"/);
+  const links = [...cabecalho[0].matchAll(/<a\b[^>]*\bhref="(#[^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].map(
+    (m) => [m[1], textoVisivel(m[2]).trim()],
+  );
+  assert.deepEqual(
+    links.filter(([, texto]) => texto !== "Jano"),
+    [
+      ["#onde-quebra", "Como funciona"],
+      ["#perguntas", "Perguntas"],
+    ],
+  );
+});
+
+test("JANO-01 ACs 3 a 6: selo, subtítulo, ações, confiança e história no herói", () => {
+  const hero = secao("inicio");
+  const selo = hero.match(/<[a-z]+\b[^>]*\bclass="selo"[^>]*>([\s\S]*?)<\/[a-z]+>/);
+  assert.ok(selo, "selo ausente");
+  assert.equal(textoVisivel(selo[1]).trim(), "Contas da casa, mês a mês");
+  const subtitulo = hero.match(
+    /<p\b[^>]*\bclass="[^"]*\bhero-subtitulo\b[^"]*"[^>]*>([\s\S]*?)<\/p>/,
+  );
+  assert.ok(subtitulo, "subtítulo ausente");
+  assert.ok(
+    textoVisivel(subtitulo[1])
+      .trim()
+      .startsWith("O Jano é um app para as contas da casa, sozinho ou a dois."),
+  );
+  assert.match(hero, /<button\b[^>]*\bbotao-lista\b/);
+  assert.match(hero, /<a\b[^>]*\bhref="#simulador"[^>]*>\s*Testar o simulador\s*<\/a>/);
+  const confianca = hero.match(/<ul\b[^>]*\bclass="confianca"[^>]*>([\s\S]*?)<\/ul>/);
+  assert.ok(confianca, "lista de confiança ausente");
+  const itens = [...confianca[1].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map((m) =>
+    textoVisivel(m[1]).trim(),
+  );
+  assert.deepEqual(itens, [
+    "Pede só o e-mail",
+    "Não pede acesso ao seu banco",
+    "Página sem rastreador",
+  ]);
+  const historia = hero.match(
+    /<p\b[^>]*\bclass="[^"]*\bhero-historia\b[^"]*"[^>]*>([\s\S]*?)<\/p>/,
+  );
+  assert.ok(historia, "linha da história ausente");
+  assert.equal(
+    textoVisivel(historia[1]).trim(),
+    "Jano era o deus romano de duas faces: uma olhava para o que passou, a outra para o que vem. Era o deus das portas da casa, e janeiro leva o nome dele.",
+  );
+});
+
+test("JANO-01 AC 7: nenhum myBilling no texto visível, no título, na descrição, nos alt e nos rótulos de coluna", () => {
+  assert.doesNotMatch(textoVisivel(html), /mybilling/i);
+  assert.doesNotMatch(html, /myBilling/, "o nome antigo em algum atributo ou comentário");
+  for (const m of html.matchAll(/\b(?:alt|content|data-coluna|aria-label)="([^"]*)"/g)) {
+    assert.doesNotMatch(m[1], /mybilling/i, `atributo com o nome antigo: ${m[0]}`);
+  }
+});
+
+test("JANO-03 AC 6: sem JavaScript o card mostra o exemplo pronto, e os campos ficam ocultos", () => {
+  const hero = secao("inicio");
+  const card = hero.match(/<article\b[^>]*\bid="simulador"[^>]*>([\s\S]*?)<\/article>/);
+  assert.ok(card, "o card do simulador fica no herói");
+  const exemplo = card[1].match(/<div\b([^>]*)\bdata-simulador-exemplo\b([^>]*)>([\s\S]*?)<\/div>/);
+  assert.ok(exemplo, "exemplo ausente");
+  assert.doesNotMatch(`${exemplo[1]}${exemplo[2]}`, /\bhidden\b/, "o exemplo aparece por padrão");
+  const texto = textoVisivel(exemplo[3]);
+  assert.match(texto, /R\$ 1\.000,00/);
+  assert.match(texto, /333,34, 333,33 e 333,33/);
+  assert.match(texto, /Ligue o JavaScript para testar outra compra\./);
+  assert.match(
+    card[1],
+    /<div\b[^>]*\bdata-simulador\b(?!-)[^>]*\shidden[\s>]/,
+    "os campos começam ocultos",
+  );
+});
+
+test("JANO-07 AC 3: a captura da Visão geral em 'sua planilha', a de Lançamentos em 'onde quebra', nenhuma no herói", () => {
+  assert.doesNotMatch(secao("inicio"), /<img\b/);
+  assert.match(secao("sua-planilha"), /src="imagens\/visao-geral-claro\.png"/);
+  assert.match(secao("onde-quebra"), /src="imagens\/lancamentos-claro\.png"/);
 });
 
 test("CAMP-02 AC 4: nenhuma promessa da lista 'O que nunca prometer'", () => {

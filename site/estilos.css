@@ -225,8 +225,35 @@ a:hover {
   letter-spacing: -0.02em;
 }
 
+.marca {
+  font-weight: 600;
+  font-size: 19px;
+}
+
 .marca svg {
-  color: var(--primary-texto);
+  color: var(--ink);
+}
+
+/* Os links do cabeçalho somem no celular: a página é uma rolagem só. */
+.cabecalho-nav {
+  display: none;
+  gap: 20px;
+  font-size: 15px;
+}
+
+.cabecalho-nav a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.cabecalho-nav a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+  .cabecalho-nav {
+    display: flex;
+  }
 }
 
 .cabecalho-acoes {
@@ -376,9 +403,11 @@ a:hover {
   padding-block: clamp(48px, 5vw + 16px, 96px);
 }
 
+/* Texto à esquerda e o simulador à direita; uma coluna quando não cabem as duas. */
 .hero .moldura {
   display: grid;
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  gap: 48px;
   align-items: center;
 }
 
@@ -399,7 +428,84 @@ a:hover {
 }
 
 .hero h1 {
-  max-width: 30ch;
+  max-width: 16ch;
+}
+
+/* O selo diz a categoria antes da manchete (JANO-01 AC 3). */
+.selo {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.selo::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+}
+
+.confianca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.hero-texto .hero-nota {
+  font-size: 15px;
+}
+
+.hero-texto .hero-historia {
+  font-size: 14px;
+  max-width: 52ch;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---- O card do simulador ---- */
+
+.simulador {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.simulador-cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.simulador-marca {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.simulador-exemplo {
+  display: grid;
+  gap: 8px;
+}
+
+.simulador-exemplo p {
+  font-size: 15px;
+  max-width: none;
 }
 
 /* ---- Captura do app: moldura com hairline, como um cartão ---- */
@@ -422,8 +528,8 @@ a:hover {
   color: var(--ink-muted);
 }
 
-.hero .captura {
-  margin-top: 16px;
+.caminhos + .captura {
+  margin-top: 32px;
 }
 
 .dores + .captura {

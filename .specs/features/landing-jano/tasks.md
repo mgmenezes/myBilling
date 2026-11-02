@@ -149,10 +149,10 @@ T7 -> T8
 **Requirement**: JANO-01, JANO-03 (AC 6), JANO-07 (AC 3)
 **Tools**: nenhuma
 **Done when**:
-- [ ] Testes de JANO-01 ACs 1 a 8
-- [ ] Teste do exemplo visível, com a frase de JavaScript, e dos campos com `hidden` (JANO-03 AC 6)
-- [ ] Teste: a captura da Visão geral em `sua-planilha` (JANO-07 AC 3)
-- [ ] Navegador sem rolagem e sem violação nas seis combinações
+- [x] Testes de JANO-01 ACs 1 a 8
+- [x] Teste do exemplo visível, com a frase de JavaScript, e dos campos com `hidden` (JANO-03 AC 6)
+- [x] Teste: a captura da Visão geral em `sua-planilha` (JANO-07 AC 3)
+- [x] Navegador sem rolagem e sem violação nas seis combinações
 **Tests**: `site/estrutura.test.mjs`
 **Gate**: navegador
 
@@ -231,3 +231,8 @@ T7 -> T8
   2.164 testes verdes. Tratado como falha passageira do ambiente; fica registrado para o Verifier.
 - **Decisão do autor (T3):** "Informe o valor para ver a resposta." passa a ser a constante
   `TEXTO_SEM_VALOR` em `texto-do-veredito.ts`, usada pelo app e pela landing, em vez de duas cópias.
+- **Decisão do autor (T4):** a nota "A lista pede o e-mail e uma pergunta..." (DOR-02 AC 3) fica no
+  herói, menor, junto da lista de confiança; tirá-la revisaria DOR-02 AC 3, que esta spec não revê.
+  Os links do cabeçalho somem abaixo de 640 px para o cabeçalho caber em 360 px. A chave interna do
+  tema, `mybilling:tema`, fica: é nome de armazenamento, não texto, e renomeá-la apagaria a escolha
+  de tema de quem já visitou.
