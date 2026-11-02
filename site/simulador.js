@@ -389,6 +389,7 @@ var SimuladorDaLanding = (() => {
     /* Sem "recarregue a página": a mensagem diz o que aconteceu, e a própria
        revalidação da action já traz a lista nova. */
     LANCAMENTO_NAO_ENCONTRADO: "Esse lançamento não existe mais.",
+    LANCAMENTO_NAO_E_PARCELA: "Só parcela de compra se exclui por aqui.",
     PERIODO_INVALIDO: "O mês de fim não pode ser anterior ao de início.",
     RECORRENCIA_NAO_ENCONTRADA: "Esse gasto fixo não existe mais.",
     CATEGORIA_NAO_ENCONTRADA: "Escolha uma categoria válida.",
@@ -410,6 +411,9 @@ var SimuladorDaLanding = (() => {
     IMPORTACAO_BANCO_NAO_VAZIO: "Já existem lançamentos no app. Rode o script de limpeza antes da primeira importação.",
     IMPORTACAO_PENDENCIA_ABERTA: "Ainda há meio de pagamento ou entrada sem decisão.",
     IMPORTACAO_DIVERGENCIA_NAO_CONFIRMADA: "Há totais que não batem. Confirme que entendeu a diferença antes de importar.",
+    // SPEC_DEVIATION: a mensagem entrou com o código, em T1, e não em T7.
+    // Reason: todo `CodigoErro` do domínio é exibível, e o código sem mensagem não compila.
+    NADA_A_EXCLUIR: "Todas as parcelas desta em diante já foram pagas. Nada a excluir.",
     VALIDACAO: "Confira os campos destacados.",
     NAO_AUTENTICADO: "Sua sessão terminou. Entre de novo para continuar.",
     ACESSO_NEGADO: "Este e-mail não tem acesso ao Jano.",
