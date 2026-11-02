@@ -1,6 +1,9 @@
-import { MAX_PARCELAS, type Simulacao } from "@/domain";
-import { formatarBRL, formatarCompetencia, nomeDoMes } from "@/lib/formatar";
+import type { Simulacao } from "@/domain";
+import { formatarBRL, formatarCompetencia } from "@/lib/formatar";
 import { apresentarSaldo } from "./apresentar-saldo";
+import { textoDoVeredito, textoEnxergaAte } from "./texto-do-veredito";
+
+export { textoDoVeredito } from "./texto-do-veredito";
 
 /**
  * A resposta de "Dá pra comprar?" (SIM-02, ACs 3 e 5 a 9): o veredito em cima,
@@ -13,9 +16,10 @@ import { apresentarSaldo } from "./apresentar-saldo";
  * do horizonte, porque é outra informação: não é sobre caber, é sobre até onde
  * o app viu.
  *
- * As linhas usam `apresentarSaldo`, a mesma apresentação de "Próximos meses":
- * mesmas palavras, mesmas cores. Um componente só, dois lugares: a tela
- * Simular e o cadastro de compra (SIM-05).
+ * As frases vivem em `texto-do-veredito.ts`, sem React, porque a landing roda
+ * a mesma resposta (JANO-03). As linhas usam `apresentarSaldo`, a mesma
+ * apresentação de "Próximos meses": mesmas palavras, mesmas cores. Um
+ * componente só, dois lugares: a tela Simular e o cadastro de compra (SIM-05).
  */
 
 export interface RespostaDaSimulacaoProps {
@@ -26,52 +30,6 @@ export interface RespostaDaSimulacaoProps {
   readonly menorQueCabe: number | null;
   /** O mês aberto: os meses de outro ano saem com "de <ano>". */
   readonly competenciaAberta: string;
-}
-
-/** "abril", ou "janeiro de 2027" quando o ano não é o do mês aberto. */
-function mesNoVeredito(competencia: string, competenciaAberta: string): string {
-  const nome = nomeDoMes(competencia).toLowerCase();
-  return competencia.slice(0, 4) === competenciaAberta.slice(0, 4)
-    ? nome
-    : `${nome} de ${competencia.slice(0, 4)}`;
-}
-
-/** "abril", "abril e maio", "março, abril e maio". */
-function listarMeses(meses: ReadonlyArray<string>): string {
-  if (meses.length <= 1) {
-    return meses.join("");
-  }
-  return `${meses.slice(0, -1).join(", ")} e ${meses[meses.length - 1]}`;
-}
-
-function iniciarComMaiuscula(texto: string): string {
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
-}
-
-export function textoDoVeredito({
-  simulacao,
-  qtdParcelas,
-  menorQueCabe,
-  competenciaAberta,
-}: RespostaDaSimulacaoProps): string {
-  const nome = (competencia: string) => mesNoVeredito(competencia, competenciaAberta);
-  if (simulacao.cabe) {
-    const jaFaltavam = simulacao.linhas.filter((linha) => linha.jaFaltava);
-    if (jaFaltavam.length === 0) {
-      return "Cabe. Nenhum mês fica no vermelho.";
-    }
-    const verbo = jaFaltavam.length === 1 ? "estava" : "estavam";
-    const meses = listarMeses(jaFaltavam.map((linha) => nome(linha.competencia)));
-    return `Cabe. ${iniciarComMaiuscula(meses)} já ${verbo} no vermelho antes desta compra.`;
-  }
-  const derrubados = simulacao.linhas.filter((linha) => !linha.jaFaltava && linha.saldoDepois < 0);
-  const verbo = derrubados.length === 1 ? "fica" : "ficam";
-  const meses = listarMeses(derrubados.map((linha) => nome(linha.competencia)));
-  const saida =
-    menorQueCabe === null
-      ? `Não cabe em nenhum parcelamento até ${MAX_PARCELAS}x.`
-      : `Em ${menorQueCabe}x cabe.`;
-  return `Em ${qtdParcelas}x não cabe: ${meses} ${verbo} no vermelho. ${saida}`;
 }
 
 function Saldo({ rotulo, saldo }: { readonly rotulo: string; readonly saldo: number }) {
@@ -97,11 +55,9 @@ export function RespostaDaSimulacao(props: RespostaDaSimulacaoProps) {
         >
           {textoDoVeredito(props)}
         </p>
-        {simulacao.parcelasForaDoHorizonte > 0 ? (
-          <p className="text-[14px] text-ink-muted">
-            Enxergo até {formatarCompetencia(simulacao.enxergaAte)}.
-          </p>
-        ) : null}
+        {textoEnxergaAte(simulacao) === null ? null : (
+          <p className="text-[14px] text-ink-muted">{textoEnxergaAte(simulacao)}</p>
+        )}
       </div>
       <ul className="flex flex-col">
         {simulacao.linhas.map((linha) => (

@@ -113,9 +113,9 @@ T7 -> T8
 **Requirement**: JANO-03 (ACs 2 e 8)
 **Tools**: nenhuma
 **Done when**:
-- [ ] O módulo novo não importa React nem JSX
-- [ ] Testes de `resposta-da-simulacao` e `simulador` passam sem mudar asserção (AC 8)
-- [ ] Cobertura do projeto `componentes` sem queda
+- [x] O módulo novo não importa React nem JSX
+- [x] Testes de `resposta-da-simulacao` e `simulador` passam sem mudar asserção (AC 8)
+- [x] Cobertura do projeto `componentes` sem queda
 **Tests**: os existentes em `src/components/resposta-da-simulacao.test.tsx` e `simulador.test.tsx`
 **Gate**: unit
 

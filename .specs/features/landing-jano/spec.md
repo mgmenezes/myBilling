@@ -293,7 +293,7 @@ atrás do código do app.
 | --- | --- | --- | --- |
 | JANO-01 | P1: O herói diz o que é | Tasks | Pending |
 | JANO-02 | P1: O simulador funciona no herói | Tasks | Pending |
-| JANO-03 | P1: A mesma conta e as mesmas frases do app | Tasks | Pending |
+| JANO-03 | P1: A mesma conta e as mesmas frases do app | Execute | Implementing: ACs 2 e 8 em T2 (`src/components/texto-do-veredito.ts`, sem React; `resposta-da-simulacao.test.tsx` e `simulador.test.tsx` sem mudança, 2.164 unitários verdes); ACs 1, 3 a 5 e 7 em T3; AC 6 em T4 |
 | JANO-04 | P1: A casa inventada | Tasks | Pending |
 | JANO-05 | P1: O pacote versionado e fresco | Tasks | Pending |
 | JANO-06 | P2: A página não promete o que não existe | Tasks | Pending |
