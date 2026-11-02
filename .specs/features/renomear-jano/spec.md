@@ -148,7 +148,7 @@ nada depois.
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
 | NOME-01 | P1: A marca do Jano no app | Execute | Implemented: T1 (`src/components/menu-lateral.test.tsx` "a marca leva para a home do ano", "a marca é o símbolo de dois arcos do Jano", "tem as áreas do Jano"; `e2e/auth.spec.ts` "a aba do navegador diz Jano"; 184 e2e dos specs tocados verdes) |
-| NOME-02 | P1: O herói do login | Tasks | Pending |
+| NOME-02 | P1: O herói do login | Execute | Implemented: T2, `e2e/auth.spec.ts` "o login abre pelo herói do Jano" (marca e símbolo, `<h1>` exato, subtítulo exato, botão, acesso restrito, nenhum "myBilling") |
 | NOME-03 | P1: Nenhum myBilling que se lê | Tasks | Pending |
 | NOME-04 | P2: Documentos vivos e gates | Tasks | Pending |
 

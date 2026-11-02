@@ -83,7 +83,7 @@ T3 -> T4
 **Reuses**: `MarcaJano`
 **Requirement**: NOME-02
 **Done when**:
-- [ ] e2e: marca "Jano", `<h1>` exato, subtítulo exato, botão e frase de acesso restrito (ACs 1 a 4)
+- [x] e2e: marca "Jano", `<h1>` exato, subtítulo exato, botão e frase de acesso restrito (ACs 1 a 4)
 **Tests**: `e2e/auth.spec.ts`
 **Gate**: unit + e2e
 

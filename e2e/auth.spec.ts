@@ -69,6 +69,28 @@ test("não autenticado é redirecionado para /login (AUTH-01, AC 1)", async ({ p
   await expect(page.getByRole("button", { name: "Entrar com o Google" })).toBeVisible();
 });
 
+test("o login abre pelo herói do Jano, com a marca, a manchete e o subtítulo (NOME-02, ACs 1 a 4)", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  const principal = page.getByRole("main");
+  const marca = principal.getByText("Jano", { exact: true });
+  await expect(marca).toBeVisible();
+  await expect(principal.locator("svg[data-marca='jano']")).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Antes de parcelar, pergunte ao Jano.",
+  );
+  await expect(
+    principal.getByText(
+      "Cadastre a compra parcelada e as contas fixas uma vez. O Jano mostra quanto vai sobrar em cada um dos próximos meses.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(principal.getByRole("button", { name: "Entrar com o Google" })).toBeVisible();
+  await expect(principal.getByText("O acesso é restrito às pessoas autorizadas.")).toBeVisible();
+  await expect(principal).not.toContainText("myBilling");
+});
+
 test("a aba do navegador diz Jano, com a descrição e o ícone de dois arcos (NOME-01, ACs 3 e 4)", async ({
   page,
 }) => {

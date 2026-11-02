@@ -1,5 +1,6 @@
-import { GoogleLogoIcon, WalletIcon } from "@phosphor-icons/react/dist/ssr";
+import { GoogleLogoIcon } from "@phosphor-icons/react/dist/ssr";
 import { forbidden } from "next/navigation";
+import { MarcaJano } from "@/components/marca-jano";
 import { signIn } from "@/infrastructure/auth/auth";
 
 /**
@@ -11,8 +12,10 @@ import { signIn } from "@/infrastructure/auth/auth";
  * precisa ser 403 de fato (AUTH-01, AC 2). Os demais erros do fluxo viram uma
  * mensagem genérica, e nenhum detalhe técnico chega ao navegador.
  *
- * Sem hero de marketing: quem chega aqui já sabe o que o app faz e quer
- * entrar. Uma tela de login que se comporta como landing page é atrito.
+ * O herói fala com a voz da landing (NOME-02): a marca, a manchete e uma
+ * frase sobre o que o Jano faz, para quem veio de lá reconhecer o lugar. Fora
+ * isso, sem marketing: quem chega aqui quer entrar, e um login que se comporta
+ * como landing page é atrito.
  */
 
 async function entrarComGoogle() {
@@ -30,18 +33,17 @@ export default async function PaginaDeLogin({ searchParams }: PageProps<"/login"
     <main className="flex min-h-[100dvh] flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-md rounded-xl border border-line bg-surface px-6 py-10 sm:px-10">
         <p className="flex items-center gap-2 text-[17px] font-medium tracking-[-0.02em]">
-          <WalletIcon size={24} weight="fill" aria-hidden="true" className="text-primary-texto" />
-          myBilling
+          <MarcaJano tamanho={26} />
+          Jano
         </p>
 
         <h1 className="mt-8 text-[32px] leading-[1.1] sm:text-[38px]">
-          O controle da casa,
-          <br />
-          sem planilha.
+          Antes de parcelar, pergunte ao Jano.
         </h1>
 
         <p className="mt-4 max-w-[42ch] text-ink-muted">
-          Cadastre a compra parcelada uma vez. As parcelas dos próximos meses aparecem sozinhas.
+          Cadastre a compra parcelada e as contas fixas uma vez. O Jano mostra quanto vai sobrar em
+          cada um dos próximos meses.
         </p>
 
         {error !== undefined && error !== "AccessDenied" ? (
