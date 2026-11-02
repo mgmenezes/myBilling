@@ -232,6 +232,56 @@ describe("CompraRepository.buscarPorId (T13)", () => {
   });
 });
 
+describe("CompraRepository com a última parcela cancelada (excluir-compra T2, EXC-03; AD-027)", () => {
+  async function cancelarNoBanco(compraId: string, numero: number): Promise<void> {
+    await pool.query(
+      "UPDATE movimento SET cancelado_em = '2026-10-02T12:00:00Z' WHERE compra_id = $1 AND numero_parcela = $2",
+      [compraId, numero],
+    );
+  }
+
+  it("buscarPorId devolve só as parcelas não canceladas", async () => {
+    const compra = await salvarEmAndamento();
+    await cancelarNoBanco(compra.id, 10);
+
+    const encontrada = await compras.buscarPorId(compra.id);
+
+    expect(encontrada?.parcelas.map((p) => p.numeroParcela)).toEqual([7, 8, 9]);
+  });
+
+  it("reprecificar confere a soma só das vigentes e não grava valor na cancelada", async () => {
+    const compra = await salvarEmAndamento();
+    await cancelarNoBanco(compra.id, 10);
+    const amortizadoMaisVigentes = 126000 + 21000 + 21000 + 21100;
+
+    await compras.reprecificar(compra.id, A_PARTIR_DA_9, amortizadoMaisVigentes as Cents);
+
+    expect(await gravadoNoBanco(compra.id)).toEqual({
+      total: amortizadoMaisVigentes,
+      parcelas: [
+        [7, 21000],
+        [8, 21000],
+        [9, 21100],
+        [10, 21000],
+      ],
+    });
+  });
+
+  it("reprecificar recusa o total que ainda conta a cancelada, sem gravar nada", async () => {
+    const compra = await salvarEmAndamento();
+    await cancelarNoBanco(compra.id, 10);
+
+    const recusa = compras.reprecificar(compra.id, A_PARTIR_DA_9, 210200 as Cents);
+
+    await expect(recusa).rejects.toMatchObject({
+      code: "CONSERVACAO_VIOLADA",
+      soma: 126000 + 21000 + 21000 + 21100,
+      valorTotal: 210200,
+    });
+    expect((await gravadoNoBanco(compra.id)).total).toBe(210000);
+  });
+});
+
 describe("MovimentoRepository.criarAvulso com origem (T13, IMP-03 AC 8)", () => {
   function avulso(origemDado?: EntradaLancamentoAvulso["origemDado"]): EntradaLancamentoAvulso {
     return {

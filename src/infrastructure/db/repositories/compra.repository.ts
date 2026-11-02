@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, type SQL, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, type SQL, sql } from "drizzle-orm";
 import {
   type CompraPersistida,
   type CompraRepository,
@@ -75,6 +75,10 @@ export class CompraRepositoryDrizzle implements CompraRepository {
    * Mesma garantia de `salvarComParcelas`, e pelo mesmo motivo: a conservação
    * é conferida **no banco**, com a soma relida das parcelas gravadas, dentro
    * da transação. Se amortizado + soma não der o total, nada fica gravado.
+   *
+   * Parcela cancelada fica fora das duas pontas: não recebe valor novo e não
+   * entra na soma (AD-027). Senão, a primeira reprecificação depois de uma
+   * exclusão lançaria `ViolacaoDeConservacao`.
    */
   async reprecificar(
     compraId: string,
@@ -87,7 +91,11 @@ export class CompraRepositoryDrizzle implements CompraRepository {
           .update(movimento)
           .set({ valorCentavos: parcela.valor })
           .where(
-            and(eq(movimento.compraId, compraId), eq(movimento.numeroParcela, parcela.numero)),
+            and(
+              eq(movimento.compraId, compraId),
+              eq(movimento.numeroParcela, parcela.numero),
+              isNull(movimento.canceladoEm),
+            ),
           );
       }
 
@@ -103,7 +111,7 @@ export class CompraRepositoryDrizzle implements CompraRepository {
       const [agregado] = await tx
         .select({ soma: sql<string>`coalesce(sum(${movimento.valorCentavos}), 0)::text` })
         .from(movimento)
-        .where(eq(movimento.compraId, compraId));
+        .where(and(eq(movimento.compraId, compraId), isNull(movimento.canceladoEm)));
       const soma = Number.parseInt(agregado?.soma ?? "0", 10) + compra.amortizado;
       if (soma !== valorTotal) {
         throw new ViolacaoDeConservacao(soma, valorTotal);
@@ -132,7 +140,7 @@ export class CompraRepositoryDrizzle implements CompraRepository {
     const parcelas = await this.db
       .select()
       .from(movimento)
-      .where(eq(movimento.compraId, compra.id))
+      .where(and(eq(movimento.compraId, compra.id), isNull(movimento.canceladoEm)))
       .orderBy(asc(movimento.numeroParcela));
     return {
       id: compra.id,

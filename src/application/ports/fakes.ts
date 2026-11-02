@@ -101,6 +101,11 @@ function somarParcelas(parcelas: ReadonlyArray<{ readonly valor: Cents }>): Cent
   return parcelas.reduce<Cents>((total, p) => somar(total, p.valor), ZERO_CENTS);
 }
 
+/** A compra como o Drizzle a devolve: só com as parcelas não canceladas. */
+function soVigentes(compra: CompraPersistida): CompraPersistida {
+  return { ...compra, parcelas: compra.parcelas.filter((parcela) => parcela.canceladoEm === null) };
+}
+
 export class FakeCompraRepository implements CompraRepository {
   private sequencia = 0;
 
@@ -109,20 +114,22 @@ export class FakeCompraRepository implements CompraRepository {
   async buscarPorIdempotencyKey(idempotencyKey: string): Promise<CompraPersistida | null> {
     for (const compra of this.estado.compras.values()) {
       if (compra.idempotencyKey === idempotencyKey) {
-        return compra;
+        return soVigentes(compra);
       }
     }
     return null;
   }
 
   async buscarPorId(compraId: string): Promise<CompraPersistida | null> {
-    return this.estado.compras.get(compraId) ?? null;
+    const compra = this.estado.compras.get(compraId);
+    return compra ? soVigentes(compra) : null;
   }
 
   /**
    * Mesma conferência do Drizzle: com os valores novos aplicados, amortizado +
-   * soma das parcelas gravadas tem que dar o total. Se não der, lança antes de
-   * tocar no estado, que é o que o rollback faz no banco.
+   * soma das parcelas não canceladas tem que dar o total. Se não der, lança
+   * antes de tocar no estado, que é o que o rollback faz no banco. Parcela
+   * cancelada não recebe valor novo, como o `WHERE` do Drizzle (AD-027).
    */
   async reprecificar(
     compraId: string,
@@ -136,9 +143,12 @@ export class FakeCompraRepository implements CompraRepository {
     const valorNovo = new Map<number | null, Cents>(parcelas.map((p) => [p.numero, p.valor]));
     const atualizadas = compra.parcelas.map((parcela) => {
       const valor = valorNovo.get(parcela.numeroParcela);
-      return valor === undefined ? parcela : { ...parcela, valor };
+      return valor === undefined || parcela.canceladoEm !== null ? parcela : { ...parcela, valor };
     });
-    const soma = somar(somarParcelas(atualizadas), compra.valorAmortizadoAnterior);
+    const soma = somar(
+      somarParcelas(atualizadas.filter((parcela) => parcela.canceladoEm === null)),
+      compra.valorAmortizadoAnterior,
+    );
     if (soma !== valorTotal) {
       throw new ViolacaoDeConservacao(soma, valorTotal);
     }

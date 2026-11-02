@@ -147,10 +147,10 @@ T12 → T13
 **Requirement**: EXC-03
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Com a 4/4 cancelada, `buscarPorId` da compra devolve só 1/4 a 3/4
-- [ ] Com a 4/4 cancelada, `reprecificar` a partir da 3 com total = amortizado + soma das três vigentes grava sem `ViolacaoDeConservacao`, e a 4/4 continua com o valor antigo
-- [ ] O fake de `CompraRepository` em `src/application/ports/fakes.ts` faz o mesmo, com teste próprio
-- [ ] Testes de integração existentes de `compra.repository` continuam verdes
+- [x] Com a 4/4 cancelada, `buscarPorId` da compra devolve só 1/4 a 3/4
+- [x] Com a 4/4 cancelada, `reprecificar` a partir da 3 com total = amortizado + soma das três vigentes grava sem `ViolacaoDeConservacao`, e a 4/4 continua com o valor antigo
+- [x] O fake de `CompraRepository` em `src/application/ports/fakes.ts` faz o mesmo, com teste próprio
+- [x] Testes de integração existentes de `compra.repository` continuam verdes
 **Tests**: integration
 **Gate**: full
 **Commit**: `fix(compras): conferir a conservação só com parcelas não canceladas`

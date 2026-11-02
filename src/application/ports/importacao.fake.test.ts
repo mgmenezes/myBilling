@@ -148,6 +148,83 @@ describe("FakeCompraRepository.reprecificar (T12, IMP-07 AC 10)", () => {
   });
 });
 
+describe("FakeCompraRepository com a última parcela cancelada (excluir-compra T2, EXC-03; AD-027)", () => {
+  /** O que o `UPDATE ... SET cancelado_em` faz no banco, no razão e na cópia da compra. */
+  function cancelarNoEstado(
+    fakes: ReturnType<typeof criarFakes>,
+    compraId: string,
+    numero: number,
+  ) {
+    const compra = fakes.estado.compras.get(compraId);
+    if (!compra) {
+      throw new Error("fixture inválida");
+    }
+    const parcelas = compra.parcelas.map((p) =>
+      p.numeroParcela === numero ? { ...p, canceladoEm: "2026-10-02T12:00:00Z" } : p,
+    );
+    for (const parcela of parcelas) {
+      fakes.estado.movimentos.set(parcela.id, parcela);
+    }
+    fakes.estado.compras.set(compraId, { ...compra, parcelas });
+  }
+
+  it("buscarPorId devolve só as parcelas não canceladas", async () => {
+    const { fakes, compraId } = await criarCompraEmAndamento();
+    cancelarNoEstado(fakes, compraId, 10);
+
+    const compra = await fakes.compras.buscarPorId(compraId);
+
+    expect(compra?.parcelas.map((p) => p.numeroParcela)).toEqual([7, 8, 9]);
+  });
+
+  it("reprecificar confere a soma só das vigentes e não grava valor na cancelada", async () => {
+    const { fakes, compraId } = await criarCompraEmAndamento();
+    cancelarNoEstado(fakes, compraId, 10);
+    const amortizadoMaisVigentes = 126000 + 21000 + 21000 + 21100;
+
+    await fakes.compras.reprecificar(
+      compraId,
+      [
+        { numero: 9, valor: 21100 as Cents },
+        { numero: 10, valor: 21100 as Cents },
+      ],
+      amortizadoMaisVigentes as Cents,
+    );
+
+    expect((await fakes.compras.buscarPorId(compraId))?.valorTotal).toBe(amortizadoMaisVigentes);
+    const noRazao = [...fakes.estado.movimentos.values()]
+      .filter((m) => m.compraId === compraId)
+      .map((m) => [m.numeroParcela, m.valor]);
+    expect(noRazao).toEqual([
+      [7, 21000],
+      [8, 21000],
+      [9, 21100],
+      [10, 21000],
+    ]);
+  });
+
+  it("reprecificar recusa o total que ainda conta a cancelada, sem gravar nada", async () => {
+    const { fakes, compraId } = await criarCompraEmAndamento();
+    cancelarNoEstado(fakes, compraId, 10);
+
+    const recusa = fakes.compras.reprecificar(
+      compraId,
+      [
+        { numero: 9, valor: 21100 as Cents },
+        { numero: 10, valor: 21100 as Cents },
+      ],
+      210200 as Cents,
+    );
+
+    await expect(recusa).rejects.toMatchObject({
+      code: "CONSERVACAO_VIOLADA",
+      soma: 126000 + 21000 + 21000 + 21100,
+      valorTotal: 210200,
+    });
+    expect((await fakes.compras.buscarPorId(compraId))?.valorTotal).toBe(210000);
+  });
+});
+
 describe("FakeImportacaoRepository (T12, IMP-02, IMP-04)", () => {
   it("registrar a mesma competência duas vezes lança como a unicidade do banco", async () => {
     const { importacoes } = criarFakes();

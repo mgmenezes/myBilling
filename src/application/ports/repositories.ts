@@ -115,13 +115,17 @@ export interface CompraRepository {
    * aparecem nele.
    */
   totaisDeParcelas(compraIds: ReadonlyArray<string>): Promise<ReadonlyMap<string, number>>;
-  /** A compra com as parcelas gravadas, em ordem de número; `null` se não existe. */
+  /**
+   * A compra com as parcelas não canceladas, em ordem de número; `null` se não
+   * existe. A parcela excluída não volta para a importação (AD-027).
+   */
   buscarPorId(compraId: string): Promise<CompraPersistida | null>;
   /**
    * Grava o valor novo de cada parcela informada e o total da compra, numa
    * transação, e confere a conservação **no banco**: amortizado + soma das
-   * parcelas gravadas tem que dar `valorTotal` (IMP-07 AC 10). Se não der,
-   * lança `ViolacaoDeConservacao` e nada fica gravado.
+   * parcelas não canceladas tem que dar `valorTotal` (IMP-07 AC 10; AD-027).
+   * Parcela cancelada não recebe valor novo. Se não fechar, lança
+   * `ViolacaoDeConservacao` e nada fica gravado.
    */
   reprecificar(
     compraId: string,
