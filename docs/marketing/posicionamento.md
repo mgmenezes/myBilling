@@ -15,9 +15,10 @@ romano de duas faces: uma olhava para o que passou, a outra para o que vem. Era 
 casa, e janeiro leva o nome dele. A história é a tese: a planilha olha para o que você digitou; o
 Jano olha também para o que vem.
 
-Por dentro, o app, o repositório e o projeto na Vercel continuam se chamando myBilling até o domínio
-estar registrado e a busca no INPI (classes 9, 36 e 42) não mostrar conflito. Toda peça pública diz
-Jano; nenhuma diz myBilling.
+Desde 2026-11-02 o app também se chama Jano por fora: login, menu, aba e mensagens (fatia
+`renomear-jano`, AD-027). Por dentro, os identificadores técnicos continuam `mybilling`: banco,
+usuário e contêiner do Postgres, pacote e repositório no GitHub. Domínio próprio e busca no INPI
+(classes 9, 36 e 42) seguem pendentes com o dono. Toda peça pública diz Jano; nenhuma diz myBilling.
 
 ## O produto em uma frase
 

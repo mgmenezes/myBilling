@@ -1,4 +1,7 @@
-# myBilling — Guidelines do projeto
+# Jano — Guidelines do projeto
+
+> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório.
 
 App de gestão financeira doméstica para duas pessoas. Substitui uma planilha do Google Sheets.
 Especificação viva em `.specs/`. Decisões de projeto em `.specs/STATE.md` (AD-001 a AD-011).

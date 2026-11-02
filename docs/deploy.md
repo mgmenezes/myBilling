@@ -1,5 +1,9 @@
 # Deploy — Vercel + Neon
 
+> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório (`mgmenezes/myBilling`).
+> Na Vercel, o dono renomeou o projeto do app e o da landing (ver `site/README.md`).
+
 App na **Vercel**, banco no **Neon** (São Paulo, Postgres 18). Este documento é o roteiro de
 execução: cada passo é uma ação, e cada escolha traz a razão junto, para que ninguém a desfaça sem
 saber o que estava resolvendo.

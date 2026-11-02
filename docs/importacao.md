@@ -1,5 +1,8 @@
 # Importar a planilha
 
+> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório.
+
 Roteiro para levar as abas de **outubro, novembro e dezembro de 2026** da planilha para o app. Cada
 passo é uma ação, e cada regra traz a razão junto.
 

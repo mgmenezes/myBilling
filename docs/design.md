@@ -1,4 +1,4 @@
-# Identidade visual do myBilling
+# Identidade visual do Jano
 
 Derivada do sistema descrito em `DESIGN.md` (análise das superfícies da Coinbase), **sem usar a marca
 Coinbase**. O documento descreve uma linguagem visual; o logotipo, o nome e os tipos licenciados são

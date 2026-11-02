@@ -4,7 +4,8 @@ Página estática, HTML e CSS, na identidade de `docs/design.md`, com um único 
 gerado da conta do app (`simulador.js`, abaixo). Não faz parte do app Next.js:
 não entra no proxy de login nem no gate de cobertura de `src/`. O texto segue
 `docs/marketing/posicionamento.md`. Specs em `.specs/features/campanha-lista-de-espera/`, `landing-dor/` e
-`landing-jano/`. O nome público é Jano; o app continua myBilling por dentro (AD-026).
+`landing-jano/`. O nome é Jano, no app e na landing (AD-026, AD-027); banco, contêiner e pacote continuam
+`mybilling`.
 
 ## Abrir local
 

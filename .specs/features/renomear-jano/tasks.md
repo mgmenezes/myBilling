@@ -1,7 +1,7 @@
 # O app se chama Jano — Tasks
 
 **Spec**: `.specs/features/renomear-jano/spec.md`
-**Status**: Em execução (pedido do dono em 2026-11-02, alcance e herói decididos por ele)
+**Status**: Tasks concluídas, à espera do Verifier
 **Total**: 4 tasks em 2 fases
 
 ---
@@ -108,9 +108,9 @@ T3 -> T4
 **Depends on**: T3
 **Requirement**: NOME-04
 **Done when**:
-- [ ] Documentos com Jano e a nota dos identificadores (ACs 1 e 2)
-- [ ] AD-027, Handoff, HANDOFF (AC 3)
-- [ ] `pnpm verify && pnpm site:verificar && pnpm test:e2e` saem 0 (AC 4)
+- [x] Documentos com Jano e a nota dos identificadores (ACs 1 e 2)
+- [x] AD-027, Handoff, HANDOFF (AC 3)
+- [x] `pnpm verify && pnpm site:verificar && pnpm test:e2e` saem 0 (AC 4)
 **Tests**: none
 **Gate**: build
 
@@ -128,3 +128,8 @@ T3 -> T4
   tabelas no meio dos e2e; os e2e desta fatia passaram a rodar com
   `DATABASE_URL_TEST=.../mybilling_test_jano`. "marcar pago move o indicador do painel" (MOV-06)
   falhou uma vez sob carga e passou 3 de 3 isolado; não tem relação com o nome.
+- **Observação (T4):** no gate completo, 281 de 282 e2e passaram; a falha foi de novo o MOV-06 acima,
+  que passou 5 de 5 isolado em seguida. É instabilidade sob carga de um teste anterior a esta fatia, e
+  fica registrada para o dono. `pnpm verify` e `pnpm site:verificar` saíram 0. Enquanto isso, a `main`
+  ganhou a fatia de exclusão de compra de outra sessão (`10ae97e..dd4fb58`); antes do merge, rebasear e
+  rodar o gate de novo.

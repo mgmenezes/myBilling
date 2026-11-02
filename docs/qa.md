@@ -1,5 +1,8 @@
 # QA antes de deployar
 
+> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório.
+
 Roteiro para exercitar o app **em modo produção**, contra um banco limpo, antes de qualquer deploy.
 Ele existe porque `pnpm dev` e `pnpm start` não são o mesmo programa: o build de produção embute
 `NODE_ENV=production`, e isso muda autenticação, cookies e o provider de teste.

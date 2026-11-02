@@ -392,21 +392,47 @@
 
 ---
 
+### AD-028
+- **Decision**: O app também passa a se chamar **Jano** em tudo o que uma pessoa lê: título e
+  descrição da aba, ícone (`src/app/icon.svg` no lugar do `favicon.ico`), marca do menu lateral
+  (`MarcaJano`, o símbolo de dois arcos da landing), nomes acessíveis "Menu do Jano" e "Áreas do
+  Jano", página de acesso negado, mensagem `ACESSO_NEGADO`, frases e comentários de código e os
+  documentos vivos. O login abre pelo herói da landing: "Antes de parcelar, pergunte ao Jano.".
+  **Ficam `mybilling`** os identificadores técnicos: banco, usuário e senha do Postgres, contêiner e
+  volume do Docker, nome do pacote, repositório no GitHub, chave do tema `mybilling:tema`, e o
+  histórico (specs antigas, ADs anteriores, handoffs anteriores). Um teste (`src/lib/nome-publico.test.ts`)
+  reprova "myBilling" em `src/` e `site/`.
+- **Rationale**: pedido do dono em 2026-11-02 ("vamos mudar o herói e o nome para jano, onde estiver
+  mybilling"); respostas: herói do login na voz da landing; alcance "o que se vê e os documentos
+  vivos". Trocar os identificadores técnicos quebraria o ambiente local e o `DATABASE_URL` de
+  produção; trocar a chave do tema apagaria a escolha de quem já usa; reescrever o histórico apagaria
+  como as decisões foram tomadas.
+- **Alternatives**: trocar também os identificadores técnicos; reescrever o histórico; só trocar a
+  marca do login.
+- **Scope**: `src/components/marca-jano.tsx`, `menu-lateral.tsx`, `navegacao-principal.tsx`,
+  `src/app/layout.tsx`, `src/app/icon.svg`, `src/app/login/page.tsx`, `src/app/forbidden.tsx`,
+  `src/lib/erros.ts`, comentários em `src/` e `site/`, e2e e testes de componente que procuram o nome,
+  `README.md`, `AGENTS.md`, `docs/`. Spec em `.specs/features/renomear-jano/`.
+- **Date**: 2026-11-02
+- **Status**: active
+
+---
+
 ## Handoff
 
-- **Feature**: `excluir-compra` (AD-027), direto na `main`. Spec, design, tasks e traceability em
-  `.specs/features/excluir-compra/`.
-- **O que é**: toda parcela não cancelada tem "⋯" com "Excluir"; o aviso diz quantas parcelas saem,
-  de que meses e quanto somam; "Excluir desta em diante" cancela as não pagas de número maior ou
-  igual, e a compra fecha em amortizado + soma das que ficaram. O avulso segue em dois toques.
-- **Completed**: T1 `25c59f1`, T2 `5edfed0`, T3 `599b951`, T4 `54670db`, T5 `0bf9d61`, T6 `39c32e2`,
-  T7 `dd4fb58`, T8 `5bd24c1`, T9 `cfa21b6`, T10 `a76c8d7`, T11 `24a186e`, correção `b34ea54` (menu
-  montado pela tabela do servidor e painel dentro da tela em 400 px, achados pelo e2e), T12
-  `bf89d1a`, T13 (este registro). Todos os EXC em `Execute | Implemented`.
-- **In-progress**: nenhum.
-- **Next step**: (1) Verifier independente da fatia (`validation.md`, PASS/FAIL, sensor de
-  discriminação), que é quem marca `Verified`; (2) `git push` só com autorização separada.
+- **Feature**: `renomear-jano` (AD-027). Branch `feat/renomear-jano`, worktree
+  `.worktrees/renomear-jano`, a partir de `f9734c1` (`main` em `7f101e8` mais o README da landing com
+  o nome novo do projeto na Vercel). Spec e tasks em `.specs/features/renomear-jano/`.
+- **O que é**: o app passa a se chamar Jano em tudo o que se lê, e o login abre pelo herói da landing.
+  Os identificadores técnicos continuam `mybilling`.
+- **Completed**: spec `a1fd179`, T1 `cbb07c9`, T2 `cc2987e`, T3 `ee4d0c1`, T4 (este registro).
+- **In-progress**: o Verifier independente roda depois da T4.
+- **Next step**: (1) Verifier PASS; (2) merge na `main` e `git push`, com autorização separada do
+  dono; (3) a Vercel do app republica sozinha a cada push na `main`; (4) o projeto do app na Vercel
+  está como `janofincancas`, com um "c" a mais, e o dono quer `janofinancas`.
 - **Blockers**: nenhum.
-- **Uncommitted files**: nenhum.
-- **Branch**: `main`. A fatia `landing-jano` (AD-026) segue no próprio branch e worktree
-  (`feat/landing-jano`, `.worktrees/landing-jano`), com o retomar em `.specs/HANDOFF.md`.
+- **Uncommitted files**: só `next-env.d.ts`, que o `next dev` regrava.
+- **Branch**: `feat/renomear-jano`.
+- **Observação**: rodar e2e e integração com `DATABASE_URL_TEST=.../mybilling_test_jano` quando outra
+  sessão estiver usando o `mybilling_test`.
+- **Contexto completo de retomada**: `.specs/HANDOFF.md`.

@@ -1,6 +1,9 @@
-# myBilling
+# Jano
 
-Gestão financeira doméstica para duas pessoas. Substitui uma planilha com uma aba por mês.
+> O produto se chama **Jano** desde 2026-11-02 (AD-027). Os nomes com `mybilling` neste documento
+> são técnicos e continuam assim: banco, usuário e contêiner do Postgres, pacote e repositório.
+
+Gestão financeira doméstica para quem paga as contas da casa, sozinho ou a dois. Substitui uma planilha com uma aba por mês.
 
 **O problema que ele resolve:** compras parceladas exigiam re-digitação manual em cada aba futura, e esquecer uma parcela corrompia o saldo. Aqui a compra é cadastrada **uma vez** e as parcelas se distribuem sozinhas pelos meses seguintes, inclusive na virada de ano, com garantia aritmética de que a soma das parcelas é exatamente o valor total.
 

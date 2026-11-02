@@ -4,6 +4,11 @@
 > Última atualização: 2026-10-28, branch `feat/editar-fixos`, na worktree `.worktrees/editar-fixos`.
 
 > [!IMPORTANT]
+> **2026-11-02: o app também virou Jano** (fatia `renomear-jano`, AD-027, branch `feat/renomear-jano`,
+> worktree `.worktrees/renomear-jano`): login com o herói da landing, marca de dois arcos no menu e na
+> aba, nenhuma tela ou mensagem com "myBilling". Banco, contêiner, pacote, repositório e chave do tema
+> continuam `mybilling`. Spec em `.specs/features/renomear-jano/spec.md`.
+>
 > **2026-11-02: a landing virou Jano** (fatia `landing-jano`, AD-026, branch `feat/landing-jano`,
 > worktree `.worktrees/landing-jano`): manchete "Antes de parcelar, pergunte ao Jano.", o simulador
 > "Dá pra comprar?" funcionando no herói com a conta do app empacotada em `site/simulador.js`
