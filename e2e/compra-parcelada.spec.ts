@@ -475,7 +475,8 @@ test("marcar pago move o indicador do painel, não só o selo (MOV-06, AC 1 e AC
   const pendenteAntes = await valorDoIndicador(page, "Ainda não pago");
 
   await page.goto("/2026-03/lancamentos");
-  const selo = page.getByRole("button", { name: /Compra para pagar/ });
+  // O selo, e não o "⋯" da mesma linha, que também leva a descrição no nome.
+  const selo = page.getByRole("button", { name: /^(Previsto|Pago)\b.*Compra para pagar$/ });
   await expect(selo).toHaveAttribute("aria-pressed", "false");
   await selo.click();
   await expect(selo).toHaveAttribute("aria-pressed", "true");
@@ -485,7 +486,7 @@ test("marcar pago move o indicador do painel, não só o selo (MOV-06, AC 1 e AC
 
   // E desfazer devolve o indicador ao que era: a operação é reversível de fato.
   await page.goto("/2026-03/lancamentos");
-  await page.getByRole("button", { name: /Compra para pagar/ }).click();
+  await selo.click();
   await page.goto("/2026-03");
   expect(await valorDoIndicador(page, "Ainda não pago")).toBe(pendenteAntes);
 });
