@@ -809,6 +809,33 @@ describe("excluir aparece só onde é permitido (AVUL-03, AC 6; DENS-02)", () =>
     expect(screen.queryByRole("button", { name: /^Mais ações/ })).toBeNull();
   });
 
+  it('não oferece "⋯" na linha de entrada fixa (EXC-01, AC 3)', () => {
+    render(
+      <TabelaLancamentos
+        competenciaCorrente={MARCO}
+        categorias={CATEGORIAS}
+        alternarPagamento={alternarOk}
+        confirmarValor={confirmarOk}
+        excluir={excluirOk}
+        excluirCompra={excluirCompraOk}
+        opcoesDeCategoria={OPCOES}
+        trocarCategoria={trocarOk}
+        lancamentos={[
+          item({
+            id: "1",
+            origem: "RECORRENCIA",
+            natureza: "RECEITA",
+            recorrenciaId: "r1",
+            descricao: "Entrada fixa A",
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /^Excluir/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Mais ações/ })).toBeNull();
+  });
+
   it("oferece na receita avulsa, que também é cancelável", async () => {
     render(
       <TabelaLancamentos

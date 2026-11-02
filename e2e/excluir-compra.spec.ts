@@ -213,6 +213,10 @@ test('em janeiro a parcela tem "⋯" com "Excluir", o fixo não tem "⋯" e o av
 
   await expect(linha(page, "Fixo A")).toBeVisible();
   await expect(linha(page, "Fixo A").getByRole("button", { name: /^Mais ações/ })).toHaveCount(0);
+  await expect(linha(page, "Entrada A")).toBeVisible();
+  await expect(linha(page, "Entrada A").getByRole("button", { name: /^Mais ações/ })).toHaveCount(
+    0,
+  );
 
   const avulso = linha(page, "Item A");
   await gatilho(avulso, "Item A").click();

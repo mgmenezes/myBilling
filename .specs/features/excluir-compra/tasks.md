@@ -350,6 +350,25 @@ T12 → T13
 
 ---
 
+### Phase 5 — Correções da verificação (rodada 1)
+
+#### F1: Provar que a entrada fixa não tem "⋯"
+**What**: caso de componente e assertion de e2e para a linha de entrada fixa sem "⋯" (gap 1 do `validation.md`, mutante M12 sobrevivente).
+**Where**: `src/components/tabela-lancamentos.test.tsx`
+**Depends on**: T12
+**Reuses**: o caso "não oferece na linha de gasto fixo"
+**Requirement**: EXC-01
+**Tools**: MCP NONE · Skill NONE
+**Done when**:
+- [x] Entrada fixa (`RECORRENCIA`, `RECEITA`) renderizada sem "Mais ações" nem "Excluir" (EXC-01 AC 3)
+- [x] Em `e2e/excluir-compra.spec.ts`, a linha "Entrada A" visível e sem "Mais ações" (EXC-01 AC 3)
+- [x] O mutante M12 (`origem === "AVULSO" || natureza === "RECEITA"` em `tabela-lancamentos.tsx`) faz o caso novo falhar
+**Tests**: componentes (+ e2e)
+**Gate**: quick
+**Commit**: `test(compras): provar que a entrada fixa não ganha o menu de exclusão`
+
+---
+
 ## Task Granularity Check
 
 | Task | Escopo | Status |
