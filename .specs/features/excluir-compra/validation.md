@@ -1,8 +1,16 @@
 # Excluir compra parcelada desta parcela em diante — Validação
 
-## Validation: excluir-compra — **FAIL**
+## Validation: excluir-compra — **PASS**
 
-**Result**: FAIL ❌ — rodada 1 (2026-11-02, `b9bd7ba`).
+**Result**: PASS ✅ — rodada 2 (2026-11-02, `bce8ed4`): o F1 prova a entrada fixa sem "⋯" e o M12
+morre. Ver a seção "Rodada 2" no fim. A rodada 1 fica abaixo como foi escrita, com o veredito
+da época.
+
+---
+
+# Rodada 1
+
+**Veredito da rodada 1**: FAIL ❌ — 2026-11-02, `b9bd7ba`.
 
 O código de produto faz o que a spec pede nas camadas verificadas e o gate está verde. O veredito vem
 de **um mutante vivo que quebra uma cláusula da spec**: o M12, que dá o menu "⋯" à **entrada fixa**,
@@ -172,7 +180,7 @@ domain`. A linha de base da worktree, sem mutante, passou nas duas suítes (2.23
 | AD011-B | `src/domain/shared/competencia.ts:45` | `addMeses` sem virada de ano | ✅ morto (unit, domain) |
 
 **Sensor depth**: expandida.
-**Result**: 21 rodados, 20 mortos, 1 vivo (M12); 1 não rodado (M21) — **FAIL ❌**.
+**Resultado da rodada 1**: 21 rodados, 20 mortos, 1 vivo (M12); 1 não rodado (M21) — **FAIL ❌**.
 
 ---
 
@@ -276,7 +284,7 @@ Revisão limitada aos arquivos lidos para os ACs (corte de escopo).
 
 ---
 
-## Requirement Traceability Update
+## Requirement Traceability Update (rodada 1)
 
 Nenhuma linha muda para `Verified` nesta rodada (FAIL).
 
@@ -290,7 +298,7 @@ Nenhuma linha muda para `Verified` nesta rodada (FAIL).
 
 ---
 
-## Summary
+## Summary (rodada 1)
 
 **Overall**: ❌ Not Ready — uma fix task de teste.
 
@@ -316,3 +324,96 @@ recusas sem gravar, e a composição página → domínio → banco no e2e.
 | `spec_precision_gap` | EXC-02 AC 9 (G2) | L-080 (candidata): AC com vários gestos de fechar precisa dizer a quais o efeito de foco se aplica |
 | `spec_deviation` | `src/lib/erros.ts:113-115` | L-027, segunda feature: promovida a confirmada |
 | penalidade | L-010 | `penalize` (harmful = 1): confirmada, carregada em `tasks.md`, e a mesma falha voltou (AC de duas cláusulas, uma sem prova) |
+
+---
+
+# Rodada 2
+
+**Veredito da rodada 2**: PASS ✅ — 2026-11-02, `bce8ed4`.
+
+Re-checagem curta, focada no F1 (Fix 1 da rodada 1) e no M12. Feita por um sub-agente
+independente, que não escreveu o F1. **Nenhum `git stash`.** O porcelain do checkout foi gravado
+antes (vazio) e conferido depois de remover a worktree (vazio). O `next dev` do e2e reescreveu
+`next-env.d.ts`, que voltou ao commitado com `git checkout`.
+
+**Corte de escopo pelo dono**: rodada rápida. Integração e `pnpm verify`/build não foram re-rodados.
+
+## F1 — evidência (EXC-01 AC 3, "ou de entrada fixa")
+
+O commit `bce8ed4` só mexe em teste e em `tasks.md`; nenhum código de produto mudou desde o
+`b9bd7ba`.
+
+| Onde | Fixture | Assertion | Escopo |
+| --- | --- | --- | --- |
+| `src/components/tabela-lancamentos.test.tsx:812-837` | uma linha só: `origem: "RECORRENCIA"`, `natureza: "RECEITA"`, `recorrenciaId: "r1"`, "Entrada fixa A" (`:826-827`) | `:836` — `queryByRole("button", { name: /^Mais ações/ })` nulo; `:835` — `queryByRole("button", { name: /^Excluir/ })` nulo | A tabela tem só a linha da entrada fixa, então a consulta na tela inteira é a consulta na linha |
+| `e2e/excluir-compra.spec.ts:216-219` | "Entrada A", semeada como receita fixa (`:41`, `semearRecorrencia("Entrada A", "RECEITA", …)`) | `linha(page, "Entrada A")` visível e `getByRole("button", { name: /^Mais ações/ })` com `toHaveCount(0)` | Restrita à linha "Entrada A" pelo `linha()`; a visibilidade antes impede que a contagem 0 passe por linha ausente |
+
+As duas assertions afirmam o resultado que a spec define em EXC-01 AC 3 ("WHEN a lista mostra uma
+ocorrência de gasto fixo ou de entrada fixa THEN o sistema SHALL" não exibir o "⋯") para o tipo de
+linha que faltava. A cláusula do gasto fixo continua provada como na rodada 1.
+
+EXC-01 AC 3 passa de ❌ para ✅. Os demais 31 critérios não mudaram desde a rodada 1 (nenhum código
+de produto mudou) e continuam como lá.
+
+## Discriminação (rodada 2)
+
+Worktree destacada e descartável no `bce8ed4`, com `node_modules` por link simbólico. Cada mutante
+sozinho em `src/components/tabela-lancamentos.tsx:384`, contra
+`pnpm exec vitest run src/components/tabela-lancamentos.test.tsx`. Linha de base sem mutante: 56
+passaram.
+
+| Mutante | Falha injetada em `tabela-lancamentos.tsx:384` | Resultado |
+| --- | --- | --- |
+| M12 | `lancamento.origem === "AVULSO" \|\| lancamento.natureza === "RECEITA"` | ✅ morto — 1 falhou, 55 passaram: `não oferece "⋯" na linha de entrada fixa (EXC-01, AC 3)` |
+| M12b (variante do Verificador) | `lancamento.origem === "AVULSO" \|\| (lancamento.origem === "RECORRENCIA" && lancamento.natureza === "RECEITA")` — só a entrada fixa ganha o menu, a receita avulsa e o gasto fixo não mudam | ✅ morto — 1 falhou, 55 passaram: o mesmo caso |
+
+Worktree removida (`git worktree remove --force`, `git worktree prune`); o porcelain do checkout
+ficou igual ao de antes (vazio).
+
+O mutante não rodou contra o e2e (rodada rápida). A assertion do e2e lê a mesma linha e o mesmo
+nome acessível que o caso de componente.
+
+**Resultado da rodada 2 (sensor)**: 2 rodados, 2 mortos. Com a rodada 1: M1–M20 e M12b mortos,
+AD011-A e B mortos; M21 segue não rodado (nota N3).
+
+## Gate Check (rodada 2, no checkout real, `bce8ed4`)
+
+| Gate | Comando | Resultado |
+| --- | --- | --- |
+| unit | `pnpm test:unit` | ✅ 141 arquivos, 2.239 testes (+1, o caso do F1); cobertura 100% em statements, branches (422/422), funções e linhas |
+| tipos | `pnpm typecheck` | ✅ |
+| lint | `pnpm lint` | ✅ 402 arquivos, nenhum ajuste |
+| e2e | `pnpm exec playwright test e2e/excluir-compra.spec.ts` | ✅ 6 passaram (28,2 s), na porta 3100 |
+| integração | `pnpm test:integration` | não re-rodada na rodada 2 (pedido do dono); última execução: rodada 1, 436 passed. O F1 não toca em código que a integração exercita |
+| build | `pnpm build` / `pnpm verify` | não rodado na rodada 2 (pedido do dono) |
+
+## Em aberto (decisões do dono, não bloqueiam o PASS)
+
+- **G1** — EXC-04 AC 4: o toast quando `k` = 0 (repetição ou outra aba). Hoje sai "0 parcelas
+  excluídas.".
+- **G2** — EXC-02 AC 9: se "com o foco de volta no '⋯'" vale também para o clique fora. Hoje o foco
+  volta só em "Cancelar" e `Escape`.
+- Notas N1–N3 da rodada 1 seguem como estão (sem fix task); M21 segue não rodado.
+
+## Requirement Traceability Update (rodada 2)
+
+| Requirement | Status anterior | Status novo |
+| --- | --- | --- |
+| EXC-01 | ❌ Needs Fix (Fix 1) | Verified (F1: entrada fixa sem "⋯", M12 e M12b mortos) |
+| EXC-02 | Implemented | Verified (⚠️ G2 aguarda o dono) |
+| EXC-03 | Implemented | Verified |
+| EXC-04 | Implemented | Verified (⚠️ G1 aguarda o dono) |
+| EXC-05 | Implemented | Verified |
+
+## Summary (rodada 2)
+
+**Overall**: ✅ Ready.
+
+**Spec-anchored check**: 32/32 critérios com assertion sobre o resultado da spec; 2 lacunas de
+precisão (G1, G2) com o dono.
+**Sensor**: M12 e M12b mortos; somando a rodada 1, nenhum mutante vivo; M21 não rodado.
+**Gate**: unit 2.239 ✅, typecheck ✅, lint ✅, e2e `excluir-compra` 6 ✅; integração não re-rodada
+(rodada 1: 436 ✅).
+
+**Lições**: PASS limpo na rodada 2, nada novo a registrar. As candidatas L-078 a L-080 são da
+rodada 1.

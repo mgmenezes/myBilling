@@ -2,7 +2,7 @@
 
 **Spec**: `.specs/features/excluir-compra/spec.md`
 **Design**: `.specs/features/excluir-compra/design.md`
-**Status**: Approved (dono, 2026-11-02: 2 lotes com subagentes, T1–T7 e T8–T13, direto na `main`)
+**Status**: Verified (`validation.md`, 2026-11-02: PASS na rodada 2, depois do F1; aprovado pelo dono em 2026-11-02; 2 lotes com subagentes, T1–T7 e T8–T13, mais F1, direto na `main`)
 **Total**: 13 tasks em 5 fases
 
 ---

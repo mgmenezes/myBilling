@@ -230,11 +230,11 @@ desta em diante já foram pagas. Nada a excluir." e nenhum botão de excluir.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| EXC-01 | P1: "⋯" com "Excluir" na parcela | Execute | Implemented |
-| EXC-02 | P1: O aviso antes de excluir | Execute | Implemented |
-| EXC-03 | P1: O alcance da exclusão | Execute | Implemented |
-| EXC-04 | P1: Depois de excluir | Execute | Implemented |
-| EXC-05 | P1: Recusar sem gravar | Execute | Implemented |
+| EXC-01 | P1: "⋯" com "Excluir" na parcela | Execute | Verified (validation.md, 2026-11-02, rodada 2): "⋯" e "Excluir" na parcela, ACs 1 e 2 (M11 morto); sem "⋯" no gasto fixo e na entrada fixa, AC 3 (F1, M12 e M12b mortos); avulso em dois toques, AC 4; 44 × 44 em 400 px, AC 5 |
+| EXC-02 | P1: O aviso antes de excluir | Execute | Verified (validation.md, 2026-11-02, rodada 2): textos do aviso nos dois lados de cada limiar, ACs 2 a 6 (M6, M7, M19 mortos); foco em "Cancelar", AC 7 (M14 morto); fechar sem excluir, AC 9 (G2, foco no clique fora, com o dono) |
+| EXC-03 | P1: O alcance da exclusão | Execute | Verified (validation.md, 2026-11-02, rodada 2): alcance com pagas e anteriores intactas e conservação com rollback no Postgres, ACs 1 a 6 (M1–M3, M15, M16 mortos); repetição sem erro, AC 7 (M10 morto) |
+| EXC-04 | P1: Depois de excluir | Execute | Verified (validation.md, 2026-11-02, rodada 2): linha sai sem recarregar e totais/horizonte deixam de contar, ACs 1 a 3 (M9 morto); toast pela resposta do servidor, AC 4 (M8, M20 mortos; G1, k = 0, com o dono); "faltam"/"última", AC 5 (M5 morto) |
+| EXC-05 | P1: Recusar sem gravar | Execute | Verified (validation.md, 2026-11-02, rodada 2): sessão, payload estrito, inexistente, não parcela, nada a excluir e erro inesperado recusados sem gravar, ACs 1 a 7 (M13, M17 mortos) |
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Implemented → Verified
 
