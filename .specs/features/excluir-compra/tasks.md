@@ -214,12 +214,12 @@ T12 → T13
 **Requirement**: EXC-03, EXC-05
 **Tools**: MCP NONE · Skill NONE
 **Done when**:
-- [ ] Parcela 2/4 com a 3 paga: cancela 2 e 4, grava o total novo, devolve `{ alterou: true, parcelasExcluidas: 2 }` (EXC-03 AC 1–4)
-- [ ] Lançamento já cancelado: `ok({ alterou: false, parcelasExcluidas: 0 })`, sem escrita (EXC-03 AC 7)
-- [ ] Inexistente → `LANCAMENTO_NAO_ENCONTRADO`, sem escrita (EXC-05 AC 3)
-- [ ] Avulso e ocorrência de fixo → `LANCAMENTO_NAO_E_PARCELA`, sem escrita (EXC-05 AC 4)
-- [ ] Alcance todo pago → `NADA_A_EXCLUIR`, sem escrita (EXC-05 AC 5)
-- [ ] Exceção de `excluirParcelas` sobe sem ser engolida (EXC-03 AC 6)
+- [x] Parcela 2/4 com a 3 paga: cancela 2 e 4, grava o total novo, devolve `{ alterou: true, parcelasExcluidas: 2 }` (EXC-03 AC 1–4)
+- [x] Lançamento já cancelado: `ok({ alterou: false, parcelasExcluidas: 0 })`, sem escrita (EXC-03 AC 7)
+- [x] Inexistente → `LANCAMENTO_NAO_ENCONTRADO`, sem escrita (EXC-05 AC 3)
+- [x] Avulso e ocorrência de fixo → `LANCAMENTO_NAO_E_PARCELA`, sem escrita (EXC-05 AC 4)
+- [x] Alcance todo pago → `NADA_A_EXCLUIR`, sem escrita (EXC-05 AC 5)
+- [x] Exceção de `excluirParcelas` sobe sem ser engolida (EXC-03 AC 6)
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(compras): excluir uma compra parcelada desta parcela em diante`
