@@ -432,6 +432,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: CAMP-03 AC 2 — spec.md:165-166 vs site/estilos.css:166-170 e site/estrutura.test.mjs:144 (exceção focus-visible) (spec,design-tokens)
 - last seen: 2026-11-02T02:26:42Z
 
+### L-074 - Teste de fuso precisa de um instante que cai em meses diferentes no UTC e no fuso pedido; dois instantes no mesmo mês nos dois fusos deixam o fuso trocado passar.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,fuso` · harmful: 0
+- features: landing-jano
+- evidence: m8 FUSO=UTC — site/simulador.test.mjs:95-96 (testes,fuso)
+- last seen: 2026-11-02T17:22:05Z
+
+### L-075 - AC que diz 'qualquer campo' recalcula precisa de interação em cada campo; mexer só em um deixa o ouvinte do outro sumir com a suíte verde.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,interacao` · harmful: 0
+- features: landing-jano
+- evidence: m17 listener do valor removido — site/verificar-navegador.mjs:66 (e2e,interacao)
+- last seen: 2026-11-02T17:22:05Z
+
+### L-076 - Regra de 'no vermelho' precisa de um caso que termine exatamente em zero; sem ele, trocar < por <= passa.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `testes,limites` · harmful: 0
+- features: landing-jano
+- evidence: m4 depois <= 0 — site/fonte/simulador.ts:148 (testes,limites)
+- last seen: 2026-11-02T17:22:05Z
+
+### L-077 - Nome acessível que muda com o estado precisa ser lido depois da mudança; conferir só o valor estático do HTML não prova o que o leitor de tela ouve.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `e2e,acessibilidade` · harmful: 0
+- features: landing-jano
+- evidence: m18 veredito fora do aria-label — site/fonte/simulador.ts:258 (e2e,acessibilidade)
+- last seen: 2026-11-02T17:22:05Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

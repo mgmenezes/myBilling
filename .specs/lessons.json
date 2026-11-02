@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 74,
+  "next_id": 78,
   "lessons": [
     {
       "id": "L-001",
@@ -1295,6 +1295,78 @@
       ],
       "created": "2026-11-02T02:26:42Z",
       "last_seen": "2026-11-02T02:26:42Z"
+    },
+    {
+      "id": "L-074",
+      "key": "surviving_mutant::teste de fuso precisa de um instante que cai em meses diferentes no utc e no fuso pedido dois instantes no mesmo mes nos dois fusos deixam o fuso trocado passar",
+      "text": "Teste de fuso precisa de um instante que cai em meses diferentes no UTC e no fuso pedido; dois instantes no mesmo mês nos dois fusos deixam o fuso trocado passar.",
+      "signal": "surviving_mutant",
+      "scope": "testes,fuso",
+      "status": "candidate",
+      "features": [
+        "landing-jano"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "m8 FUSO=UTC — site/simulador.test.mjs:95-96 (testes,fuso)"
+      ],
+      "created": "2026-11-02T17:22:05Z",
+      "last_seen": "2026-11-02T17:22:05Z"
+    },
+    {
+      "id": "L-075",
+      "key": "surviving_mutant::ac que diz qualquer campo recalcula precisa de interacao em cada campo mexer so em um deixa o ouvinte do outro sumir com a suite verde",
+      "text": "AC que diz 'qualquer campo' recalcula precisa de interação em cada campo; mexer só em um deixa o ouvinte do outro sumir com a suíte verde.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,interacao",
+      "status": "candidate",
+      "features": [
+        "landing-jano"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "m17 listener do valor removido — site/verificar-navegador.mjs:66 (e2e,interacao)"
+      ],
+      "created": "2026-11-02T17:22:05Z",
+      "last_seen": "2026-11-02T17:22:05Z"
+    },
+    {
+      "id": "L-076",
+      "key": "surviving_mutant::regra de no vermelho precisa de um caso que termine exatamente em zero sem ele trocar por passa",
+      "text": "Regra de 'no vermelho' precisa de um caso que termine exatamente em zero; sem ele, trocar < por <= passa.",
+      "signal": "surviving_mutant",
+      "scope": "testes,limites",
+      "status": "candidate",
+      "features": [
+        "landing-jano"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "m4 depois <= 0 — site/fonte/simulador.ts:148 (testes,limites)"
+      ],
+      "created": "2026-11-02T17:22:05Z",
+      "last_seen": "2026-11-02T17:22:05Z"
+    },
+    {
+      "id": "L-077",
+      "key": "surviving_mutant::nome acessivel que muda com o estado precisa ser lido depois da mudanca conferir so o valor estatico do html nao prova o que o leitor de tela ouve",
+      "text": "Nome acessível que muda com o estado precisa ser lido depois da mudança; conferir só o valor estático do HTML não prova o que o leitor de tela ouve.",
+      "signal": "surviving_mutant",
+      "scope": "e2e,acessibilidade",
+      "status": "candidate",
+      "features": [
+        "landing-jano"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "m18 veredito fora do aria-label — site/fonte/simulador.ts:258 (e2e,acessibilidade)"
+      ],
+      "created": "2026-11-02T17:22:05Z",
+      "last_seen": "2026-11-02T17:22:05Z"
     }
   ]
 }
